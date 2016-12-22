@@ -1,0 +1,59 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://dl.dropboxusercontent.com/u/22964498/lib.css'>
+<style>
+body {
+ font-family: sans-serif;
+ background:#abc}
+
+ul,li { list-style-type: none;
+        list-style-position:inside;
+        margin:0;
+        padding:0; }
+.ipa {font-weight:normal; font-family:serif; color:#58d}
+.ipa:before {content:"["; color:black;}
+.ipa:after {content:"]"; color:black;}
+
+.card {
+ width:100px;
+// height:50px;
+ text-align:center;
+ vertical-align:middle;
+ border-radius:5px;
+ float:left;
+ padding:5px;
+// box-shadow: 0px 5px 5px #888888;
+// background:linear-gradient(white, #efefef);
+}
+
+</style>
+<script src='https://dl.dropboxusercontent.com/u/22964498/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ convertIPA()
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<div class='modal'>
+<h1>Gwistix <span class='ipa'>'gwIstIks</span></h1>
+<ul>
+ <li class='card'>Space</li>
+ <li class='card'>Language</li>
+ <li class='card'>Other stuff</li>
+</ul>
+</div>
+</body>
+</html>
