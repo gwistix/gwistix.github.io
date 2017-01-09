@@ -1,0 +1,115 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Chatbot</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='lib.css'>
+<style>
+p.in {text-align:left;}
+p.out {
+ text-align:right;
+ color:blue;
+}
+
+.terminal {
+  padding:10px;
+  max-width:80%;
+  font-family:monospace;
+  color:green;
+  background:#cdcdcd;
+}
+
+#in_txt, button, .terminal {
+  font-size:200%;
+}
+</style>
+<script src='lib.js'></script>
+<script>
+function init() {
+ console.clear();
+}
+
+
+var userName;
+var smellJoke = false;
+
+
+function parseInput(inputText) {
+ console.log("OK @ parseInput(“"+inputText+"”)");
+ logText(inputText, true);
+
+
+ //This is the actual speech part right here
+ if (inputText.match(/hello|hi/gi)) 
+  logText("Hello there.");
+ else if (inputText.match(/how.*you/gi)) 
+  logText("I'm fine, thanks.");
+ else if (inputText.match(/what.*you.*name/gi)) 
+  logText("My name is EngBot.<br>What's your name?");
+ else if (inputText.match(/(my name( is|'s)|I'm) /gi)) {
+  userName = inputText.replace(/(my name( is|'s)|I'm) /gi, "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+  logText("Nice to meet you, " + userName + ".");
+ }
+ else if (inputText.match(/what.*you.*smell like/gi)) {
+  logText("Nothing. I don't smell at all.<br>But you smell like a cow.");
+  smellJoke = true;
+ }
+ else if (smellJoke && inputText.match(/what|why|how|don't|\bno\b/gi))
+  logText("What does a cow smell with?");
+ else if (smellJoke && inputText.match(/(it.*|her) nose/gi))
+  logText("What do you smell with?");
+ else if (smellJoke && inputText.match(/my nose/gi))
+  logText("So, you smell exactly like a cow.<BR>Ha ha!");
+  else if (inputText.match(/you('re| are) /gi))
+    logText("I am not!");
+  else if (inputText.match(/\bhola\b/gi))
+    logText("Sorry, I don't speak Spanish.");
+  else if (inputText.match(/\bbonjour\b/gi))
+    logText("Sorry, I don't speak French.");
+  else if (inputText.match(/\bGuten Tag\b/gi))
+    logText("Sorry, I don't speak German.");
+  else if (inputText.match(/\bciao\b/gi))
+    logText("Sorry, I don't speak Italian.");
+  else if (inputText.match(/\bshalom\b/gi))
+    logText("Sorry, I don't speak Hebrew.");
+  else if (inputText.match(/what language.*you speak/gi))
+    logText("I only speak English.");
+  else logText("I don't know what to say.");
+
+
+
+
+ document.querySelector("#in_txt").value = "";
+ document.querySelector("#in_txt").focus();
+}
+
+
+function output(outputText) {
+ console.log("OK @ output()");
+ logText(outputText);
+}
+
+
+function logText(text,isInput) {
+ console.log("OK @ logText(“"+text+"”)");
+ document.querySelector("#log_txt").innerHTML += 
+  "<p class='" + 
+  ((isInput) ? "in" : "out") + 
+  "'>" + text + "</p>";
+}
+
+
+function getKeyStroke(e) {
+ console.log(e.keyCode);
+ if (e.keyCode == 13) parseInput(document.querySelector("#in_txt").value);
+}
+</script>
+</head>
+<body onload='init();'>
+<input id='in_txt' value='' placeholder='Say something!' onKeyPress='getKeyStroke(event);'> 
+<button onClick='console.log("OK @ button"); parseInput(document.querySelector("#in_txt").value);'>Chat</button>
+<br>
+<div id='log_txt' class='terminal'></div>

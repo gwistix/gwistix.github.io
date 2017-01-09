@@ -1,0 +1,267 @@
+<html>
+<head>
+<title></title>
+<link rel='stylesheet' href='lib.css'>
+<style>
+/*
+@keyframes infinite-spinning {
+ from { transform: rotate(0deg); }
+ to { transform: rotate(360deg); }
+}
+*/
+
+#clock {background: linear-gradient(gray,white);}
+#second_hand {animation: infinite-spinning 006.0s steps(60) infinite;}
+#minute_hand {animation: infinite-spinning 360.0s infinite linear;}
+#hour_hand {animation: infinite-spinning 4320.0s infinite linear;} 
+#date_hand {animation: infinite-spinning 259200.0s infinite linear;}
+#month_hand {animation: infinite-spinning 3110400.0s infinite linear;}
+
+div {text-align:center; position:absolute; transition:1s ease all;}
+.round {border-radius:50%; width:600; height:600; opacity:0.90}
+
+.ghost {opacity:0;}
+
+big {color:red;}
+
+face div {margin-top:20px;}
+</style>
+<script>
+
+var Now;
+
+function init() {
+ setInterval("tick();",1000); 
+}
+
+function tick() {
+        Now = new Date();
+        digital_clock.innerHTML = Now.toLocaleString(); 
+
+
+ second_hand.style.transform = "rotate("+(Now.getSeconds()*6)+"deg)";
+ minute_hand.style.transform = "rotate("+(Now.getMinutes()*6)+"deg)";
+ hour_hand.style.transform = "rotate("+(Now.getHours()*30)+"deg)";
+ date_hand.style.transform = "rotate("+((Now.getDate()-1)*12)+"deg)";
+ month_hand.style.transform = "rotate("+(Now.getMonth()*30)+"deg)";
+ day_hand.style.transform = "rotate("+(Now.getDay()*(360/7))+"deg)";
+
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<div id='clock' class='round' style='width: 600; height: 600; border:1px solid black'>
+
+	<div id='face' class='round'>
+		<div id='minute_and_second_numerals'>
+			<div class='round' style='transform:rotate(0deg)'><big><big><b>60</b></big></big></div>
+			<div class='round' style='transform:rotate(6deg)'>1</div>
+			<div class='round' style='transform:rotate(12deg)'>2</div>
+			<div class='round' style='transform:rotate(18deg)'>3</div>
+			<div class='round' style='transform:rotate(24deg)'>4</div>
+			<div class='round' style='transform:rotate(30deg)'><b>5</b></div>
+			<div class='round' style='transform:rotate(36deg)'>6</div>
+			<div class='round' style='transform:rotate(42deg)'>7</div>
+			<div class='round' style='transform:rotate(48deg)'>8</div>
+			<div class='round' style='transform:rotate(54deg)'>9</div>
+			<div class='round' style='transform:rotate(60deg)'><b>10</b></div>
+			<div class='round' style='transform:rotate(66deg)'>11</div>
+			<div class='round' style='transform:rotate(72deg)'>12</div>
+			<div class='round' style='transform:rotate(78deg)'>13</div>
+			<div class='round' style='transform:rotate(84deg)'>14</div>
+			<div class='round' style='transform:rotate(90deg)'><big><b>15</b></big></div>
+			<div class='round' style='transform:rotate(96deg)'>16</div>
+			<div class='round' style='transform:rotate(102deg)'>17</div>
+			<div class='round' style='transform:rotate(108deg)'>18</div>
+			<div class='round' style='transform:rotate(114deg)'>19</div>
+			<div class='round' style='transform:rotate(120deg)'><b>20</b></div>
+			<div class='round' style='transform:rotate(126deg)'>21</div>
+			<div class='round' style='transform:rotate(132deg)'>22</div>
+			<div class='round' style='transform:rotate(138deg)'>23</div>
+			<div class='round' style='transform:rotate(144deg)'>24</div>
+			<div class='round' style='transform:rotate(150deg)'><b>25</b></div>
+			<div class='round' style='transform:rotate(156deg)'>26</div>
+			<div class='round' style='transform:rotate(162deg)'>27</div>
+			<div class='round' style='transform:rotate(168deg)'>28</div>
+			<div class='round' style='transform:rotate(174deg)'>29</div>
+			<div class='round' style='transform:rotate(180deg)'><big><big><b>30</b></big></big></div>
+			<div class='round' style='transform:rotate(186deg)'>31</div>
+			<div class='round' style='transform:rotate(192deg)'>32</div>
+			<div class='round' style='transform:rotate(198deg)'>33</div>
+			<div class='round' style='transform:rotate(204deg)'>34</div>
+			<div class='round' style='transform:rotate(210deg)'><b>35</b></div>
+			<div class='round' style='transform:rotate(216deg)'>36</div>
+			<div class='round' style='transform:rotate(222deg)'>37</div>
+			<div class='round' style='transform:rotate(228deg)'>38</div>
+			<div class='round' style='transform:rotate(234deg)'>39</div>
+			<div class='round' style='transform:rotate(240deg)'><b>40</b></div>
+			<div class='round' style='transform:rotate(246deg)'>41</div>
+			<div class='round' style='transform:rotate(252deg)'>42</div>
+			<div class='round' style='transform:rotate(258deg)'>43</div>
+			<div class='round' style='transform:rotate(264deg)'>44</div>
+			<div class='round' style='transform:rotate(270deg)'><big><b>45</b></big></div>
+			<div class='round' style='transform:rotate(276deg)'>46</div>
+			<div class='round' style='transform:rotate(282deg)'>47</div>
+			<div class='round' style='transform:rotate(288deg)'>48</div>
+			<div class='round' style='transform:rotate(294deg)'>49</div>
+			<div class='round' style='transform:rotate(300deg)'><b>50</b></div>
+			<div class='round' style='transform:rotate(306deg)'>51</div>
+			<div class='round' style='transform:rotate(312deg)'>52</div>
+			<div class='round' style='transform:rotate(318deg)'>53</div>
+			<div class='round' style='transform:rotate(324deg)'>54</div>
+			<div class='round' style='transform:rotate(330deg)'><b>55</b></div>
+			<div class='round' style='transform:rotate(336deg)'>56</div>
+			<div class='round' style='transform:rotate(342deg)'>57</div>
+			<div class='round' style='transform:rotate(348deg)'>58</div>
+			<div class='round' style='transform:rotate(354deg)'>59</div>
+		</div>
+		<div id='hour_numerals'>
+			<div id='numeral_1' class='round' style='transform:rotate(30deg)'><br><br><br>1</div>
+			<div id='numeral_2' class='round' style='transform:rotate(60deg)'><br><br><br>2</div>
+			<div id='numeral_3' class='round' style='transform:rotate(90deg)'><br><br><br>3</div>
+			<div id='numeral_4' class='round' style='transform:rotate(120deg)'><br><br><br>4</div>
+			<div id='numeral_5' class='round' style='transform:rotate(150deg)'><br><br><br>5</div>
+			<div id='numeral_6' class='round' style='transform:rotate(180deg)'><br><br><br>6</div>
+			<div id='numeral_7' class='round' style='transform:rotate(210deg)'><br><br><br>7</div>
+			<div id='numeral_8' class='round' style='transform:rotate(240deg)'><br><br><br>8</div>
+			<div id='numeral_9' class='round' style='transform:rotate(270deg)'><br><br><br>9</div>
+			<div id='numeral_10' class='round' style='transform:rotate(300deg)'><br><br><br>10</div>
+			<div id='numeral_11' class='round' style='transform:rotate(330deg)'><br><br><br>11</div>
+			<div id='numeral_12' class='round' style='transform:rotate(360deg)'><br><br><br>12</div>
+		</div>
+		<div id='date_numerals'>
+			<div class='round' style='transform:rotate(0deg)'><br><br><br><br><br><br>1</div>
+			<div class='round' style='transform:rotate(12deg)'><br><br><br><br><br><br>2</div>
+			<div class='round' style='transform:rotate(24deg)'><br><br><br><br><br><br>3</div>
+			<div class='round' style='transform:rotate(36deg)'><br><br><br><br><br><br>4</div>
+			<div class='round' style='transform:rotate(48deg)'><br><br><br><br><br><br>5</div>
+			<div class='round' style='transform:rotate(60deg)'><br><br><br><br><br><br>6</div>
+			<div class='round' style='transform:rotate(72deg)'><br><br><br><br><br><br>7</div>
+			<div class='round' style='transform:rotate(84deg)'><br><br><br><br><br><br>8</div>
+			<div class='round' style='transform:rotate(96deg)'><br><br><br><br><br><br>9</div>
+			<div class='round' style='transform:rotate(108deg)'><br><br><br><br><br><br>10</div>
+			<div class='round' style='transform:rotate(120deg)'><br><br><br><br><br><br>11</div>
+			<div class='round' style='transform:rotate(132deg)'><br><br><br><br><br><br>12</div>
+			<div class='round' style='transform:rotate(144deg)'><br><br><br><br><br><br>13</div>
+			<div class='round' style='transform:rotate(156deg)'><br><br><br><br><br><br>14</div>
+			<div class='round' style='transform:rotate(168deg)'><br><br><br><br><br><br>15</div>
+			<div class='round' style='transform:rotate(180deg)'><br><br><br><br><br><br>16</div>
+			<div class='round' style='transform:rotate(192deg)'><br><br><br><br><br><br>17</div>
+			<div class='round' style='transform:rotate(204deg)'><br><br><br><br><br><br>18</div>
+			<div class='round' style='transform:rotate(216deg)'><br><br><br><br><br><br>19</div>
+			<div class='round' style='transform:rotate(228deg)'><br><br><br><br><br><br>20</div>
+			<div class='round' style='transform:rotate(240deg)'><br><br><br><br><br><br>21</div>
+			<div class='round' style='transform:rotate(252deg)'><br><br><br><br><br><br>22</div>
+			<div class='round' style='transform:rotate(264deg)'><br><br><br><br><br><br>23</div>
+			<div class='round' style='transform:rotate(276deg)'><br><br><br><br><br><br>24</div>
+			<div class='round' style='transform:rotate(288deg)'><br><br><br><br><br><br>25</div>
+			<div class='round' style='transform:rotate(300deg)'><br><br><br><br><br><br>26</div>
+			<div class='round' style='transform:rotate(312deg)'><br><br><br><br><br><br>27</div>
+			<div class='round' style='transform:rotate(324deg)'><br><br><br><br><br><br>28</div>
+			<div class='round' style='transform:rotate(336deg)'><br><br><br><br><br><br>29</div>
+			<div class='round' style='transform:rotate(348deg)'><br><br><br><br><br><br>30</div>
+		</div>
+		<div id='month_names'>
+			<div class='round' style='transform:rotate(0deg)'><br><br><br><br><br><br><br><br><br>Jan</div>
+			<div class='round' style='transform:rotate(30deg)'><br><br><br><br><br><br><br><br><br>Feb</div>
+			<div class='round' style='transform:rotate(60deg)'><br><br><br><br><br><br><br><br><br>Mar</div>
+			<div class='round' style='transform:rotate(90deg)'><br><br><br><br><br><br><br><br><br>Apr</div>
+			<div class='round' style='transform:rotate(120deg)'><br><br><br><br><br><br><br><br><br>May</div>
+			<div class='round' style='transform:rotate(150deg)'><br><br><br><br><br><br><br><br><br>Jun</div>
+			<div class='round' style='transform:rotate(180deg)'><br><br><br><br><br><br><br><br><br>Jul</div>
+			<div class='round' style='transform:rotate(210deg)'><br><br><br><br><br><br><br><br><br>Aug</div>
+			<div class='round' style='transform:rotate(240deg)'><br><br><br><br><br><br><br><br><br>Sep</div>
+			<div class='round' style='transform:rotate(270deg)'><br><br><br><br><br><br><br><br><br>Oct</div>
+			<div class='round' style='transform:rotate(300deg)'><br><br><br><br><br><br><br><br><br>Nov</div>
+			<div class='round' style='transform:rotate(330deg)'><br><br><br><br><br><br><br><br><br>Dec</div>
+		</div>
+		<div id='day_names'>
+			<div class='round' style='transform:rotate(0deg)'><br><br><br><br><br><br><br><br><br><br><br><br>Sun</div>
+			<div class='round' style='transform:rotate(51.43deg)'><br><br><br><br><br><br><br><br><br><br><br><br>Mon</div>
+			<div class='round' style='transform:rotate(102.86deg)'><br><br><br><br><br><br><br><br><br><br><br><br>Tue</div>
+			<div class='round' style='transform:rotate(154.29deg)'><br><br><br><br><br><br><br><br><br><br><br><br>Wed</div>
+			<div class='round' style='transform:rotate(205.71deg)'><br><br><br><br><br><br><br><br><br><br><br><br>Thu</div>
+			<div class='round' style='transform:rotate(257.14deg)'><br><br><br><br><br><br><br><br><br><br><br><br>Fri</div>
+			<div class='round' style='transform:rotate(308.57deg)'><br><br><br><br><br><br><br><br><br><br><br><br>Sat</div>
+		</div>
+
+	</div>
+
+	<div id='second_hand' class='round'>
+		<br>
+		<span class='ghost'>s</span><big>&uarr;</big>s
+	</div>
+
+	<div id='minute_hand' class='round'>
+		<br>
+		<span class='ghost'>m</span><big>&uarr;</big>m
+	</div>
+
+	<div id='hour_hand' class='round'>
+		<br>
+		<br>
+		<br>
+		<br>
+		<span class='ghost'>h</span><big>&uarr;</big>h
+	</div>
+
+	<div id='date_hand' class='round'>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<span class='ghost'>d</span><big>&uarr;</big>d
+	</div>
+
+	<div id='month_hand' class='round'>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<span class='ghost'>M</span><big>&uarr;</big>M
+	</div>
+
+	<div id='day_hand' class='round'>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<span class='ghost'>D</span><big>&uarr;</big>D
+	</div>
+
+</div>
+
+<div id='digital_clock'></div>
+
+<section style='visibility:hidden;'>
+<h3>An idea for an idealized clock-calendar hybrid</h3>
+<p>Most clocks have marks dividing the clock face up into twelve hours, 60 minutes, and 60 seconds. Coincidentally, a year is divided up into 12 months. This means that in addition to hours, minutes, and seconds, a clock could conceivably indicate the month as well. As long as we're adding things in, we might as well put in a hand to show the day of the month. And as long as we're changing things up, to make it easy, we'll use an idealized month that has exactly 30 days. Idealizing each month to 30 days gives us another convenient coincidence: with 12 months and exactly 30 days per month, a year is exactly 360 days long, just like a circle is exactly 360 degrees all the way around. This is a convenient way to mark off the days, and if we wanted to, we could even throw in a clock hand that would show what day of the year it was. (We're not going to here, though.)</p>
+
+<p>The clocks we know and love today already have different lengthed hands, with the hour hand being the shortest, then the minute hand, then the second hand. It makes sense to follow this trend, with shorter hands representing bigger units of time. As such, the month hand will be the shortest, then the day hand, then the hour hand, and finally the second hand.</p>
+
+<p>We can use the existing numerals 1 through 12 for the month, but for the day we're going to need something different from what's there. Of course, most clocks only have the numbers 1 through 12, with simple tick marks for the minutes and seconds. People are already used to figuring out the minute and second based on the existing 12 numerals—you just find the last numeral the minute of second hand passed, multiply by 5, and then count how many ticks past the numeral the hand is pointing to. (It's actually kind of complicated when you think about it.) There's no reason people can't do the same thing with the day of that month. Well, almost no reason...</p> 
+
+<p>Clocks are divided 60 minutes and seconds, which allows us to multiply by five to get the right number. But dividing the clock into 30 days would mean you'd have to multiply by 2.5 to get the right number, which is even more impractical than the whole multiplying by five thing. Instead, we either need to put more numerals on the clock, or we need to change the look of some of the tick marks.</p>
+</section>

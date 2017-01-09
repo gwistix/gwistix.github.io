@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>What's a planet?</title>
+<link rel="shortcut icon" href="https://dl.dropboxusercontent.com/u/22964498/gwistix.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style>
+body {
+	font-family:Verdana, sans-serif;
+	color: white;
+	background-color:black;
+	text-align:center;
+	background-image: url(https://dl.dropboxusercontent.com/u/22964498/VID/starBG.png);
+	background-repeat: repeat;
+	background-position: bottom left;
+	margin:0px;
+}
+
+nav {
+	margin: 10px;
+	opacity: 0.95;
+}
+nav ul {
+ list-style-type: none;
+ margin:0;
+ padding:0;
+ overflow: hidden;
+ background-color: #333;
+ border-radius: 5px;
+}
+nav li {
+ float:left;
+ background-color: #333;
+}
+nav li a {
+ display: block;
+ color: white;
+ text-align: center;
+ padding: 14px 16px;
+ text-decoration: none;
+ min-height: 20px;
+ cursor:hand;
+}
+
+nav li a:hover:not(.active) {
+ background-color: #555;
+ color:white;
+}
+
+.active {
+ background-color: #4caf50;
+ color:white;
+}
+
+a {
+ cursor:hand;
+ text-decoration:none;
+ color:white;
+}
+
+p {
+ text-indent:50px;
+ text-align:left;
+ font-size:120%;
+}
+
+h3 {
+ text-align:left;
+}
+
+section {
+ background-color: #333;
+ padding:10px;
+ border-radius:10px;
+ margin:10px;
+ min-width:50%;
+ max-width:70%;
+ margin-left:50%;
+transform: translate(-50%);
+ float:left;
+ opacity:0.90;
+}
+
+button {
+  float:right;
+  color:white;
+  background-color: #4caf50;
+  border:none;
+  font-size:150%;
+  margin-right:10px;
+  cursor:hand;
+}
+
+#menu {
+	position:fixed;
+	text-align:left;
+	z-index:1000;
+	margin-left:50%;
+	transform: translate(-50%);
+	transition:all 1s ease;
+	visibility:hidden;
+}
+#menu ul {
+	background-color:#333;
+	max-width:100%;
+	padding:10px;
+	overflow:hidden;
+	border-radius:0px 0px 10px 10px;
+}
+
+</style>
+<script>
+
+var firstRun = true;
+var navWidth = 0;
+var navText = "";
+var debugging = false;
+
+function init() {
+	pseudoBgImg.style.width = window.innerWidth + "px";
+	menu.style.top = "-500px";
+
+	if (firstRun) {
+		var navItems = document.querySelectorAll("nav li");
+		for (i=0;i<navItems.length;i++) {
+			navWidth += navItems[i].offsetWidth;
+		}
+		firstRun = false;
+		navText = navbar.innerHTML;
+	}
+	if (navbar.offsetWidth < navWidth) {
+		navbar.innerHTML = "<ul><li><a href='index.html'>Home</a></li>" + ((debugging) ? navbar.offsetWidth+"/"+navWidth : "") + "<li style='float:right;'><a nohref onClick='toggleMenu();'>☰</a></li></ul>";
+	}
+	else navbar.innerHTML = navText;
+}
+
+function toggleMenu() {
+	if (menu.style.top == "-500px") {
+		menu.style.top = "0px";
+		menu.style.visibility = "visible";
+	}
+	else menu.style.top = "-500px";
+}
+
+
+</script>
+
+</head>
+
+<body onLoad='init();' onResize='init();'>
+
+<nav id='navbar'>
+<ul>
+ <li><a href='index.html'>Home</a></li>
+ <li><a class='active' href='whats_a_planet.html'>What's a planet?</a></li>
+ <li><a href='why_not_pluto.html'>Why isn't Pluto a planet?</a></li>
+ <li><a href='happened_before.html'>Has this happened before?</a></li>
+ <li><a href='other_dwarfs.html'>Are there other dwarf planets?</a></li>
+ <li><a href='learn_more.html'>Find out more!</a></li>
+</ul>
+</nav>
+
+<div id='menu'>
+<ul>
+ <li><a class='active' href='whats_a_planet.html'>What's a planet?</a></li>
+ <li><a href='why_not_pluto.html'>Why isn't Pluto a planet?</a></li>
+ <li><a href='happened_before.html'>Has this happened before?</a></li>
+ <li><a href='other_dwarfs.html'>Are there other dwarf planets?</a></li>
+ <li><a href='learn_more.html'>Find out more!</a></li>
+</ul>
+</div>
+
+<br>
+
+<h1>What's a planet?</h1>
+
+
+
+<section>
+<p>Planets are big round things that go around the sun. Planets are made of different things, like rocks, metal, water, and gas. Earth is a planet. Some other planets are smaller than Earth, and some are much bigger. Earth has a moon. Some of the other planets have more than one moon, and some don’t have any moons at all. The moon is big and round, but it isn’t a planet because it goes around the Earth. Asteroids and comets go around the sun like planets, but they are not big or round. Pluto is round but it is not a planet.</p>
+
+<button class='next' onClick='window.location = "why_not_pluto.html"'>Next</button>
+<button class='back' onClick='window.location = "index.html"'>Back</button>
+
+</section>
+
+
+<div id='pseudoBG' style='position:fixed; bottom:0px; margin-left:50%; transform:translate(-50%); z-index:-1; overflow:hidden;'>
+<img id='pseudoBgImg' src='https://dl.dropboxusercontent.com/u/22964498/VID/planets-and-their-moons.png'>
+</div>
+
+</body>
+</html>

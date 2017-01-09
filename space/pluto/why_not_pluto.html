@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Why isn't Pluto a planet</title>
+<link rel="shortcut icon" href="https://dl.dropboxusercontent.com/u/22964498/gwistix.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style>
+body {
+	font-family:Verdana, sans-serif;
+	color: white;
+	background-color:black;
+	text-align:center;
+	background-image: url(https://dl.dropboxusercontent.com/u/22964498/VID/starBG.png);
+	background-repeat: repeat;
+	background-position: bottom left;
+	margin:0px;
+}
+
+nav {
+	margin: 10px;
+	opacity: 0.95;
+}
+nav ul {
+ list-style-type: none;
+ margin:0;
+ padding:0;
+ overflow: hidden;
+ background-color: #333;
+ border-radius: 5px;
+}
+nav li {
+ float:left;
+ background-color: #333;
+}
+nav li a {
+ display: block;
+ color: white;
+ text-align: center;
+ padding: 14px 16px;
+ text-decoration: none;
+ min-height: 20px;
+ cursor:hand;
+}
+
+nav li a:hover:not(.active) {
+ background-color: #555;
+ color:white;
+}
+
+.active {
+ background-color: #4caf50;
+ color:white;
+}
+
+a {
+ cursor:hand;
+ text-decoration:none;
+ color:white;
+}
+
+p {
+ text-indent:50px;
+ text-align:left;
+ font-size:120%
+}
+
+h3 {
+ text-align:left;
+}
+
+section {
+ background-color: #333;
+ padding:10px;
+ border-radius:10px;
+ margin:10px;
+ min-width:50%;
+ max-width:70%;
+ margin-left:50%;
+transform: translate(-50%);
+ float:left;
+ opacity:0.90;
+}
+
+button {
+  float:right;
+  color:white;
+  background-color: #4caf50;
+  border:none;
+  font-size:150%;
+  margin-right:10px;
+  cursor:hand;
+}
+
+#menu {
+	position:fixed;
+	text-align:left;
+	z-index:1000;
+	margin-left:50%;
+	transform: translate(-50%);
+	transition:all 1s ease;
+	visibility:hidden;
+}
+#menu ul {
+	background-color:#333;
+	max-width:100%;
+	padding:10px;
+	overflow:hidden;
+	border-radius:0px 0px 10px 10px;
+}
+
+</style>
+<script>
+
+var firstRun = true;
+var navWidth = 0;
+var navText = "";
+var debugging = false;
+
+function init() {
+	pseudoBgImg.style.width = window.innerWidth + "px";
+	menu.style.top = "-500px";
+
+	if (firstRun) {
+		var navItems = document.querySelectorAll("nav li");
+		for (i=0;i<navItems.length;i++) {
+			navWidth += navItems[i].offsetWidth;
+		}
+		firstRun = false;
+		navText = navbar.innerHTML;
+	}
+	if (navbar.offsetWidth < navWidth) {
+		navbar.innerHTML = "<ul><li><a href='index.html'>Home</a></li>" + ((debugging) ? navbar.offsetWidth+"/"+navWidth : "") + "<li style='float:right;'><a nohref onClick='toggleMenu();'>☰</a></li></ul>";
+	}
+	else navbar.innerHTML = navText;
+}
+
+function toggleMenu() {
+	if (menu.style.top == "-500px") {
+		menu.style.top = "0px";
+		menu.style.visibility = "visible";
+	}
+	else menu.style.top = "-500px";
+}
+
+
+</script>
+
+</head>
+
+<body onLoad='init();' onResize='init();'>
+
+<nav id='navbar'>
+<ul>
+ <li><a href='index.html'>Home</a></li>
+ <li><a href='whats_a_planet.html'>What's a planet?</a></li>
+ <li><a href='why_not_pluto.html' class='active'>Why isn't Pluto a planet?</a></li>
+ <li><a href='happened_before.html'>Has this happened before?</a></li>
+ <li><a href='other_dwarfs.html'>Are there other dwarf planets?</a></li>
+ <li><a href='learn_more.html'>Find out more!</a></li>
+</ul>
+</nav>
+
+<div id='menu'>
+<ul>
+ <li><a href='whats_a_planet.html'>What's a planet?</a></li>
+ <li><a href='why_not_pluto.html' class='active'>Why isn't Pluto a planet?</a></li>
+ <li><a href='happened_before.html'>Has this happened before?</a></li>
+ <li><a href='other_dwarfs.html'>Are there other dwarf planets?</a></li>
+ <li><a href='learn_more.html'>Find out more!</a></li>
+</ul>
+</div>
+
+<br>
+
+<h1>Why isn't Pluto a planet?</h1>
+
+<section>
+<p>Pluto is round and it goes around the sun, but it is different from the big planets. The Earth goes around the sun in a big circle. The other planets do too. Lots of asteroids and comets go around the sun in a tilted oval shape. Pluto goes around the sun in a tilted oval shape, like the asteroids and comets.</p>
+
+<p>Pluto is also a lot smaller than the big planets. If you put five Plutos next to each other, all of them still wouldn’t be as big across as the Earth! Mercury is the smallest of the big planets, and Pluto isn’t even half as big as Mercury. Pluto is even smaller than the moon! In fact, Jupiter has four moons that are bigger than Pluto, and Saturn and Neptune each have one, too. Adding all these together, there are seven moons that are bigger than Pluto!</p>
+
+<p>Another thing that makes Pluto different from the big planets is what’s around it. In the part of the solar system where the Earth goes around the sun, there’s nothing else even close to the same size. Earth is by far the biggest thing in its area. All of the big planets are the biggest things in their areas, too. But there are lots of other little mini planets around Pluto. Instead of being the only thing like itself in its area, Pluto is just one of many little mini planets. This is why scientists decided ten years ago to call Pluto a dwarf planet instead of a regular planet.</p>
+
+<button class='next' onClick='window.location = "happened_before.html"'>Next</button>
+<button class='back' onClick='window.location = "whats_a_planet.html"'>Back</button>
+
+</section>
+
+<div id='pseudoBG' style='position:fixed; bottom:0px; z-index:-1; overflow:hidden;'>
+<img id='pseudoBgImg' src='https://dl.dropboxusercontent.com/u/22964498/VID/Pluto%20enhanced%20color.png'>
+</div>
+
+</body>
+</html>

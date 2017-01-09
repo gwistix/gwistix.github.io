@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Message displayer</title>
+    <script>
+
+    function showRandomMessage(messageInput) {
+      var messageArray = messageInput.split("\n");
+      randomNumber = Math.floor(Math.random()*(messageArray.length-1));
+      var randomMessage = formatAsDefinition(messageArray[randomNumber]);
+      document.getElementById("message").innerHTML = randomMessage;
+    }
+    
+    function formatAsDefinition(unformattedText) {
+      return "<b>" + unformattedText.replace(/ - /,"</b> - ");
+    }
+    </script>
+  </head>
+  <body>
+    
+    <!-- This HTML object imports the TXT file, but it is invisible on the page -->
+    <object id='msg_frame' data='messages.txt' style='position: absolute; top: -1000; left: -1000; visibility: hidden;' onLoad='showRandomMessage(this.contentDocument.body.firstChild.innerHTML);'></object>
+    
+    <!-- This is where the message from your text file will load -->
+    <span id='message'>Loading message...</span>
+    
+
+  </body>
+</html>

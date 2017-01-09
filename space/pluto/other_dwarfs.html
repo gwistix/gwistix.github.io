@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Are there other dwarf planets?</title>
+<link rel="shortcut icon" href="https://dl.dropboxusercontent.com/u/22964498/gwistix.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style>
+body {
+	font-family:Verdana, sans-serif;
+	color: white;
+	background-color:black;
+	text-align:center;
+	background-image: url(https://dl.dropboxusercontent.com/u/22964498/VID/starBG.png);
+	background-repeat: repeat;
+	background-position: bottom left;
+	margin:0px;
+}
+
+nav {
+	margin: 10px;
+	opacity: 0.95;
+}
+nav ul {
+ list-style-type: none;
+ margin:0;
+ padding:0;
+ overflow: hidden;
+ background-color: #333;
+ border-radius: 5px;
+}
+nav li {
+ float:left;
+ background-color: #333;
+}
+nav li a {
+ display: block;
+ color: white;
+ text-align: center;
+ padding: 14px 16px;
+ text-decoration: none;
+ min-height: 20px;
+ cursor:hand;
+}
+
+nav li a:hover:not(.active) {
+ background-color: #555;
+ color:white;
+}
+
+.active {
+ background-color: #4caf50;
+ color:white;
+}
+
+a {
+ cursor:hand;
+ text-decoration:none;
+ color:white;
+}
+
+p {
+ text-indent:50px;
+ text-align:left;
+ font-size:120%
+}
+
+h3 {
+ text-align:left;
+}
+
+section {
+ background-color: #333;
+ padding:10px;
+ border-radius:10px;
+ margin:10px;
+ min-width:50%;
+ max-width:70%;
+ margin-left:50%;
+transform: translate(-50%);
+ float:left;
+ opacity:0.90;
+}
+
+button {
+  float:right;
+  color:white;
+  background-color: #4caf50;
+  border:none;
+  font-size:150%;
+  margin-right:10px;
+  cursor:hand;
+}
+
+#menu {
+	position:fixed;
+	text-align:left;
+	z-index:1000;
+	margin-left:50%;
+	transform: translate(-50%);
+	transition:all 1s ease;
+	visibility:hidden;
+}
+#menu ul {
+	background-color:#333;
+	max-width:100%;
+	padding:10px;
+	overflow:hidden;
+	border-radius:0px 0px 10px 10px;
+}
+
+</style>
+<script>
+
+var firstRun = true;
+var navWidth = 0;
+var navText = "";
+var debugging = false;
+
+function init() {
+	pseudoBgImg.style.width = window.innerWidth + "px";
+	menu.style.top = "-500px";
+
+	if (firstRun) {
+		var navItems = document.querySelectorAll("nav li");
+		for (i=0;i<navItems.length;i++) {
+			navWidth += navItems[i].offsetWidth;
+		}
+		firstRun = false;
+		navText = navbar.innerHTML;
+	}
+	if (navbar.offsetWidth < navWidth) {
+		navbar.innerHTML = "<ul><li><a href='index.html'>Home</a></li>" + ((debugging) ? navbar.offsetWidth+"/"+navWidth : "") + "<li style='float:right;'><a nohref onClick='toggleMenu();'>☰</a></li></ul>";
+	}
+	else navbar.innerHTML = navText;
+}
+
+function toggleMenu() {
+	if (menu.style.top == "-500px") {
+		menu.style.top = "0px";
+		menu.style.visibility = "visible";
+	}
+	else menu.style.top = "-500px";
+}
+
+
+</script>
+
+</head>
+
+<body onLoad='init();' onResize='init();'>
+
+<nav id='navbar'>
+<ul>
+ <li><a href='index.html'>Home</a></li>
+ <li><a href='whats_a_planet.html'>What's a planet?</a></li>
+ <li><a href='why_not_pluto.html'>Why isn't Pluto a planet?</a></li>
+ <li><a href='happened_before.html'>Has this happened before?</a></li>
+ <li><a href='other_dwarfs' class='active'>Are there other dwarf planets?</a></li>
+ <li><a href='learn_more.html'>Find out more!</a></li>
+</ul>
+</nav>
+
+<div id='menu'>
+<ul>
+ <li><a href='whats_a_planet.html'>What's a planet?</a></li>
+ <li><a href='why_not_pluto.html'>Why isn't Pluto a planet?</a></li>
+ <li><a href='happened_before.html'>Has this happened before?</a></li>
+ <li><a href='other_dwarfs.html' class='active'>Are there other dwarf planets?</a></li>
+ <li><a href='learn_more.html'>Find out more!</a></li>
+</ul>
+</div>
+
+<br>
+
+<h1>Are there other dwarf planets?</h1>
+
+<section>
+<p>Some people think it’s sad that Pluto isn’t a planet anymore. They think about the eight big planets, and then they think about Pluto all alone. But Pluto isn’t alone at all. There are lots of little worlds around Pluto. And Pluto isn’t even the only dwarf planet. Ceres is a dwarf planet, too. In fact, there are five dwarf planets: <strong>Ceres</strong>, <strong>Pluto</strong>, <strong>Haumea</strong>, <strong>Makemake</strong>, and <strong>Eris</strong>. Anything that goes around the Sun and is round, but isn’t big enough to be a big planet, is a dwarf planet. There are a few other little mini planets that might be round, so they might be dwarf planets, too. These little mini planets have cool names like <strong>Quaoar</strong>, <strong>Sedna</strong>, and <strong>2007 OR10</strong>. Pluto isn’t alone at all. It just finally found friends the right size.</p>
+
+<button class='back' onClick='window.location = "happened_before.html"'>Back</button>
+
+</section>
+
+<div id='pseudoBG' style='position:fixed; bottom:0px; z-index:-1; overflow:hidden;'>
+<img id='pseudoBgImg' src='https://dl.dropboxusercontent.com/u/22964498/VID/Pluto%20enhanced%20color.png'>
+</div>
+
+<div id='ceres' style='position:fixed; bottom:50px; right:10px; float:right; text-align:right; z-index:-2; overflow:hidden;'>
+<img id='ceresImg' style='margin-top:50%; width:40%' src='https://dl.dropboxusercontent.com/u/22964498/VID/Ceres.png' title='Dwarf planet Ceres, as seen by the Dawn spacecraft in 2015'>
+</div>
+
+<div id='haumea' style='position:fixed; bottom:40%; right:0px; float:right; text-align:right; z-index:-3; overflow:hidden;'>
+<img id='haumeaImg' style='margin-top:50%; width:80%;' src='https://dl.dropboxusercontent.com/u/22964498/VID/Haumea.png' title='Dwarf planet Haumea and its two moons, seen through a telescope'>
+</div>
+
+<div id='makemake' style='position:fixed; bottom:50%; right:-30px; float:right; text-align:right; z-index:-4; overflow:hidden;'>
+<img id='makemakeImg' style='margin-top:50%; width:50%' src='https://dl.dropboxusercontent.com/u/22964498/VID/Makemake.png' title='Dwarf planet Makemake, seen through a telescope'>
+</div>
+
+<div id='eris' style='position:fixed; bottom:65%; right:5px; float:right; text-align:right; z-index:-5; overflow:hidden;'>
+<img id='erisImg' style='margin-top:50%; width:50%;' src='https://dl.dropboxusercontent.com/u/22964498/VID/Eris.png' title='Dwarf planet Eris and its moon, seen through a telescope'>
+</div>
+
+</body>
+</html>

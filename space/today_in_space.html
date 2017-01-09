@@ -1,0 +1,1193 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Today in the Solar System</title>
+<link rel="shortcut icon" href="favicon.ico">
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<meta name="theme-color" content='#111111'>
+<style>
+@media only screen and (min-width: 500px) {
+ body {font-size:200%;}
+}
+body {color:white; background-color:black;}
+table {background-color:red;}
+td {background-color:green;}
+a {
+ cursor:hand;
+ text-decoration:none;
+ color:inherit;
+}
+</style>
+<script>
+
+var Bodies = [];
+var useMiles = false;
+
+/*** Note on database format ***
+ The database is tab-separated plain text, 
+ with each entry on a separate line and 
+ the following column headers:
+
+   0 Minor Planet number
+   1 Provisional designation
+   2 Name or nickname
+   3 Image URL
+   4 Object type
+   5 Cometary prefix
+   6 Planetary symbol
+   7 Date of discovery
+   8 Radius (average in km)
+
+ These headers are correspond to the 
+ array values for each ssbody array below,
+ so ssbody[0] is the Minor Planet number,
+ ssbody[1] is the Provisional Designation,
+ etc.
+
+*/
+
+function init() {
+ console.clear();
+ console.log(window.innerWidth);
+
+ /* Create the Bodies array to hold all of the solar-system bodies */
+ Bodies = i_o.innerHTML.split("\n");
+ document.body.innerHTML = Bodies.join("<br>");
+
+ give = "";
+ blen = Bodies.length;
+ for (i=0;i<blen;i++) {
+  ssbody = Bodies[i].split("	");
+
+  /* Set the object type */
+  if (ssbody[4].match("Dwarf")) object_type = "Dwarf planet";
+   else if (ssbody[4].match("Planet")) object_type = "Planet";
+   else if (ssbody[4].match("Centaur")) object_type = "Centaur asteroid";
+   else if (ssbody[4].match("trojan")) object_type = "Trojan asteroid";
+   else if (ssbody[4].match("Asteroid")) object_type = "Asteroid";
+   else if (ssbody[4].match("Satellite")) object_type = "Moon";
+   else if (ssbody[4].match("Comet")) object_type = "Comet";
+   else object_type = "Small body";
+
+  /* Set the object name */
+  if (ssbody[2]) {
+
+   /* In the database, natural satellites' names are given as [Primary name] [Roman numeral] [Secondary name].
+    *  e.g. "Jupiter IV Callisto"
+    *  This makes it easy to detect natural satellites by the presence of Roman numerals in their name string.
+    *  On this site, they are presented as [Secondary name] ([Primary name] [Roman numeral])
+    *  e.g. Callisto (Jupiter IV)
+    */
+   if (ssbody[2].match(/ [IVXL]* /)) { /* Detect natural satellites using Roman numerals */
+    object_name = ssbody[2].split(" ")[2];
+    object_name += " <small>(" + ssbody[2].split(" ")[0] + " " + ssbody[2].split(" ")[1] + ")</small>";
+   }
+   else object_name = ssbody[2]; /* Other objects */
+   if (ssbody[1]) object_name  += " </b><small>(" + provisionalDesignation(ssbody[1]) + ")</small><b>";
+   }
+   else if (ssbody[1]) object_name = provisionalDesignation(ssbody[1]);
+
+  /* Get the object's date of discovery
+   *  Discovery dates are provided in the database in U.S. format MM/DD/YYYY
+   *  This splits the discovery string into an array with [ MM, DD, YYYY ]
+   */
+  Discovery = ssbody[7].split("/");
+
+  /* Create a new object as a member of the Bodies array */
+  Bodies[i] = {
+   name:object_name,
+   img:ssbody[3],
+   type:object_type,
+   symbol:ssbody[6],
+   discovery:Discovery[0]+"-"+Discovery[1], /* Month and day only */
+   full_discovery:ssbody[7],
+   diameter:parseFloat(ssbody[8].replace(/,/g,""))*2,
+   link:
+    "https://en.wikipedia.org/wiki/" + 
+    ((ssbody[0]) ? ssbody[0] + " " : "") + /* the Minor Planet number, if there is one */
+    ((ssbody[2] && !ssbody[2].match(/"/)) ? ssbody[2] : ssbody[1]) /* the Name, if it exists and isn't a nickname, otherwise the provisional designation */
+  };
+ }
+
+ document.body.innerHTML = give;
+ checkDate();
+}
+
+function getBodies() {
+
+
+
+}
+
+
+/* Standard provisional designations are the four-digit year of discovery followed by a space,
+ *  two letters and a reference number. Any (nonstandard) provisional designations not fitting this format
+ *  are returned as-is; others are reformatted to include the reference number as a subscript.
+ */
+function provisionalDesignation(pDes) {
+ var Temp = [];
+
+ /* If the prov. designation *is* a standard designation (i.e., has a space),
+  *  creates a temporary array with the year as one element and the reference 
+  *  letters and numbers as another, after eliminating any alternative provisional
+  *  designations, which would be separated from the primary provisional 
+  *  designation by a semicolon.
+  */
+ if (pDes.match(" ")) Temp = pDes.replace(/;.*/g,"").split(" ");
+ else return pDes;
+
+ year = Temp[0];
+ Temp.shift();
+ Other = Temp.join(" ").split("");
+ Other.splice(2,0,"<sub>");
+ other = Other.join("");
+ Other = other.split(" ");
+ Other.splice(1,0,"</sub>");
+ other = Other.join(" ").replace(/ </g,"<");
+ if (year.match("/")) { /* Objects with cometary status have a comet prefix letter followed by a slash */
+  other = other.replace(/<\/sub><sub>/g," ");
+ }
+ return year + " " + other;
+}
+
+var Days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var Months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+var Matches = [];
+var today = true;
+
+function checkDate() {
+	console.log(Now);
+	document.body.innerHTML = "<center><a nohref onClick='previousDate(); checkDate();' title='previous date'>&larr;</a> " + ((today) ? "Today is " : "") + currentDate() + ((today) ? "." : "") + " <a nohref onClick='nextDate(); checkDate();' title='next date'>&rarr;</a>";
+
+	/* Pushes objects with the same month and day as today
+         *  to the Matches array
+         */
+	Matches = []; /* This line has to be there to clear the array when a new date is selected! */
+
+	to_check = Now.getMonth()+1 + "-" + Now.getDate();
+	give = "";
+	blen = Bodies.length;
+	for (i=0;i<blen;i++) {
+		if (Bodies[i].discovery == to_check) Matches.push(Bodies[i]);
+	}
+
+	/* Sorts the matches from largest to smallest */
+	Matches.sort(function(a,b){return b.diameter - a.diameter;});
+
+	mlen = Matches.length;
+
+	document.body.innerHTML += "<br><center>" + ((mlen == 1) ? mlen + " solar-system object was" : ((mlen == 0) ? "No interesting solar-system objects were" : mlen + " solar-system objects were")) + " discovered on this date:<br>";
+
+	document.body.innerHTML += "<center>";
+ 	for (i=0;i<mlen;i++) {
+		if (i != 0) {
+			document.body.innerHTML += " <br>";
+			if (i == mlen - 1) document.body.innerHTML += "<center>and ";
+		}
+
+		if (Matches[i].diameter) {
+			if (useMiles) {
+				cm = Matches[i].diameter*100000;
+				inches = cm/2.54;
+				feet = inches/12;
+				miles = feet/5280;
+				if (miles < 0.1) {
+					yards = feet/3;
+					if (yards < 1) {
+						if (feet < 1) diameter_disp = inches.toFixed(0).toLocaleString() + ((inches == 1) ? " inch" : " inches") + " across";
+						else diameter_disp = feet.toFixed(1).toLocaleString() + ((feet == 1) ? " foot" : " feet") + " across";
+					}
+					else diameter_disp = yards.toFixed(1).toLocaleString() + ((yards == 1) ? " yard" : " yards") + " across";
+				}
+				else diameter_disp = miles.toFixed(2).toLocaleString() + ((miles == 1) ? " mile" : " miles") + " across"
+			}
+			else if (Matches[i].diameter < 1) {
+				m = Matches[i].diameter*1000;
+				diameter_disp = m + ((m == 1) ? " meter" : " meters") + " across";
+			}
+			else diameter_disp = Matches[i].diameter + " km across";
+		}
+		else diameter_disp = "";
+
+		document.body.innerHTML += 
+			"<center><br><a href='https://en.wikipedia.org/wiki/"+
+			((Matches[i].type == "Moon") ? "Natural_satellite" : ((Matches[i].type == "Small body") ? "Small solar system body" : Matches[i].type))+"' target='_blank'>"+
+				Matches[i].type+
+			"</a>"+
+		 	" <a href='"+Matches[i].link+"' target='_blank'><b>" + Matches[i].name + "</b></a> <br>" +
+			"<small><i>Discovered " + Matches[i].full_discovery + ",<br> " +
+			(Now.getFullYear()-Matches[i].full_discovery.split("/")[2]) + (((Now.getFullYear()-Matches[i].full_discovery.split("/")[2]) == 1) ? " year" : " years") + " ago today</i></small>" +     
+			((((Now.getFullYear()-Matches[i].full_discovery.split("/")[2]) < 100 && (Now.getFullYear()-Matches[i].full_discovery.split("/")[2]) % 10 == 0) || (Now.getFullYear()-Matches[i].full_discovery.split("/")[2]) % 100 == 0) ? "<i>!</i> 🎂🎈🎉🎁" : ".") +
+			((Matches[i].img) ? "<br><img src='"+Matches[i].img+"' height=300>" : "<br>(No image available.)") + "<br>" +
+			diameter_disp + "<br>";
+	}
+}
+
+var Now;
+
+function currentDate() {
+ if (today) Now = new Date();
+// Now.setYear(2016)
+// Now.setMonth(0);
+// Now.setDate(Now.getDate()-1);
+ date = Now.getDate();
+ date_disp = "";
+  if (date % 10 == 1 && date % 100 != 11) date_disp = date + "st";
+  else if (date % 10 == 2 && date % 100 != 12) date_disp = date + "nd";  
+  else if (date % 10 == 3 && date % 100 != 13) date_disp = date + "rd";  
+  else date_disp = date + "th";
+
+ return Months[Now.getMonth()] + " " + date_disp;
+}
+
+function previousDate() {
+ today = false;
+ Now.setDate(Now.getDate()-1);
+}
+
+function nextDate() {
+ today = false;
+ Now.setDate(Now.getDate()+1);
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<div id='i_o'>		Sol	http://www.solarsystemscope.com/nexus/content/planet_images/render_sun.png	Star		☉	0/0/0000	695,800.0
+		Jupiter	https://upload.wikimedia.org/wikipedia/commons/6/68/Jupiter.png	Planet (gas giant)—has rings		♃	0/0/0000	69,911.0
+		Saturn	http://space-facts.com/wp-content/uploads/saturn.png	Planet (gas giant)—has rings		♄	0/0/0000	60,268.0
+		Earth	http://investorplace.com/wp-content/uploads/2015/04/Earth.png	Planet (terrestrial)		♁	0/0/0000	6,371.0
+		Venus	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Venus.png	Planet (terrestrial)		♀	0/0/0000	6,051.8
+		Mars	http://quest.arc.nasa.gov/mars/background/images/mars.gif	Planet (terrestrial)		♂	0/0/0000	3,396.2
+		Mercury	http://www.solarsystemscope.com/nexus/content/planet_images/render_mercury.png	Planet (terrestrial)		☿	0/0/0000	2,439.6
+		Earth I "Luna"	http://www.solarsystemscope.com/nexus/content/planet_images/render_moon.png	Satellite of Earth		☽	0/0/0000	1,737.1
+	Halley's comet	Halley	https://upload.wikimedia.org/wikipedia/en/thumb/c/cd/Halley_Giotto.jpg/220px-Halley_Giotto.jpg	Comet	1P/		0/0/0000	5.7
+		Jupiter III Ganymede	http://www.solarsystemscope.com/nexus/content/moon_images/render_ganymede.png	Satellite of Jupiter			1/7/1610	2,634.1
+		Jupiter IV Callisto	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Callisto.png	Satellite of Jupiter			1/7/1610	2,410.3
+		Jupiter I Io	http://www.solarsystemscope.com/nexus/content/moon_images/render_io.png	Satellite of Jupiter			1/8/1610	1,815.0
+		Jupiter II Europa	http://www.solarsystemscope.com/nexus/content/moon_images/render_europa.png	Satellite of Jupiter			1/8/1610	1,569.0
+		Saturn VI Titan	http://www.solarsystemscope.com/nexus/content/moon_images/render_titan.png	Satellite of Saturn			3/25/1655	2,575.8
+		Saturn VIII Iapetus	https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg/1024px-Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg	Satellite of Saturn			10/25/1671	735.1
+		Saturn V Rhea	http://www.solarsystemscope.com/nexus/content/moon_images/render_rhea.png	Satellite of Saturn			12/23/1672	764.4
+		Saturn IV Dione	http://www.solarsystemscope.com/nexus/content/moon_images/render_dione.png	Satellite of Saturn			3/21/1684	562.1
+		Saturn III Tethys	http://www.solarsystemscope.com/nexus/content/moon_images/render_tethys.png	Satellite of Saturn			3/21/1684	533.7
+		Uranus	http://space-facts.com/wp-content/uploads/uranus-transparent.png	Planet (ice giant)—has rings		♅	3/13/1781	25,559.0
+		Uranus III Titania	https://upload.wikimedia.org/wikipedia/commons/a/a2/Titania_%28moon%29_color_cropped.jpg	Satellite of Uranus			1/11/1787	788.9
+		Uranus IV Oberon	https://upload.wikimedia.org/wikipedia/commons/0/09/Voyager_2_picture_of_Oberon.jpg	Satellite of Uranus			1/11/1787	761.4
+		Saturn II Enceladus	https://upload.wikimedia.org/wikipedia/commons/9/95/Enceladus_from_Voyager.jpg	Satellite of Saturn			8/28/1789	252.2
+		Saturn I Mimas	https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Mimas_Cassini.jpg/250px-Mimas_Cassini.jpg	Satellite of Saturn			9/17/1789	198.3
+1	1943 XB	Ceres	https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/PIA19547-Ceres-DwarfPlanet-Dawn-RC3-AnimationFrame25-20150504.jpg/250px-PIA19547-Ceres-DwarfPlanet-Dawn-RC3-AnimationFrame25-20150504.jpg	Dwarf planet—Asteroid (main-belt)		⚳	1/1/1801	470.0
+2		Pallas	https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/PallasHST2007.jpg/275px-PallasHST2007.jpg	Asteroid (main belt)		⚴	3/28/1802	272.0
+3		Juno	https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Juno_4_wavelengths.jpg/150px-Juno_4_wavelengths.jpg	Asteroid (main belt)—S-type		⚵	9/1/1804	136.0
+4		Vesta	https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Vesta_full_mosaic.jpg/300px-Vesta_full_mosaic.jpg	Asteroid (main belt)		⚶	3/29/1807	262.7
+5	1969 SE	Astraea	https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/5Astraea_%28Lightcurve_Inversion%29.png/250px-5Astraea_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			12/8/1845	59.5
+		Neptune	http://space-facts.com/wp-content/uploads/neptune.png	Planet (ice giant)—has rings		♆	9/23/1846	24,764.0
+		Neptune I Triton	http://www.solarsystemscope.com/nexus/content/moon_images/render_triton.png	Satellite of Neptune			10/10/1846	1,353.4
+6		Hebe	https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/6Hebe_%28Lightcurve_Inversion%29.png/250px-6Hebe_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type		🍷	7/1/1847	93.0
+7		Iris		Asteroid (main belt)—S-type			8/13/1847	206.4
+8		Flora	https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/8Flora_%28Lightcurve_Inversion%29.png/250px-8Flora_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type—Flora			10/18/1847	64.0
+9	1974 QU2	Metis	https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/9Metis_%28Lightcurve_Inversion%29.png/250px-9Metis_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			4/25/1848	92.4
+		Saturn VII Hyperion	https://upload.wikimedia.org/wikipedia/commons/e/ef/Hyperion_false_color.jpg	Satellite of Saturn			9/16/1848	134.0
+10		Hygiea		Asteroid (main belt)			4/12/1849	215.5
+11		Parthenope		Asteroid (main belt)			5/11/1850	76.7
+12		Victoria		Asteroid (main belt)—S-type			9/13/1850	59.2
+13		Egeria	https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/13Egeria_%28Lightcurve_Inversion%29.png/250px-13Egeria_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—G-type			11/2/1850	105.6
+14	1952 TM	Irene	https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/14Irene_%28Lightcurve_Inversion%29.png/250px-14Irene_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			5/19/1851	76.4
+15		Eunomia	https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/15Eunomia_%28Lightcurve_Inversion%29.png/250px-15Eunomia_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			7/29/1851	133.0
+		Uranus I Ariel	https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Ariel_%28moon%29.jpg/1024px-Ariel_%28moon%29.jpg	Satellite of Uranus			10/24/1851	578.9
+		Uranus II Umbriel	https://upload.wikimedia.org/wikipedia/commons/2/2f/PIA00040_Umbrielx2.47.jpg	Satellite of Uranus			10/24/1851	584.7
+16		Psyche	https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/16Psyche_%28Lightcurve_Inversion%29.png/250px-16Psyche_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—M-type			3/17/1852	100.9
+17	1954 SO1	Thetis		Asteroid			4/17/1852	45.0
+18		Melpomene		Asteroid (main belt)			6/24/1852	74.4
+19		Fortuna		Asteroid (main belt)—G-type			8/22/1852	106.3
+20		Massalia	https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/A112.M119.shape.png/250px-A112.M119.shape.png	Asteroid (main belt)			9/19/1852	72.6
+21		Lutetia	http://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Rosetta_triumphs_at_asteroid_Lutetia.jpg/250px-Rosetta_triumphs_at_asteroid_Lutetia.jpg	Asteroid (main belt)—M-type			11/15/1852	49.5
+22		Kalliope	https://upload.wikimedia.org/wikipedia/en/thumb/b/b3/22-Kalliope-Linus.jpg/250px-22-Kalliope-Linus.jpg	Asteroid (main belt)—M-type—binary			11/16/1852	84.7
+23	1938 CL; 1974 QT2	Thalia	https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/23Thalia_%28Lightcurve_Inversion%29.png/250px-23Thalia_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			12/15/1852	53.6
+24	1947 BA; 1955 OH	Themis		Asteroid (main belt)—C-type—Themis			4/5/1853	99.0
+25	1956 GC	Phocaea	https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/25Phocaea_%28Lightcurve_Inversion%29.png/250px-25Phocaea_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—Phocaea family			4/6/1853	38.8
+26	1935 KK; 1954 WD1	Proserpina		Asteroid (main belt)			5/5/1853	46.1
+27	1945 KB	Euterpe	https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/27Euterpe_%28Lightcurve_Inversion%29.png/250px-27Euterpe_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			11/8/1853	50.8
+29		Amphitrite	https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/29Amphitrite_%28Lightcurve_Inversion%29.png/250px-29Amphitrite_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			3/1/1854	106.3
+28	1951 CC2	Bellona		Asteroid (main belt)—C-type			3/1/1854	54.3
+30	1948 JK	Urania	https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/30Urania_%28Lightcurve_Inversion%29.png/250px-30Urania_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			7/22/1854	48.7
+31		Euphrosyne		Asteroid (main belt)—C-type			9/1/1854	128.0
+32	1945 RB; 1949 SH; 1950 YD	Pomona	https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/32Pomona_%28Lightcurve_Inversion%29.png/250px-32Pomona_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			10/26/1854	40.4
+33	1938 FE; 1953 AK; 1957 YL; 1963 DG; 1976 YT7			Asteroid (main belt)			10/28/1854	35.7
+34	1965 JL	Circe	https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/34Circe_%28Lightcurve_Inversion%29.png/250px-34Circe_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—C-type			4/6/1855	56.5
+35	1948 DC; 1950 RS1; 1976 WH	Leukothea		Asteroid (main belt)—C-type			4/19/1855	51.6
+36		Atalante		Asteroid (main belt)			10/5/1855	53.9
+37	1925 WH	Fides	https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/37Fides_%28Lightcurve_Inversion%29.png/250px-37Fides_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			10/5/1855	54.2
+38	1949 QO2	Leda	https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/38Leda_%28Lightcurve_Inversion%29.png/250px-38Leda_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			1/12/1856	57.7
+39		Laetitia		Asteroid (main belt)			2/8/1856	83.0
+40	1950 XU	Harmonia	https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/40Harmonia_%28Lightcurve_Inversion%29.png/250px-40Harmonia_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			3/31/1856	53.8
+41	1949 TG	Daphne	https://upload.wikimedia.org/wikipedia/en/d/db/41Daphne-Keck.jpg	Asteroid (main belt)			5/22/1856	86.5
+42		Isis	https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/42Isis_%28Lightcurve_Inversion%29.png/250px-42Isis_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			5/23/1856	51.4
+43		Ariadne	https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/43Ariadne_%28Lightcurve_Inversion%29.png/250px-43Ariadne_%28Lightcurve_Inversion%29.png	Asteroid			4/15/1857	34.2
+44	1977 CE	Nysa		Asteroid (main belt)—E-type			5/27/1857	40.5
+45	1941 BN	Eugenia	https://upload.wikimedia.org/wikipedia/en/thumb/9/9c/45_eugenia-01.jpg/250px-45_eugenia-01.jpg	Asteroid (main belt)—F-type—trinary			6/27/1857	107.3
+46		Hestia		Asteroid (main belt)			8/16/1857	62.1
+47		Aglaja	https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/Aglaja_%28asteroid%29.jpg/220px-Aglaja_%28asteroid%29.jpg	Asteroid (main belt)—C-type			9/15/1857	71.0
+48		Doris		Asteroid (main belt)			9/19/1857	107.0
+49		Pales		Asteroid (main belt)—C-type			9/19/1857	74.9
+50		Virginia		Asteroid (main belt)			10/4/1857	49.9
+52	1948 LA	Europa		Asteroid (main belt)—C-type			2/4/1858	156.3
+62		Erato	http://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/62Erato_%28Lightcurve_Inversion%29.png/250px-62Erato_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—Themis or Eos			9/14/1860	47.7
+65		Cybele		Asteroid (main belt—outer)—C-type			3/8/1861	133.4
+87		Sylvia	http://upload.wikimedia.org/wikipedia/commons/thumb/5/52/CMSylvia.png/275px-CMSylvia.png	Asteroid (main belt—outer)—X-type—trinary			5/16/1866	146.0
+88		Thisbe	https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/88Thisbe_%28Lightcurve_Inversion%29.png/250px-88Thisbe_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—B-type			6/15/1866	113.7
+90	1952 BK2	Antiope α	http://upload.wikimedia.org/wikipedia/en/7/76/90_Antiope.gif	Asteroid—C-type—binary			10/1/1866	43.9
+91		Aegina		Asteroid (main belt)—C-type			11/4/1866	54.9
+		Tempel	https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/PIA02142_Tempel_1_bottom_sharped.jpg/250px-PIA02142_Tempel_1_bottom_sharped.jpg	Comet	9P/		4/3/1867	2.9
+93	1949 QN2	Minerva	https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/93Minerva_%28Lightcurve_Inversion%29.png/250px-93Minerva_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—C-type—trinary			8/24/1867	74.4
+104		Klymene		Asteroid (main belt)			9/13/1868	61.9
+106		Dione		Asteroid (main belt)—G-type			10/10/1868	73.6
+107		Camilla		Asteroid (main belt—outer)—C-type—binary			11/17/1868	129.0
+121	1970 VE	Hermione	http://upload.wikimedia.org/wikipedia/commons/thumb/d/da/121Hermione_%28Lightcurve_Inversion%29.png/250px-121Hermione_%28Lightcurve_Inversion%29.png	Asteroid (main belt—outer)—C-type—binary (Cybele)			5/12/1872	101.6
+130		Elektra	https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/130Elektra_%28Lightcurve_Inversion%29.png/250px-130Elektra_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—G-type—binary			2/17/1873	92.5
+140		Siwa		Asteroid (main belt)			10/13/1874	54.9
+143	1960 WK1	Adria		Asteroid (main belt)			2/23/1875	45.0
+145		Adeona		Asteroid (main belt)—Adena			6/3/1875	75.6
+149		Medusa	https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/149Medusa_%28Lightcurve_Inversion%29.png/1024px-149Medusa_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			9/21/1875	9.9
+170	1958 AC	Maria		Asteroid (main belt)			1/10/1877	22.2
+171		Ophelia		Asteroid (main belt)—C-type—Themis			1/13/1877	60.0
+		Mars II Deimos	https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Deimos-MRO.jpg/260px-Deimos-MRO.jpg	Satellite of Mars			8/12/1877	5.0
+		Mars I Phobos	https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Phobos_colour_2008.jpg/260px-Phobos_colour_2008.jpg	Satellite of Mars			8/18/1877	11.3
+185		Eunike		Asteroid (main belt)			3/1/1878	79.5
+192		Nausikaa	https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/192Nausikaa_%28Lightcurve_Inversion%29.png/250px-192Nausikaa_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			2/17/1879	48.4
+216		Kleopatra	https://upload.wikimedia.org/wikipedia/commons/d/d5/Kleopatra.jpg	Asteroid (main belt)—M-type—trinary			4/10/1880	65.3
+222		Lucia	http://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/222Lucia_%28Lightcurve_Inversion%29.png/250px-222Lucia_%28Lightcurve_Inversion%29.png	Asteroid—Themistian			2/9/1882	28.7
+223	1942 EL	Rosa		Asteroid—Themistian—C/P-type			3/9/1882	44.0
+229	1946 UK	Adelinda		Asteroid (main belt)—C-type			8/22/1882	46.6
+243		Ida	http://upload.wikimedia.org/wikipedia/commons/thumb/8/89/243_ida_crop.jpg/250px-243_ida_crop.jpg	Asteroid (main belt)—Koronis—S-type—binary			9/29/1884	15.7
+253	1949 OL1	Mathilde	http://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/%28253%29_mathilde_crop.jpg/275px-%28253%29_mathilde_crop.jpg	Asteroid (main belt)—C-type			11/12/1885	26.6
+268		Adorea		Asteroid (main belt)			6/8/1887	69.9
+276		Adelheid		Asteroid (main belt)			4/17/1888	60.8
+316		Goberta		Asteroid—Themistian			9/8/1891	24.0
+324		Bamberga		Asteroid (main belt)—C-type			2/25/1892	116.0
+334		Chicago		Asteroid (main belt)—C-type			8/23/1892	81.5
+		Jupiter V Amalthea	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Amalthea.png	Satellite of Jupiter			9/9/1892	84.0
+375		Ursula		Asteroid (main belt)			9/18/1893	105.0
+379	1894 AQ	Huenna		Asteroid (main belt)—C-type			1/8/1894	46.7
+383		Janina		Asteroid—Themistian			1/29/1894	23.0
+423	1896 DB	Diotima	https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/423Diotima_%28Lightcurve_Inversion%29.png/250px-423Diotima_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—C-type			12/7/1896	91.2
+433	1898 DQ; 1956 PC	Eros	http://upload.wikimedia.org/wikipedia/commons/thumb/2/25/WholeEros.jpg/300px-WholeEros.jpg	Asteroid (near Earth)—Amor			8/13/1898	9.2
+		Saturn IX Phoebe	http://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Phoebe_closeup_cassini_NASA.jpg/640px-Phoebe_closeup_cassini_NASA.jpg	Satellite of Saturn			8/16/1898	106.5
+451		Patientia		Asteroid (main belt)			12/4/1899	117.0
+		Giacobini-Zinner	https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Comet_21P_Giacobini-Zinner.jpg/250px-Comet_21P_Giacobini-Zinner.jpg	Comet	21P/		12/20/1900	1.0
+468	1901 FZ	Lina		Asteroid—Themistian			1/18/1901	32.3
+		Grigg-Skjellerup	https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grigg-Skjellerup_Eso9209a.jpg/250px-Grigg-Skjellerup_Eso9209a.jpg	Comet	26P/		1/1/1902	1.3
+492	1902 JR	Gismonda		Asteroid—Themistian			9/3/1902	25.8
+511	1903 LU	Davida		Asteroid (main belt)—C-type			5/30/1903	146.4
+515	1903 ME	Athalia		Asteroid—Themistian			9/20/1903	19.1
+526	1904 NQ	Jena		Asteroid—Themistian			3/14/1904	20.7
+532	1904 NY	Herculina	https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/532Herculina_%28Lightcurve_Inversion%29.png/250px-532Herculina_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			4/20/1904	111.2
+		Borrelly	https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Comet_Borrelly_Nucleus.jpg/250px-Comet_Borrelly_Nucleus.jpg	Comet (Jupiter family)	19P/		12/28/1904	2.7
+		Jupiter VI Himalia	https://upload.wikimedia.org/wikipedia/commons/d/dc/Himalia_from_New_Horizons.jpg	Satellite of Jupiter			1/6/1905	85.0
+		Jupiter VII Elara		Satellite of Jupiter			2/27/1905	45.0
+577	1905 RH	Rhea		Asteroid (main belt)			10/20/1905	19.8
+588	1906 TG	Achilles		Jupiter trojan			2/22/1906	67.8
+593	1906 TT; 1930 SD1; 1932 BR	Titania		Asteroid (main belt)			3/20/1906	37.66
+612	1906 VN	Veronica		Asteroid			10/8/1906	
+617	1906 VY	Patroclus		Jupiter trojan—binary			10/17/1906	71.6
+624	1907 XM	Hektor		Jupiter trojan (L4)—binary			2/10/1907	123.3
+		Jupiter VIII Pasiphae		Satellite of Jupiter			2/28/1908	30.0
+704	1910 KU; 1952 MW	Interamnia	https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Interamnia_medie.gif/250px-Interamnia_medie.gif	Asteroid (main belt)—F-type			10/2/1910	162.1
+719	1911 MT; 2000 JW8	Albert		Asteroid (Amor)—Mars crosser—S-type			10/3/1911	1.2
+762	1913 SQ	Pulcova	https://upload.wikimedia.org/wikipedia/en/e/ea/762Pulcova-SwRI.gif	Asteroid (main belt)—C-type—binary			9/3/1913	68.5
+		Jupiter IX Sinope		Satellite of Jupiter			9/17/1914	20.0
+846		Lipperta		Asteroid—Themistian			11/26/1916	26.2
+875	1917 CF	Nymphe		Asteroid—Maria family			5/19/1917	6.9
+879	1917 CJ	Ricarda		Asteroid—Maria family			7/22/1917	
+911	1919 FD	Agamemnon		Jupiter trojan			3/19/1919	83.0
+944	1920 HZ	Hidalgo		Centaur/Asteroid—D-type			10/31/1920	19.0
+1036	1924 TD; 1952 BF; 1954 HH	Ganymed		Asteroid (near Earth)—Aten			10/23/1924	16.5
+1042	1925 HA	Amazone		Asteroid (outer main belt)			4/22/1925	36.8
+		Comas Solà		Jupiter-family comet	32P/		11/5/1926	4.2
+1181	1927 CQ	Lilith		Asteroid (main belt)			2/11/1927	33.5
+3789	1928 UF; 1986 QK1	Zhongguo		Asteroid (outer main belt)			10/25/1928	
+1627	1929 SH	Ivar	https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/1627Ivar_%28Lightcurve_Inversion%29.png/250px-1627Ivar_%28Lightcurve_Inversion%29.png	Asteroid (Amor)—NEO			9/25/1929	4.4
+1143	1930 BH	Odysseus		Jupiter trojan (L4)			1/28/1930	63.0
+134340		Pluto	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Pluto.png	Dwarf planet—Plutino—multiple		♇	2/18/1930	1,187.0
+		Schwassmann-Wachmann 3	https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Schwassman-Wachmann3-B-HST.gif/120px-Schwassman-Wachmann3-B-HST.gif	Comet	73P/		5/2/1930	
+1269	1930 SH	Rollandia		Asteroid (main belt)			9/20/1930	52.6
+1172	1930 UA	Äneas		Jupiter trojan			10/17/1930	71.5
+1173	1930 UB	Anchises		Jupiter trojan			10/17/1930	63.0
+1208	1931 YA	Troilus		Jupiter trojan			12/31/1931	50.0
+1862	1932 HA	Apollo	https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/1862Apollo_%28Lightcurve_Inversion%29.png/250px-1862Apollo_%28Lightcurve_Inversion%29.png	Asteroid (near Earth)—Apollo—Q-type			4/24/1932	0.800
+1390	1935 TA	Abastumani		Asteroid (main belt)			10/3/1935	50.8
+1437	1937 PB	Diomedes		Jupiter trojan			8/3/1937	82.2
+69230	1937 UB	Hermes	https://upload.wikimedia.org/wikipedia/commons/7/73/Hermes_planetoid.jpg	Asteroid (Apollo)—Mars crosser—Venus crosser			10/28/1937	0.188
+		Jupiter XI Carme		Satellite of Jupiter			8/15/1938	25.0
+		Jupiter X Lysithea		Satellite of Jupiter			8/15/1938	20.0
+		Wirtanen	https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/ESO-Comet_Wirtanen.jpg/250px-ESO-Comet_Wirtanen.jpg	Comet	46P/		1/17/1948	0.600
+1685	1948 OA	Toro		Asteroid (Apollo)—NEO			7/17/1948	1.7
+		Uranus V Miranda	https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Miranda.jpg/250px-Miranda.jpg	Satellite of Uranus			6/15/1949	235.8
+1566	1949 MA	Icarus		Asteroid (near Earth)—Apollo—U-type			6/27/1949	0.668
+		Neptune II Nereid	https://upload.wikimedia.org/wikipedia/commons/b/b0/Nereid-Voyager2.jpg	Satellite of Neptune			8/15/1949	170.0
+29075	1950 DA		https://upload.wikimedia.org/wikipedia/commons/b/ba/1950da_color_150.jpg	Asteroid (near Earth)—Apollo			2/22/1950	0.550
+1583	1950 SA	Antilochus		Jupiter trojan			9/19/1950	50.5
+1620	1951 RA	Geographos	https://upload.wikimedia.org/wikipedia/commons/f/f9/Geographos.jpg	Asteroid (near Earth)—Apollo			9/14/1951	1.725
+		Jupiter XII Ananke		Satellite of Jupiter			12/15/1951	15.0
+1125	1957 UN1	China		Asteroid (main belt)			10/30/1957	
+2000	1934 NX; 1960 OA	Herschel		Asteroid (main belt)			7/29/1960	12.3
+	S/1980 S01	Saturn X Janus	https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/PIA12714_Janus_crop.jpg/275px-PIA12714_Janus_crop.jpg	Satellite of Saturn			1/3/1967	90.0
+	S/1980 S03	Saturn XI Epimetheus	https://upload.wikimedia.org/wikipedia/commons/2/24/PIA09813_Epimetheus_S._polar_region.jpg	Satellite of Saturn			1/6/1967	58.2
+1867	1971 EA	Deiphobus		Jupiter trojan			3/3/1971	60.0
+1902	1972 HU	Shaposhnikov		Asteroid (outer main belt)			4/18/1972	48.4
+1866	1972 XA	Sisyphus		Asteroid (near Earth)—Apollo—binary			12/5/1972	4.2
+2002	1973 SJ2	Euler		Asteroid (main belt)			8/29/1973	8.7
+3708	1974 FV1			Jupiter Trojan			3/21/1974	39.8
+		Jupiter XIII Leda		Satellite of Jupiter			9/20/1974	10.0
+2577	1975 EE3	Litva		Asteroid—Mars crosser			3/12/1975	
+		Jupiter XVIII Themisto		Satellite of Jupiter			10/3/1975	5.0
+2578	1952 HG2; 1975 VW3; 1980 TA1	Saint-Exupéry		Asteroid (main belt)			11/2/1975	
+2062	1976 AA	Aten		Asteroid (near Earth)—Aten			1/7/1976	0.500
+951	1955 MG1	Gaspra	http://upload.wikimedia.org/wikipedia/commons/thumb/8/81/951_Gaspra.jpg/275px-951_Gaspra.jpg	Asteroid (main belt)—S-type—Flora			7/30/1976	6.1
+2063	1977 HB	Bacchus		Asteroid (Apollo)			4/24/1977	0.541
+2060	1977 UB	Chiron		Centaur—has rings / comet	95P/		10/18/1977	86.2
+		Pluto I Charon	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Charon.png	Satellite of Pluto			6/22/1978	606.0
+2212	1978 SB	Hephaistos		Asteroid (Apollo)—NEO			9/27/1978	3.1
+4015	1979 VA; 1949 W1	Wilson-Harrington		Main-belt comet/asteroid (Apollo group)	107P/		11/15/1979	2.0
+2241	1979 WM	Alcathous		Jupiter trojan			11/22/1979	60.0
+		Jupiter XV Adrastea	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Adrastea.png	Satellite of Jupiter			11/23/1979	10.0
+	S/1980 S06	Saturn XII Helene (Dione B)	https://upload.wikimedia.org/wikipedia/commons/d/d6/Leading_hemisphere_of_Helene_-_20110618.jpg	Satellite of Saturn			3/6/1980	16.8
+	S/1980 S13	Saturn XIII Telesto (Tethys B)	https://upload.wikimedia.org/wikipedia/commons/b/b6/Telesto_cassini_closeup.jpg	Satellite of Saturn			4/10/1980	11.0
+		Jupiter XIV Thebe	https://upload.wikimedia.org/wikipedia/commons/1/1b/Thebe.jpg	Satellite of Jupiter			4/28/1980	50.0
+	S/1980 S25	Saturn XIV Calypso (Tethys C)	https://upload.wikimedia.org/wikipedia/commons/b/b7/N00151485_Calypso_crop.jpg	Satellite of Saturn			7/31/1980	9.8
+3908	1980 PA; 1988 XB1	Nyx	https://upload.wikimedia.org/wikipedia/commons/5/51/3908_nyx-s02.jpg	Asteroid (near Earth)—Amor—V-type			8/6/1980	0.520
+		Jupiter XVI Metis	https://upload.wikimedia.org/wikipedia/commons/9/9a/Metis.jpg	Satellite of Jupiter			9/26/1980	20.0
+	S/1980 S27	Saturn XVI Prometheus	http://whillyard.com/science-pages/our-solar-system/upload-images/saturn-moon-prometheus.jpg	Satellite of Saturn			10/31/1980	45.9
+	S/1980 S26	Saturn XVII Pandora	https://upload.wikimedia.org/wikipedia/commons/8/8b/Pandora_PIA07632.jpg	Satellite of Saturn			10/31/1980	40.3
+	S/1980 S28	Saturn XV Atlas	https://upload.wikimedia.org/wikipedia/commons/5/5f/Cassini_Atlas_N00084634_CL.png	Satellite of Saturn			11/13/1980	15.2
+2920	1981 JR	Automedon		Jupiter trojan (L4)			5/3/1981	55.5
+2685	1981 JN	Masursky	https://upload.wikimedia.org/wikipedia/commons/6/62/Asteroid_2685Masurky.gif	Asteroid (main belt)—Eunomia family			5/3/1981	8.8
+		Neptune VII Larissa	https://upload.wikimedia.org/wikipedia/commons/5/5b/Larissa_1.jpg	Satellite of Neptune			5/29/1981	97.0
+2797	1981 LK	Teucer		Jupiter trojan (L4)			6/4/1981	55.6
+3360	1981 VA	Syrinx		Asteroid (Apollo)			11/4/1981	0.9
+3749	1982 BG1	Balam		Asteroid (main belt)—trinary			1/24/1982	7.2
+3063	1983 PV	Makhaon		Jupiter trojan			8/4/1983	58.1
+3552	1983 SA	Don Quixote		Asteroid (near Earth)—Amor			9/26/1983	9.2
+3200	1983 TB	Phaethon		Asteroid (Apollo) B-type			10/11/1983	2.6
+3317	1984 KF	Paris		Jupiter trojan			5/26/1984	60.0
+3671	1984 KD	Dionysus		Asteroid (near Earth)—Amor—binary			5/27/1984	0.750
+		Uranus XV Puck	https://upload.wikimedia.org/wikipedia/commons/b/b6/Puck.png	Satellite of Uranus			1/9/1986	81.0
+		Uranus XII Portia		Satellite of Uranus			1/16/1986	67.8
+		Uranus XIII Rosalind		Satellite of Uranus			1/16/1986	35.5
+		Uranus XI Juliet		Satellite of Uranus			1/16/1986	45.9
+		Uranus XIV Belinda	https://upload.wikimedia.org/wikipedia/commons/6/64/Belinda.gif	Satellite of Uranus			1/16/1986	40.2
+		Uranus IX Cressida		Satellite of Uranus			1/16/1986	39.9
+		Uranus X Desdemona		Satellite of Uranus			1/16/1986	31.0
+		Uranus VIII Bianca		Satellite of Uranus			1/27/1986	25.4
+		Uranus VII Ophelia		Satellite of Uranus			1/27/1986	20.7
+		Uranus VI Cordelia		Satellite of Uranus			1/27/1986	20.1
+	1986 E2	Hartley 2	https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/495296main_epoxi-1-full_full.jpg/1024px-495296main_epoxi-1-full_full.jpg	Comet	103P/		3/15/1986	0.570
+3753	1983 UH; 1986 TO	Cruithne		Asteroid & quasi-satellite of Earth			10/10/1986	2.5
+6000	1987 UN	United Nations		Asteroid (Main-belt)			10/27/1987	
+4179	1989 AC; 1934 CT	Toutatis	http://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Toutatis_from_Chang%27e_2.jpg/220px-Toutatis_from_Chang%27e_2.jpg	Asteroid (near Earth)—PHO			1/4/1989	1.5
+4063	1989 CG2	Euforbo		Jupiter trojan			2/1/1989	56.5
+4581	1989 FC	Asclepius		Asteroid (Apollo)			3/31/1989	0.150
+		Neptune VII Proteus	https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Proteus_%28Voyager_2%29.jpg/597px-Proteus_%28Voyager_2%29.jpg	Satellite of Neptune			7/7/1989	210.0
+		Neptune VI Galatea	https://upload.wikimedia.org/wikipedia/commons/d/d8/Galatea_moon.jpg	Satellite of Neptune			8/2/1989	88.0
+		Neptune V Despina	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Despina.png	Satellite of Neptune			8/2/1989	75.0
+4769	1989 PB	Castalia	https://upload.wikimedia.org/wikipedia/en/e/e6/4769Castalia-P36165BC-crop.gif	Asteroid (near Earth)—Apollo			8/9/1989	0.800
+		Neptune IV Thalassa		Satellite of Neptune			9/18/1989	40.5
+		Neptune III Naiad		Satellite of Neptune			9/29/1989	34.0
+7888	1993 UC			Asteroid (near Earth)—Apollo—binary			10/28/1989	1.4
+5261	1990 MB	Eureka		Mars Trojan (L5)			6/20/1990	1.2
+	S/1981 S13	Saturn XVIII Pan	https://upload.wikimedia.org/wikipedia/commons/6/69/Pan_side_view.jpg	Satellite of Saturn			7/16/1990	13.5
+4954	1990 SQ	Eric		Asteroid (near Earth)—Amor			9/23/1990	5.4
+11885	1990 SS	Summanus		Asteroid (near Earth)—Apollo			9/25/1990	0.433
+5646	1990 TR			Asteroid (near Earth)—Amor—binary			10/11/1990	2.2
+8847	1990 TO3; 1995 TN2	Huch		Asteroid (main belt)			10/12/1990	
+5335	1991 DA	Damocles		Centaur (damocloid)			2/18/1991	5.0
+6489	1991 JX	Golevka	https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Asteroid-golevka.jpeg/200px-Asteroid-golevka.jpeg	Asteroid (near Earth)—Apollo			5/10/1991	0.404
+5381	1991 JY	Sekhmet		Asteroid (near Earth)—Aten—binary			5/14/1991	0.500
+	1991 VG			Asteroid (Apollo)—Arjuna asteroid—NEO			11/6/1991	0.004
+5143	1991 VL	Heracles		Asteroid (near Earth)—Apollo—binary			11/7/1991	
+35107	1991 VH			Asteroid (near Earth)—Apollo—binary			11/9/1991	
+7088	1992 AA	Ishtar		Asteroid (near Earth)—Amor—binary			1/1/1992	
+5145	1992 AD	Pholus		Centaur			1/9/1992	92.5
+9969	1992 KD	Braille	https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/PIA01345.jpg/265px-PIA01345.jpg	Asteroid—Mars crosser			5/27/1992	0.683
+15760	1992 QB1	"QB1"		Cubewano			8/30/1992	68.75
+26858		Misterrogers		Asteroid			3/21/1993	4.8
+7066	1993 HA2	Nessus		Centaur			4/26/1993	30.0
+385185	1993 RO			Plutino			9/14/1993	45.5
+	1993 RP			Plutino			9/15/1993	35.0
+15788	1993 SB			Plutino			9/16/1993	65.0
+46610	1993 TQ1	Besixdouze (B612)		Asteroid (main belt)			10/15/1993	
+136617	1994 CC (α)		https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/1994CC-with-moons.gif/260px-1994CC-with-moons.gif	Asteroid (Apollo)—NEA			2/3/1994	0.350
+	S/1993 (243) 1	Ida I Dactyl	http://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Dactyl-HiRes.jpg/220px-Dactyl-HiRes.jpg	Satellite of Ida			2/17/1994	0.700
+15810	1994 JR1		https://www.nasa.gov/sites/default/files/styles/side_image/public/thumbnails/image/nh-kuiper-belt-loop.gif?itok=Ev89j1KP	Plutino—Quasi-satellite of Pluto			5/12/1994	63.5
+10160	1994 YQ1	Totoro		Asteroid (main belt)			12/31/1994	
+10370	1995 DW2	Hylonome		Centaur			2/27/1995	35.0
+8405	1995 GO	Asbolus		Centaur			4/5/1995	37.7
+		Saturn XXXIII Pallene	https://upload.wikimedia.org/wikipedia/commons/6/6e/N00163156.jpg	Satellite of Saturn			4/14/1995	3.5
+	C/1995 O1	Hale–Bopp	http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Comet_Hale-Bopp_1995O1.jpg/200px-Comet_Hale-Bopp_1995O1.jpg	Comet			7/23/1995	30.0
+24835	1995 SM55			Cubewano / Extended (Haumea family)			9/19/1995	87.0
+	1995 SN55			Lost—Centaur or transient TNO			9/20/1995	142.8
+48639	1995 TL8			Cubewano/Detached object/SDO			10/15/1995	177.5
+65803	1996 GT	Didymos		Asteroid (near Earth)—Apollo—binary			4/11/1996	0.400
+7968	1996 N2; 1979 OW7	Elst-Pizarro		Main-belt comet/asteroid	133P/		7/14/1996	1.9
+	1996 PW			Oort cloud object			8/9/1996	5.0
+15874	1996 TL66			SDO			10/9/1996	228.5
+15875	1996 TP66			Plutino			10/11/1996	77.0
+19308	1996 TO66			TNO (Haumea family)			10/12/1996	100.0
+	1984 KD I; S/1997 (3671) 1			Satellite of 1997 KD			1/1/1997	0.150
+79360	1997 CS29	Sila		Cubewano—binary(Nunam)			2/3/1997	123.3
+		Sila I Nunam		Satellite of Sila			2/3/1997	116.3
+58534	1997 CQ29	Logos		Kuiper belt object—Cubewano—binary			2/4/1997	38.5
+10199	1997 CU26	Chariklo		Centaur—has rings			2/15/1997	134.8
+85472	1997 LF4	Xizezong		Asteroid (main belt)			6/9/1997	
+11351	1997 TS25			Jupiter Trojan (L4)			10/12/1997	21.1
+		Uranus XVII Sycorax		Satellite of Uranus			10/31/1997	75.0
+		Uranus XVI Caliban		Satellite of Uranus			10/31/1997	42.0
+	1998 KY26		https://upload.wikimedia.org/wikipedia/commons/9/97/Asteroid_1998_KY26.faces_model.jpg	Asteroid (near Earth) & fast rotator (10.7 m)			5/28/1998	0.150
+49036	1998 QM107	Pelion		Centaur			8/21/1998	
+31345	1998 PG			Asteroid (near Earth)—Amor—binary			9/3/1998	
+66063	1998 RO1			Asteroid (near Earth)—Aten			9/14/1998	0.350
+26308	1998 SM165			Twotino (1:2 resonance)—binary			9/16/1998	141.5
+52872	1998 SG35	Okyrhoe		Centaur			9/19/1998	24.5
+25143	1998 SF36	Itokawa	http://mondialieni.altervista.org/20130212_itokawa_anim_guld_57.gif	Asteroid (near Earth)—Apollo			9/26/1998	0.346
+52975	1998 TF35	Cyllarus		Centaur			10/12/1998	32.5
+85770	1998 UP1			Asteroid (Aten)—NEA			10/18/1998	170.0
+	S/1998 (45) 1	Eugenia I Petit-Prince		Satellite of Eugenia			11/1/1998	6.5
+101429	1998 VF31			Mars Trojan (L5)			11/13/1998	
+	1998 WW31		http://www.cfht.hawaii.edu/~veillet/DJF1.gif	KBO—binary			11/18/1998	66.5
+19521	1998 WH24	Chaos		Cubewano			11/19/1998	303.0
+137108	1999 AN10			Asteroid (near Earth)—Apollo			1/13/1999	0.650
+26375	1999 DE9			Resonant KBO(2:5)			2/20/1999	233.8
+38083	1999 HX11	Rhadamanthus		Kuiper belt object			4/17/1999	90.8
+53311	1999 HU11	Deucalion		Cubewano			4/18/1999	105.5
+85990	1999 JV6			Asteroid (Apollo)—NEO—PHA			5/1/1999	
+162173	1999 JU3			Asteroid (Apollo)			5/10/1999	0.490
+85989	1999 JD6		https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/1999%20JD6.gif	Asteroid (near Earth)—Aten—PHA			5/12/1999	1.4
+		Uranus XXV Perdita		Satellite of Uranus			5/18/1999	15.0
+66391	1999 KW4 (α)		https://upload.wikimedia.org/wikipedia/commons/5/54/1999_KW4_animated.gif	Asteroid (Aten)—Mercury-crosser—binary			5/20/1999	0.693
+20461	1999 LD31	Dioretsa		Centaur—Damocloid			6/8/1999	7.0
+	1999 LE31			Damocloid centaur			6/12/1999	8.4
+86047	1999 OY3			Cubewano / Extended (Haumea family)			7/18/1999	36.5
+44594	1999 OX3			TNO/Centaur			7/21/1999	96.0
+		Uranus XIX Setebos		Satellite of Uranus			7/27/1999	20.0
+		Uranus XX Stephano		Satellite of Uranus			7/27/1999	15.5
+		Uranus XVIII Prospero		Satellite of Uranus			9/4/1999	20.0
+118401	1999 RE70	LINEAR		Main-belt comet	176P/		9/7/1999	2.0
+66652	1999 RZ253	Borasisi		Cubewano—binary			9/8/1999	80.0
+101955	1999 RQ36	Bennu	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Bennu.png	Asteroid (Apollo)—PHA			9/11/1999	0.246
+47171	1999 TC36 (α1)		http://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/1999TC36-Trujillo-HST.png/240px-1999TC36-Trujillo-HST.png	Plutino—trinary (Probable dwarf planet)			10/1/1999	136.0
+29981	1999 TD10			SDO/Centaur			10/3/1999	55
+31824	1999 UG5	Elatus		Centaur			10/29/1999	15.0
+121514	1999 UJ7			Mars Trojan (L4)—X-type			10/30/1999	0.500
+	1999 XS35			Asteroid (Apollo) (damocloid)			12/2/1999	0.750
+	P/2000 B4	LINEAR		Comet (Chiron type)	165P/		1/29/2000	
+148209	2000 CR105			Detached object			2/6/2000	142.5
+		Pulcova I		Satellite of Pulcova			2/22/2000	7.5
+	2000 DG8			Damocloid centaur			2/25/2000	7.8
+60558	2000 EC98; 2002 GJ27	Echeclus		Centaur/Comet	174P/		3/3/2000	42.0
+38628	2000 EB173	Huya		Plutino—binary			3/10/2000	235.1
+86666	2000 FL10			Asteroid (Apollo)—NEO—PHA			3/30/2000	1.0
+	2000 GM137			Centaur			4/2/2000	
+		Jupiter XVII Callirrhoe		Satellite of Jupiter			7/20/2000	5.0
+87269	2000 OO67			TNO/Centaur			7/29/2000	31
+54509	2000 PH5	YORP	https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/54509_YORP_image_radar_and_3D_model.gif/250px-54509_YORP_image_radar_and_3D_model.gif	Asteroid (Apollo)—NEO			8/3/2000	61.8
+54598	2000 CQ243	Bienor		Centaur—possible dwarf planet			8/27/2000	138.2
+	S/2000 S02	Saturn XX Paaliaq		Satellite of Saturn			10/25/2000	10.5
+		Saturn XXIX Siarnaq		Satellite of Saturn			10/25/2000	20.0
+	S/2000 S01	Saturn XIX Ymir		Satellite of Saturn			10/25/2000	9.5
+	S/2000 S04	Saturn XXI Tarvos	https://upload.wikimedia.org/wikipedia/commons/c/cb/Tarvos_from_Cassini.jpg	Satellite of Saturn			10/25/2000	8.8
+34611	2000 UF11	Nacogdoches	http://www.physics.sfasu.edu/astro/asteroids/k00u11f.gif	Asteroid (Main-belt)			10/25/2000	
+37117	2000 VU2	Narcissus		Centaur			11/1/2000	5.6
+	S/2000 S05	Saturn XXIV Kiviuq		Satellite of Saturn			11/18/2000	9.0
+	S/2000 S06	Saturn XXII Ijiraq		Satellite of Saturn			11/18/2000	5.5
+20000	2000 WR106	Varuna		Cubewano—Scattered extended			11/28/2000	360.7
+	S/2000 S10	Saturn XXVIII Erriapus		Satellite of Saturn			12/7/2000	5.0
+	S/2000 S08	Saturn XXVII Skathi		Satellite of Saturn			12/7/2000	4.0
+	S/2000 S09	Saturn XXV Mundilfari		Satellite of Saturn			12/7/2000	3.5
+		Saturn XXX Thrymr		Satellite of Saturn			12/7/2000	3.5
+	S/2000 S11	Saturn XXVI Albiorix		Satellite of Saturn			12/19/2000	15.5
+	S/2000 S12	Saturn XXIII Suttungr		Satellite of Saturn			12/22/2000	3.5
+		Jupiter LIII Dia		Satellite of Jupiter			1/5/2001	2.0
+		Jupiter XIX Megaclite		Satellite of Jupiter			1/5/2001	
+		Jupiter XX Taygete		Satellite of Jupiter			1/5/2001	
+		Jupiter XXI Chaldene		Satellite of Jupiter			1/5/2001	
+		Jupiter XXII Harpalyke		Satellite of Jupiter			1/5/2001	
+		Jupiter XXIII Kalyke		Satellite of Jupiter			1/5/2001	
+		Jupiter XXIV Iocaste		Satellite of Jupiter			1/5/2001	
+		Jupiter XXV Erinome		Satellite of Jupiter			1/5/2001	
+		Jupiter XXVI Isonoe		Satellite of Jupiter			1/5/2001	
+		Jupiter XXVII Praxidike		Satellite of Jupiter			1/5/2001	
+385250	2001 DH47			Mars Trojan (L5)			2/1/2001	0.281
+		Sylvia I Romulus		Satellite of Sylvia			2/18/2001	9.0
+	1999 KW4 I (β); S/2001 (66391) 1			Satellite of 1999 KW4 I			3/22/2001	0.180
+	2001 GO2			Asteroid (Apollo)—NEO			4/13/2001	0.030
+28978	2001 KX76	Ixion		Plutino			5/22/2001	331.0
+119070	2001 KP77			Resonant KBO (4:7)			5/23/2001	87.5
+	C/2001 OG108	LONEOS		Comet (Halley type)			7/28/2001	
+32532	2001 PT13; 1995 MM6; 1999 NE2	Thereus		Centaur			8/9/2001	
+	2001 QF298			Plutino			8/19/2001	207.3
+88611	2001 QT297	Teharonhiawako		Cubewano—binary			8/20/2001	86.1
+	2001 QC298			TNO, hot classical—binary			8/21/2001	117.0
+		Kalliope I Linus		Satellite of Kalliope			8/29/2001	14.0
+153591	2001 SN263 (α)			Asteroid (Amor)—NEO			9/15/2001	1.3
+		Teharonhiawako I Sawiskera		Satellite of Teharonhiawako			9/20/2001	61.0
+	P/2001 T4 (NEAT)	NEAT		Comet (Chiron type)/Centaur	166P/		10/15/2001	
+148780	2001 UQ18	Altjira		Cubewano—binary			10/20/2001	82.0
+42301	2001 UR163			SDO			10/21/2001	318.0
+	1999 TC36 I (α2)			Plutino—trinary (Probable dwarf planet)			12/8/2001	125.5
+131696	2001 XT254			Resonant KBO			12/9/2001	73.0
+	2001 XZ255			Centaur			12/11/2001	11.8
+	1998 SM165 I; S/2001 (26308) 1			Satellite of 1998 SM165			12/22/2001	44.3
+	2002 AT4			Asteroid (Amor)—D-type			1/8/2002	0.138
+	2002 AA29		https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/2002AA29.gif/250px-2002AA29.gif	Asteroid (Aten)—NEA			1/9/2002	0.031
+55565	2002 AW197		https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/2002AW197-Spitzer.jpg/200px-2002AW197-Spitzer.jpg	Cubewano			1/10/2002	357.0
+		Ikeya-Zhang (池谷-張彗星)		Comet	153P/		2/1/2002	
+42355	2002 CR46	Typhon		SDO/Centaur—binary			2/5/2002	74.0
+	S/2002 (3749) 1	Balam I		Satellite of Balam			2/13/2002	0.750
+95625	2002 GX32; 1994 JV			Resonant KBO			4/8/2002	76.5
+55576	2002 GB10	Amycus		Centaur			4/8/2002	38.2
+83982	2002 GO9	Crantor		Centaur			4/12/2002	30.0
+132524	2002 JF56	APL	https://upload.wikimedia.org/wikipedia/commons/d/d9/Asteroid_2002_JF56.jpg	Asteroid (main belt)—S-type			5/9/2002	1.2
+		Jupiter XXIX Thyone		Satellite of Jupiter			5/16/2002	
+		Jupiter XXVIII Autonoe		Satellite of Jupiter			5/16/2002	
+		Jupiter XXX Hermippe		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXI Aitne		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXII Eurydome		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXIII Euanthe		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXIV Euporie		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXV Orthosie		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXVI Sponde		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXVII Kale		Satellite of Jupiter			5/16/2002	
+		Jupiter XXXVIII Pasithee		Satellite of Jupiter			5/16/2002	
+119951	2002 KX14			Cubewano			5/17/2002	227.6
+50000	2002 LM60	Quaoar	https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Quaoar_PRC2002-17e.jpg/260px-Quaoar_PRC2002-17e.jpg	Cubewano—binary			6/5/2002	523.0
+307261	2002 MS4			Cubewano			6/18/2002	432.3
+	2002 RN109			Damocloid TNO			8/16/2002	2.0
+65407	2002 RP120			Damocloid SDO			9/4/2002	7.3
+		Uranus XXI Trinculo		Satellite of Uranus			9/30/2002	7.5
+84522	2002 TC302			Resonant SDO(2:5)			10/9/2002	293.8
+55636	2002 TX300			Cubewano—Haumea family			10/15/2002	177.1
+55637	2002 UX25		http://upload.wikimedia.org/wikipedia/en/9/97/20131105_2002_UX25_hst.png	Detached object/Cubewano—binary			10/30/2002	341.5
+84719	2002 VR128			Plutino			11/3/2002	226.9
+307463	2002 VU130			Plutino			11/7/2002	126.5
+	1995 TL8 I; S/2002 (48639) 1			Satellite of 1995 TL8 			11/9/2002	80.5
+	2002 VX130			Plutino			11/9/2002	44.0
+	2002 VE68			Minor planet—Quasi-satellite of Venus			11/11/2002	0.170
+55638	2002 VE95			Plutino			11/14/2002	124.9
+	2002 XV93			Plutino			12/10/2002	277.3
+		Jupiter XLIII Arche		Satellite of Jupiter			12/18/2002	
+	S/2003 (5381) 1	Sekhmet I		Satellite of Sekhmet			1/1/2003	0.150
+208996	2003 AZ84			Plutino—binary			1/13/2003	345.3
+		Neptune IX Halimede		Satellite of Neptune			1/13/2003	30.5
+		Neptune XI Sao		Satellite of Neptune			1/13/2003	21.0
+		Neptune XII Laomedeia		Satellite of Neptune			1/13/2003	20.5
+163693	2003 CP20	Atira		Asteroid (Apohele)—NEO—Venus crosser			2/11/2003	2.5
+	S/2003 J 05	Jupiter LVII*		Satellite of Jupiter			3/4/2003	2.0
+	S/2003 J 02	Jupiter LIV*		Satellite of Jupiter			3/4/2003	1.0
+	S/2003 J 03	Jupiter LV*		Satellite of Jupiter			3/4/2003	1.0
+	S/2003 J 04	Jupiter LVI*		Satellite of Jupiter			3/4/2003	1.0
+		Jupiter XLI Aoede		Satellite of Jupiter			3/4/2003	
+		Jupiter XLV Helike		Satellite of Jupiter			3/4/2003	
+		Jupiter XLVII Eukelade		Satellite of Jupiter			3/4/2003	
+		Jupiter XXXIX Hegemone		Satellite of Jupiter			3/6/2003	
+	S/2003 J 10	Jupiter LIX*		Satellite of Jupiter			3/7/2003	1.0
+	S/2003 J 09	Jupiter LVIII*		Satellite of Jupiter			3/7/2003	0.500
+	S/2003 J 12	Jupiter LX*		Satellite of Jupiter			3/7/2003	0.500
+		Jupiter XLIV Kallichore		Satellite of Jupiter			3/7/2003	
+65489	2003 FX128	Ceto		TNO/Centaur—binary			3/22/2003	99.3
+120132	2003 FY128			SDO/Detached object			3/26/2003	231.8
+		Jupiter XLVIII Cyllene		Satellite of Jupiter			4/2/2003	
+		Jupiter L Herse		Satellite of Jupiter			4/3/2003	1.0
+	S/2003 J 15	Jupiter LXI*		Satellite of Jupiter			4/3/2003	1.0
+	S/2003 J 16	Jupiter LXII*		Satellite of Jupiter			4/3/2003	1.0
+		Jupiter XLIX Kore		Satellite of Jupiter			4/3/2003	
+	S/2003 J 18	Jupiter LXIII*		Satellite of Jupiter			4/4/2003	1.0
+		Saturn XXXI Narvi		Satellite of Saturn			4/8/2003	3.5
+	S/2003 J 19	Jupiter LXIV*		Satellite of Jupiter			4/12/2003	1.0
+		Jupiter XLVI Carpo		Satellite of Jupiter			4/14/2003	
+		Borasisi I Pabu		Satellite of Borasisi			4/23/2003	70.0
+		Jupiter XL Mneme		Satellite of Jupiter			5/29/2003	
+174567	2003 MW12	Varda		Cubewano—binary			6/21/2003	346.8
+120178	2003 OP32			Cubewano / Extended (Haumea family)			7/26/2003	115.0
+	S/2003 (379) 1	Huenna I		Satellite of Huenna			8/14/2003	3.5
+	S/2003 (130) 1	Elektra I		Satellite of Elektra			8/15/2003	3.5
+	2003 QX113			SDO/Detached object			8/15/2003	251.3
+385446	2003 QW111	Manwë		Resonant KBO (4:7)			8/25/2003	37.5
+		Neptune X Psamathe		Satellite of Neptune			9/3/2003	20.0
+		Uranus XXVII Cupid		Satellite of Uranus			9/25/2003	7.5
+		Uranus XXVI Mab		Satellite of Uranus			9/25/2003	5.0
+163899	2003 SD220			Asteroid (Aten)—NEO—PHA			9/29/2003	1.0
+		Uranus XXIV Ferdinand		Satellite of Uranus			9/30/2003	8.0
+		Neptune XIII Neso		Satellite of Neptune			9/30/2003	30.0
+		Uranus XXII Francisco		Satellite of Uranus			10/8/2003	8.0
+		Uranus XXIII Margaret		Satellite of Uranus			10/9/2003	7.8
+	2003 UZ413			Plutino—Haumea family			10/21/2003	298.3
+416400	2003 UZ117			TNO (Haumea family)			10/24/2003	
+90377	2003 VB12	Sedna	https://upload.wikimedia.org/wikipedia/commons/0/02/Sedna_PRC2004-14d.jpg	Detached object (Sednoid)			11/14/2003	520.5
+84922	2003 VS2			Plutino—likely dwarf planet			11/14/2003	260.8
+		Didymos I		Satellite of Didymos			11/23/2003	0.075
+	2003 YN107			Asteroid (Aten)—quasi-satellite of Earth—Arjuna asteroid			12/20/2003	0.010
+		Jupiter XLII Thelxinoe		Satellite of Jupiter			1/24/2004	
+357439	2004 BL86		https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Radar_images_of_2004_BL86_and_its_moon.gif/300px-Radar_images_of_2004_BL86_and_its_moon.gif	Asteroid (near Earth)—Apollo—binary			1/30/2004	0.163
+	S/2003 J 23	Jupiter LXV*		Satellite of Jupiter			1/31/2004	1.0
+	S/2004 (45) 1	Eugenia II		Satellite of Eugenia			2/14/2004	3.0
+90482	2004 DW	Orcus	http://www.aanda.org/articles/aa/full_html/2011/10/aa17486-11/aa17486-11-fig8_small.jpg	Plutino—binary			2/17/2004	414.2
+120216	2004 EW95			Plutino			3/14/2004	87.5
+	2004 FH		https://upload.wikimedia.org/wikipedia/commons/0/0a/Asteroid_2004_FH.gif	Asteroid (Aten)—Earth crosser—Venus crosser			3/15/2004	0.015
+	2004 FU162			Asteroid—NEA			3/31/2004	0.003
+90568	2004 GV9			Cubewano			4/13/2004	345.8
+164207	2004 GU9			Asteroid (Apollo)—NEO—quasi-satellite of Earth			4/13/2004	0.130
+99942	2004 MN4	Apophis	https://upload.wikimedia.org/wikipedia/commons/e/e7/2004MN4_Sormano.gif	Asteroid (near Earth)—Aten—PHO			6/19/2004	0.163
+		Sylvia II Remus		Satellite of Sylvia			8/9/2004	3.5
+	P/2004 PY42	CINEOS		Comet (Chiron type)	167P/		8/10/2004	
+392741	2012 SQ31; 2004 PR107; 2009 YS20			Asteroid (main belt)			8/11/2004	0.500
+		Saturn XXXII Methone	https://upload.wikimedia.org/wikipedia/commons/2/2c/Methone_PIA14633.jpg	Satellite of Saturn			8/16/2004	1.6
+120347	2004 SB60	Salacia		Cubewano—binary			9/22/2004	441.3
+144897	2004 UX10			Plutino—Probable dwarf planet			10/20/2004	180.6
+		Saturn XXXIV Polydeuces	https://upload.wikimedia.org/wikipedia/commons/0/04/Polydeuces.jpg	Satellite of Saturn			10/24/2004	3.1
+	2004 VN112			Detached object			11/1/2004	124
+	2004 XR190	"Buffy"		SDO/Detached object			12/11/2004	267.5
+144908	2004 YH32			Centaur			12/18/2004	
+136108	2003 EL61	Haumea	https://upload.wikimedia.org/wikipedia/en/6/65/2003_EL61_Haumea%2C_with_moons.jpg	Dwarf planet—Resonant KBO (7:12)—trinary			12/28/2004	624.3
+136199	2003 UB313	Eris	http://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Eris_and_dysnomia2.jpg/260px-Eris_and_dysnomia2.jpg	Dwarf planet—SDO—binary			1/5/2005	1,164.0
+		Haumea I Hi‘iaka		Satellite of Haumea			1/26/2005	175.0
+308193	2005 CB79			Cubewano / Extended (Haumea family)			2/6/2005	79.0
+		Saturn XXXIX Bestla		Satellite of Saturn			5/3/2005	4.3
+	S/2004 S 07	Saturn LIV*		Satellite of Saturn			5/3/2005	3.0
+	S/2004 S 13	Saturn LVI*		Satellite of Saturn			5/3/2005	3.0
+		Saturn XLII Fornjot		Satellite of Saturn			5/3/2005	3.0
+		Saturn XLIII Hati		Satellite of Saturn			5/3/2005	3.0
+		Saturn XXXVI Aegir		Satellite of Saturn			5/3/2005	3.0
+		Saturn XXXVIII Bergelmir		Satellite of Saturn			5/3/2005	3.0
+	S/2004 S 12	Saturn LV*		Satellite of Saturn			5/3/2005	2.5
+		Saturn XL Farbauti		Satellite of Saturn			5/3/2005	2.5
+	S/2004 S 17	Saturn LVII*		Satellite of Saturn			5/3/2005	2.0
+		Saturn XLI Fenrir		Satellite of Saturn			5/3/2005	2.0
+		Saturn XXXVII Bebhionn	https://upload.wikimedia.org/wikipedia/commons/7/73/%CE%9C%CF%80%CE%AD%CE%B2%CE%B9%CE%BD.jpg	Satellite of Saturn			5/4/2005	3.0
+265504	2005 JT50			Asteroid (main belt)			5/4/2005	
+		Saturn XXXV Daphnis	https://upload.wikimedia.org/wikipedia/commons/0/01/Daphnis_raw_2010_cropped.jpg	Satellite of Saturn			5/6/2005	3.6
+	S/2005 P1	Pluto III Hydra	https://upload.wikimedia.org/wikipedia/commons/8/83/Hydra_%28moon%29_from_231_000_kilometres.jpg	Satellite of Pluto			5/15/2005	19.0
+	S/2005 P2	Pluto II Nix	https://upload.wikimedia.org/wikipedia/commons/0/06/Nix_%28moon%29_in_color.jpg	Satellite of Pluto			5/15/2005	21.8
+	S/2005 (2003 EL61) 2; (136108) 2003 EL61 II	Haumea II Namaka		Satellite of Haumea			6/30/2005	92.5
+136472	2005 FY9	Makemake	https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Makemake_hubble.png/261px-Makemake_hubble.png	Dwarf planet—Cubewano			3/31/2005	713.0
+145451	2005 RM43			SDO			9/9/2005	290.0
+145453	2005 RR43			Cubewano—Haumea family			9/9/2005	116.3
+145452	2005 RN43			Cubewano			9/10/2005	342.5
+		Eris I Dysnomia		Satellite of Eris			10/3/2005	341.0
+	2005 TV189			Plutino			10/3/2005	
+145480	2005 TB190			Detached object			10/11/2005	217.6
+202421	2005 UQ513			Cubewano			10/21/2005	364.2
+348514	2005 UX10; 1995 WV36			Asteroid (main belt)			10/22/2005	
+434620	2005 VD			Damocloid centaur			11/1/2005	4.5
+	2005 VX3			Minor planet			11/1/2005	3.5
+	S/2005 (1862) 1	Apollo I		Satellite of Apollo			11/4/2005	0.040
+	S/2006 (50000) 1	Quaoar I Weywot		Satellite of Quaoar			2/14/2006	37.3
+		Saturn XLIV Hyrrokkin		Satellite of Saturn			3/6/2006	4.0
+		Saturn XLV Kari		Satellite of Saturn			3/6/2006	3.5
+		Saturn L Jarnsaxa		Satellite of Saturn			3/6/2006	3.0
+		Saturn LI Greip		Satellite of Saturn			3/6/2006	3.0
+	S/2006 S 03	Saturn LIX*		Satellite of Saturn			3/6/2006	3.0
+	S/2006 S 01	Saturn LVIII*		Satellite of Saturn			3/6/2006	3.0
+		Saturn XLVI Loge		Satellite of Saturn			3/6/2006	3.0
+		Saturn XLVII Skoll		Satellite of Saturn			3/6/2006	3.0
+		Saturn XLVIII Surtur		Satellite of Saturn			3/6/2006	3.0
+277810	2006 FV35			Asteroid (Apollo)—NEO—quasi-satellite of Earth			3/29/2006	0.115
+		Ceto I Phorcys		Satellite of Ceto			4/11/2006	75.8
+	2006 HJ123			Plutino			4/24/2006	141.6
+	2006 JY26			Asteroid (Apollo)—Arjuna asteroid—NEO—PHA			5/6/2006	0.005
+		Manwë I Thorondor		Satellite of Manwë			7/1/2006	21.5
+		Salacia I Actaea		Satellite of Salacia			7/21/2006	140.0
+	2006 QH181			SDO			8/21/2006	341.7
+	2006 RH120			Asteroid (Apollo)—temporary satellite of Earth			9/14/2006	0.0013
+308933	2006 SQ372			SDO/Centaur			9/27/2006	51.7
+		Saturn LII Tarqeq		Satellite of Saturn			1/16/2007	3.5
+	2002 UX25 I; S/2007 (55637) 1			Satellite of 2002 UX25			2/22/2007	112.5
+	2003 AZ84 I S/2007 (208996) 1			Satellite of 2003 AZ84			2/22/2007	35
+	2007 DA61			Centaur			2/25/2007	2.3
+	S/2007 (148780) 1	Altjira I		Satellite of Altjira			3/1/2007	70.0
+	S/2007 S 02	Saturn LX*		Satellite of Saturn			5/1/2007	3
+	S/2007 S 03	Saturn LXI*		Satellite of Saturn			5/1/2007	3
+	2007 JH43			Plutino—Likely dwarf planet			5/10/2007	251.3
+278361	2007 JJ43			Cubewano			5/14/2007	324.3
+		Saturn XLIX Anthe		Satellite of Saturn			5/30/2007	1.0
+311999	2007 NS2			Mars Trojan (L5)			7/14/2007	0.600
+225088	2007 OR10	"S̶n̶o̶w̶ ̶w̶h̶i̶t̶e̶"		Resonant KBO (3:10)			7/17/2007	645.0
+175113	2004 PF115			Plutino			9/1/2007	222.1
+309239	2007 RW10			Minor planet—Quasi-satellite of Neptune			9/9/2007	123.5
+	2007 TG422			SDO			10/3/2007	137.9
+341520	2007 TY430	Mors–Somnus		TNO—binary			10/14/2007	
+229762	2007 UK126			SDO			10/19/2007	304.0
+	2001 SN263 II (β)			Satellite of 2001 SN263			2/12/2008	
+	2001 SN263 I (γ)			Satellite of 2001 SN263			2/12/2008	
+341843	2008 EV5		https://upload.wikimedia.org/wikipedia/commons/a/a7/Asteroid-2008EV5-ShapeModel-20111006.gif	Asteroid (Aten), NEA, PHA			3/4/2008	207.000
+	S/2008 (3749) 1	Balam II		Satellite of Balam			3/12/2008	2
+633	1908 CS	Nestor		Jupiter trojan			3/23/2008	50.0
+	S/2008 (41) 1	Daphne I		Satellite of Daphne			3/28/2008	1.0
+	2008 KV42	"Drac"		Damocloid centaur/TNO			5/31/2008	35.0
+		Kleopatra II Alexhelios		Satellite of Kleopatra			9/19/2008	2.5
+		Kleopatra I Cleoselene		Satellite of Kleopatra			9/19/2008	1.5
+	2008 ST291			SDO			9/24/2008	295.3
+	1999 TC36 II (β1); S/2001 (47171) 1			Satellie of 1999 TC36			1/1/2009	67.8
+	2009 BD			Asteroid (Apollo)—NEA			1/16/2009	0.006
+	2009 DD45			Asteroid (Apollo)—NEA			2/27/2009	0.010
+		Litva I		Satellite of Litva			2/28/2009	0.700
+		Saturn LIII Aegaeon	https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Aegaeon_%282008_S1%29.jpg/1024px-Aegaeon_%282008_S1%29.jpg	Satellite of Saturn			3/3/2009	0.250
+330836	2009 HW77	Orius		Centaur			4/25/2009	
+		Varda I Ilmarë		Satellite of Varda			4/26/2009	180.5
+343158	2009 HC82			Damocloid asteroid (Apollo group), PHO			4/29/2009	1.3
+	1994 CC I (β)			Satellite of 1994 CC			6/12/2009	0.025
+	1994 CC II (γ)			Satellite of 1994 CC			6/12/2009	0.025
+		Minerva I Aegis		Satellite of Minerva			8/16/2009	4
+		Minerva II Gorgoneion		Satellite of Minerva			8/16/2009	3.0
+346889	2009 QV38	Rhiphonos		Centaur			8/28/2009	
+	S/2009 S 01	Saturn LXII*	https://upload.wikimedia.org/wikipedia/commons/d/d6/PIA11665_moonlet_in_B_Ring_cropped.jpg	Satellite of Saturn			11/2/2009	0.150
+386723	2009 YE7			Cubewano (Haumea family)			12/17/2009	190.0
+	2010 EK139		https://upload.wikimedia.org/wikipedia/en/a/ab/2010EK139-OCKS-KBO3.gif	SDO			3/13/2010	236.3
+	2010 EC46			Asteroid (Apollo)			3/13/2010	
+	2010 GB174			Detached object			4/12/2010	109.5
+	2010 KZ39		https://upload.wikimedia.org/wikipedia/en/a/a1/2010KZ39-OCKS-KBO7.gif	Cubewano/Detached object			5/21/2010	318.5
+	2010 RF43			SDO			9/6/2010	303.5
+419624	2010 SO16			Asteroid—quasi-satellite of Earth—NEA			9/17/2010	0.150
+	S/2010 J 01	Jupiter LI		Satellite of Jupiter			6/1/2011	1.0
+	S/2010 J 02	Jupiter LII		Satellite of Jupiter			6/1/2011	0.500
+	2011 MD		https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/PIA18453-Asteroid2011MD-SpitzerSpaceTelescope-IRAC-Feb2014.jpg/250px-PIA18453-Asteroid2011MD-SpitzerSpaceTelescope-IRAC-Feb2014.jpg	Asteroid (near Earth)—Amor			6/22/2011	0.005
+	S/2011 P1; S/2011 (134340) 1; P4	Pluto IV Kerberos	https://dl.dropboxusercontent.com/u/22964498/solar%20system/images/Kerberos.png	Satellite Pluto			6/28/2011	4.0
+	2011 SL25			Mars Trojan (L5—unconfirmed)			9/21/2011	0.275
+	2011 UN63			Mars Trojan (L5)			10/21/2011	0.280
+436724	2011 UW158		https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/2011%20UW158.gif	Asteroid (near Earth)—Apollo—PHA			10/25/2011	0.450
+	2011 SC191			Mars Trojan (L5)			10/31/2011	0.300
+	S/2011 J 01	Jupiter LXVI*		Satellite of Jupiter			1/29/2012	0.500
+	S/2011 J 02	Jupiter LXVII*		Satellite of Jupiter			1/29/2012	0.500
+	2012 DR30; 2009 FW54			Damocloid centaur/TNO/Oort cloud object			2/22/2012	80.3
+367943	2012 DA14	Duende	https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Radar-2012DA14-Goldstone.jpg/275px-Radar-2012DA14-Goldstone.jpg	Asteroid (near Earth)—Aten			2/23/2012	0.015
+	2012 FC71			Asteroid (Aten)—NEO			3/31/2012	0.015
+		Huya I		Satellite of Huya			6/1/2012	105.0
+	S/2012 (2577) 1	Litva II*		Satellite of Litva			6/22/2012	0.600
+	S/2012 (134340) 1; P5	Pluto V Styx	https://dl.dropboxusercontent.com/u/22964498/solar%20system/images/Styx.png	Satellite of Pluto			6/26/2012	3.0
+	2012 VP113	"Biden"		Detached object (Sednoid)			11/5/2012	294.0
+	2013 AZ60			SDO/Centaur			1/10/2013	20.0
+	2013 BL76			Damocloid centaur/Oort cloud object			1/20/2013	15.6
+	2013 BS45			Asteroid (Aten)—NEO—quasi-satellie of Earth			1/20/2013	0.015
+	2013 FY27			SDO			3/17/2013	397.9
+	2013 LX28			Asteroid (Apollo)—NEO—quasi-satellite of Earth			6/12/2013	0.108
+	S/2004 N 1	Neptune XIV*		Satellite of Neptune			7/1/2013	9.3
+	1998 RO1 I; S/2001 (66063) 1			Satellite of 1998 RO1			9/13/2013	
+	2014 HQ124	"The Beast"	https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/PIA18412-Asteroid2014HQ124-20140608.jpg/1024px-PIA18412-Asteroid2014HQ124-20140608.jpg	Asteroid (Aten), NEO, PHA			4/23/2014	0.163
+	2014 MT69			TNO			6/24/2014	29.8
+	2014 MU69		https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/KBO_1110113Y_HST.jpg/220px-KBO_1110113Y_HST.jpg	KBO			6/26/2014	18.1
+	2014 OL339			Asteroid (Aten)—NEO—quasi-satellie of Earth			7/29/2014	0.065
+	2014 OS393			TNO			7/30/2014	21.9
+	2014 PN70			KBO			9/6/2014	28.8
+	S/2014 (130) 1	Elektra II		Satellite of Elektra			12/6/2014	2.6
+	2014 YB35			Asteroid (Apollo)—NEO			12/27/2014	0.260
+	2004 BL86 I			Satellite of 2004 BL86			1/26/2015	0.035
+	2015 LF			Asteroid (Apollo)			6/7/2015	0.011
+	2015 SZ2			Asteroid (Apollo)—NEO			9/23/2015	0.036
+	2000 SG344			Asteroid (Aten)—NEO			9/29/2015	0.019
+	2015 TB145	"Spooky"	http://www.skyandtelescope.com/wp-content/uploads/radar-rotation-of-asteroid-.gif	Asteroid (Apollo)—NEO—PHA			10/10/2015	250.0
+	v774104		https://sg.hu/kep/2015_11/598x355x1113nap1.jpg.pagespeed.ic.pIFhfYzP6n.jpg	TNO			10/13/2015	375.0
+	2015 XY261			Asteroid (Apollo)—NEO			12/12/2015	0.0
+	S/2005 (90482) 1	Orcus I Vanth		Satellite of Orcus			11/13/2005	172.3
+444	1899 EL	Gyptis		Asteroid (main belt)—C-type			3/31/1899	82.0
+804	1915 WT	Hispania		Asteroid (main belt)—P-type			3/20/1915	75.6
+128		Nemesis		Asteroid (main belt)—C-type			11/25/1872	92.7
+76		Freia	https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/76Freia_%28Lightcurve_Inversion%29.png/250px-76Freia_%28Lightcurve_Inversion%29.png	Asteroid (main belt—outer)—Cybele			10/21/1862	91.9
+		Alauda		Asteroid (main belt)—C-type—binary				97.0
+		Aletheia		Asteroid (main belt)				95.0
+		Lachesis		Asteroid (main belt)				87.0
+		Hilda		Asteroid (main belt)—Hildas				85.0
+		Aegle		Asteroid (main belt)				84.0
+		Germania		Asteroid (main belt)—C-type				89.0
+		Prokne		Asteroid (main belt)—C-type				85.0
+		Aspasia		Asteroid (main belt)—C-type				88.0
+		Dido		Asteroid (main belt)—C-type				70.0
+		Juewa		Asteroid (main belt)				81.0
+		Loreley		Asteroid (main belt)—C-type				82.0
+		Nuwa		Asteroid (main belt)—C-type				73.0
+		Julia		Asteroid (main belt)—S-type				74.0
+		Sibylla		Asteroid (main belt)—C-type				70.0
+		Io		Asteroid (main belt)				80.0
+		Lomia		Asteroid (main belt)—C-type				70.0
+		Meliboea		Asteroid (main belt)				70.0
+		Isolda		Asteroid (main belt)—C-type				70.0
+		Vibilia		Asteroid (main belt)				70.0
+		Hesperia		Asteroid (main belt)—M-type				70.0
+		Medea		Asteroid (main belt)				70.0
+		Arethusa		Asteroid (main belt)				70.0
+		Protogeneia		Asteroid (main belt)				70.0
+		Lucina		Asteroid (main belt)				70.0
+		Lamberta		Asteroid (main belt)—C-type				70.0
+		Undina		Asteroid (main belt)—M-type				60.0
+		Antigone		Asteroid (main belt)—nickel–iron				60.0
+		Sophrosyne		Asteroid (main belt)				60.0
+		Gudrun		Asteroid (main belt)—S-type				60.0
+		Henrietta		Asteroid (main belt)—C-type—Cybele				60.0
+		Artemis		Asteroid (main belt)—C-type				60.0
+		Galatea		Asteroid (main belt)—C-type				60.0
+		Lumen		Asteroid (main belt)—C-type				70.0
+56		Melete		Asteroid (main belt)			9/9/1857	58.3
+		Aemilia		Asteroid (main belt)				60.0
+		Emma		Asteroid (main belt)—binary				70.0
+		Eucharis		Asteroid (main belt)—K-type				50.0
+		Ianthe		Asteroid (main belt)—C-type				50.0
+		Ausonia		Asteroid (main belt)—S-type				50.0
+		Kolga		Asteroid (main belt)—C-type				50.0
+		Kassandra		Asteroid (main belt)—T-type				50.0
+		Hekate		Asteroid				45.0
+		Gallia		Asteroid (main belt)—R-type				50.0
+		Prosperina		Asteroid				45.0
+58		Concordia		Asteroid (main belt)—C-type			3/24/1860	45.9
+		Hera		Asteroid				45.0
+		Felicitas		Asteroid				45.0
+		Feronia		Asteroid				45.0
+		Lydia		Asteroid				45.0
+		Niobe		Asteroid				40.0
+		Klotho		Asteroid				40.0
+		Gerda		Asteroid (main belt)—S-type				40.0
+		Beatrix		Asteroid (main belt)—X-type				40.0
+		Klio		Asteroid				40.0
+		Alkeste		Asteroid (main belt)—S-type				40.0
+	S/2000 (90) 1	Antiope I Antiope β		Satellite of (90) Antiope A				40.0
+		Dike		Asteroid				35.0
+		Hecuba		Asteroid				30.0
+		Frigga		Asteroid				35.0
+		Cyrene		Asteroid (main belt)—S-type				35.0
+		Helena		Asteroid				35.0
+		Althaea		Asteroid (main belt)—S-type				30.0
+		Eurydike		Asteroid (main belt)—M-type				30.0
+		Polana		Asteroid (main belt)—F-type				30.0
+	S/2001 (58534) 1	Logos I Zoe		Satellite of Logos				34.0
+		Amalthea		Asteroid (main belt)				25.0
+		Tolosa		Asteroid (main belt)—S-type				25.0
+		Velleda		Asteroid (main belt)				20.0
+		Klytia		Asteroid				20.0
+		Liberatrix		Asteroid (main belt)—M-type				20.0
+		Aethra		Asteroid (main belt)—M-type				20.0
+		Peitho		Asteroid (main belt)				20.0
+		Lacrimosa		Asteroid (main belt)—Koronis—S-type				20.0
+		Vala		Asteroid (main belt)				20.0
+		Austria		Asteroid (main belt)—M-type				20.0
+		Urda		Asteroid (main belt)—Koronis—S-type				20.0
+	S/2002 (121) 1	Hermione I "Lafayette"		Satellite of Hermione				6.3
+	S/2001 (107) 1	Camilla I		Satellite of Camilla				5.3
+	1986 DA			Asteroid (Amor) M-type				5.0
+	2004 VD17			Asteroid (near Earth)—Apollo				0.290
+	2007 CA19			Asteroid (near Earth)—Apollo				0.432
+	2009 FD			Asteroid (near Earth)—Apollo				0.650
+	1994 WR12			Asteroid (near Earth)—Aten				0.650
+	2008 HJ			Asteroid (near Earth) & fast rotator (42 s)				0.180
+	2002 XW93			Likely dwarf planet				292.0
+	2013 FZ27			Likely dwarf planet				287.5
+	2010 FX86			Cubewano				280.0
+	2010 RE64			SDO				280.0
+	2014 UM33			Cubewano				270.0
+	2004 TY364			Cubewano				260.0
+	2010 VK201			Cubewano				260.0
+	2008 OG19			Likely dwarf planet				256.0
+	2014 FC69			Likely dwarf planet				256.0
+	2005 UQ513			Cubewano				250.0
+	2014 FT71			Likely dwarf planet				250.0
+	2005 RS43			Probable dwarf planet				249.5
+	2010 TY53			Centaur—Extended				245.0
+	2010 TJ			SDO				241.2
+	2010 VZ98			SDO				241.2
+	2011 FW62			Cubewano				241.2
+	2000 YW134			SDO				239.0
+	2003 QW90			Probable dwarf planet				239.0
+	2004 PG115			Probable dwarf planet				239.0
+	2007 XV50			Probable dwarf planet				239.0
+	2011 GM27			SDO				237.7
+	1998 SN165			Cubewano				236.5
+	2010 RF64			Probable dwarf planet				233.5
+	2010 EP65			Probable dwarf planet				229.0
+	2004 XA192			SDO				228.8
+	1999 CD158			Resonant KBO(4:7)				228.0
+	2010 EL139			Probable dwarf planet				228.0
+	2003 QX111			Probable dwarf planet				226.5
+	2002 WC19			Twotino—binary				224.7
+	1996 GQ21			SDO				223.0
+	2005 CA79			Probable dwarf planet				223.0
+	2008 AP129			Probable dwarf planet				223.0
+	2008 NW4			Probable dwarf planet				223.0
+	2008 QY40			Probable dwarf planet				223.0
+	2008 UA332			Probable dwarf planet				223.0
+	2010 ET65			Probable dwarf planet				223.0
+	2010 HE79			Probable dwarf planet				223.0
+	2013 FC28			Probable dwarf planet				223.0
+	2013 JW63			Probable dwarf planet				223.0
+	2014 FY71			Probable dwarf planet				223.0
+	2004 NT33			Cubewano				210.0
+	2005 QU182			SDO				207.5
+	2000 AF255			Probable dwarf planet				201.5
+	2001 CZ31			Probable dwarf planet				201.5
+82158	2001 FP185			SDO				149.3
+		Aurora		Asteroid (main belt)				102.0
+		Palma		Asteroid (main belt)				96.0
+	2001 QC298 I; S/2002 (2001 QC298) 1			Satellite of  2001 QC298				95.7
+		Bertha		Asteroid (main belt)—C-type				93.0
+		Siegena		Asteroid (main belt)—C-type				85.0
+		Winchester		Asteroid (main belt)				85.0
+		Stereoskopia		Asteroid (main belt—outer)—Cybele				84.0
+59		Elpis		Asteroid (main belt)			9/12/1860	83.2
+	2005 TN74			TNO—resonant (3:5)				81.3
+		Pretoria		Asteroid (main belt—outer)—Cybele				80.5
+		Ino		Asteroid (main belt)—C-type				80.0
+		Eleonora		Asteroid (main belt)—S-type				77.0
+		Merapi		Asteroid (main belt)				76.0
+		Merbericia		Asteroid (main belt)				76.0
+54		Alexandra	https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/54Alexandra_%28Lightcurve_Inversion%29.png/250px-54Alexandra_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			9/10/1858	76.4
+		Ate		Asteroid (main belt)—C-type				70.0
+		Bertholda		Asteroid (main belt)—P-type				70.0
+		Bononia		Asteroid (main belt)—D-type				70.0
+		Comacina		Asteroid (main belt)				70.0
+		Dembowska		Asteroid (main belt)—R-type				70.0
+		Desiderata		Asteroid (main belt)—C-type				70.0
+		Erminia		Asteroid (main belt)				70.0
+		Eukrate		Asteroid (main belt)—C-type				70.0
+		Helio		Asteroid (main belt)—B-type				70.0
+		Hypatia		Asteroid (main belt)—C-type				70.0
+		Liguria		Asteroid (main belt)				70.0
+51		Nemausa		Asteroid (main belt)			1/22/1858	74.2
+		Papagena		Asteroid (main belt)—C-type				70.0
+		Philomela		Asteroid (main belt)—S-type				70.0
+		Polyxo		Asteroid (main belt)—T-type				70.0
+		Princetonia		Asteroid (main belt)				70.0
+		Wratislavia		Asteroid (main belt)				70.0
+	2007 UK126 I			Satellite of 2007 UK126				69.5
+	2006 UL321							62.5
+		Argentina		Asteroid (main belt)—Cybele				60.0
+		Aurelia		Asteroid (main belt)—F-type				60.0
+		Boliviana		Asteroid (main belt)—X-type				60.0
+		Brixia		Asteroid (main belt)				60.0
+		Carlova		Asteroid (main belt)				60.0
+		Charybdis		Asteroid (main belt)—C-type				60.0
+		Chloris		Asteroid (main belt)—C-type				60.0
+		Diana		Asteroid (main belt)—C-type				60.0
+		Dynamene		Asteroid (main belt)				60.0
+		Elfriede		Asteroid (main belt)—C-type				60.0
+		Freda		Asteroid (main belt)				60.0
+		Hedwig		Asteroid (main belt)				60.0
+		Hippo		Asteroid (main belt)				60.0
+		Iduna		Asteroid (main belt)—G-type				60.0
+		Johanna		Asteroid (main belt)				60.0
+53		Kalypso		Asteroid (main belt)			4/4/1858	58.8
+		Leto		Asteroid (main belt)—S-type				60.0
+		Marianna		Asteroid (main belt)				60.0
+		Messalina		Asteroid (main belt)				60.0
+57		Mnemosyne		Asteroid (main belt)			9/22/1859	57.6
+		Myrha		Asteroid (main belt)—C-type				60.0
+		Ornamenta		Asteroid (main belt)—C-type				60.0
+		Panopaea		Asteroid (main belt)—C-type				60.0
+		Pompeja		Asteroid (main belt)				60.0
+		Scheila		Asteroid (main belt)				60.0
+		Semele		Asteroid (main belt)—C-type				60.0
+		Tanete		Asteroid (main belt)—C-type				60.0
+		Terpsichore		Asteroid (main belt)—C-type				60.0
+		Thia		Asteroid (main belt)—C-type				60.0
+		Thule		Asteroid (main belt)—D-type				60.0
+		Tisiphone		Asteroid (main belt)—C-type				60.0
+		Ulla		Asteroid (main belt)				60.0
+		Veritas		Asteroid (main belt)—Veritas				60.0
+		Xanthippe		Asteroid (main belt)—S-type				60.0
+		Zelinda		Asteroid (main belt)				60.0
+	2002 GB32							60.0
+	2013 LU28; 2014 LJ9							57.5
+617	S/2001 (617) 1	Patroclus I Menoetius		Satellite of Patroclus				56.0
+		Andromache		Asteroid (main belt)—C-type				50.0
+		Ani		Asteroid (main belt)				50.0
+		Aquitania		Asteroid (main belt)—S-type				50.0
+		Armida		Asteroid (main belt)				50.0
+		Arsinoe		Asteroid (main belt)—C-type				50.0
+		Asterope		Asteroid (main belt)—T-type				50.0
+		Athamantis		Asteroid (main belt)—S-type				50.0
+		Corduba		Asteroid (main belt)—C-type				50.0
+		Eos		Asteroid (main belt)—K-type				50.0
+		Eva		Asteroid (main belt)—C-type				50.0
+		Flammario		Asteroid				50.0
+		Gerlinde		Asteroid (main belt)				50.0
+		Helga		Asteroid (main belt)—Cybele				50.0
+		Hermentaria		Asteroid (main belt)—S-type				50.0
+		Hohensteina		Asteroid (main belt)				50.0
+		Irmintraud		Asteroid—D-type				50.0
+		Kythera		Asteroid (main belt)				50.0
+		Laurentia		Asteroid (main belt)				50.0
+		Luscinia		Asteroid (main belt)—C-type				50.0
+		Mandeville		Asteroid (main belt)—X-type				50.0
+		Marion		Asteroid (main belt)—C-type				50.0
+		Ninina		Asteroid (main belt)				50.0
+		Notburga		Asteroid (main belt)				50.0
+		Ottilia		Asteroid (main belt)				50.0
+		Polyxena		Asteroid (main belt)				50.0
+		Tauris		Asteroid (main belt)				50.0
+		Vanadis		Asteroid (main belt)—C-type				50.0
+		Philosophia		Asteroid (main belt)				45.0
+		Tercidina		Asteroid (main belt)—C-type				45.0
+	2013 RF98			TNO				45.0
+		Typhon I Echidna		Satellite of Typhon				44.5
+		Danae		Asteroid				40.0
+		Gaussia		Asteroid				40.0
+		Hertha		Asteroid				40.0
+		Miriam		Asteroid				40.0
+		Sappho		Asteroid				40.0
+		Thyra		Asteroid				40.0
+		Eurynome		Asteroid				35.0
+		Iphigenia		Asteroid				35.0
+		Maja		Asteroid				35.0
+55		Pandora	https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/55Pandora_%28Lightcurve_Inversion%29.png/265px-55Pandora_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			9/10/1858	34.2
+		Sirona		Asteroid (main belt)				35.0
+		Alkmene		Asteroid				30.0
+		Angelina		Asteroid (main belt)—E-type				30.0
+		Asia		Asteroid				30.0
+		Echo		Asteroid				30.0
+		Brunhild		Asteroid (main belt)				25.0
+		Piazzia		Asteroid (main belt)				25.0
+		Poulydamas		Asteroid—Jupiter Trojan				25.0
+418993	2009 MS9							21.0
+		Koronis		Asteroid (main belt)—Koronis—S-type				20.0
+		Schwassmann–Wachmann	https://upload.wikimedia.org/wikipedia/commons/0/09/29P_Schwassmann_Wachmann.jpg	Comet—Centaur	29P/			20.0
+	2010 BK118							19.0
+336756	2010 NV1							17.0
+		Beethoven		Asteroid (main belt)				15.0
+		Weringia		Asteroid (main belt)—S-type				15.0
+1158	1929 QF	Luda		Asteroid (main belt)—Maria family				9.5
+	2012 KA51							7.5
+	S/2006 (624) 1	Hektor I		Satellite of Hektor				6.0
+		Annefrank	https://upload.wikimedia.org/wikipedia/commons/1/1e/Asteroid_5535_Annefrank.jpg	Asteroid				5.0
+		Encke	https://upload.wikimedia.org/wikipedia/commons/a/a1/Comet_Encke.jpg	Comet	2P/			5.0
+		Holmes	https://upload.wikimedia.org/wikipedia/commons/c/c6/17pHolmes_071104_eder_vga.jpg	Comet	17P/			5.0
+	C/1996 B2	Hyakutake	https://upload.wikimedia.org/wikipedia/commons/6/6d/Hyakutake_Hubble.gif	Comet				5.0
+4055		Magellan	https://upload.wikimedia.org/wikipedia/commons/2/25/CCD_image_of_asteroid_4055_Magellan.png	Asteroid (Amor) V-type				5.0
+		Wild 2	https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Wild2_3.jpg/1024px-Wild2_3.jpg	Comet	81P/			5.0
+	1998 QE2		https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/%28285263%29_1998_QE2%2C_Goldstone%2C_May_30%2C_2013.jpg/1024px-%28285263%29_1998_QE2%2C_Goldstone%2C_May_30%2C_2013.jpg	Asteroid (near Earth)—Binary				5.0
+	2011 OR17; 2010 KZ127							5.0
+	2015 FK37							4.0
+		Šteins	https://upload.wikimedia.org/wikipedia/commons/8/88/2867_%C5%A0teins_by_Rosetta_%28reprocessed%29.png	Asteroid—E-type				2.7
+		Churyumov–Gerasimenko	https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Comet_67P_on_19_September_2014_NavCam_mosaic.jpg/1024px-Comet_67P_on_19_September_2014_NavCam_mosaic.jpg	Comet	67P/			1.9
+	1999 JM8		https://upload.wikimedia.org/wikipedia/commons/6/6f/Asteroid_1999_JM8.gif	Asteroid				1.8
+		Astronautica		Asteroid (main belt - inner)				0.800
+	2007 PA8			Asteroid (near Earth)—Apollo				0.800
+	2015 FS332			Asteroid (Apollo)—NEO—PHA				0.5
+		Hypnos		Comet (dormant)				0.450
+	2004 XP14			Asteroid (near Earth)—Apollo				0.300
+	2012 TT5			Asteroid (near Earth)—Apollo				0.270
+	2005 YU55		https://upload.wikimedia.org/wikipedia/commons/5/54/2005YU55-20111107.jpg	Asteroid (near Earth)—Apollo—PHO				0.180
+4660		Nereus	https://upload.wikimedia.org/wikipedia/commons/e/e2/Nereus.jpg	Asteroid (near Earth)—Apollo				0.165
+	1998 PG I; S/2001 (31345) 1			Satellite of 1998 PG				0.150
+	2010 TK7			Earth trojan—Apollo				0.150
+	2007 TU24		https://upload.wikimedia.org/wikipedia/commons/e/ea/2007_TU24_radar_image_20080128.jpg	Asteroid (near Earth)—Apollo—PHO				0.125
+	2002 JE9			Asteroid (near Earth)—Apollo—PHO				0.100
+	2010 XC15			Asteroid (near Earth)—Apollo—PHO				0.100
+	2009 TK			Asteroid (Amor)—NEO				0.1
+	1998 DK36			Asteroid (Apohele)—NEO				0.043
+	1972 XA I; S/2007 (1866) 1	Sisyphus I		Satellite of Sisyphus				
+	1994 ES2			TNO				
+	1998 WW31 I; S/2000 (1998 WW31) 1			Satellite of 1998 WW31				
+	2003 SQ317			TNO (Haumea family)				
+	2007 TB434			Centaur				
+	2009 SH2			Asteroid (Aten)—NEO—Arjuna asteroid				
+1776	2520 P-L	Kuiper		Asteroid (main belt)			9/24/1960	18.0</div>

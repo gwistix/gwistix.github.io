@@ -1,0 +1,472 @@
+
+<html>
+<head>
+<title>IPA Chart</title>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="gwistix.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="shortcut icon" href="https://dl.dropboxusercontent.com/u/22964498/gwistix.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style type="text/css">
+a {cursor:hand;}
+td {text-align:center; line-height:90%; letter-spacing:-0.05em;}
+.segment {background-color:white; font-family:'times new roman', 'arial unicode ms', 'lucida sans unicode'; font-size:20px;}
+.segmenn {background-color:efefef; font-family:'times new roman', 'arial unicode ms', 'lucida sans unicode'; font-size:20px;}
+  
+body {
+	background: rgb(0,0,0); /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
+	background: linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+}
+.gray {
+	box-shadow: 0px 3px 20px #000;
+	background-color:#dedede; /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(181,181,181,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(181,181,181,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* IE10+ */
+	background: linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#b5b5b5',GradientType=0 ); /* IE6-9 */
+}
+th {
+	background: rgb(0,18,52); /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(0,18,52,1) 1%, rgba(1,35,69,1) 22%, rgba(35,69,103,1) 77%, rgba(69,103,137,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,rgba(0,18,52,1)), color-stop(22%,rgba(1,35,69,1)), color-stop(77%,rgba(35,69,103,1)), color-stop(100%,rgba(69,103,137,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* IE10+ */
+	background: linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#001234', endColorstr='#456789',GradientType=0 ); /* IE6-9 */
+}
+
+@font-face {
+    font-family: Segoe UI Symbol;
+    src: url(Fonts/Segoe-UI-Symbol/Segoe-UI-Symbol.woff);
+}
+@font-face {
+    font-family: Doulos SIL;
+    src: url(Fonts/DoulosSIL.woff);
+}
+@font-face {
+    font-family: Code2000;
+    src: url(Fonts/Code2000/Code2000.woff);
+}
+@font-face {
+    font-family: Code2001;
+    src: url(Fonts/Code2001/Code2001.woff);
+}
+@font-face {
+    font-family: Code2002;
+    src: url(Fonts/Code2002/Code2002.tff);
+}
+</style>
+<script language="JavaScript">
+var Phonemes = new Array("ʘ","ǀ","ǁ","ǃ","ǂ","pʼ","tʼ","ʈʼ","sʼ","cʼ","kʼ","qʼ","ɓ","ɗ","ʄ","ɠ","ʠ","ʛ","p","b","t","d","ʈ","ɖ","c","ɟ","k","g","q","ɢ","ʔ","pɸ","bβ","pf","bv","tθ","dð","ʦ","ʣ","ʧ","ʤ","tʂ","dʐ","cç","ɟʝ","kx","gɣ","qχ","ɢʁ","ʔh","ɸ","β","f","v","θ","ð","s","z","ʃ","ʒ","ʂ","ʐ","ç","ʝ","x","ɣ","χ","ʁ","ħ","ʕ","h","ɦ","ɬ","ɮ","m","ɱ","n","ɳ","ɲ","ŋ","ɴ","ʙ","r","ʀ","ɾ","ɽ","ɹ","ɻ","l","ɭ","ʎ","ʟ","ʍ","w","ɥ","ʋ","j","ɰ","i","y","ɨ","ʉ","ɯ","u","ɪ","ʏ","ʊ","e","ø","ɘ","ɵ","ɤ","o","ə","ɛ","œ","ɜ","ɞ","ʌ","ɔ","æ","ɐ","a","ɶ","ɑ","ɒ","#non-pulmonic","#pulmonic","#consonant","#vowel","#obstruent","#sonorant","#labial","#bilabial","#labiodental","#dental","#alveolar","#post-alveolar","#retroflex","#palatal","#velar","#uvular","#pharyngeal","#glottal");
+var Descriptions = new Array("bilabial click (non-pulmonic)","dental click (non-pulmonic)","alveo-lateral click (non-pulmonic)","post-alveolar click (non-pulmonic)","palatal click (non-pulmonic)","bilabial ejective (non-pulmonic)","dental ejective (non-pulmonic)","retroflex ejective (non-pulmonic)","alveolar ejective (non-pulmonic)","palatal ejective (non-pulmonic)","velar ejective (non-pulmonic)","uvular ejective (non-pulmonic)","voiced bilabial implosive (non-pulmonic)","voiced dental implosive (non-pulmonic)","voiced palatal implosive (non-pulmonic)","voiced velar implosive (non-pulmonic)","voiceless uvular implosive (non-pulmonic)","voiced uvular implosive (non-pulmonic)","voiceless bilabial plosive","voiced bilabial plosive","voiceless alveolo-dental plosive","voiced alveolo-dental plosive","voiceless retroflex plosive","voiced retroflex plosive","voiceless palatal plosive","voiced palatal plosive","voiceless velar plosive","voiced velar plosive","voiceless uvular plosive","voiced uvular plosive","voiceless glottal plosive","voiceless bilabial affricate","voiced bilabial affricate","voiceless labial affricate","voiced labial affricate","voiceless dental affricate","voiced dental affricate","voiceless alveolar affricate","voiced alveolar affricate","voiceless post-alveolar affricate","voiced post-alveolar affricate","voiceless retroflex affricate","voiced retroflex affricate","voiceless palatal affricate","voiced palatal affricate","voiceless velar affricate","voiced velar affricate","voiceless uvular affricate","voiced uvular affricate","voiceless glottal affricate","voiceless bilabial fricative","voiced bilabial fricative","voiceless  labio-dental fricative","voiced labio-dental fricative","voiceless dental fricative","voiced dental fricative","voiceless alveolar fricative","voiced alveolar fricative","voiceless post-alveolar fricative","voiced post-alveolar fricative","voiceless retroflex fricative","voiced retroflex fricative","voiceless palatal fricative","voiced palatal fricative","voiceless velar fricative","voiced velar fricative","voiceless uvular fricative","voiced uvular fricative","voiceless pharyngeal fricative","voiced pharyngeal fricative","voiceless glottal fricative","voiced glottal fricative","voiceless alveolo-dental lateral fricative","voiced alveolo-dental lateral fricative","bilabial nasal","labio-dental nasal","alveolo-dental nasal","retroflex nasal","palatal nasal","velar nasal","uvular nasal","voiced bilabial trill","voiced alveolo-dental trill","voiced uvular trill","voiced alveolo-dental flap","voiced retroflex flap","voiced alveolo-dental liquid (rhotic)","voiced retroflex liquid (rhotic)","voiced alveolo-dental liquid (lateral)","voiced retroflex liquid (lateral)","voiced palatal liquid (lateral)","voiced velar liquid (lateral)","voiceless labio-velar fricative","voiced labio-velar approximant","voiced labio-palatal approximant","voiced labio-dental approximant","voiced palatal approximant","voiced velar approximant","unrounded high front vowel (closed)","rounded high front vowel (closed)","unrounded high mid vowel (closed)","rounded high mid vowel (closed)","unrounded high mid vowel (closed)","rounded high mid vowel (closed)","unrounded high front-central vowel","rounded high front-central vowel","rounded high back-central vowel","unrounded mid front vowel (closed)","rounded mid front vowel (closed)","unrounded mid central vowel","rounded mid central vowel","unrounded mid back vowel","rounded mid back vowel","mid central vowel","unrounded mid front vowel (open)","rounded mid front vowel (open)","unrounded mid central vowel (open)","rounded mid central vowel (open)","unrounded mid back vowel (open)","rounded mid back vowel (open)","unrounded mid-low front vowel","unrounded mid-low central vowel","unrounded low front vowel","rounded low front vowel","unrounded low back vowel","rounded low back vowel","<i>Non-pulmonic</i> means that the lungs are not the primary source of airflow.  Non-pulmonic sounds are those articulations for which the glottis may remain closed and the sound may still be produced.","<i>Pulmonic</i> means that the lungs are the primary source of airflow.  If the glottis remains closed, pulmonic sounds are impossible to articulate.","A <i>consonant</i> is an articulatory segment in which stricture or closure of the vocal tract produces audible turbulence.","A <i>vowel</i> is a voiced articulatory segment in which the airflow is not obstructed anywhere within the vocal tract.","An <i>obstruent</i> is a consonant that necessitates some obstruction of airflow.  Plosives and fricatives are considered obstruents.","A <i>sonorant</i> is an articulatory segment that is voiced under normal circumstances, and involves minimal obstruction of airflow.  Nasals, liquids, glides, and all vowels are sonorants.","<i>Labial</i> articulatory segments are those in which the main point of articulation is the lips.","<i>Bilabial</i> articulatory segments are those in which the two main points of articulation are the two lips.","<i>Labiodental</i> articulatory segments are those in which the two main points of articulation are one lip (usually the lower) and the teeth.","<i>Dental</i> articulatory segments are those in which the main point of articulation is the upper teeth, which may come into contact with either the lower teeth or the tongue.","<i>Alveolar</i> articulatory segments are those in which the main point of articulation is the alveolar ridge, just behind the teeth.","<i>Post-alveolar</i> articulatory segments are those in which the main point of articulation is slightly behind the alveolar ridge.","<i>Retroflex</i> articulatory segments are those in which the tongue is curled, with the main point of articulation behind the alveolar ridge.","<i>Palatal</i> articulatory segments are those in which the main point of articulation is the hard palate (the bony roof of the mouth).","<i>Velar</i> articulatory segments are those in which the main point of articulation is the soft palate (velum).","<i>Uvular</i> articulatory segments are those in which the main point of articulation is the uvula (the fleshy structure hanging at the back of the mouth).","<i>Pharyngeal</i> articulatory segments are those in which the main point of articulation is the pharynx (the throat).","<i>Glottal</i> articulatory segments are those in which the main point of articulation is the glottis (the slit-like opening to the larynx formed by the vocal chords).");
+
+/*
+ʘ ǀ ǁ ǃ ǂ pʼ tʼ sʼ kʼ ɓ ɗ ɠ ʠ ʛ p b t d ʈ ɖ c ɟ k g q ɢ ʔ pɸ bβ pf bv tθ dð ʦ ʣ ʧ ʤ tʂ dʐ cç ɟʝ kx gɣ qχ ɢʁ ʔh ɸ β f v θ ð s z ʃ ʒ ʂ ʐ ç ʝ x ɣ χ ʁ ħ ʕ h ɦ ɬ ɮ m ɱ n ɳ ɲ ŋ ɴ ʙ r ʀ ɾ ɽ ɹ ɻ l ɭ ʎ ʟ ʍ w ɥ ʋ j ɰ
+
+		front	central	back
+
+close	high	iy	ɨʉ	ɯu
+		      ɪ ʏ	          ʊ
+		eø	ɘɵ	ɤo
+mid			 ə
+		ɛœ	ɜɞ	ʌɔ
+		æ 	 ɐ
+open	low	aɶ		ɑɒ
+
+(unrounded,rounded)
+
+
+bilabial	dental	alveo-lat	postalv	palatalv	alvlat	velar	uvular
+ʘ	ǀ	ǁ	ǃ	ǂ	
+ɓ	ɗ					ɠ	ʠʛ
+pʼ	tʼ	sʼ				kʼ
+
+,"#non-pulmonic","#pulmonic","#consonant","#vowel,"#obstruent","#sonorant","#labial","#bilabial","#labiodental","#dental","#alveolar","#post-alveolar","#retroflex","#palatal","#velar","#uvular","#pharyngeal","#glottal"
+"<i>Non-pulmonic</i> means that the lungs are not the primary source of airflow.  Non-pulmonic sounds are those articulations for which the glottis may remain closed and the sound may still be produced.","<i>Pulmonic</i> means that the lungs are the primary source of airflow.  If the glottis remains closed, pulmonic sounds are impossible to articulate.","A <i>consonant</i> is an articulatory segment in which stricture or closure of the vocal tract produces audible turbulence.","A <i>vowel</i> is a voiced articulatory segment in which the airflow is not obstructed anywhere within the vocal tract.","An <i>obstruent</i> is a consonant that necessitates some obstruction of airflow.  Plosives and fricatives are considered obstruents.","A <i>sonorant</i> is an articulatory segment that is voiced under normal circumstances, and involves minimal obstruction of airflow.  Nasals, liquids, glides, and all vowels are sonorants.","<i>Labial</i> articulatory segments are those in which the main point of articulation is the lips.","<i>Bilabial</i> articulatory segments are those in which the two main points of articulation are the two lips.","<i>Labiodental</i> articulatory segments are those in which the two main points of articulation are one lip (usually the lower) and the teeth.","<i>Dental</i> articulatory segments are those in which the main point of articulation is the upper teeth, which may come into contact with either the lower teeth or the tongue.","<i>Alveolar</i> articulatory segments are those in which the main point of articulation is the alveolar ridge, just behind the teeth.","<i>Post-alveolar</i> articulatory segments are those in which the main point of articulation is slightly behind the alveolar ridge.","<i>Retroflex</i> articulatory segments are those in which the tongue is curled, with the main point of articulation behind the alveolar ridge.","<i>Palatal</i> articulatory segments are those in which the main point of articulation is the hard palate (the bony roof of the mouth).","<i>Velar</i> articulatory segments are those in which the main point of articulation is the soft palate (velum).","<i>Uvular</i> articulatory segments are those in which the main point of articulation is the uvula (the fleshy structure hanging at the back of the mouth).","<i>Pharyngeal</i> articulatory segments are those in which the main point of articulation is the pharynx (the throat).","<i>Glottal</i> articulatory segments are those in which the main point of articulation is the glottis (the slit-like opening to the larynx formed by the vocal chords)."
+
+
+*/
+
+function inform(what) {
+var give = "";
+var vocab = false;
+	if (!what) {
+		informer.innerHTML = " ";
+		informer.style.visibility = "hidden";
+		window.status = "";
+		return;
+	}
+	if (what.charAt(0) == "#") vocab = true;
+	if (what.length <= 2 || vocab) {
+		what = ckDescriptions(what);
+	}
+
+	if (vocab) give = "<table bgcolor=dedede width=300 border=1><td bgcolor=white>";
+	else give = "<table bgcolor=dedede border=1><td bgcolor=white>";
+	give += what;
+	give += "</td></table>";
+	informer.innerHTML = give;
+	window.status = outTag(what);
+	informer.style.visibility = "visible";
+}
+
+function outTag(orig) {
+var putin = true;
+var give = "";
+	var Parser = orig.split("");
+	ParseLen = Parser.length;
+	for (i=0;i<ParseLen;i++) {
+		if (Parser[i] == "<") putin = false;
+		if (putin) give += Parser[i];
+		if (Parser[i] == ">") putin = true;
+	}
+	return give;
+}
+
+function ckDescriptions(segment) {
+	for (i in Phonemes) {
+		if (segment == Phonemes[i]) return Descriptions[i];
+	}
+}
+
+function doMove(e) {
+	informer.style.left = e.clientX + 3;
+	informer.style.top = e.clientY+ 15 + document.body.scrollTop;
+}
+
+//==========================================================
+
+var segoe = false;
+
+//ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘ-ʀꜱᴛᴜᴠᴡ-ʏᴢ
+
+function help() {
+	if (!segoe) {
+		if (!confirm("Switching the font may allow you to see more characters.\n\nDo you want to switch the font?")) return;
+
+		segoe = true;
+
+		AllElements = document.getElementsByTagName("*");
+		elen = AllElements.length;
+		for (i=0;i<elen;i++) {
+			AllElements[i].style.fontFamily = "Segoe UI Symbol, Apple Symbols, Doulos SIL, Code2000, Code2001, Code2002";
+		}
+	}
+	else {
+		if (!confirm("Do you want to switch the default font back to Times New Roman?\n\n(Note: This may make some character sets unreadable.)")) return;
+
+		segoe = false;
+
+		AllElements = document.getElementsByTagName("*");
+		elen = AllElements.length;
+		for (i=0;i<elen;i++) {
+			AllElements[i].style.fontFamily = "Times New Roman";
+		}
+	}
+}
+</script>
+</head>
+
+<body style='background-image:url(https://dl.dropboxusercontent.com/u/22964498/Web/gwistix%20background.jpg); background-attachment:fixed;'
+onMouseMove='doMove(event);' bgcolor=444455>
+
+<!-- TOOLBAR -->
+<div id=toolbar style='position:relative; top:0px; left:0px'>
+	<table width=100% class=gray>
+		<th style='font-family:"times new roman"; color:white; text-align:left;'>&nbsp;[ˈɡwɪs.tɪks] › 
+<!--			<select onChange='alert("Options coming soon!");'>
+				<option value='Home' disabled="disabled">Home</option>
+				<option value='Tools' selected=true>Tools</option>
+			</select> › --><select onChange='if (this.value == "OmniType") window.location = "type.html"; else if (this.value == "Phonology") window.location = "phonology.html"; else if (this.value == "IPA Chart") window.location = "IPA_Chart.html"; else if (this.value == "Sonority") window.location = "sonority.html";'>
+				<option value="OmniType">OmniType</option>
+				<option value="Phonology">Phonology Tool</option>
+        <option value="IPA Chart" selected>IPA Chart</option>
+				<option value="Sonority">Sonority Profiler</option></select>&nbsp;
+		</th>
+		<th align=center width=100>
+			<input type=button value='About' style='cursor:help;' onClick='alert("Created 04-Dec-07 by Andrew Bayles");' title='Information about this Web Application'>
+			<input type=button value=' ? ' style='cursor:help;' onClick='help();' title='Seeing squares?'>
+		</th>
+	</table>
+</div>
+
+<center>
+<br>
+<div id=table_div>
+<table><tr><td width=100%>
+<table width=100% class=gray border=1>
+<tr><th class=thead colspan=17><font color=white size=4>IPA Chart</font></th></tr>
+<tr>
+	<td width=22% colspan=6 rowspan=2><></td>
+	<td colspan=2><a nohref onMouseOver='inform("#labial");' onMouseOut='inform();'>Labial</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#dental");' onMouseOut='inform();'>Dental</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#alveolar");' onMouseOut='inform();'>Alveolar</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#post-alveolar");' onMouseOut='inform();'>Post-<br>alveolar</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#retroflex");' onMouseOut='inform();'>Retroflex</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#palatal");' onMouseOut='inform();'>Palatal</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#velar");' onMouseOut='inform();'>Velar</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#uvular");' onMouseOut='inform();'>Uvular</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#pharyngeal");' onMouseOut='inform();'>Pharyngeal</a></td>
+	<td rowspan=2><a nohref onMouseOver='inform("#glottal");' onMouseOut='inform();'>Glottal</a></td>
+	<tr>
+		<td><a nohref onMouseOver='inform("#bilabial");' onMouseOut='inform();'>Bilabial</a></td>
+		<td><a nohref onMouseOver='inform("#labiodental");' onMouseOut='inform();'>Labiodental</a></td>
+</tr><tr>
+
+	<td rowspan=3><a nohref onMouseOver='inform("#non-pulmonic");' onMouseOut='inform();'>N<br>O<br>N<br>P<br>U<br>L<br>M<br>O<br>N<br>I<br>C</a></td>
+	<td colspan=5>Click</td>
+	<td class=segment><a nohref onMouseOver='inform("ʘ");' onMouseOut='inform();'>ʘ</a></td>
+	<td bgcolor=efefee></td>
+	<td class=segment><a nohref onMouseOver='inform("ǀ");' onMouseOut='inform();'>ǀ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ǁ");' onMouseOut='inform();'>ǁ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ǃ");' onMouseOut='inform();'>ǃ</a></td>
+	<td bgcolor=efefee></td>
+	<td class=segment><a nohref onMouseOver='inform("ǂ");' onMouseOut='inform();'>ǂ</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=aaaaaa></td>
+</tr><tr>
+	<td colspan=5>Ejective</td>
+	<td class=segment><a nohref onMouseOver='inform("pʼ");' onMouseOut='inform();'>pʼ</a></td>
+	<td bgcolor=efefee></td>
+	<td class=segment><a nohref onMouseOver='inform("tʼ");' onMouseOut='inform();'>tʼ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("sʼ");' onMouseOut='inform();'>sʼ</a></td>
+	<td bgcolor=aaaaaa></td>
+	<td class=segment><a nohref onMouseOver='inform("ʈʼ");' onMouseOut='inform();'>ʈʼ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("cʼ");' onMouseOut='inform();'>cʼ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("kʼ");' onMouseOut='inform();'>kʼ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("qʼ");' onMouseOut='inform();'>qʼ</a></td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=aaaaaa></td>
+
+</tr><tr>
+	<td colspan=5>Implosive</td>
+	<td class=segment><a nohref onMouseOver='inform("ɓ");' onMouseOut='inform();'>ɓ</a></td>
+	<td bgcolor=efefee></td>
+	<td class=segment><a nohref onMouseOver='inform("ɗ");' onMouseOut='inform();'>ɗ</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td class=segment><a nohref onMouseOver='inform("ʄ");' onMouseOut='inform();'>ʄ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ɠ");' onMouseOut='inform();'>ɠ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ʠ");' onMouseOut='inform();'>ʠ</a> <a nohref onMouseOver='inform("ʛ");' onMouseOut='inform();'>ʛ</a></td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=aaaaaa></td>
+
+</tr><tr>
+<td width=3% rowspan=12><a nohref onMouseOver='inform("#pulmonic");' onMouseOut='inform();'>P<br><br><br>U<br><br><br>L<br><br><br>M<br><br><br>O<br><br><br>N<br><br><br>I<br><br><br>C</a></td>
+<td width=3% rowspan=10><a nohref onMouseOver='inform("#consonant");' onMouseOut='inform();'>C<br><br>O<br><br>N<br><br>S<br><br>O<br><br>N<br><br>A<br><br>N<br><br>T</a></td>
+	<td rowspan=4><a nohref onMouseOver='inform("#obstruent");' onMouseOut='inform();'>O<br>b<br>s<br>t<br>r<br>u<br>e<br>n<br>t</a></td>
+
+	<td colspan=3>Plosive/Stop</td>
+	<td class=segment><a nohref onMouseOver='inform("p");' onMouseOut='inform();'>p</a> <a nohref onMouseOver='inform("b");' onMouseOut='inform();'>b</a></td>
+	<td bgcolor=efefee></td>
+	<td class=segment colspan=3><a nohref onMouseOver='inform("t");' onMouseOut='inform();'>t </a><a nohref onMouseOver='inform("d");' onMouseOut='inform();'>d</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ʈ");' onMouseOut='inform();'>ʈ</a> <a nohref onMouseOver='inform("ɖ");' onMouseOut='inform();'>ɖ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("c");' onMouseOut='inform();'>c</a> <a nohref onMouseOver='inform("ɟ");' onMouseOut='inform();'>ɟ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("k");' onMouseOut='inform();'>k</a> <a nohref onMouseOver='inform("g");' onMouseOut='inform();'>ɡ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("q");' onMouseOut='inform();'>q</a> <a nohref onMouseOver='inform("ɢ");' onMouseOut='inform();'>ɢ</a></td>
+	<td>
+		<table cellspacing=0 cellpadding=0 width=100% height=100%>
+			<td class=segmenn width=50% height=100% bgcolor=efefee>&nbsp;</td>
+			<td bgcolor=aaaaaa width=50% height=100%>&nbsp;</td>
+		</table>
+	</td>
+	<td>
+		<table cellspacing=0 cellpadding=0 width=100% height=100%>
+			<td class=segment width=50% height=100%><a nohref onMouseOver='inform("ʔ");' onMouseOut='inform();'>ʔ</a></td>
+			<td bgcolor=aaaaaa width=50% height=100%>&nbsp;</td>
+		</table>
+	</td>
+</tr><tr>
+	<td colspan=3>Affricate</td>
+	<td class=segment><font color=ababab><a nohref onMouseOver='inform("pɸ");' onMouseOut='inform();'>pɸ</a></font>&nbsp;<font color=ababab><a nohref onMouseOver='inform("bβ");' onMouseOut='inform();'>bβ</a></font></td>
+	<td class=segment><a nohref onMouseOver='inform("pf");' onMouseOut='inform();'>pf</a>&nbsp;<font color=ababab><a nohref onMouseOver='inform("bv");' onMouseOut='inform();'>bv</a></font></td>
+	<td class=segment><font color=ababab><a nohref onMouseOver='inform("tθ");' onMouseOut='inform();'>tθ</a></font>&nbsp;<font color=ababab><a nohref onMouseOver='inform("dð");' onMouseOut='inform();'>dð</a></font></td>
+	<td class=segment><a nohref onMouseOver='inform("ʦ");' onMouseOut='inform();'>ʦ</a>&nbsp;<a nohref onMouseOver='inform("ʣ");' onMouseOut='inform();'>ʣ</a></td><td class=segment><a nohref onMouseOver='inform("ʧ");' onMouseOut='inform();'>ʧ</a>&nbsp;<a nohref onMouseOver='inform("ʤ");' onMouseOut='inform();'>ʤ</a></td>
+	<td class=segment><font color=ababab><a nohref onMouseOver='inform("tʂ");' onMouseOut='inform();'>tʂ</a></font>&nbsp;<font color=ababab><a nohref onMouseOver='inform("dʐ");' onMouseOut='inform();'>dʐ</a></font></td>
+	<td class=segment><font color=ababab><a nohref onMouseOver='inform("cç");' onMouseOut='inform();'>cç</a></font>&nbsp;<font color=ababab><a nohref onMouseOver='inform("ɟʝ");' onMouseOut='inform();'>ɟʝ</a></font></td>
+	<td class=segment><a nohref onMouseOver='inform("kx");' onMouseOut='inform();'>kx</a>&nbsp;<font color=ababab><a nohref onMouseOver='inform("gɣ");' onMouseOut='inform();'>gɣ</a></font></td>
+	<td class=segment><font color=ababab><a nohref onMouseOver='inform("qχ");' onMouseOut='inform();'>qχ</a></font>&nbsp;<font color=ababab><a nohref onMouseOver='inform("ɢʁ");' onMouseOut='inform();'>ɢʁ</a></font></td>
+	<td>
+		<table cellspacing=0 cellpadding=0 width=100% height=100%>
+			<td class=segmenn width=50% height=100% bgcolor=efefee>&nbsp;</td>
+			<td bgcolor=aaaaaa width=50% height=100%>&nbsp;</td>
+		</table>
+	</td>
+	<td>
+		<table cellspacing=0 cellpadding=0 width=100% height=100%>
+			<td class=segment width=50% height=100%><a nohref onMouseOver='inform("ʔh");' onMouseOut='inform();'>ʔh</a></td>
+			<td bgcolor=aaaaaa width=50% height=100%><font color=aaaaaa>____</font></td>
+		</table>
+	</td>
+</tr><tr>
+	<td rowspan=2>Fricative</td>
+	<td colspan=2>Central</td>
+	<td class=segment><a nohref onMouseOver='inform("ɸ");' onMouseOut='inform();'>ɸ</a> <a nohref onMouseOver='inform("β");' onMouseOut='inform();'>β</a></td>
+	<td class=segment><a nohref onMouseOver='inform("f");' onMouseOut='inform();'>f</a> <a nohref onMouseOver='inform("v");' onMouseOut='inform();'>v</a></td>
+	<td class=segment><a nohref onMouseOver='inform("θ");' onMouseOut='inform();'>θ</a> <a nohref onMouseOver='inform("ð");' onMouseOut='inform();'>ð</a></td>
+	<td class=segment><a nohref onMouseOver='inform("s");' onMouseOut='inform();'>s</a> <a nohref onMouseOver='inform("z");' onMouseOut='inform();'>z</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ʃ");' onMouseOut='inform();'>ʃ</a> <a nohref onMouseOver='inform("ʒ");' onMouseOut='inform();'>ʒ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ʂ");' onMouseOut='inform();'>ʂ</a> <a nohref onMouseOver='inform("ʐ");' onMouseOut='inform();'>ʐ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ç");' onMouseOut='inform();'>ç</a> <a nohref onMouseOver='inform("ʝ");' onMouseOut='inform();'>ʝ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("x");' onMouseOut='inform();'>x</a> <a nohref onMouseOver='inform("ɣ");' onMouseOut='inform();'>ɣ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("χ");' onMouseOut='inform();'>χ</a> <a nohref onMouseOver='inform("ʁ");' onMouseOut='inform();'>ʁ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ħ");' onMouseOut='inform();'>ħ</a> <a nohref onMouseOver='inform("ʕ");' onMouseOut='inform();'>ʕ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("h");' onMouseOut='inform();'>h</a> <a nohref onMouseOver='inform("ɦ");' onMouseOut='inform();'>ɦ</a></td>
+</tr><tr>
+	<td colspan=2>Lateral</td>
+	<td bgcolor=aaaaaa></td><td bgcolor=aaaaaa></td>
+	<td class=segment colspan=3><a nohref onMouseOver='inform("ɬ");' onMouseOut='inform();'>ɬ</a> <a nohref onMouseOver='inform("ɮ");' onMouseOut='inform();'>ɮ</a></td>
+	<td bgcolor=efefee></td><td bgcolor=efefee></td>
+	<td bgcolor=efefee></td><td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td><td bgcolor=aaaaaa></td>
+</tr><tr>
+	<td rowspan=8><a nohref onMouseOver='inform("#sonorant");' onMouseOut='inform();'>S<br><br>o<br><br>n<br><br>o<br><br>r<br><br>a<br><br>n<br><br>t</a></td>
+	<td colspan=3>Nasal</td>
+	<td class=segment>  <a nohref onMouseOver='inform("m");' onMouseOut='inform();'>m</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ɱ");' onMouseOut='inform();'>ɱ</a></td>
+	<td class=segment colspan=3>  <a nohref onMouseOver='inform("n");' onMouseOut='inform();'>n</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ɳ");' onMouseOut='inform();'>ɳ</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ɲ");' onMouseOut='inform();'>ɲ</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ŋ");' onMouseOut='inform();'>ŋ</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ɴ");' onMouseOut='inform();'>ɴ</a></td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=aaaaaa></td>
+</tr><tr>
+	<td colspan=3>Trill</td>
+	<td class=segment><a nohref onMouseOver='inform("ʙ");' onMouseOut='inform();'>ʙ</a></td>
+	<td bgcolor=efefee></td>
+	<td class=segment colspan=3><a nohref onMouseOver='inform("r");' onMouseOut='inform();'>r</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ʀ");' onMouseOut='inform();'>ʀ</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+</tr><tr>
+	<td colspan=3>Tap or Flap</td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td class=segment colspan=3><a nohref onMouseOver='inform("ɾ");' onMouseOut='inform();'>ɾ</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ɽ");' onMouseOut='inform();'>ɽ</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+</tr><tr>
+	<td rowspan=3>Approximant</td>
+	<td rowspan=2>Liquid</td>
+	<td>Rhotic</td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=aaaaaa></td>
+	<td class=segment colspan=3><a nohref onMouseOver='inform("ɹ");' onMouseOut='inform();'>ɹ</a></td>
+	<td class=segment><a nohref onMouseOver='inform("ɻ");' onMouseOut='inform();'>ɻ</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+</tr><tr>
+	<td>Lateral</td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=aaaaaa></td>
+	<td class=segment colspan=3>  <a nohref onMouseOver='inform("l");' onMouseOut='inform();'>l</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ɭ");' onMouseOut='inform();'>ɭ</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ʎ");' onMouseOut='inform();'>ʎ</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ʟ");' onMouseOut='inform();'>ʟ</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+	<td bgcolor=aaaaaa></td>
+</tr><tr>
+	<td colspan=2>Glide/Semivowel</td>
+	<td class=segment><a nohref onMouseOver='inform("ʍ");' onMouseOut='inform();'>ʍ</a> <a nohref onMouseOver='inform("w");' onMouseOut='inform();'>w</a> <a nohref onMouseOver='inform("ɥ");' onMouseOut='inform();'>ɥ</a></td>
+	<td class=segment>  <a nohref onMouseOver='inform("ʋ");' onMouseOut='inform();'>ʋ</a></td>
+	<td bgcolor=efefee colspan=3></td>
+	<td bgcolor=efefee></td>
+	<td class=segment><a nohref onMouseOver='inform("j");' onMouseOut='inform();'>j</a></td>
+	<td class=segment><a nohref onMouseOver='inform("w");' onMouseOut='inform();'>w</a> <a nohref onMouseOver='inform("ɰ");' onMouseOut='inform();'>ɰ</a></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=efefee></td>
+	<td bgcolor=aaaaaa></td>
+</tr><tr>
+<td width=3% rowspan=12><a nohref onMouseOver='inform("#vowel");' onMouseOut='inform();'>V<br><br>O<br><br>W<br><br>E<br><br>L</a></td>
+	<td width=22% colspan=3><></td>
+	<td colspan=11><table width=100% border=0>
+		<td width=33%>Front</td>
+		<td width=33%>Central</td>
+		<td width=33%>Back</td>
+	</table></td>
+</tr><tr>
+	<td height=100% colspan=3 rowspan=7><table width=100% height=100% border=0>
+		<tr><td height=33%>High/Closed</td></tr>
+		<tr><td height=33%>Mid</td></tr>
+		<tr><td height=33%>Low/Open</td></tr>
+	</table></td>
+	<td height=100% colspan=11><table width=100% height=100% border=1>
+		<td class=segment width=15%><a nohref onMouseOver='inform("i");' onMouseOut='inform();'>i</a> <a nohref onMouseOver='inform("y");' onMouseOut='inform();'>y</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment width=15%><a nohref onMouseOver='inform("ɨ");' onMouseOut='inform();'>ɨ</a> <a nohref onMouseOver='inform("ʉ");' onMouseOut='inform();'>ʉ</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment width=15%><a nohref onMouseOver='inform("ɯ");' onMouseOut='inform();'>ɯ</a> <a nohref onMouseOver='inform("u");' onMouseOut='inform();'>u</a></td>
+	</tr><tr>
+		<td bgcolor=efefee></td>
+		<td class=segment width=15%><a nohref onMouseOver='inform("ɪ");' onMouseOut='inform();'>ɪ</a> <a nohref onMouseOver='inform("ʏ");' onMouseOut='inform();'>ʏ</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment width=15%><a nohref onMouseOver='inform("ʊ");' onMouseOut='inform();'>ʊ</a></td>
+		<td bgcolor=efefee></td>
+	</tr><tr>
+		<td class=segment><a nohref onMouseOver='inform("e");' onMouseOut='inform();'>e</a> <a nohref onMouseOver='inform("ø");' onMouseOut='inform();'>ø</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment><a nohref onMouseOver='inform("ɘ");' onMouseOut='inform();'>ɘ</a> <a nohref onMouseOver='inform("ɵ");' onMouseOut='inform();'>ɵ</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment><a nohref onMouseOver='inform("ɤ");' onMouseOut='inform();'>ɤ</a> <a nohref onMouseOver='inform("o");' onMouseOut='inform();'>o</a></td>
+	</tr><tr>
+		<td bgcolor=efefee></td>
+		<td bgcolor=efefee></td>
+		<td class=segment><a nohref onMouseOver='inform("ə");' onMouseOut='inform();'>ə</a></td>
+		<td bgcolor=efefee></td>
+		<td bgcolor=efefee></td>
+	</tr><tr>
+		<td class=segment><a nohref onMouseOver='inform("ɛ");' onMouseOut='inform();'>ɛ</a> <a nohref onMouseOver='inform("œ");' onMouseOut='inform();'>œ</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment><a nohref onMouseOver='inform("ɜ");' onMouseOut='inform();'>ɜ</a> <a nohref onMouseOver='inform("ɞ");' onMouseOut='inform();'>ɞ</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment><a nohref onMouseOver='inform("ʌ");' onMouseOut='inform();'>ʌ</a> <a nohref onMouseOver='inform("ɔ");' onMouseOut='inform();'>ɔ</a></td>
+	</tr><tr>
+		<td class=segment><a nohref onMouseOver='inform("æ");' onMouseOut='inform();'>æ</a></td>
+		<td bgcolor=efefee></td>
+		<td class=segment><a nohref onMouseOver='inform("ɐ");' onMouseOut='inform();'>ɐ</a></td>
+		<td bgcolor=efefee></td>
+		<td bgcolor=efefee></td>
+	</tr><tr>
+		<td class=segment><a nohref onMouseOver='inform("a");' onMouseOut='inform();'>a</a> <a nohref onMouseOver='inform("ɶ");' onMouseOut='inform();'>ɶ</a></td>
+		<td bgcolor=efefee></td>
+		<td bgcolor=efefee></td>
+		<td bgcolor=efefee></td>
+		<td class=segment><a nohref onMouseOver='inform("ɑ");' onMouseOut='inform();'>ɑ</a> <a nohref onMouseOver='inform("ɒ");' onMouseOut='inform();'>ɒ</a></td>
+	</tr>
+	</table></td>
+</table>
+</td></tr></table>
+</div>
+
+<div id=informer style='position:absolute; left:0px; top:0px; visibility:hidden;'>
+No Information
+</div>
+
+</center>

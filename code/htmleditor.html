@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Real-time HTML Editor</title>
+<link rel="shortcut icon" href="../gwistix.ico">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<script type='text/javascript'>
+
+var editboxHTML = 
+"<html class='expand close'>" +
+"<head>" +
+"<style type='text/css'>" +
+".expand { width: 100%; height: 100%; }" +
+".close { border: none; margin: 0px; padding: 0px; }" +
+"html,body { overflow: hidden; }" +
+"<\/style>" +
+"<script>" +
+"function stopTab( e ) {" +
+"    var evt = e || window.event;" +
+"    if (evt.keyCode === 9) {" +
+"        myField1.innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;';" +
+"        if (e.preventDefault) e.preventDefault();" +
+"        return false;" +
+"    }" +
+"}" +
+"<\/script>" +
+"<\/head>" +
+"<body class='expand close' onload='document.f.ta.focus(); document.f.ta.select();'>" +
+"<form class='expand close' name='f'>" +
+"<textarea id='myField1' class='expand close' style='font-family:monospace; font-size:12px; background-color:#efefef; width:100%; overflow-X:scroll;' name='ta' wrap='hard' spellcheck='false' onKeyDown='stopTab(event); if (event.keyCode == 9) {alert(\"TAB\"); return false;}'>" +
+"<\/textarea>" +
+"<\/form>" +
+"<\/body>" +
+"<\/html>";
+
+var defaultStuff = "<html>\n<head>\n<link rel='shortcut icon' href='\/favicon.png'>\n<link rel='icon' sizes='192x192' href='\/appicon.png'>\n<title><\/title>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<meta name='apple-mobile-web-app-capable' content='yes'>\n<meta name='mobile-web-app-capable' content='yes'>\n<link rel='stylesheet' href='https:\/\/dl.dropboxusercontent.com\/u\/22964498\/lib.css'>\n<style>\n\n<\/style>\n<script src='https:\/\/dl.dropboxusercontent.com\/u\/22964498\/lib.js'><\/script>\n<script>\n\nfunction init() {\n console.clear();\n\n}\n\n<\/script>\n\n<\/head>\n\n<body onLoad='init();'>\n\n" +
+"<h3>Welcome to the real-time HTML editor!<\/h3>\n" +
+"<p>Type HTML on the left, and it will magically appear on the right.<\/p>";
+
+// I don"t want this stuff to appear in the box at the top because I feel it"s likely to be distracting.
+var extraStuff = "<div style='position:absolute; margin:.3em; bottom:0em; right:0em; text-align:right;'><small>\n  Created by <a href='http://www.squarefree.com/' target='_top'>Jesse Ruderman<\/a> and hosted by <a href='http://www.dreamhost.com/rewards.cgi?jesseruderman' target='_top'>DreamHost<\/a>.<br>Current modifications by Andrew John Bayles.\n<\/small><\/div>";
+
+var old = "";
+         
+function init()
+{
+  window.editbox.document.write(editboxHTML);
+  window.editbox.document.close();
+  window.editbox.document.f.ta.value = defaultStuff;
+  update();
+}
+
+function update()
+{
+  var textarea = window.editbox.document.f.ta;
+  var d = dynamicframe.document; 
+
+  if (old != textarea.value) {
+    old = textarea.value;
+    d.open();
+    d.write(old);
+    if (old.replace(/[\r\n]/g,"") == defaultStuff.replace(/[\r\n]/g,""))
+      d.write(extraStuff);
+    d.close();
+  }
+
+  updater = window.setTimeout(update, 10);
+}
+</script>
+</head>
+
+<frameset resizable='yes' cols='50%,*' onload='init();'>
+  <!-- about:blank confuses opera, so use javascript: URLs instead -->
+  <frame name='editbox' src='javascript:"";'>
+  <frame name='dynamicframe' src='javascript:"";'>
+</frameset>
+
+</html>

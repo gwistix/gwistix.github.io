@@ -1,0 +1,1035 @@
+
+<html>
+<head>
+<title>[ˈɡwɪs.tɪks] Phonology Tool</title>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="gwistix.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="shortcut icon" href="https://dl.dropboxusercontent.com/u/22964498/gwistix.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style type='text/css'>
+a {cursor:hand; color:yellow;}
+a.menu {color:white;}
+span:hover {background-color:yellow;}
+span.seg {cursor:hand;}
+  .seg {text-align:center; background-color:white; border:none;}
+span.diacritic {background-color:white; border:1px solid efefef; cursor:hand; font-size:30px; font-family:Times New Roman;}
+span.diacritic:hover {background-color:yellow;}
+
+  .place_label {font-size:10px; vertical-align:top; text-align:center; line-height:90%;}
+.manner_label {font-size:10px; vertical-align:middle; text-align:right;}
+.sideways {-webkit-transform: rotate(-90deg);}
+.thead {background-color:#123456; font-family:monospace; color:white;}
+.glow {text-shadow: 0px 3px 20px #000;}
+  
+body {background: rgb(0,0,0); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */}
+.gray {
+box-shadow: 0px 3px 20px #000;
+background-color:#dedede; /* Old browsers */
+background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(181,181,181,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(181,181,181,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#b5b5b5',GradientType=0 ); /* IE6-9 */}
+.thead {background: rgb(0,18,52); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(0,18,52,1) 1%, rgba(1,35,69,1) 22%, rgba(35,69,103,1) 77%, rgba(69,103,137,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,rgba(0,18,52,1)), color-stop(22%,rgba(1,35,69,1)), color-stop(77%,rgba(35,69,103,1)), color-stop(100%,rgba(69,103,137,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#001234', endColorstr='#456789',GradientType=0 ); /* IE6-9 */}
+
+@font-face {
+    font-family: Segoe UI Symbol;
+    src: url(Fonts/Segoe-UI-Symbol/Segoe-UI-Symbol.woff);
+}
+@font-face {
+    font-family: Doulos SIL;
+    src: url(Fonts/DoulosSIL.woff);
+}
+@font-face {
+    font-family: Code2000;
+    src: url(Fonts/Code2000/Code2000.woff);
+}
+@font-face {
+    font-family: Code2001;
+    src: url(Fonts/Code2001/Code2001.woff);
+}
+@font-face {
+    font-family: Code2002;
+    src: url(Fonts/Code2002/Code2002.tff);
+}
+</style>
+
+<script language='javascript'>
+var vertical_list = false;
+var input_focus = true;
+
+/*
+eɐ kɑm ɑm fʀɑɪtɑgɑbənt nɑx ɑɪnəm hɑɐtən ɑɐbɑɪtstɑk ʊnt dem ʏblɪçən ɛɐgəɐ deɐ īn ʃon zɑɪt jāʀən ɪməɐ wīdəɐ ɑn zɑɪnəm ɑɐbɑɪtsplɑts plagt mɪt fʀɑgliçəɐ fʀɔʏdə ɑʊf ɑɪn māl dɑs zɑɪnə fʀɑʊ īm vī eɐ hoftə bəʀɑɪts ɑʊfgətɪʃt hɑtə ɛntlɪç ʦu hɑʊzə ɑn
+
+ŋɔma 'drum'
+ŋɔmbe 'cattle'
+xɔna 'see'
+xɔŋgeza 'increase'
+ɲɔŋga 'strangle'
+watoto 'children'
+mboga 'vegetable'
+ndogo 'little'
+ʃoka 'axe'
+moèʒa 'one'
+
+mateʀnite mekɔnɛtɹ matinal pʀetɑ̃dʀ pʀezɑ̃tabl mɛtɹ tɔʀdʀ ʀɑ̃tabl il ɛl pœpɫ ɔ̃kɫ tabl ʀym ʀymatisɱ film ʀɔ̃fle kasabl ʀali ʃɛʀ ʃifɹ limite pleziʀ mɛʀ pɛʀs ɛtɹ ekʀiɹ tɛʀm liʀ lɛvʀ ʀymatismal ʀitɱ simetʀikmɑ̃ tʀivjal klemɑ̃
+
+ʘ ǀ ǁ ǃ ǂ 
+pʼ tʼ sʼ ʈʼ cʼ kʼ qʼ 
+ɓ ɗ ʄ ɠ ʠ ʛ 
+p b t d ʈ ɖ c ɟ k ɡ q ɢ ʔ 
+pf ʦ ʣ ʧ ʤ kx 
+ɸ β f v θ ð s z ʃ ʒ ʂ ʐ ç ʝ x ɣ χ ʁ ħ ʕ h ɦ ɬ ɮ 
+m ɱ n ɳ ɲ ŋ ɴ 
+ʙ r ʀ 
+ɾ ɽ ɹ ɻ 
+l ɭ ʎ ʟ 
+ʍ w ɥ ʋ j w ɰ 
+i y ɨ ʉ ɯ u 
+ɪ ʏ ʊ 
+e ø ɘ ɵ ɤ o 
+ə 
+ɛ œ ɜ ɞ ʌ ɔ 
+æ ɐ 
+a ɶ ɑ ɒ 
+ː
+
++syll	i y ɯ ɨ u ɪ ʏ ʊ e ø ɤ o ɛ œ ʌ ə ɔ æ ɶ a ɑ ɒ
++voc	i y ɯ ɨ u ɪ ʏ ʊ e ø ɤ o ɛ œ ʌ ə ɔ æ ɶ a ɑ ɒ w ɥ ʋ j ɰ
++approx	i y ɯ ɨ u ɪ ʏ ʊ e ø ɤ o ɛ œ ʌ ə ɔ æ ɶ a ɑ ɒ w ɥ ʋ j ɰ ɹ ɽ l ɭ ʎ ʟ 
++son	i y ɯ ɨ u ɪ ʏ ʊ e ø ɤ o ɛ œ ʌ ə ɔ æ ɶ a ɑ ɒ w ɥ ʋ j ɰ ɹ ɽ l ɭ ʎ ʟ m ɱ n ɳ ɲ ŋ ɴ
++cont	i y ɯ ɨ u ɪ ʏ ʊ e ø ɤ o ɛ œ ʌ ə ɔ æ ɶ a ɑ ɒ w ɥ ʋ j ɰ ɹ ɽ l ɭ ʎ ʟ ɬ ɮ β v ð z ʒ ʐ ʝ ɣ ʁ ʕ ɦ ɸ f θ s ʃ ʂ ç x χ ħ h
++lat	l ɭ ʎ ʟ ɬ ɮ
++nas	m ɱ n ɳ ɲ ŋ ɴ
++strid	f s ʃ ʂ χ v z ʒ ʐ ʁ pf ʦ ʧ ʣ ʤ
++lab	i y ɯ ɨ u ɪ ʏ ʊ e ø ɤ o ɛ œ ʌ ə ɔ æ ɶ a ɑ ɒ w ɥ ʋ j ɰ m ɱ pf β v ɸ f ɓ b p
++rnd	y u ʏ ʊ ø o œ ɔ ɶ ɒ
++cor	
+ +ant	
+ +dist	
++dor	
++hi	
++low	
++bk	
++phar	
++ATR	
++voi	
++asp	
++glot	
+*/
+
+dataset = "";
+DataSet = new Array();
+
+function init() {
+	if(navigator.appName == "Microsoft Internet Explorer") {
+		old_version = confirm("Internet Explorer doesn't render this site properly, because it doesn't conform to WC3 standards. Click 'OK' to be taken to the old version of this page, or click 'Cancel' to try to view this page anyway.");
+		if (old_version) window.location = "http://goo.gl/L2Bpl"
+	}
+
+	dataset = clearGlosses(input_box.value);
+	dataset = PDFtoIPA(dataset);
+	DataSet = dataset.split(" ");
+
+	segments = "";
+	Segments = new Array();
+
+//	Output(dataset);
+//	Output(DataSet);
+
+	parseSegments(dataset);
+
+	input_box.select();
+
+	if (window.innerWidth < 1370) ipa_chart.style.visibility = "hidden";
+	if (ipa_chart.style.visibility == "hidden") ipa_chart_btn.style.visibility = "visible";
+}
+
+function clearGlosses(datastring) {
+	var give = "";
+	temp = datastring;
+	temp = temp.replace(/‘/g,"\'");
+	temp = temp.replace(/’/g,"\'");
+	temp = temp.split("\'");
+	tlen = temp.length
+	for (i=0;i<tlen;i++) {
+		give += temp[i];
+		i++;
+	}
+	return give;
+}
+
+var pdf = "OE|A|N|@|O|E|th|ph|kh| > |>|ö|°|˜a|oe|˜O|:|U|I|Y|5|S|Z|6|P|ô|1|2|3|Ù|T|\"|W|7|M|ï|ñ|ð|í|L|Ï|ó|V|î|F|ù|¸c|X|è|B|D|ü|J|G|K|Q|H|ì|Ð|á|é|0|g|C|R";
+var ipa = "ɶ|ɑ|ŋ|ə|ɔ|ɛ|tʰ|pʰ|kʰ| → ||ʀ| ̥|ɑ̃|œ|ɔ̃|ː|ʊ|ɪ|ʏ|ɐ|ʃ|ʒ|ɒ|ʔ|ɹ|ɨ|ʌ|ɜ|ʧ|θ||ɯ|ɤ|ɱ|ɳ|ɲ|ɴ|ɭ|ʎ|ʟ|ɽ|ʋ|ɰ|ɸ|ʂ|ç|χ|ħ|β|ð|ʐ|ʝ|ɣ|ʁ|ʕ|ɦ|ɬ|ɮ|ɓ|ɟ|Ø|ɡ|ç|ʀ";
+
+function PDFtoIPA(temp) {
+	temp = temp;
+
+	PDF = pdf.split("|");
+	IPA = ipa.split("|");
+
+	plen = PDF.length;
+	for (i=0;i<plen;i++) {
+//alert("PDF[" + i + "] \n" + i + " of " + plen + "\n" + PDF[i]);
+		if (temp.match(PDF[i])) {
+			slot = new RegExp(PDF[i],'g');
+			temp = temp.replace(slot,IPA[i]);
+		}
+	}
+	input_box.value = temp;
+	return temp;
+}
+
+segments = "";
+Segments = new Array();
+Checkbox = new Array();
+
+function Segment(seg,rate_of_occurrence,context) {
+	this.seg = seg;
+	this.roc = 0;
+	this.context = "";
+	this.show = false;
+}
+
+diacritic = "ˠʰʱʲʳʴʵʶʷˀˁ˥˦˧˨˩ʼ˞ːˑ̥̃";
+
+function parseSegments(word) {
+	temp = word;
+	temp = temp.replace(/[\r\n\t]/g, " ");
+	temp = temp.replace(/  /g, " ");
+	temp = temp.replace(/ /g, "#");
+	temp = "#" + temp + "#";
+
+	Temp = temp.split("");
+	tlen = Temp.length;
+	for (i=0;i<tlen;i++) {
+		if (diacritic.match(Temp[i])) {
+			Temp[i-1] += Temp[i];
+			Temp[i] = "";
+		}
+	}
+	temp = Temp.join("|");
+	temp = temp.replace(/\|\|/g, "|");
+	temp = temp.replace(/#\|#/g, "#");
+	Temp = temp.split("|");
+
+	segments = "";
+
+	tlen = Temp.length-1;
+	for (i=1;i<tlen;i++) {
+		if (Temp[i] == "#") continue;
+
+		curr = new RegExp(Temp[i]);
+		cont = Temp[i-1] + "_" + Temp[i+1];
+
+//alert(segments);
+		if (segments.match(curr)) {
+			ref = segments.indexOf(Temp[i]);
+//alert(segments + "\n?" + curr + "\n" + ref)
+			Segments[ref].roc++;
+			if (Segments[ref].context.indexOf(cont) < 0) Segments[ref].context += "|" + cont;
+			continue;
+		}
+		else {
+			segments += Temp[i];
+
+			slen = Segments.length;
+			Segments[slen] = new Segment(Temp[i]);
+			Segments[slen].roc++;
+			cont = cont.replace(/\|_/g, "|#_");
+			cont = cont.replace(/_\|/g, "_#|");
+			Segments[slen].context = cont;
+		}
+	}
+	displaySegments();
+}
+
+function displayChecks() {
+	slen = Segments.length;	
+}
+
+function displaySegments(redisp) {
+	if (vertical_list) {
+		var give = "<table border=1 class=gray>";
+      give += "<tr><td class=thead style='font-family:times; text-align:center;'><></td><td class=thead style='font-family:times; text-align:center;'>Segment</td><td class=thead style='font-family:times; text-align:center;'>Context</td><td class=thead style='font-family:times; text-align:center;'>Frequency</td></tr>";
+
+		slen = Segments.length;
+		for (j=0;j<slen;j++) {
+			if (redisp) {
+				if (!Segments[j].show) continue;
+			}
+			Context = Segments[j].context.split("|");
+//			Context.sort();
+			give += "<tr><td align=center valign=top><input type=checkbox onClick='Segments["+j+"].show = true;'></td><td align=center valign=top>" + Segments[j].seg + "</td><td>" + Context.join(" | ") + "</td><td align=center valign=top>" + Segments[j].roc + "</td></tr>";
+			Segments[j].show = false;
+		}
+	}
+	else {
+		var give = "<table border=0 cellpadding=0 cellspacing=0>";
+
+		slen = Segments.length;
+		for (j=0;j<slen;j++) {
+			if (redisp) {
+				 if (!Segments[j].show) continue;
+			}
+
+			give += "<span id='seg_"+j+"'><td valign=top align=center valign=top><input type=checkbox onClick='Segments["+j+"].show = true;'><table  bgcolor=white border=1>";
+			give += "<tr><th align=center valign=top>" + Segments[j].seg + "</th></tr>";
+			give += "<tr><td align=center valign=top bgcolor='"+colorRep(Segments[j].roc)+"' bgcolor=white>" + Segments[j].roc + "</td></tr>";
+
+			Context = Segments[j].context.split("|");
+//			Context.sort();
+			clen = Context.length;
+			for (k=0;k<clen;k++) {
+				give += "<tr><td align=center valign=top>" + Context[k] + "</td></tr>";
+			}
+			give += "</table></td></span>";
+
+			Segments[j].show = false;
+		}
+	}
+	give += "</table>";
+	Output(give);
+}
+
+function Output(what,extra_line) {
+	output_div.innerHTML = "<br>" + ((extra_line) ? "<br>" : "") + what;
+}
+
+function colorRep(num) {
+return "white";
+	if (num == 1) return "0000ff";		//blue
+	else if (num == 2) return "0055aa";	
+	else if (num == 3) return "00aa55";	
+	else if (num == 4) return "00ff00";	//green
+	else if (num == 5) return "55ff00";	
+	else if (num == 6) return "aaff00";	
+	else if (num == 7) return "ffff00";	//yellow
+	else if (num == 8) return "ffdd00";	
+	else if (num == 9) return "ff9900";	
+	else if (num == 10) return "ff7700";	//orange
+	else if (num == 11) return "ff5500";	
+	else if (num == 12) return "ff3300";	
+	else if (num == 13) return "ff0000";	//red
+	else if (num == 14) return "aa0000";	
+	else if (num >= 15) return "550000";	
+}
+
+follow = false;
+
+function followMouse(e) {
+	X = e.clientX;
+	Y = e.clientY;
+
+	window.status = X + "," + Y;
+
+	if (follow) {
+		ipa_chart.style.left = X-15;
+		ipa_chart.style.top = Y-15;
+	}
+}
+
+function doKey(e) {
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
+	else alert("Your browser will not support typing outside of the text input area.");
+
+	key = String.fromCharCode(code);
+
+	if (!input_focus) {
+		if (code == 92) {
+			Temp = input_box.value.split("");
+			Temp[Temp.length-1] = "";
+			input_box.value = Temp.join("");
+		}
+		else input_box.value += key;
+	}
+
+	window.status = key + " : " + code;
+}
+  
+//==========================================================
+
+var segoe = false;
+
+//ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘ-ʀꜱᴛᴜᴠᴡ-ʏᴢ
+
+function help() {
+	if (!segoe) {
+		if (!confirm("Switching the font may allow you to see more characters.\n\nDo you want to switch the font?")) return;
+
+		segoe = true;
+
+		AllElements = document.getElementsByTagName("*");
+		elen = AllElements.length;
+		for (i=0;i<elen;i++) {
+			AllElements[i].style.fontFamily = "Segoe UI Symbol, Apple Symbols, Doulos SIL, Code2000, Code2001, Code2002";
+		}
+	}
+	else {
+		if (!confirm("Do you want to switch the default font back to Tɪᴍᴇs Nᴇᴡ Rᴏᴍᴀɴ?\n\n(Note: This may make some character sets unreadable.)")) return;
+
+		segoe = false;
+
+		AllElements = document.getElementsByTagName("*");
+		elen = AllElements.length;
+		for (i=0;i<elen;i++) {
+			AllElements[i].style.fontFamily = "Times New Roman";
+		}
+	}
+}
+
+</script>
+
+</head>
+
+<!-- =================================================================================================== -->
+<!-- =================================================================================================== -->
+<!-- =================================================================================================== -->
+<!-- =================================================================================================== -->
+
+<body style='background-image:url(https://dl.dropboxusercontent.com/u/22964498/Web/gwistix%20background.jpg); background-attachment:fixed;' onLoad='init();' onMouseMove='followMouse(event);' onKeyPress='doKey(event);'>
+
+<!-- TOOLBAR -->
+<div id=toolbar style='position:relative; top:0px; left:0px'>
+	<table width=100% class=gray>
+		<td class=thead style='font-family:"times new roman";'>&nbsp;[ˈɡwɪs.tɪks] › 
+<!--			<select onChange='alert("Options coming soon!");'>
+				<option value='Home' disabled="disabled">Home</option>
+				<option value='Tools' selected=true>Tools</option>
+			</select> › --><select onChange='if (this.value == "OmniType") window.location = "type.html"; else if (this.value == "Phonology") window.location = "phonology.html"; else if (this.value == "IPA Chart") window.location = "IPA_Chart.html"; else if (this.value == "Sonority") window.location = "sonority.html";'>
+				<option value="OmniType">OmniType</option>
+				<option value="Phonology">Phonology Tool</option>
+        <option value="IPA Chart">IPA Chart</option>
+				<option value="Sonority">Sonority Profiler</option></select>&nbsp;
+			<input type="button" onClick='vertical_list = (vertical_list) ? false : true; displaySegments();' value="Switch direction"> 
+			<span id=ipa_chart_btn style='visibility:hidden;'><input type="button" onClick='ipa_chart.style.visibility = "visible"; ipa_chart_btn.style.visibility = "hidden"; follow = (follow) ? false : true;' value="Show IPA chart"></span>
+		</td>
+		<td class=thead align=center width=100>
+			<input type=button value='About' style='cursor:help;' onClick='alert("Created and maintained by Andrew Bayles");' title='Information about this Web Application'>
+			<input type=button value=' ? ' style='cursor:help;' onClick='help();' title='Seeing squares?'>
+		</td>
+	</table>
+</div>
+
+<br>
+<center>
+
+<!-- IPA CHART -->
+<div id=ipa_chart class=gray style='position:absolute; top:45px; left:8px; visibility: visible; font-size:15px; font-family:monospace; background-color:#efefef; border:3px ridge dedede;'>
+
+<table class=thead width=420 bgcolor=123456 border=0><td><a nohref class=menu onClick='follow = (follow) ? false : true;'>::</a></td><td align=right><a nohref class=menu onClick='ipa_chart.style.visibility = "hidden"; ipa_chart_btn.style.visibility = "visible";'>×</a></td></table>
+
+<pre><table align=center cellpadding=0 cellspacing=1>
+<!-- =================================================================================================== -->
+	<td class=manner_label id=click_label>Click</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'><span class=seg onClick='input_box.value += this.innerHTML;'>ʘ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='dental_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='dental_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ǀ</span>
+	</td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ǁ</span>
+	</td>
+	<td class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ǃ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ǂ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=ejective_label>Ejective</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>pʼ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td align=left valign=top bgcolor=white onMouseOver='alv_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>tʼ</span>  <span class=seg onClick='input_box.value += this.innerHTML;'>sʼ</span>
+	</td>
+	<td></td>
+	<td align=left valign=top bgcolor=white onMouseOver='retro_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʈʼ</span>
+	</td>
+	<td align=left valign=top bgcolor=white onMouseOver='pal_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>cʼ</span>
+	</td>
+	<td align=left valign=top bgcolor=white onMouseOver='vel_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>kʼ</span>
+	</td>
+	<td align=left valign=top bgcolor=white onMouseOver='uvular_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>qʼ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=implosive_label>Implosive</td>
+	<td align=right valign=top bgcolor=white onMouseOver='bilabial_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɓ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td align=right valign=top bgcolor=white onMouseOver='alv_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɗ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td align=right valign=top bgcolor=white onMouseOver='pal_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʄ</span>
+	</td>
+	<td align=right valign=top bgcolor=white onMouseOver='vel_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɠ</span>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʠ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʛ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=plosive_label>Plosive</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>p</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>b</span>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ȹ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ȸ</span>
+	</td>
+	<td class=seg colspan=3 onMouseOver='alv_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>t</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>d</span>
+	</td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʈ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɖ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>c</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɟ</span>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>k</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɡ</span>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>q</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɢ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='epiglottal_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='epiglottal_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʡ</span>
+	</td>
+	<td class=seg onMouseOver='glottal_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʔ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=affricate_label>Affricate</td>
+	<td class=seg colspan=2 onMouseOver='bilabial_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>pᶠ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0 align=center>
+			<tr>
+				<td>
+					<span class=seg onClick='input_box.value += this.innerHTML;'>ʦ</span>  <span class=seg onClick='input_box.value += this.innerHTML;'>ʣ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʨ</span>  <span class=seg onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʥ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʧ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʤ</span>
+	</td>
+	<td class=seg>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʈᶳ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɖᶼ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʨ</span>  
+		<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʥ</span>
+	</td>
+	<td class=seg onMouseOver='velar_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='velar_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>kˣ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=fricative_label>Fricative</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɸ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>β</span>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>f</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>v</span>
+	</td>
+	<td class=seg onMouseOver='dental_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='dental_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>θ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ð</span>
+	</td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0 align=center>
+			<tr>
+				<td>
+					<span class=seg onClick='input_box.value += this.innerHTML;'>s</span>  
+					<span class=seg onClick='input_box.value += this.innerHTML;'>z</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɕ</span>  
+					<span class=seg onClick='input_box.value += this.innerHTML;'>ʑ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='lat_label.style.backgroundColor = "yellow";' onMouseOut='lat_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɬ</span>  
+					<span class=seg onMouseOver='lat_label.style.backgroundColor = "yellow";' onMouseOut='lat_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɮ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='input_box.value += this.innerHTML;'>ʃ</span>  
+					<span class=seg onClick='input_box.value += this.innerHTML;'>ʒ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɧ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʂ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʐ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='input_box.value += this.innerHTML;'>ç</span>  
+					<span class=seg onClick='input_box.value += this.innerHTML;'>ʝ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɕ</span>  
+					<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʑ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='input_box.value += this.innerHTML;'>x</span>  
+					<span class=seg onClick='input_box.value += this.innerHTML;'>ɣ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɧ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>χ</span>  
+		<span class=seg onMouseOver='glide_label.style.backgroundColor = "yellow";' onMouseOut='glide_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʁ</span>
+	</td>
+	<td class=seg onMouseOver='pharyngeal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='pharyngeal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ħ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʕ</span>
+	</td>
+	<td class=seg onMouseOver='epiglottal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='epiglottal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʜ</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʢ</span>
+	</td>
+	<td class=seg onMouseOver='glottal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>h</span>  
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɦ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=trill_label>Trill</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʙ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>r</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʀ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='glottal_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>я</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=nasal_label>Nasal</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>m</span>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɱ</span>
+	</td>
+	<td class=seg colspan=3 onMouseOver='alv_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>n</span>
+	</td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɳ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɲ</span>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ŋ</span>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɴ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=tap_label>Tap/Flap</td>
+	<td></td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; tap_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; tap_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ⱱ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; tap_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; tap_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɾ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; tap_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; tap_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɽ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=lat_label>Lateral</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0 align=center>
+			<tr>
+				<td>
+					<span class=seg onClick='input_box.value += this.innerHTML;'>l</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='fricative_label.style.backgroundColor = "yellow";' onMouseOut='fricative_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɬ</span>  
+					<span class=seg onMouseOver='fricative_label.style.backgroundColor = "yellow";' onMouseOut='fricative_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɮ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɭ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʎ</span>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʟ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=glide_label>Approximant</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td align=center>
+					<span class=seg onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʍ</span>  
+					<span class=seg onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>w</span>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;&nbsp;<span class=seg  onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɥ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʋ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɹ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɻ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='input_box.value += this.innerHTML;'>j</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɥ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td align=center>
+					<span class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʍ</span>  
+					<span class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>w</span>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;&nbsp;<span class=seg onClick='input_box.value += this.innerHTML;'>ɰ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onMouseOver='fricative_label.style.backgroundColor = "yellow";' onMouseOut='fricative_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʁ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=place_label></td>
+	<td class=place_label id=bilabial_label>B<br>i<br>l<br>a<br>b<br>i<br>a<br>l</td>
+	<td class=place_label id=labiodental_label>L<br>a<br>b<br>i<br>o<br>d<br>e<br>n<br>t<br>a<br>l</td>
+	<td class=place_label id=dental_label>D<br>e<br>n<br>t<br>a<br>l</td>
+	<td class=place_label id=alv_label>A<br>l<br>v<br>e<br>o<br>l<br>a<br>r</td>
+	<td class=place_label id=postalv_label>P<br>o<br>s<br>t<br>a<br>l<br>v<br>e<br>o<br>l<br>a<br>r</td>
+	<td class=place_label id=retro_label>R<br>e<br>t<br>r<br>o<br>f<br>l<br>e<br>x</td>
+	<td class=place_label id=pal_label>P<br>a<br>l<br>a<br>t<br>a<br>l</td>
+	<td class=place_label id=vel_label>V<br>e<br>l<br>a<br>r</td>
+	<td class=place_label id=uvular_label>U<br>v<br>u<br>l<br>a<br>r</td>
+	<td class=place_label id=pharyngeal_label>P<br>h<br>a<br>r<br>y<br>n<br>g<br>e<br>a<br>l</td>
+	<td class=place_label id=epiglottal_label>E<br>p<br>i<br>g<br>l<br>o<br>t<br>t<br>a<br>l</td>
+	<td class=place_label id=glottal_label>G<br>l<br>o<br>t<br>t<br>a<br>l</td>
+</tr>
+</table><!--=================================================================================================== --><!--=====================================================================================================--><table width=100% border=0>
+  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+  <td align=right valign=top>
+      <center><br>
+<!-- RHOTIC VOWELS -->
+<span class=diacritic onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɚ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>˞</span><span class=diacritic onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ɝ</span>
+<br>
+<!-- SUPERSCRIPT CHARACTERS -->
+<span class=diacritic onClick='input_box.value += this.innerHTML;'>ᵊ</span><span class=diacritic onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ˠ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʰ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʱ</span><span class=diacritic onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ʲ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʳ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʴ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʵ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʶ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʷ</span><span class=diacritic onClick='input_box.value += this.innerHTML;'>ʸ</span><span class=diacritic onMouseOver='pharyngeal_label.style.backgroundColor = "yellow";' onMouseOut='pharyngeal_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ˁ</span><span class=diacritic onMouseOver='glottal_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = "";' onClick='input_box.value += this.innerHTML;'>ˀ</span>
+<br>
+<!-- TONE MARKERS -->
+<span class=seg onClick='input_box.value += this.innerHTML;'>˥</span><span class=seg onClick='input_box.value += this.innerHTML;'>˦</span><span class=seg onClick='input_box.value += this.innerHTML;'>˧</span><span class=seg onClick='input_box.value += this.innerHTML;'>˨</span><span class=seg onClick='input_box.value += this.innerHTML;'>˩</span>
+<br>
+<!-- LENGTH MARKERS -->
+<span class=diacritic onClick='input_box.value += this.innerHTML;'>ː</span> <span class=diacritic onClick='input_box.value += this.innerHTML;'>ˑ</span>
+<br>
+<!-- OT CHARACTERS -->
+<span class=seg onClick='input_box.value += this.innerHTML;'>Ø</span><span class=seg onClick='input_box.value += this.innerHTML;'>≫</span><span class=seg onClick='input_box.value += this.innerHTML;'>☞</span><span class=seg onClick='input_box.value += this.innerHTML;'>→</span><span class=seg onClick='input_box.value += this.innerHTML;'>α</span><span class=seg onClick='input_box.value += this.innerHTML;'>β</span><span class=seg onClick='input_box.value += this.innerHTML;'>σ</span><span class=seg onClick='input_box.value += this.innerHTML;'>μ</span><span class=seg onClick='input_box.value += this.innerHTML;'>±</span>
+    </td>
+<!--==================================================================================================VOWELS-->
+    <td align=right><table align=right valign=top cellpadding=0 cellspacing=1>
+<tr>
+    <td class=manner_label rowspan=2 id=high_label>high</td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>i</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>y</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɨ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʉ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɯ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>u</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+    <td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɪ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʏ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʊ</span>
+	</td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label rowspan=3 id=mid_label>mid</td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>e</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ø</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɘ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɵ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɤ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>o</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ə</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɛ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>œ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɜ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɞ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ʌ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɔ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+    <td class=manner_label rowspan=2 id=low_label>low</td>
+	<td></td>
+	<td align=left valign=top bgcolor=white onMouseOver='low_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>æ</span>
+	</td>
+	<td class=seg onMouseOver='low_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɐ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td align=center valign=top bgcolor=white colspan=3 onMouseOver='low_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; front_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>a</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɶ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='low_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɑ</span> 
+		<span class=seg onClick='input_box.value += this.innerHTML;'>ɒ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+  <td></td>
+  <td class=place_label colspan=2 id=front_label>f<br>r<br>o<br>n<br>t</td>
+  <td class=place_label id=central_label>c<br>e<br>n<br>t<br>r<br>a<br>l</td>
+  <td class=place_label colspan=2 id=back_label>b<br>a<br>c<br>k</td>
+</tr>
+</table></td><td></td>
+</table><!--=================================================================================================== --><!--===================================================================================================--><!-- COMBINING DIACRITICS (ABOVE) --><span class=diacritic onClick='input_box.value += String.fromCharCode(768);'>ˋ</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(769);'>ˊ</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(770);'>ˆ</span> <span class=diacritic onMouseOver='nasal_label.style.backgroundColor = "yellow";' onMouseOut='nasal_label.style.backgroundColor = "";' onClick='input_box.value += String.fromCharCode(771);'>˜</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(772);'>ˉ</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(774);'>˘</span> <span class=diacritic onMouseOver='central_label.style.backgroundColor = "yellow";' onMouseOut='central_label.style.backgroundColor = "";' onClick='input_box.value += String.fromCharCode(776);'>¨</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(778);'>˚</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(780);'>ˇ</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(781);'>ˈ</span> <span class=diacritic onClick='input_box.value += this.innerHTML;'>˺</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(779);'>˝</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(782);'>&nbsp;̏&nbsp;</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(865);'>&nbsp;͡&nbsp;</span>
+<!-- COMBINING DIACRITICS (BELOW) -->
+<span class=diacritic onClick='input_box.value += String.fromCharCode(825);'>˒</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(796);'>˓</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(797);'>˔</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(798);'>˕</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(799);'>˖</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(800);'>˗</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(805);'>˳</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(812);'>&nbsp;̬&nbsp;</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(809);'>&nbsp;̩&nbsp;</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(815);'>&nbsp;̯&nbsp;</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(804);'>&nbsp̤&nbsp;</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(816);'>&nbsp;̰&nbsp;</span> <span class=diacritic onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='input_box.value += String.fromCharCode(811);'>&nbsp;̫&nbsp;</span> <span class=diacritic onMouseOver='dental_label.style.backgroundColor = "yellow";' onMouseOut='dental_label.style.backgroundColor = "";' onClick='input_box.value += String.fromCharCode(810);'>&nbsp;̪&nbsp;</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(826);'>&nbsp;̺&nbsp;</span> <span class=diacritic onClick='input_box.value += String.fromCharCode(827);'>&nbsp;̻&nbsp;</span>
+<!-- =================================================================================================== --></pre>
+</div>
+
+<!-- =================================================================================================== -->
+<!-- =================================================================================================== -->
+<!-- =================================================================================================== -->
+<!-- =================================================================================================== -->
+
+<center>
+<div id=input_div>
+	<textarea id='input_box' onFocus='input_focus = true;' onBlur='input_focus = false;' rows=5 cols=40 style='font-family:Times New Roman,Doulos SIL; font-size:20px;'>DIs 1z D@ f@nAl@dZi thu:l</textarea>
+	<br>
+	<input type=button value='Show all' onClick='init();'>
+	<input type=button value='Show checked' onClick='displaySegments(true)'>
+</div>
+
+<div id=output_div></div>

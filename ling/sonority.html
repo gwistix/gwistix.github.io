@@ -1,0 +1,967 @@
+
+<html>
+<head>
+<title>[ˈɡwɪs.tɪks] Sonority Profiler</title>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="gwistix.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="shortcut icon" href="https://dl.dropboxusercontent.com/u/22964498/gwistix.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style type='text/css'>
+th.sonority {color:white; background-color:123456;}
+td.sonority {text-align:center; color:white; background-color:white;}
+.cked {text-align:center; color:red; background-color:white;}
+.bottom {text-align:center; color:white; background-color:123456; width:20px;}
+
+a {cursor:hand; color:yellow;}
+a.menu {color:white;}
+span:hover {background-color:yellow;}
+span.seg {cursor:hand;}
+  .seg {text-align:center; background-color:white; border:none;}
+span.diacritic {background-color:white; border:1px solid efefef; cursor:hand; font-size:20px;}
+span.diacritic:hover {background-color:yellow;}
+
+  .place_label {font-size:10px; vertical-align:top; text-align:center; line-height:90%;}
+.manner_label {font-size:10px; vertical-align:middle; text-align:right;}
+.sideways {-webkit-transform: rotate(-90deg);}
+.thead {background-color:#123456; font-family:monospace; color:white;}
+  
+body {background: rgb(0,0,0); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */}
+.gray {
+box-shadow: 0px 3px 20px #000;
+background-color:#dedede; /* Old browsers */
+background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(181,181,181,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(181,181,181,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#b5b5b5',GradientType=0 ); /* IE6-9 */}
+.thead {background: rgb(0,18,52); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(0,18,52,1) 1%, rgba(1,35,69,1) 22%, rgba(35,69,103,1) 77%, rgba(69,103,137,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,rgba(0,18,52,1)), color-stop(22%,rgba(1,35,69,1)), color-stop(77%,rgba(35,69,103,1)), color-stop(100%,rgba(69,103,137,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#001234', endColorstr='#456789',GradientType=0 ); /* IE6-9 */}
+
+@font-face {
+    font-family: Segoe UI Symbol;
+    src: url(Fonts/Segoe-UI-Symbol/Segoe-UI-Symbol.woff);
+}
+@font-face {
+    font-family: Doulos SIL;
+    src: url(Fonts/DoulosSIL.woff);
+}
+@font-face {
+    font-family: Code2000;
+    src: url(Fonts/Code2000/Code2000.woff);
+}
+@font-face {
+    font-family: Code2001;
+    src: url(Fonts/Code2001/Code2001.woff);
+}
+@font-face {
+    font-family: Code2002;
+    src: url(Fonts/Code2002/Code2002.tff);
+}
+</style>
+
+<script language="Javascript">
+vowel = "æ a ɐ ɑ ɒ e ə ɜ ɛ i ɨ ɪ o ɔ œ ø u ʉ ʊ ɥ ʌ y ʸ ʏ ɚ ̃";
+glide = "j ʲ w ʷ ɥ";
+liquid = "l ɫ ɬ r ʳ ɹ ʴ";
+nasal = "m ɱ n ŋ ɲ";
+fricative = "β ç ð f ɸ ɣ ʁ h ʰ ʒ s ʃ θ v ʋ x χ z";
+affricate = "ʣ ʤ ʦ ʧ";
+plosive = "b d g ɡ k p q t ʔ ɾ";
+
+var Vowel;
+var Glide;
+var Liquid;
+var Nasal;
+var Fricative;
+var Affricate;
+var Plosive;
+var BottomLine;
+
+output_type = "word";
+displayIPA = false;
+
+function init(){
+    output_txt.innerHTML = mapWord(inp_txt.value)+"<br>";
+    inp_txt.select();
+    
+    if (window.innerWidth < 1370) ipa_chart.style.visibility = "hidden";
+    if (ipa_chart.style.visibility == "hidden") ipa_chart_btn.style.visibility = "visible";
+}
+
+function mapSegment(tock) {
+var give = "";
+    if (!tock || tock == "") tock = prompt("Enter the segment you would like to analyze.","");
+
+	if (vowel.search(tock) > -1) give = "vowel";
+	else if (glide.search(tock) > -1) give = "glide";
+	else if (liquid.search(tock) > -1) give = "liquid";
+	else if (nasal.search(tock) > -1) give = "nasal";
+	else if (fricative.search(tock) > -1) give = "fricative";
+	else if (affricate.search(tock) > -1) give = "affricate";
+	else if (plosive.search(tock) > -1) give = "plosive";
+  	else give = "word boundary";
+
+//	alert(give);
+	return give;
+}
+
+function mapWord(tock) {
+	if (!tock || tock == "") tock = prompt("Enter the segment, word, or phrase you would like to analyze.","");
+    tock = tock.replace(/ /g, "#");
+
+var Temp = tock.split("");
+var WordMap = new Array();
+
+	setLengths(tock.length);
+
+	for (i in Temp) {
+		type = mapSegment(Temp[i]);
+		WordMap[i] = type;
+		setArray(type,i,Temp[i]);
+        BottomLine[i] = (Temp[i] != "•") ? Temp[i] : "<font color='red'>•</font>";
+//		alert(WordMap[i]);
+	}
+//	alert("WordMap:\n" + WordMap);	
+	var give = setTable();
+	return give;
+}
+
+function setLengths(len) {
+	Vowel = new Array();
+	Glide = new Array();
+	Liquid = new Array();
+	Nasal = new Array();
+	Fricative = new Array();
+	Affricate = new Array();
+	Plosive = new Array();
+	BottomLine = new Array();
+}
+
+function setArray(type,num,char) {
+	if (type == "vowel") Vowel[num] = char;
+	else if (type == "glide") Glide[num] = char;
+	else if (type == "liquid") Liquid[num] = char;
+	else if (type == "nasal") Nasal[num] = char;
+	else if (type == "fricative") Fricative[num] = char;
+	else if (type == "affricate") Affricate[num] = char;
+	else if (type == "plosive") Plosive[num] = char;
+	else return;
+}
+
+function setTable() {
+var give = "<table style='box-shadow: 0px 3px 20px #000;' bgcolor='efefef' border='0'><tr>";
+var cked;
+	len = BottomLine.length;
+	for (i=0;i<len;i++) {
+		cked = false;
+//		alert("Vowel["+i+"] contains\n" + Vowel[i]);
+		if (Vowel[i]) cked = true;
+		else Vowel[i] = "";
+		give += "<td ";
+		if (cked) give += "class=cked ";
+        else give += "class=sonority ";
+        give += ">";
+        if (!displayIPA) give += "•";
+		else give += Vowel[i];
+		give += "</td>";
+	}
+	give += "<th class=sonority colspan=2>vowel</th></tr>";
+
+	give += "<tr>";	
+	for (i=0;i<len;i++) {
+		cked = false;
+//		alert("Glide["+i+"] contains\n" + Glide[i]);
+		if (Glide[i]) cked = true;
+		else Glide[i] = "";
+		give += "<td ";
+		if (cked) give += "class=cked ";
+        else give += "class=sonority ";
+		give += ">";
+		if (!displayIPA) give += "•";
+		else give += Glide[i];
+		give += "</td>";
+	}
+	give += "<th class=sonority>glide</th><th class=sonority rowspan=2>approximant</th></tr>";
+
+	give += "<tr>";	
+	for (i=0;i<len;i++) {
+		cked = false;
+//		alert("Liquid["+i+"] contains\n" + Liquid[i]);
+		if (Liquid[i]) cked = true;
+		else Liquid[i] = "";
+		give += "<td ";
+		if (cked) give += "class=cked ";
+        else give += "class=sonority ";
+		give += ">";
+		if (!displayIPA) give += "•";
+		else give += Liquid[i];
+		give += "</td>";
+	}
+	give += "<th class=sonority>liquid</th></tr>";
+
+	give += "<tr>";	
+	for (i=0;i<len;i++) {
+		cked = false;
+//		alert("Nasal["+i+"] contains\n" + Nasal[i]);
+		if (Nasal[i]) cked = true;
+		else Nasal[i] = "";
+		give += "<td ";
+		if (cked) give += "class=cked ";
+        else give += "class=sonority ";
+		give += ">";
+		if (!displayIPA) give += "•";
+		else give += Nasal[i];
+		give += "</td>";
+	}
+	give += "<th class=sonority colspan=2>nasal</th></tr>";
+
+	give += "<tr>";	
+	for (i=0;i<len;i++) {
+		cked = false;
+//		alert("Fricative["+i+"] contains\n" + Fricative[i]);
+		if (Fricative[i]) cked = true;
+		else Fricative[i] = "";
+		give += "<td ";
+		if (cked) give += "class=cked ";
+        else give += "class=sonority ";
+		give += ">";
+		if (!displayIPA) give += "•";
+		else give += Fricative[i];
+		give += "</td>";
+	}
+	give += "<th class=sonority colspan=2>fricative</th></tr>";
+
+	give += "<tr>";	
+	for (i=0;i<len;i++) {
+		cked = false;
+//		alert("Affricate["+i+"] contains\n" + Affricate[i]);
+		if (Affricate[i]) cked = true;
+		else Affricate[i] = "";
+		give += "<td ";
+		if (cked) give += "class=cked ";
+        else give += "class=sonority ";
+		give += ">";
+		if (!displayIPA) give += "•";
+		else give += Affricate[i];
+		give += "</td>";
+	}
+	give += "<th class=sonority colspan=2>affricate</th></tr>";
+
+	give += "<tr>";
+    for (i=0;i<len;i++) {
+		cked = false;
+//		alert("Plosive["+i+"] contains\n" + Plosive[i]);
+		if (Plosive[i]) cked = true;
+		else Plosive[i] = "";
+		give += "<td ";
+		if (cked) give += "class=cked ";
+        else give += "class=sonority ";
+		give += ">";
+		if (!displayIPA) give += "•";
+		else give += Plosive[i];
+		give += "</td>";
+	}
+	give += "<th class=sonority colspan=2>plosive</th></tr>";
+
+	give += "<tr>";	
+	for (i in BottomLine) {
+		give += "<th class=bottom>";
+        give += BottomLine[i];
+		give += "</th>";
+	}
+	give += "<th class=sonority colspan=2><></th></tr>";
+	give += "</table>";
+
+//	alert(give);
+	return give;
+}
+  
+//==========================================================
+
+follow = false;
+
+function followMouse(e) {
+    X = e.clientX;
+	Y = e.clientY;
+
+	window.status = X + "," + Y;
+
+	if (follow) {
+		ipa_chart.style.left = X-15;
+		ipa_chart.style.top = Y-15;
+	}
+}
+
+//==========================================================
+
+var segoe = false;
+
+//ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘ-ʀꜱᴛᴜᴠᴡ-ʏᴢ
+//Sᴇɢᴏᴇ UI Sʏᴍʙᴏʟ (Windows) or Aᴘᴘʟᴇ Sʏᴍʙᴏʟs (Mac)
+
+function help() {
+	if (!segoe) {
+		if (!confirm("Switching the font may allow you to see more characters.\n\nDo you want to switch the font?")) return;
+
+		segoe = true;
+
+		AllElements = document.getElementsByTagName("*");
+		elen = AllElements.length;
+		for (i=0;i<elen;i++) {
+			AllElements[i].style.fontFamily = "Segoe UI Symbol, Apple Symbols, Doulos SIL, Code2000, Code2001, Code2002";
+		}
+	}
+	else {
+		if (!confirm("Do you want to switch the default font back to Tɪᴍᴇs Nᴇᴡ Rᴏᴍᴀɴ?\n\n(Note: This may make some character sets unreadable.)")) return;
+
+		segoe = false;
+
+		AllElements = document.getElementsByTagName("*");
+		elen = AllElements.length;
+		for (i=0;i<elen;i++) {
+			AllElements[i].style.fontFamily = "Times New Roman";
+		}
+	}
+}
+
+</script>
+</head>
+
+<!-- =================================================================================================== -->
+<!-- =================================================================================================== -->
+
+<body style='background-image:url(https://dl.dropboxusercontent.com/u/22964498/Web/gwistix%20background.jpg); background-attachment:fixed;' onLoad='init();' onMouseMove='followMouse(event);'>
+
+<!-- TOOLBAR -->
+<div id=toolbar style='position:relative; top:0px; left:0px'>
+	<table width=100% class=gray>
+      <td class=thead style='text-align:left; font-family:"times new roman";'>&nbsp;[ˈɡwɪs.tɪks] › 
+<!--			<select onChange='alert("Options coming soon!");'>
+				<option value='Home' disabled="disabled">Home</option>
+				<option value='Tools' selected=true>Tools</option>
+			</select> › --><select onChange='if (this.value == "OmniType") window.location = "type.html"; else if (this.value == "Phonology") window.location = "phonology.html"; else if (this.value == "IPA Chart") window.location = "IPA_Chart.html"; else if (this.value == "Sonority") window.location = "sonority.html";'>
+				<option value="OmniType">OmniType</option>
+				<option value="Phonology">Phonology Tool</option>
+          <option value="IPA Chart">IPA Chart</option>
+				<option value="Sonority" selected>Sonority Profiler</option></select>&nbsp;
+			<span id=ipa_chart_btn style='visibility:hidden;'><input type="button" onClick='ipa_chart.style.visibility = "visible"; ipa_chart_btn.style.visibility = "hidden"; follow = (follow) ? false : true;' value="Show IPA chart"></span>
+		</td>
+		<td class=thead align=center width=100>
+			<input type=button value='About' style='cursor:help;' onClick='alert("Created and maintained by Andrew Bayles");' title='Information about this Web Application'>
+			<input type=button value=' ? ' style='cursor:help;' onClick='help();' title='Seeing squares?'>
+		</td>
+	</table>
+</div>
+
+<center>
+<br>
+<input type=text id=inp_txt value='sənɔɹɨɾi pɹɔʊfaɪlɚ' onClick='this.select();'><br>
+<input type=button value='Sonoritize me!' onClick='output_txt.innerHTML = mapWord(inp_txt.value)+"<br>";'><br><br>
+<div id=output_txt></div>
+<table style='box-shadow: 0px 3px 20px #000;' bgcolor=efefef border=1><th class=sonority><input type=checkbox id=ck_showIPA onClick='if (this.checked) {displayIPA = true;} else {displayIPA = false;} output_txt.innerHTML = mapWord(inp_txt.value);'> Use IPA segment markers </table>
+
+<!-- =================================================================================================== -->
+
+<!-- IPA CHART -->
+<div id=ipa_chart class=gray style='position:absolute; top:45px; left:8px; visibility: visible; font-size:15px; font-family:monospace; background-color:#efefef; border:3px ridge dedede;'>
+
+<table class=thead width=420 bgcolor=123456 border=0><td><a nohref class=menu onClick='follow = (follow) ? false : true;'>::</a></td><td align=right><a nohref class=menu onClick='ipa_chart.style.visibility = "hidden"; ipa_chart_btn.style.visibility = "visible";'>×</a></td></table>
+
+<pre><table align=center cellpadding=0 cellspacing=1>
+<!-- =================================================================================================== -->
+    <td class=manner_label id=click_label>Click</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'><span class=seg onClick='inp_txt.value += this.innerHTML;'>ʘ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='dental_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='dental_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ǀ</span>
+	</td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ǁ</span>
+	</td>
+	<td class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ǃ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; click_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; click_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ǂ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=ejective_label>Ejective</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>pʼ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td align=left valign=top bgcolor=white onMouseOver='alv_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>tʼ</span>  <span class=seg onClick='inp_txt.value += this.innerHTML;'>sʼ</span>
+	</td>
+	<td></td>
+	<td align=left valign=top bgcolor=white onMouseOver='retro_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʈʼ</span>
+	</td>
+	<td align=left valign=top bgcolor=white onMouseOver='pal_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>cʼ</span>
+	</td>
+	<td align=left valign=top bgcolor=white onMouseOver='vel_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>kʼ</span>
+	</td>
+	<td align=left valign=top bgcolor=white onMouseOver='uvular_label.style.backgroundColor = "yellow"; ejective_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; ejective_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>qʼ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=implosive_label>Implosive</td>
+	<td align=right valign=top bgcolor=white onMouseOver='bilabial_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɓ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td align=right valign=top bgcolor=white onMouseOver='alv_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɗ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td align=right valign=top bgcolor=white onMouseOver='pal_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʄ</span>
+	</td>
+	<td align=right valign=top bgcolor=white onMouseOver='vel_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɠ</span>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; implosive_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; implosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʠ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʛ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=plosive_label>Plosive</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>p</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>b</span>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ȹ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ȸ</span>
+	</td>
+	<td class=seg colspan=3 onMouseOver='alv_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>t</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>d</span>
+	</td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʈ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɖ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>c</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɟ</span>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>k</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɡ</span>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>q</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɢ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='epiglottal_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='epiglottal_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʡ</span>
+	</td>
+	<td class=seg onMouseOver='glottal_label.style.backgroundColor = "yellow"; plosive_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = "";  plosive_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʔ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=affricate_label>Affricate</td>
+	<td class=seg colspan=2 onMouseOver='bilabial_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>pᶠ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0 align=center>
+			<tr>
+				<td>
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʦ</span>  <span class=seg onClick='inp_txt.value += this.innerHTML;'>ʣ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʨ</span>  <span class=seg onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʥ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʧ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʤ</span>
+	</td>
+	<td class=seg>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʈᶳ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɖᶼ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʨ</span>  
+		<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʥ</span>
+	</td>
+	<td class=seg onMouseOver='velar_label.style.backgroundColor = "yellow"; affricate_label.style.backgroundColor = "yellow";' onMouseOut='velar_label.style.backgroundColor = ""; affricate_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>kˣ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=fricative_label>Fricative</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɸ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>β</span>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>f</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>v</span>
+	</td>
+	<td class=seg onMouseOver='dental_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='dental_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>θ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ð</span>
+	</td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0 align=center>
+			<tr>
+				<td>
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>s</span>  
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>z</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɕ</span>  
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʑ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='lat_label.style.backgroundColor = "yellow";' onMouseOut='lat_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɬ</span>  
+					<span class=seg onMouseOver='lat_label.style.backgroundColor = "yellow";' onMouseOut='lat_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɮ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʃ</span>  
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʒ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɧ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʂ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʐ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>ç</span>  
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʝ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɕ</span>  
+					<span class=seg onMouseOver='alv_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʑ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>x</span>  
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɣ</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='postalv_label.style.backgroundColor = "yellow";' onMouseOut='postalv_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɧ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>χ</span>  
+		<span class=seg onMouseOver='glide_label.style.backgroundColor = "yellow";' onMouseOut='glide_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʁ</span>
+	</td>
+	<td class=seg onMouseOver='pharyngeal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='pharyngeal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ħ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʕ</span>
+	</td>
+	<td class=seg onMouseOver='epiglottal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='epiglottal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʜ</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʢ</span>
+	</td>
+	<td class=seg onMouseOver='glottal_label.style.backgroundColor = "yellow"; fricative_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = ""; fricative_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>h</span>  
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɦ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=trill_label>Trill</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʙ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>r</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʀ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='glottal_label.style.backgroundColor = "yellow"; trill_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = ""; trill_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>я</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=nasal_label>Nasal</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>m</span>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɱ</span>
+	</td>
+	<td class=seg colspan=3 onMouseOver='alv_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>n</span>
+	</td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɳ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɲ</span>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ŋ</span>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; nasal_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; nasal_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɴ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=tap_label>Tap/Flap</td>
+	<td></td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; tap_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; tap_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ⱱ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; tap_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; tap_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɾ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; tap_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; tap_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɽ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=lat_label>Lateral</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0 align=center>
+			<tr>
+				<td>
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>l</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='fricative_label.style.backgroundColor = "yellow";' onMouseOut='fricative_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɬ</span>  
+					<span class=seg onMouseOver='fricative_label.style.backgroundColor = "yellow";' onMouseOut='fricative_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɮ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɭ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʎ</span>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; lat_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; lat_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʟ</span>
+	</td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label id=glide_label>Approximant</td>
+	<td class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td align=center>
+					<span class=seg onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʍ</span>  
+					<span class=seg onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>w</span>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;&nbsp;<span class=seg  onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɥ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='labiodental_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='labiodental_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʋ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='alv_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='alv_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɹ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='retro_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='retro_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɻ</span>
+	</td>
+	<td class=seg onMouseOver='pal_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td>
+					<span class=seg onClick='inp_txt.value += this.innerHTML;'>j</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɥ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='vel_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<table cellpadding=0 cellspacing=0>
+			<tr>
+				<td align=center>
+					<span class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʍ</span>  
+					<span class=seg onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>w</span>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;&nbsp;<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɰ</span>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<td class=seg onMouseOver='uvular_label.style.backgroundColor = "yellow"; glide_label.style.backgroundColor = "yellow";' onMouseOut='uvular_label.style.backgroundColor = ""; glide_label.style.backgroundColor = "";'>
+		<span class=seg onMouseOver='fricative_label.style.backgroundColor = "yellow";' onMouseOut='fricative_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʁ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=place_label></td>
+	<td class=place_label id=bilabial_label>B<br>i<br>l<br>a<br>b<br>i<br>a<br>l</td>
+	<td class=place_label id=labiodental_label>L<br>a<br>b<br>i<br>o<br>d<br>e<br>n<br>t<br>a<br>l</td>
+	<td class=place_label id=dental_label>D<br>e<br>n<br>t<br>a<br>l</td>
+	<td class=place_label id=alv_label>A<br>l<br>v<br>e<br>o<br>l<br>a<br>r</td>
+	<td class=place_label id=postalv_label>P<br>o<br>s<br>t<br>a<br>l<br>v<br>e<br>o<br>l<br>a<br>r</td>
+	<td class=place_label id=retro_label>R<br>e<br>t<br>r<br>o<br>f<br>l<br>e<br>x</td>
+	<td class=place_label id=pal_label>P<br>a<br>l<br>a<br>t<br>a<br>l</td>
+	<td class=place_label id=vel_label>V<br>e<br>l<br>a<br>r</td>
+	<td class=place_label id=uvular_label>U<br>v<br>u<br>l<br>a<br>r</td>
+	<td class=place_label id=pharyngeal_label>P<br>h<br>a<br>r<br>y<br>n<br>g<br>e<br>a<br>l</td>
+	<td class=place_label id=epiglottal_label>E<br>p<br>i<br>g<br>l<br>o<br>t<br>t<br>a<br>l</td>
+	<td class=place_label id=glottal_label>G<br>l<br>o<br>t<br>t<br>a<br>l</td>
+</tr>
+</table><!--=================================================================================================== --><!--=====================================================================================================--><table width=100% border=0>
+  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+  <td align=right valign=top>
+      <center><br>
+<!-- RHOTIC VOWELS -->
+<span class=diacritic onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɚ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>˞</span><span class=diacritic onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ɝ</span>
+<br>
+<!-- SUPERSCRIPT CHARACTERS -->
+<span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ᵊ</span><span class=diacritic onMouseOver='vel_label.style.backgroundColor = "yellow";' onMouseOut='vel_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ˠ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʰ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʱ</span><span class=diacritic onMouseOver='pal_label.style.backgroundColor = "yellow";' onMouseOut='pal_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ʲ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʳ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʴ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʵ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʶ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʷ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ʸ</span><span class=diacritic onMouseOver='pharyngeal_label.style.backgroundColor = "yellow";' onMouseOut='pharyngeal_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ˁ</span><span class=diacritic onMouseOver='glottal_label.style.backgroundColor = "yellow";' onMouseOut='glottal_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>ˀ</span>
+<br>
+<!-- TONE MARKERS -->
+<span class=diacritic onClick='inp_txt.value += this.innerHTML;'>˥</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>˦</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>˧</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>˨</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>˩</span>
+<br>
+<!-- LENGTH MARKERS -->
+<span class=seg onClick='inp_txt.value += this.innerHTML;'>ː</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>ˑ</span>
+<br>
+<!-- OT CHARACTERS -->
+<span class=diacritic onClick='inp_txt.value += this.innerHTML;'>Ø</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>≫</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>☞</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>→</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>α</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>β</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>σ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>μ</span><span class=diacritic onClick='inp_txt.value += this.innerHTML;'>±</span>
+    </td>
+<!--==================================================================================================VOWELS-->
+    <td align=right><table align=right valign=top cellpadding=0 cellspacing=1>
+<tr>
+    <td class=manner_label rowspan=2 id=high_label>high</td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>i</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>y</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɨ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʉ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɯ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>u</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+    <td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɪ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʏ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='high_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='high_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʊ</span>
+	</td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=manner_label rowspan=3 id=mid_label>mid</td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>e</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ø</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɘ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɵ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɤ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>o</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td></td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ə</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɛ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>œ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɜ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɞ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='mid_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='mid_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ʌ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɔ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+    <td class=manner_label rowspan=2 id=low_label>low</td>
+	<td></td>
+	<td align=left valign=top bgcolor=white onMouseOver='low_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; front_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>æ</span>
+	</td>
+	<td class=seg onMouseOver='low_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɐ</span>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+	<td align=center valign=top bgcolor=white colspan=3 onMouseOver='low_label.style.backgroundColor = "yellow"; front_label.style.backgroundColor = "yellow"; central_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; front_label.style.backgroundColor = ""; central_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>a</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɶ</span>
+	</td>
+	<td></td>
+	<td class=seg onMouseOver='low_label.style.backgroundColor = "yellow"; back_label.style.backgroundColor = "yellow";' onMouseOut='low_label.style.backgroundColor = ""; back_label.style.backgroundColor = "";'>
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɑ</span> 
+		<span class=seg onClick='inp_txt.value += this.innerHTML;'>ɒ</span>
+	</td>
+</tr>
+<!-- =================================================================================================== -->
+<tr>
+  <td></td>
+  <td class=place_label colspan=2 id=front_label>f<br>r<br>o<br>n<br>t</td>
+  <td class=place_label id=central_label>c<br>e<br>n<br>t<br>r<br>a<br>l</td>
+  <td class=place_label colspan=2 id=back_label>b<br>a<br>c<br>k</td>
+</tr>
+</table></td><td></td>
+</table><!--=================================================================================================== --><!--===================================================================================================--><!-- COMBINING DIACRITICS (ABOVE) --><span class=diacritic onClick='inp_txt.value += String.fromCharCode(768);'>ˋ</span> <span class=diacritic onClick='inp_txt.value += String.fromCharCode(769);'>ˊ</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̂</span> <span class=diacritic onMouseOver='nasal_label.style.backgroundColor = "yellow";' onMouseOut='nasal_label.style.backgroundColor = "";' onClick='inp_txt.value += String.fromCharCode(771);'>˜</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̄</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̆</span> <span class=diacritic onMouseOver='central_label.style.backgroundColor = "yellow";' onMouseOut='central_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>̈</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̊</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̋</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̌</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̍</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̏</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>˺</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>͡</span>
+<!-- COMBINING DIACRITICS (BELOW) -->
+<span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̜</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̝</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̞</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̟</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̠</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̤</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̥</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̩</span> <span class=diacritic onMouseOver='dental_label.style.backgroundColor = "yellow";' onMouseOut='dental_label.style.backgroundColor = "";' 
+onClick='inp_txt.value += this.innerHTML;'>̪</span> <span class=diacritic onMouseOver='bilabial_label.style.backgroundColor = "yellow";' onMouseOut='bilabial_label.style.backgroundColor = "";' onClick='inp_txt.value += this.innerHTML;'>̫</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̬</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̯</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̰</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̹</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̺</span> <span class=diacritic onClick='inp_txt.value += this.innerHTML;'>̻</span>
+<!-- =================================================================================================== --></pre>
+</div>

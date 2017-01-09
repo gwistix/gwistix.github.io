@@ -1,0 +1,362 @@
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Solar System discovery timeline</title>
+<link rel="shortcut icon" href="favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style>
+body {color:white; background-color:black;}
+h3 {text-align:center;}
+h4 {text-align:center; font-weight:normal;}
+table {font-size:80%;}
+td {vertical-align:top; /*background-color:#222222;*/ opacity:0.75; padding:0;}
+img {border-radius:50%;}
+.circular {text-align:center; vertical-align:middle; background:none;}
+.centered {
+	position: fixed;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.shadow {-webkit-filter: drop-shadow(1px 3px 3px rgba(0,0,0,1.0));}
+</style>
+<script>
+
+var scale = 50/12742;
+var Earth_radius = 12742;
+var Bodies = [];
+
+function init() {
+ inform();
+// scale = window.innerWidth/(50*12742); //Makes the model fit on the screen
+ update();
+ getBodies();
+ var give = "<table>";
+ var circle_give = "<table>";
+ var blen = Bodies.length;
+ var last_secondary_discovered;
+ var primary = "";
+ var primary_name;
+ var satellites = 0;
+ for (i=1;i<blen;i++) {
+  Bodies[i].disp = Bodies[i].Name + "<br>" + Bodies[i].Discovered + "<br>" + Math.round(Bodies[i].diameter*Earth_radius).toLocaleString() + " km";
+  if (Bodies[i].Discovered <= slider.value) { //For each object that has been discovered...
+   if (!Bodies[i].Name.match(" [IVXL]* ")) { //If it's a planetary object (i.e. not a moon)...
+    give += "<td class=shadow><span style='font-variant:small-caps; font-weight:bold;'>" + Bodies[i].Name.replace(/ /g,"&nbsp;") + "</span>";
+    if (Bodies[i].Img) circle_give += "<td class='circular'><img src='"+Bodies[i].Img+"' height='"+Bodies[i].diameter*scale+"'>";
+    else circle_give +=
+     "<td class='circular'><svg height='"+Bodies[i].diameter*scale+"' width='"+Bodies[i].diameter*scale+"'>" +
+      "<title>"+Bodies[i].Name+"</title>" +
+      "<circle cx='"+Bodies[i].diameter*scale/2+"' cy='"+Bodies[i].diameter*scale/2+"' r='"+Bodies[i].diameter*scale/2+"' fill='"+((Bodies[i].Discovered == slider.value) ? "yellow" : "white")+"'></circle>" +
+/*      "<text x='"+Bodies[i].diameter*scale*0.40+"' y='"+Bodies[i].diameter*scale*0.55+"' fill='red'>"+Bodies[i].Symbol+"</text>" +*/
+     "</svg>";
+
+    primary_name = new RegExp(primary);
+    if (satellites) { //If the planetary object has any moons...
+     if (satellites == 1) {
+      give = give.replace(primary_name,primary + "<br><i>" + satellites + "&nbsp;moon:</i>");
+     }
+     else {
+      give = give.replace(primary_name,primary + "<br><i>" + satellites + "&nbsp;moons:</i>");
+     }
+    }
+    satellites = 0; //Reset the moon-counter
+    primary = Bodies[i].Name;
+    last_planetoid_discovered = Bodies[i].Name;
+   }
+   else { //If the current object IS a moon...
+    give += "<br>&nbsp;" + Bodies[i].Name.replace(/[A-Z][a-z]* [IVXL]* /g,"").replace(/ /g,"&nbsp;");
+    if (Bodies[i].Img) circle_give += "<br><img src='"+Bodies[i].Img+"' height='"+Bodies[i].diameter*scale+"'>";
+    else circle_give +=
+     "<br><svg width='"+Bodies[i].diameter*scale+"' height='"+Bodies[i].diameter*scale+"'>" +
+      "<title>"+Bodies[i].Name+"</title>" +
+      "<circle cx='"+Bodies[i].diameter*scale/2+"' cy='"+Bodies[i].diameter*scale/2+"' r='"+Bodies[i].diameter*scale/2+"' fill='white'>" +
+     "</svg>";
+
+    satellites++;
+   }
+  }
+ }
+ primary_name = new RegExp(primary);
+
+ //Adds a moon-count (if applicable) to the last-discovered planetary object
+ if (satellites) {
+  if (satellites == 1) give = give.replace(primary_name,primary + "<br><i>" + satellites + "&nbsp;moon:</i>");
+  else give = give.replace(primary_name,primary + "<br><i>" + satellites + "&nbsp;moons:</i>");
+ }
+ output.innerHTML = give + "</table>";
+ circles.innerHTML = circle_give + "</table>";
+}
+
+function inform(msg) {
+ if (!msg) info.innerHTML = "";
+ else info.innerHTML += "<br>"+msg;
+}
+
+/*
+0 Designation
+1 Name
+2 img
+3 Type
+4 ?
+5 Symbol
+6 Discovery
+7 Radius
+8 Mass
+9 Q
+10 q
+11 a
+*/
+
+function getBodies() {
+ Bodies = i_o.innerHTML.replace(/"\b/g,"&ldquo;").replace(/\b"/g,"&rdquo;").split("\n");
+ blen = Bodies.length;
+ for (i=0;i<blen;i++) {
+  Body = Bodies[i].split("	");
+  body_name = (Body[1]) ? Body[1] : Body[0].replace(/;.*/,"");
+  Bodies[i] = {
+   Name:body_name,
+   Img:Body[2],
+   Symbol:Body[5],
+   Discovered:parseInt(Body[6].split("/")[2]),
+   diameter:parseFloat(Body[7].replace(/,/g,""))*2,
+   sma:parseFloat(Body[11])
+  };
+ }
+// Bodies = Bodies.sort(function(a,b){return a.sma - b.sma});
+}
+
+function parseDesignation(designation) {
+ Temp = designation.split(" ");
+ if (Temp[0].match("[0-9][0-9][0-9][0-9]") && Temp[1].match("[A-Z][A-Z][0-9]*")) {
+  Other = Temp[1].split("");
+  other = Other[0] + Other[1];
+  if (Other[2]) {
+   other += "<sub>" + Other[2];
+   if (Other[3]) {
+    other += Other[3];
+    if (Other[4]) other += Other[4]
+   }
+   other += "</sub>";
+  }
+  return Temp[0] + other;
+ }
+}
+
+function update() {
+ slider_value.innerHTML = slider.value;
+}
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<div id='circles' style='margin-top:100px; opacity:1; z-index:-1; position:absolute; top:0px; left:0px'><tt>Houston, we have a problem.</tt></div>
+
+<div id='header_stuff' class='centered' style='margin-top:60px;'>
+<h3 class='shadow'>Solar System Discovery Timeline</h3>
+<h4>Drag the slider to see when each solar-system object was discovered</p>
+
+ <input id='slider' class='shadow' type='range' min='1600' max='2016' step=1 value='2016'onInput='slider_value.value = this.value; init();' style='width:500px'>
+ <br><input type='number' class='shadow' min='1600' max='2016' id='slider_value'value='2016' onInput='slider.value = this.value; init();'></input>
+</div>
+
+<center>
+<br><br><br><br><br><br><br><br>
+<span id='output' style=''>Hmmm... You shouldn't be seeing this. It looks like there's a problem with JavaScript.<br><br>Do you have it disabled?</span>
+
+<div id='i_o' style='display:none;'>	Sol	http://www.solarsystemscope.com/nexus/content/planet_images/render_sun.png	Star		☉	1/1/1000	695,800.00	1.99E+30	0	0	0
+	Mercury	http://www.solarsystemscope.com/nexus/content/planet_images/render_mercury.png	Planet (terrestrial)		☿	1/1/1000	2,439.60	3.30E+23	0.467	0.307	0.3871
+	Venus	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Venus.png	Planet (terrestrial)		♀	1/1/1000	6,051.80	4.87E+24	0.728	0.718	0.72333
+2008 EV5		https://upload.wikimedia.org/wikipedia/commons/a/a7/Asteroid-2008EV5-ShapeModel-20111006.gif	Asteroid (Aten), NEA, PHA			3/4/2008	207		1.038	0.878	0.95831
+1998 UP1			Asteroid (Aten)—NEA			10/18/1998	170		1.343	0.654	0.99818
+	Earth	https://dl.dropboxusercontent.com/u/22964498/solar%20system/images/Earth.png	Planet (terrestrial)		♁	1/1/1000	6,371.00	5.97E+24	1.016	0.983	1
+	Earth I "Luna"	http://www.solarsystemscope.com/nexus/content/planet_images/render_moon.png	Satellite of Earth		☽	1/1/1000	1,737.10	7.35E+22			1.00257
+	Mars	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Mars.png   	Planet (terrestrial)		♂	1/1/1000	3,396.20	6.42E+23	1.666	1.381	1.52368
+	Vesta	https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Vesta_full_mosaic.jpg/300px-Vesta_full_mosaic.jpg	Asteroid (main belt)		⚶	3/29/1807	262.7	2.59E+20	2.571	2.152	2.36179
+	Iris		Asteroid (main belt)—S-type			8/13/1847	206.4	1.49E+19	2.937	1.833	2.385
+1974 QU2	Metis	https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/9Metis_%28Lightcurve_Inversion%29.png/250px-9Metis_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			4/25/1848	92.4	1.47E+19	2.678	2.096	2.387
+	Hebe	https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/6Hebe_%28Lightcurve_Inversion%29.png/250px-6Hebe_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type		🍷	7/1/1847	93	1.28E+19	2.914	1.937	2.426
+	Fortuna		Asteroid (main belt)—G-type			8/22/1852	106.3	1.27E+19	2.831	2.052	2.441
+	Parthenope		Asteroid (main belt)			5/11/1850	76.7	6.15E+18	2.697	2.208	2.453
+	Amphitrite	https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/29Amphitrite_%28Lightcurve_Inversion%29.png/250px-29Amphitrite_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			3/1/1854	106.3	1.18E+19	2.739	2.369	2.554
+	Egeria	https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/13Egeria_%28Lightcurve_Inversion%29.png/250px-13Egeria_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—G-type			11/2/1850	105.6	1.63E+19	2.794	2.358	2.576
+1952 TM	Irene	https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/14Irene_%28Lightcurve_Inversion%29.png/250px-14Irene_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			5/19/1851	76.4	8.20E+18	3.02	2.15	2.585
+	Eunomia	https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/15Eunomia_%28Lightcurve_Inversion%29.png/250px-15Eunomia_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			7/29/1851	133	3.12E+19	3.138	2.149	2.643
+	Juno	https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Juno_4_wavelengths.jpg/150px-Juno_4_wavelengths.jpg	Asteroid (main belt)—S-type		⚵	9/1/1804	136	2.67E+19	3.353	1.988	2.6707
+	Adeona		Asteroid (main belt)—Adena			6/3/1875	75.6	3.60E+18	3.06	2.286	2.67301
+	Bamberga		Asteroid (main belt)—C-type			2/25/1892	116	1.07E+19	3.591	1.775	2.683
+	Alexandra	https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/54Alexandra_%28Lightcurve_Inversion%29.png/250px-54Alexandra_%28Lightcurve_Inversion%29.png	Asteroid (main belt)			9/10/1858	76.4	6.16E+18	3.247	2.173	2.71016
+	Elpis		Asteroid (main belt)			9/12/1860	83.2	3.00E+18	3.036	2.388	2.71196
+1941 BN	Eugenia	https://upload.wikimedia.org/wikipedia/en/thumb/9/9c/45_eugenia-01.jpg/250px-45_eugenia-01.jpg	Asteroid (main belt)—F-type—trinary			6/27/1857	107.3	5.69E+18	2.943	2.497	2.72
+	Eunike		Asteroid (main belt)			3/1/1878	79.5	3.83E+18	3.091	2.383	2.73722
+	Nemesis		Asteroid (main belt)—C-type			11/25/1872	92.7	6.49E+18	3.098	2.407	2.75249
+1949 TG	Daphne	https://upload.wikimedia.org/wikipedia/en/d/db/41Daphne-Keck.jpg	Asteroid (main belt)			5/22/1856	86.5	6.80E+18	3.517	2.014	2.765
+1943 XB	Ceres	https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/PIA19547-Ceres-DwarfPlanet-Dawn-RC3-AnimationFrame25-20150504.jpg/250px-PIA19547-Ceres-DwarfPlanet-Dawn-RC3-AnimationFrame25-20150504.jpg	Dwarf planet—Asteroid (main-belt)		⚳	1/1/1801	470	9.39E+20	2.977	2.558	2.7675
+	Thisbe	https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/88Thisbe_%28Lightcurve_Inversion%29.png/250px-88Thisbe_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—B-type			6/15/1866	113.7	1.67E+19	3.224	2.312	2.768
+	Laetitia		Asteroid (main belt)			2/8/1856	83	4.72E+18	3.085	2.452	2.769
+1899 EL	Gyptis		Asteroid (main belt)—C-type			3/31/1899	82	1.25E+19	3.256	2.283	2.76951
+	Pallas	https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/PallasHST2007.jpg/275px-PallasHST2007.jpg	Asteroid (main belt)		⚴	3/28/1802	272	2.11E+20	3.413	2.131	2.77161
+1904 NY	Herculina	https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/532Herculina_%28Lightcurve_Inversion%29.png/250px-532Herculina_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—S-type			4/20/1904	111.2	2.29E+19	3.26	2.29	2.77198
+1915 WT	Hispania		Asteroid (main belt)—P-type			3/20/1915	75.6	7.48E+18	3.236	2.447	2.84157
+	Kalliope	https://upload.wikimedia.org/wikipedia/en/thumb/b/b3/22-Kalliope-Linus.jpg/250px-22-Kalliope-Linus.jpg	Asteroid (main belt)—M-type—binary			11/16/1852	84.7	8.13E+18	3.209	2.614	2.9112
+	Psyche	https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/16Psyche_%28Lightcurve_Inversion%29.png/250px-16Psyche_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—M-type			3/17/1852	100.9	2.23E+18	3.328	2.513	2.921
+	Patientia		Asteroid (main belt)			12/4/1899	117	1.09E+19			3.059
+1910 KU; 1952 MW	Interamnia	https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Interamnia_medie.gif/250px-Interamnia_medie.gif	Asteroid (main belt)—F-type			10/2/1910	162.1	3.90E+19	3.522	2.601	3.062
+1896 DB	Diotima	https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/423Diotima_%28Lightcurve_Inversion%29.png/250px-423Diotima_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—C-type			12/7/1896	91.2	9.30E+18	3.191	2.941	3.066
+	Pales		Asteroid (main belt)—C-type			9/19/1857	74.9	2.69E+18	3.807	2.381	3.09392
+1948 LA	Europa		Asteroid (main belt)—C-type			2/4/1858	156.3	2.46E+19	3.417	2.785	3.101
+	Doris		Asteroid (main belt)			9/19/1857	107	1.70E+19	3.343	2.877	3.11
+	Ursula		Asteroid (main belt)			9/18/1893	105	8.45E+18			3.125
+	Elektra	https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/130Elektra_%28Lightcurve_Inversion%29.png/250px-130Elektra_%28Lightcurve_Inversion%29.png	Asteroid (main belt)—G-type—binary			2/17/1873	92.5	6.60E+18			3.125
+1947 BA; 1955 OH	Themis		Asteroid (main belt)—C-type—Themis			4/5/1853	99	1.72E+19	3.539	2.719	3.129
+	Hygiea		Asteroid (main belt)			4/12/1849	215.5	8.67E+19	3.507	2.77	3.139
+	Euphrosyne		Asteroid (main belt)—C-type			9/1/1854	128	3.22E+19	3.861	2.438	3.15
+1903 LU	Davida		Asteroid (main belt)—C-type			5/30/1903	146.4	4.11E+19	3.756	2.573	3.16474
+	Freia	https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/76Freia_%28Lightcurve_Inversion%29.png/250px-76Freia_%28Lightcurve_Inversion%29.png	Asteroid (main belt—outer)—Cybele			10/21/1862	91.9	4.24E+18	3.981	2.848	3.4147
+	Cybele		Asteroid (main belt—outer)—C-type			3/8/1861	133.4	1.78E+19	3.794	3.073	3.433
+1970 VE	Hermione	http://upload.wikimedia.org/wikipedia/commons/thumb/d/da/121Hermione_%28Lightcurve_Inversion%29.png/250px-121Hermione_%28Lightcurve_Inversion%29.png	Asteroid (main belt—outer)—C-type—binary (Cybele)			5/12/1872	101.6	5.39E+18	3.933	2.982	3.457
+	Camilla		Asteroid (main belt—outer)—C-type—binary			11/17/1868	129	1.12E+19			3.477
+	Sylvia	http://upload.wikimedia.org/wikipedia/commons/thumb/5/52/CMSylvia.png/275px-CMSylvia.png	Asteroid (main belt—outer)—X-type—trinary			5/16/1866	146	1.48E+19	3.768	3.213	3.49
+	Chicago		Asteroid (main belt)—C-type			8/23/1892	81.5	5.06E+18	3.982	3.81	3.89596
+1937 PB	Diomedes		Jupiter trojan			8/3/1937	82.2	4.60E+18			5.164
+	Jupiter	https://dl.dropboxusercontent.com/u/22964498/solar%20system/images/Jupiter.png	Planet (gas giant)—has rings		♃	1/1/1000	69,911.00	1.90E+27	5.458	4.95	5.20427
+	Jupiter V Amalthea	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Amalthea.png	Satellite of Jupiter			9/9/1892	84	2.08E+18			5.20548
+	Jupiter II Europa	http://www.solarsystemscope.com/nexus/content/moon_images/render_europa.png	Satellite of Jupiter			1/8/1610	1,569.00	4.80E+22			5.20875
+	Jupiter III Ganymede	http://www.solarsystemscope.com/nexus/content/moon_images/render_ganymede.png	Satellite of Jupiter			1/7/1610	2,634.10	1.48E+23			5.21142
+	Jupiter I Io	http://www.solarsystemscope.com/nexus/content/moon_images/render_io.png	Satellite of Jupiter			1/8/1610	1,815.00	8.94E+22			5.21243
+	Jupiter IV Callisto	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Callisto.png	Satellite of Jupiter			1/7/1610	2,410.30	1.08E+23			5.21685
+	Jupiter VI Himalia	https://upload.wikimedia.org/wikipedia/commons/d/dc/Himalia_from_New_Horizons.jpg	Satellite of Jupiter			1/6/1905	85	4.19E+18			5.28088
+1919 FD	Agamemnon		Jupiter trojan			3/19/1919	83				5.214
+1907 XM	Hektor		Jupiter trojan (L4)—binary			2/10/1907	123.3	9.95E+18	5.349	5.095	5.222
+	Saturn	https://dl.dropboxusercontent.com/u/22964498/solar%20system/images/Saturn.png	Planet (gas giant)—has rings		♄	1/1/1000	60,268.00	5.68E+26	10.116	9.048	9.58202
+S/1980 S01	Saturn X Janus	https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/PIA12714_Janus_crop.jpg/275px-PIA12714_Janus_crop.jpg	Satellite of Saturn			1/3/1967	90	1.91E+18			9.58303
+	Saturn I Mimas	https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Mimas_Cassini.jpg/250px-Mimas_Cassini.jpg	Satellite of Saturn			9/17/1789	198.3	3.75E+19			9.58326
+	Saturn II Enceladus	https://upload.wikimedia.org/wikipedia/commons/9/95/Enceladus_from_Voyager.jpg	Satellite of Saturn			8/28/1789	252.2	1.08E+20			9.58361
+	Saturn III Tethys	http://www.solarsystemscope.com/nexus/content/moon_images/render_tethys.png	Satellite of Saturn			3/21/1684	533.7	6.17E+20			9.58399
+	Saturn IV Dione	http://www.solarsystemscope.com/nexus/content/moon_images/render_dione.png	Satellite of Saturn			3/21/1684	562.1	1.10E+21			9.58454
+	Saturn V Rhea	http://www.solarsystemscope.com/nexus/content/moon_images/render_rhea.png	Satellite of Saturn			12/23/1672	764.4	2.31E+21			9.58554
+	Saturn VI Titan	http://www.solarsystemscope.com/nexus/content/moon_images/render_titan.png	Satellite of Saturn			3/25/1655	2,575.80	1.35E+23			9.59018
+	Saturn VII Hyperion	https://upload.wikimedia.org/wikipedia/commons/e/ef/Hyperion_false_color.jpg	Satellite of Saturn			9/16/1848	134	5.58E+18			9.59205
+	Saturn VIII Iapetus	https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg/1024px-Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg	Satellite of Saturn			10/25/1671	735.1	1.81E+21			9.60582
+	Saturn IX Phoebe	http://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Phoebe_closeup_cassini_NASA.jpg/640px-Phoebe_closeup_cassini_NASA.jpg	Satellite of Saturn			8/16/1898	106.5	8.29E+18			9.66857
+1977 UB	Chiron		Centaur—has rings / comet	95P/		10/18/1977	86.2		18.891	8.511	13.708
+1997 CU26	Chariklo		Centaur—has rings			2/15/1997	134.8		18.476	13.054	15.76469
+2000 CQ243	Bienor		Centaur—possible dwarf planet			8/27/2000	138.2		19.779	13.165	16.472
+	Uranus	https://upload.wikimedia.org/wikipedia/commons/e/ea/Uranus_(Edited).jpg	Planet (ice giant)—has rings		♅	3/13/1781	25,559.00	8.68E+25	20.095	18.283	19.18925
+	Uranus XV Puck	https://upload.wikimedia.org/wikipedia/commons/b/b6/Puck.png	Satellite of Uranus			1/9/1986	81				19.19184
+	Uranus V Miranda	https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Miranda.jpg/250px-Miranda.jpg	Satellite of Uranus			6/15/1949	235.8	6.59E+19			19.19213
+	Uranus I Ariel	https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Ariel_%28moon%29.jpg/1024px-Ariel_%28moon%29.jpg	Satellite of Uranus			10/24/1851	578.9	1.35E+21			19.19254
+	Uranus II Umbriel	https://upload.wikimedia.org/wikipedia/commons/2/2f/PIA00040_Umbrielx2.47.jpg	Satellite of Uranus			10/24/1851	584.7	1.20E+21			19.19304
+	Uranus III Titania	https://upload.wikimedia.org/wikipedia/commons/a/a2/Titania_%28moon%29_color_cropped.jpg	Satellite of Uranus			1/11/1787	788.9	3.50E+21			19.19418
+	Uranus IV Oberon	https://upload.wikimedia.org/wikipedia/commons/0/09/Voyager_2_picture_of_Oberon.jpg	Satellite of Uranus			1/11/1787	761.4	3.01E+21			19.19516
+	Uranus XVII Sycorax		Satellite of Uranus			10/31/1997	75	2.30E+18			19.27268
+1992 AD	Pholus		Centaur			1/9/1992	92.5	6.60E+18	31.98	8.73	20.356
+	Neptune	https://dl.dropboxusercontent.com/u/22964498/solar%20system/images/Neptune.png	Planet (ice giant)—has rings		♆	9/23/1846	24,764.00	1.02E+26	30.332	29.81	30.0709
+	Neptune V Despina	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Despina.png	Satellite of Neptune			8/2/1989	75				30.07125
+	Neptune VI Galatea	https://upload.wikimedia.org/wikipedia/commons/d/d8/Galatea_moon.jpg	Satellite of Neptune			8/2/1989	88	2.12E+18			30.07131
+	Neptune VII Larissa	https://upload.wikimedia.org/wikipedia/commons/5/5b/Larissa_1.jpg	Satellite of Neptune			5/29/1981	97				30.07139
+	Neptune VII Proteus	https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Proteus_%28Voyager_2%29.jpg/597px-Proteus_%28Voyager_2%29.jpg	Satellite of Neptune			7/7/1989	210	4.40E+19			30.07168
+	Neptune I Triton	http://www.solarsystemscope.com/nexus/content/moon_images/render_triton.png	Satellite of Neptune			10/10/1846	1,353.40	2.14E+22			30.07327
+	Neptune II Nereid	https://upload.wikimedia.org/wikipedia/commons/b/b0/Nereid-Voyager2.jpg	Satellite of Neptune			8/15/1949	170				30.10775
+2007 RW10			Minor planet—Quasi-satellite of Neptune			9/9/2007	123.5		39.406	21.239	30.32255
+1999 OX3			TNO/Centaur			7/21/1999	96		47.169	17.644	32.407
+2005 UQ513			Cubewano			10/21/2005	364.2	8.20E+20	49.769	37.321	34.545
+1995 SN55			Lost—Centaur or transient TNO			9/20/1995	142.8		65.095	8.12	36.28241
+2002 KX14			Cubewano			5/17/2002	227.6		40.419	37.108	38.76362
+2004 PF115			Plutino			9/1/2007	222.1	3.50E+20	41.57	36.51	39.04
+2004 UX10			Plutino—Probable dwarf planet			10/20/2004	180.6	3.00E+19	40.654	37.568	39.111
+1999 HX11	Rhadamanthus		Kuiper belt object			4/17/1999	90.8		45.105	33.205	39.155
+2004 DW	Orcus	http://www.aanda.org/articles/aa/full_html/2011/10/aa17486-11/aa17486-11-fig8_small.jpg	Plutino—binary			2/17/2004	414.2	6.37E+20	48.07	30.27	39.173
+S/2005 (90482) 1	Orcus I Vanth		Satellite of Orcus			11/13/2005	172.3	4.00E+19			39.17306
+2003 UZ413			Plutino—Haumea family			10/21/2003	298.3	2.00E+20	47.905	30.572	39.239
+	Pluto	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Pluto.png	Dwarf planet—Plutino—multiple		♇	2/18/1930	1,187.00	1.30E+22	48.871	29.657	39.264
+	Pluto I Charon	https://dl.dropboxusercontent.com/u/22964498/Solar%20system/images/Charon.png	Satellite of Pluto			6/22/1978	606	1.59E+21			39.48182
+2003 VS2			Plutino—likely dwarf planet			11/14/2003	260.8	1.50E+20	42.104	36.427	39.266
+2002 VR128			Plutino			11/3/2002	226.9	1.00E+20	49.699	28.9	39.299
+2006 HJ123			Plutino			4/24/2006	141.6	1.20E+18	51.18	27.43	39.31
+2002 XV93			Plutino			12/10/2002	277.3	1.70E+20	44.15	34.51	39.33
+2002 VU130			Plutino			11/7/2002	126.5	1.60E+19	47.48	31.2	39.34
+1996 TP66			Plutino			10/11/1996	77		52.366	26.379	39.37258
+2003 AZ84			Plutino—binary			1/13/2003	345.3	3.00E+20	46.477	32.334	39.406
+2007 JH43			Plutino—Likely dwarf planet			5/10/2007	251.3		40.563	38.292	39.42778
+2004 EW95			Plutino			3/14/2004	87.5		51.902	26.954	39.428
+2002 VE95			Plutino			11/14/2002	124.9	1.50E+19	48.03	30.37	39.44
+2000 EB173	Huya		Plutino—binary			3/10/2000	235.1	8.00E+19	50.363	28.52	39.442
+	Huya I		Satellite of Huya			6/1/2012	105				39.44201
+2001 QF298			Plutino			8/19/2001	207.3	7.00E+19	43.722	35.277	39.5
+1999 TC36 (α1)		http://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/1999TC36-Trujillo-HST.png/240px-1999TC36-Trujillo-HST.png	Plutino—trinary (Probable dwarf planet)			10/1/1999	136	7.01E+18	48.544	30.555	39.55
+1999 TC36 I (α2)			Plutino—trinary (Probable dwarf planet)			12/8/2001	125.5	6.47E+18	48.544	30.555	39.55001
+2001 KX76	Ixion		Plutino			5/22/2001	331	2.80E+20	49.269	30.091	39.68
+2005 RN43			Cubewano			9/10/2005	342.5		42.547	40.631	41.589
+1995 SM55			Cubewano / Extended (Haumea family)			9/19/1995	87		45.905	37.4	41.653
+2004 SB60	Salacia		Cubewano—binary			9/22/2004	441.3	4.50E+20	46.404	37.409	41.907
+	Salacia I Actaea		Satellite of Salacia			7/21/2006	140				41.90704
+2002 MS4			Cubewano			6/18/2002	432.3		47.858	36.004	41.931
+2004 GV9			Cubewano			4/13/2004	345.8		45.188	38.679	41.934
+2005 TN74			TNO—resonant (3:5)				81.3		53.363	31.121	42.74228
+2002 UX25		http://upload.wikimedia.org/wikipedia/en/9/97/20131105_2002_UX25_hst.png	Detached object/Cubewano—binary			10/30/2002	341.5	1.25E+20	48.923	46.815	42.869
+2002 UX25 I; S/2007 (55637) 1			Satellite of 2002 UX25			2/22/2007	112.5				42.86903
+2000 WR106	Varuna		Cubewano—Scattered extended			11/28/2000	360.7	3.70E+20	45.313	40.494	42.904
+2005 RR43			Cubewano—Haumea family			9/9/2005	116.3		48.964	37.183	43.073
+2003 EL61	Haumea	https://upload.wikimedia.org/wikipedia/en/6/65/2003_EL61_Haumea%2C_with_moons.jpg	Dwarf planet—Resonant KBO (7:12)—trinary			12/28/2004	624.3	4.01E+21	51.483	34.952	43.218
+S/2005 (2003 EL61) 2; (136108) 2003 EL61 II	Haumea II Namaka		Satellite of Haumea			6/30/2005	92.5	1.79E+18			43.27957
+	Haumea I Hi‘iaka		Satellite of Haumea			1/26/2005	175	1.79E+19			43.27969
+2003 OP32			Cubewano / Extended (Haumea family)			7/26/2003	115		47.963	38.602	43.282
+1996 TO66			TNO (Haumea family)			10/12/1996	100		48.381	38.29	43.337
+2005 CB79			Cubewano / Extended (Haumea family)			2/6/2005	79		49.585	37.199	43.39192
+2002 LM60	Quaoar	https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Quaoar_PRC2002-17e.jpg/260px-Quaoar_PRC2002-17e.jpg	Cubewano—binary			6/5/2002	523	1.50E+21	45.116	41.695	43.405
+2002 TX300			Cubewano—Haumea family			10/15/2002	177.1	1.20E+19	48.954	38.106	43.53
+2001 KP77			Resonant KBO (4:7)			5/23/2001	87.5	7.70E+18	52.02	36.021	44.02
+1999 RZ253	Borasisi		Cubewano—binary			9/8/1999	80	3.43E+18	48.164	39.982	44.073
+2001 QT297	Teharonhiawako		Cubewano—binary			8/20/2001	86.1	2.45E+18	45.28	42.899	44.089
+1997 CS29	Sila		Cubewano—binary(Nunam)			2/3/1997	123.3	1.08E+18	44.877	43.418	44.1476
+	Sila I Nunam		Satellite of Sila			2/3/1997	116.3				44.14762
+1999 HU11	Deucalion		Cubewano			4/18/1999	105.5		46.83	41.48	44.16
+2001 UQ18	Altjira		Cubewano—binary			10/20/2001	82	3.95E+18	47.166	41.78	44.474
+2009 YE7			Cubewano (Haumea family)			12/17/2009	190		50.7	38.3	44.5
+2010 KZ39		https://upload.wikimedia.org/wikipedia/en/a/a1/2010KZ39-OCKS-KBO7.gif	Cubewano/Detached object			5/21/2010	318.5		47.683	42.75	45.21627
+1998 WH24	Chaos		Cubewano			11/19/1998	303		50.269	40.929	45.599
+2005 FY9	Makemake	https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Makemake_hubble.png/261px-Makemake_hubble.png	Dwarf planet—Cubewano			7/29/2005	713	2.10E+21	52.84	38.59	45.715
+2003 MW12	Varda		Cubewano—binary			6/21/2003	346.8	2.65E+20	52.284	39.622	45.953
+	Varda I Ilmarë		Satellite of Varda			4/26/2009	180.5				45.95300001
+2001 QC298			TNO, hot classical—binary			8/21/2001	117	1.19E+19	51.713	40.565	46.43891
+2001 QC298 I; S/2002 (2001 QC298) 1			Satellite of  2001 QC298				95.7				46.43894
+2002 AW197		https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/2002AW197-Spitzer.jpg/200px-2002AW197-Spitzer.jpg	Cubewano			1/10/2002	357		53.679	41.336	47.50747
+1998 SM165			Twotino (1:2 resonance)—binary			9/16/1998	141.5		65.154	29.902	47.528
+2007 JJ43			Cubewano			5/14/2007	324.3		55.371	40.278	47.82
+2003 FY128			SDO/Detached object			3/26/2003	231.8		61.726	37.07	49.4
+2010 RF43			SDO			9/6/2010	303.5		61.82	37.01	49.62
+2003 QX113			SDO/Detached object			8/15/2003	251.3		62.257	37.486	49.871
+2001 UR163			SDO			10/21/2001	318		66.106	36.756	51.431
+1995 TL8			Cubewano/Detached object/SDO			10/15/1995	177.5		64.924	40.154	52.53899
+1995 TL8 I; S/2002 (48639) 1			Satellite of 1995 TL8 			11/9/2002	80.5				52.539
+2002 GX32; 1994 JV			Resonant KBO			4/8/2002	76.5		73.155	33.069	53.11188
+2002 TC302			Resonant SDO(2:5)			10/9/2002	293.8		71.87	39.199	55.535
+1999 DE9			Resonant KBO(2:5)			2/20/1999	233.8		79.577	32.295	55.93597
+2004 XR190	Buffy		SDO/Detached object			12/11/2004	267.5		64.032	51.394	57.713
+2013 FY27			SDO			3/17/2013	397.9		83.142	35.623	59.35762
+2007 OR10	S̶n̶o̶w̶ ̶w̶h̶i̶t̶e̶		Resonant KBO (3:10)			7/17/2007	645	2.90E+21	100.662	33.033	66.84727
+2006 QH181			SDO			8/21/2006	341.7		96.65	38.25	67.45
+2003 UB313	Eris	http://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Eris_and_dysnomia2.jpg/260px-Eris_and_dysnomia2.jpg	Dwarf planet—SDO—binary			1/5/2005	1,164.00	1.67E+22	97.651	37.911	67.781
+	Eris I Dysnomia		Satellite of Eris			10/3/2005	341				68.24988
+2010 EK139		https://upload.wikimedia.org/wikipedia/en/a/ab/2010EK139-OCKS-KBO3.gif	SDO			3/13/2010	236.3		107.024	32.571	69.7977
+2007 UK126			SDO			10/19/2007	304		110.501	37.522	74.01136
+2005 TB190			Detached object			10/11/2005	217.6		104.367	46.195	75.28113
+1996 TL66			SDO			10/9/1996	228.5		132.94	35.063	84.0015
+2005 RM43			SDO			9/9/2005	290		147.077	35.131	91.10403
+2008 ST291			SDO			9/24/2008	295.3		154.8	42.5	98.6
+2003 FX128	Ceto		TNO/Centaur—binary			3/22/2003	99.3	3.73E+18	181.9	17.813	99.86
+	Ceto I Phorcys		Satellite of Ceto			4/11/2006	75.8	1.67E+18			99.86
+v774104		https://sg.hu/kep/2015_11/598x355x1113nap1.jpg.pagespeed.ic.pIFhfYzP6n.jpg	TNO			10/13/2015	375				103
+2001 FP185			SDO				149.3		406	34.234	220
+2000 CR105			Detached object			2/6/2000	142.5		444	4.9	230.12
+2012 VP113	Biden		Detached object (Sednoid)			11/5/2012	294		445.725	80.514	263.11938
+2004 VN112			Detached object			11/1/2004	124		610.3	47.332	349.8
+2010 GB174			Detached object			4/12/2010	109.5		679.5	48.53	364
+2007 TG422			SDO			10/3/2007	137.9		1030	35.583	501
+2003 VB12	Sedna	https://upload.wikimedia.org/wikipedia/commons/0/02/Sedna_PRC2004-14d.jpg	Detached object (Sednoid)			11/14/2003	520.5	1.00E+21	972.4	76.094	506.04585
+2012 DR30; 2009 FW54			Damocloid centaur/TNO/Oort cloud object			2/22/2012	80.3		2512.46	14.544	1148.25096</div>
+
+<div id='info' style='position:fixed; bottom:0px; left:0px; text-align:left; boder:1px dotted red;'>This is the info DIV.</div>

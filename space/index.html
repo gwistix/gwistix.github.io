@@ -1,0 +1,106 @@
+
+
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Wonder</title>
+<!-- <link href='https://fonts.googleapis.com/css?family=Cantarell' rel='stylesheet' type='text/css'> -->
+<link rel="shortcut icon" href="favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles">
+<style>
+body {
+	font-family:arial; 
+	color:white; 
+	background-image   : url(https://dl.dropboxusercontent.com/u/22964498/VID/starBG.png);
+	background-repeat  : repeat;
+	background-position: bottom left;
+	margin:0px;
+	overflow: hidden;
+}
+h1 {
+	font-family:canterell, sans-serif; 
+	font-weight: 200; 
+	font-variant:small-caps; 
+	font-size:200; 
+	margin-left:10%; 
+	margin-top:5%;
+	text-shadow: 0px 0px 20px #000000;
+}
+a {
+	text-decoration:none; 
+	color:white;
+	cursor:hand;
+-ms-filter: drop-shadow(1px 3px 3px rgba(0,0,0,1.0));
+}
+#nav {
+	background: linear-gradient(to top right, rgba(0,0,0,0) 40%, black);
+	border-radius:5px;
+	padding:5px;
+
+}
+#menu {
+  position:absolute;
+  top:0px;
+  right:15px;
+  margin:10px;
+  padding:5px;
+  background-color:gray;
+  background: linear-gradient(to top right, rgba(150,150,150,0.5) 40%, black);
+  min-width:20px;
+  border-radius:5px;
+  opacity:0.5;
+  text-align:right;
+}
+
+</style>
+<script>
+
+function init() {
+	pseudoBgImg.style.width = window.innerWidth;
+	if (window.innerWidth < window.innerHeight) { //mobile version for portrait orientation
+//		menu.style.zoom = "150%";
+//		nav.style.zoom = "150%";
+		document.getElementsByTagName("h1")[0].style.marginLeft = "5%";
+		if (!menu_text.innerHTML.match("✓")) menu_text.innerHTML += "<br>📱✓";
+	}
+	else {
+//		menu.style.zoom = "100%";
+//		nav.style.zoom = "100%";
+		document.getElementsByTagName("h1")[0].style.marginLeft = "10%";
+	}
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();' onResize='init();'>
+
+<h1>Wonder</h1>
+
+<div id='nav' style='position:absolute; right:15px; bottom:25%; text-align:right;'>
+<a href='sortable_solar_system.html'>Things in the Solar System</a><br><br>
+<a href='discovery_timeline.html'>Discovery timeline</a><br><br>
+<a href='today_in_space.html'>Today in space</a><br><br>
+<a href='#' onClick='alert("This site doesn&apos;t exist yet.\nBut I had to put the link here to make it look good.");'>Planets</a><br><br>
+<a href='../../why_isnt_pluto_a_planet.html'>Pluto</a>
+</div>
+
+<div id='menu' style='display:none'>
+	<span style='padding:5px;'>
+		<a nohref onClick='menu_text.style.display = (menu_text.style.display == "none") ? "block" : "none"; this.innerHTML = (menu_text.style.display == "block") ? "✕" : "<b>☰</b>";'><b>☰</b></a>
+	</span>
+	<span id='menu_text' style='text-align:left; display:none; margin-top:-1em;'>
+		<a nohref>About us</a><br>
+		<a href='#'>Find out more</a><br>
+		<a nohref>Make a donation</a>
+	</span>
+</div>
+
+<div id='pseudoBG' style='position:absolute; bottom:0px; z-index:-1; overflow:hidden;'>
+<img id='pseudoBgImg' src='https://dl.dropboxusercontent.com/u/22964498/VID/Pluto%20enhanced%20color.png'>
+</div>
+
+</body>
+</html>

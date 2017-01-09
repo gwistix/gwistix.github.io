@@ -1,0 +1,945 @@
+
+<html>
+<head>
+<title>[ˈɡwɪs.tɪks] OmniType Tool</title>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="gwistix.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="shortcut icon" href="https://dl.dropboxusercontent.com/u/22964498/gwistix.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Andrew Bayles"><meta name="mobile-web-app-capable" content="yes">
+<style type=text/css>
+textarea {font-family:times; font-size:20px;}
+a {cursor:hand;}
+.smallcaps {font-variant:small-caps; font-family:times;}
+.thead {background-color:#123456; font-family:monospace; color:white;}
+.char_map {font-size:30px; background-color:white;}
+.chardisp {font-size:80px; color:blue; background-color:white;}
+.tooltip {font-size:10px; color:gray;}
+.key {font-size:20px;}
+.gray {
+box-shadow: 0px 3px 20px #000;
+background-color:#dedede; /* Old browsers */
+background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(181,181,181,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(181,181,181,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(255,255,255,1) 0%,rgba(181,181,181,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#b5b5b5',GradientType=0 ); /* IE6-9 */}
+body {background: rgb(0,0,0); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(0,0,0,1) 0%,rgba(255,255,255,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */}
+//input {background-color:#dedede;}
+.thead {
+background: rgb(0,18,52); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(0,18,52,1) 1%, rgba(1,35,69,1) 22%, rgba(35,69,103,1) 77%, rgba(69,103,137,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,rgba(0,18,52,1)), color-stop(22%,rgba(1,35,69,1)), color-stop(77%,rgba(35,69,103,1)), color-stop(100%,rgba(69,103,137,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* IE10+ */
+background: linear-gradient(top, rgba(0,18,52,1) 1%,rgba(1,35,69,1) 22%,rgba(35,69,103,1) 77%,rgba(69,103,137,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#001234', endColorstr='#456789',GradientType=0 ); /* IE6-9 */
+}
+
+.modal {
+    /* some styles to position the modal at the center of the page */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 200px;
+    margin-left: -150px;
+    margin-top: -100px;
+    background-color: white;
+    text-align: center;
+  
+    /* needed styles for the overlay */
+    z-index: 10; /* keep on top of other elements on the page */
+    outline: 9999px solid rgba(0,0,0,0.5);
+}
+.opaque {
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+
+@font-face {
+    font-family: Segoe;
+    src: url(Fonts/Segoe-UI-Symbol/Segoe-UI-Symbol.woff);
+}
+@font-face {
+    font-family: Doulos SIL;
+    src: url(Fonts/DoulosSIL.woff);
+}
+@font-face {
+    font-family: Code2000;
+    src: url(Fonts/Code2000/Code2000.woff);
+}
+@font-face {
+    font-family: Code2001;
+    src: url(Fonts/Code2001/Code2001.woff);
+}
+@font-face {
+    font-family: Code2002;
+    src: url(Fonts/Code2002/Code2002.ttf);
+}
+@font-face {
+    font-family: Aegyptus;
+    src: url(Fonts/Aegyptus/AegyptusB.ttf);
+}
+@font-face {
+    font-family: Ebrima;
+    src: url(Fonts/ebrima.ttf);
+}
+@font-face {
+    font-family: Constructium;
+    src: url(Fonts/Constructium/Constructium.ttf);
+}
+@font-face {
+    font-family: FreeFont;
+    src: url(Fonts/FreeFont/FreeSerif.ttf);
+}
+</style>
+<!-- <script src="http://www.text2png.com/text_script.js"></script> -->
+<script type="text/javascript" language="javascript">
+	text2png.onLoad = function(){
+        // on of the replace functions below
+    };
+</script>
+<script language=javascript>
+function init() {		//begins the set-up process of the page
+Current("initializing program")
+//	interact("<center>Do you want to change the font?<br><button>Yes</button><button>No</button>");
+	showRange();	
+	showCharConv();
+	//input_txt.focus();
+}
+
+//Initial parameters===========================================================PARAMETERS
+default_characters_per_line = "";
+character_display_width = "";
+character_popup_width = "";
+
+
+/* TO-DO+++++++=====================================================================TO-DO
+☑☒
+☐ fix button double click after inserting a different character
+☐ fix non-alphanumeric keys
+☐ fix doubletype problem
+☐ allow CharConv entry
+☐ allow images
+☑ make a recent characters group
+	☑ array displayed at top of Character Map or maybe at the bottom of the scratch pad
+	☐ have each one assigned to a number
+☐ Range Options
+	☐ Have an options button
+	☐ Make a variable that contains the display for a selector box with options (such as "Use 'v' syllables?") for each predefined range; this can become the value of the drag div temporarily
+
+keyboard:
+
+4352-4601 Korean
+5761-5788 Ogham
+5792-5887 Futhark
+11568-11647 Tifinagh
+44032-55295 Korean extended
+65664-65786 ?
+66304-66339 Runic?
+66352-66375 Irish?
+66432-66615 Cuneiform
+66560-66639 Deseret
+67584-67647 ?
+67840-67865 proto-phonecian?
+
+Small Caps
+7424	665	7428	7429	7431	42800	610	668	618	7434	7435	671	7437	628	7439	7448	45	640	42801	7451	7452	7456	7457	45	655	7458
+ᴀ	ʙ	ᴄ	ᴅ	ᴇ	ꜰ	ɢ	ʜ	ɪ	ᴊ	ᴋ	ʟ	ᴍ	ɴ	ᴏ	ᴘ	-	ʀ	ꜱ	ᴛ	ᴜ	ᴠ	ᴡ	-	ʏ	ᴢ
+
+Character.isDigit();
+Character.isLetter();
+Character.isLetterOrDigit();
+Character.isWhitespace();
+Character.UnicodeBlock();
+
+*/
+
+//========================================↓CharConv Functions
+
+input_focus = false;
+
+function applyCharConv() {
+Current("applying Character Conversions");
+
+	temp = input_txt.value;		//sets up a temporary variable with the text currently in the scratchpad
+
+	clen = Char_inp.length;
+	for (i=0;i<ilen;i++) {		//cycles through the current (range-specific) character conversions and uses a regular expression to replace each token with the correct output character(s)
+		var glyph = new RegExp(Char_inp[i], 'g');
+		temp = temp.replace(glyph,Char_out[i]);
+//alert(glyph + " → " + Char_out[i]);
+	}
+
+	input_txt.value = temp.replace(/\-/g,"");;	//replaces the text in the scrachpad with the converted text
+}
+
+
+Char_inp = new Array();
+Char_out = new Array();
+
+
+function showCharConv() {
+Current("generating the Character<br>Conversions display");
+	ilen = Char_inp.length;
+	for (i=0;i<ilen;i++) {		//adds a line to the Character Conversions display for each element in the Char_in & Char_out arrays
+		addLine(Char_inp[i],Char_out[i]);		
+	}
+
+	caller_function = arguments.callee.caller.toString();
+//	if (caller_function.match(/init/)) addLine();
+}
+
+function addLine(innie,outtie) {
+Current("adding a new line to the<br>Character Conversions display");
+	innie = (innie) ? innie : "";
+	outtie = (outtie) ? outtie : "";
+
+	give_line = "";
+//	give_line += "<table class=gray width=237 border=0><tr><td align=center><input type=text size=4 onChange='addLine();' value='"+((innie) ? innie : "")+"'></input></td><td align=center>→</td><td align=center><input type=text size=4 value='"+((outtie) ? outtie : "")+"'></input></td></tr></table>";
+	give_line += String.fromCodePoint(9) + innie + String.fromCodePoint(9) + "→" + String.fromCodePoint(9) + outtie + String.fromCodePoint(13);
+
+	char_conv_span.innerHTML += give_line;
+}
+
+	function Predefined() {		//sets up predefined ranges based on the range selectors (numeral or by name)
+Current("applying predefined<br>Character Conversions");
+	if (predef_range.value) char_set = predef_range.value;
+
+	if (!char_set) return;
+//IPA=================================================================================IPA
+	else if (char_set.match("592-890")) { //IPA
+		document.title = "IPA [aɪ.pʰiˈeɪ] Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined IPA character conversions?\nEx.: ae → æ ; ng → ŋ\n(They may take a few minutes to load)")) return;
+
+		Char_inp = new Array("A~",	"A",	"ae~",	"ae",	"au~",	"au",	"a~",	"B",	"bh",	"b`",	"C",	"ch",	"c,",	"D",	"dd",	"dh",	"dz",	"dZ",	"d`",	"d,",	"OE~",	"OE",	"E~",	"E",	"eh",	"e~",	"F",	"G",	"G`",	"gh",	"g`",	"H",	"h`",	"h-",	"I~",	"I",	"i-~",	"i-",	"i~",	"J",	"jh",	"K",	"kh",	"L",	"lh",	"ly",	"lZ",	"l~",	"l,",	"M,",	"M",	"mf",	"m,",	"N",	"ng",	"g",	"nh",	"ny",	"n,",	"O/",	"O~",	"O",	"oe~",	"oe",	"oh",	"o~",	"o-~",	"o-",	"o/~",	"o/",	"P",	"ph",	"Q",	"qh",	"q`",	"R",	"rh",	"rr",	"rr,",	"r,",	"r",	"ρ",	"S",	"S`",	"sh",	"s,",	"T",	"th",	"ts",	"t,",	"U~",	"U",	"uh~",	"uh",	"u-~",	"u-",	"u,",	"u~",	"V",	"vh",	"W",	"wh",	"w,",	"X",	"Y~",	"Y",	"y~",	"Z",	"zh",	"z,", 	"@~",	"@",	" > ",	":");	//,	"\~",		"\!",	"@",	"\$",	"\^",	"&",	"\|",	"\|\|",	":",	"'",	"?");
+		Char_out = new Array("ɑ̃",	"ɑ",	"æ̃",	"æ",	"ɒ̃",	"ɒ",	"ã",	"ʙ",	"β",	"ɓ",	"ç",	"ʧ",	"ç",	"ð",	"ɾ",	"ð",	"ʣ",	"ʤ",	"ɗ",	"ɖ",	"ɶ̃",	"ɶ",	"ɛ̃",	"ɛ",	"ɛ",	"ẽ",	"ɟ",	"ɢ",	"ʛ",	"ɣ",	"ɠ",	"ʰ",	"ɦ",	"ħ",	"ɪ̃",	"ɪ",	"ɨ̃",	"ɨ",	"ĩ",	"ʲ",	"ʝ",	"ǂ",	"x",	"L",	"ɬ",	"ʎ",	"ɮ",	"ɫ",	"ɭ",	"ɰ",	"ɯ",	"ɱ",	"ɱ",	"ɴ",	"ŋ",	"ɡ",	"̃",	"ɲ",	"ɳ",	"Ø",	"ɔ̃",	"ɔ",	"œ̃",	"œ",	"ɔ",	"õ",	"ɵ̃",	"ɵ",	"ø̃",	"ø",	"ʔ",	"ɸ",	"ʘ",	"χ",	"ʠ",	"ʀ",	"ʁ",	"ρ",	"ɽ",	"ɻ",	"ɹ",	"r",	"ʃ",	"ʄ",	"ʃ",	"ʂ",	"θ",	"θ",	"ʦ",	"ʈ",	"ʊ̃",	"ʊ",	"ʌ̃",	"ʌ",	"ʉ̃",	"ʉ",	"ɥ",	"ũ",	"ʋ",	"ʋ",	"ʷ",	"ʍ",	"ɰ",	"χ",	"ʏ̃",	"ʏ",	"ỹ",	"ʒ",	"ʒ",	"ʐ",	"ə̃",	"ə",	" → ",	"ː");	//,	"&#771;",	"ǃ",	"ə",	"ʕ",	"˞",	"ɐ",	"ǀ",	"ǁ",	"ː",	"ʼ",	"ʔ");
+		Char_desc = new Array("low back unrounded vowel","ash");
+	}
+
+//Futhårk=================================================================================FUTHÅRK
+	else if (char_set.match("5792-5887")) { //Futhårk
+		document.title = "Futhårk ᚠᚢᚦᚩᚱᚳ Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined Futhårk character conversions?\nEx.: th → ᚦ ; ng → ᛝ\n(They may take a few minutes to load)")) return;
+
+		Char_inp = new Array("th", "ei", "ng", "oe", "ae", "io", "ea", "f", "u", "o", "å", "r", "c", "g", "w", "h", "n", "i", "j", "p", "z", "s", "t", "b", "e", "m", "l", "d", "a", "y", "q", "k");
+
+		Char_out = new Array("ᚦ", "ᛇ", "ᛝ", "ᛟ", "ᚫ", "ᚼ", "ᛠ", "ᚠ", "ᚢ", "ᚩ", "ᚩ", "ᚱ", "ᚳ", "ᚷ", "ᚹ", "ᚻ", "ᚾ", "ᛁ", "ᛄ", "ᛈ", "ᛉ", "ᛋ", "ᛏ", "ᛒ", "ᛖ", "ᛗ", "ᛚ", "ᛞ", "ᚪ", "ᚣ", "ᛢ", "ᛣ");
+
+
+/* N O T E S
+ᚠ	ᚢ	ᚦ	ᚩ	ᚱ	ᚳ	ᚷ	ᚹ	ᚻ	ᚾ	ᛁ	ᛄ	ᛇ	ᛈ	ᛉ	ᛋ	ᛏ	ᛒ	ᛖ	ᛗ	ᛚ	ᛝ	ᛞ	ᛟ	ᚪ	ᚫ	ᚣ	ᚼ	ᛠ	ᛢ	ᛣ
+f	u	th	å	r	c	g	w	h	n	i	j	ei	p	z	s	t	b	e	m	l	ng	d	oe	a	ae	y	io	ea	q	k
+
+*/
+	}
+
+//Japanese=======================================================================JAPANESE
+	else if (char_set.match("12289-12542")) { //Japanese
+		document.title = "Japanese 日本語 Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\nEx.: ka → か ; KA → カ ; にほん → 日本\n(They may take a few minutes to load)")) return;
+
+v_syll = false;
+wi_we = false;
+
+		Char_inp = new Array("-wa","-o","-e","kk","gg","hw","ss","zz","jj","tt","tch","cch","dd","hh","bb","pp","mm","yy","rr","ca","ce","ci","co","cu","cy","ck","l","mp","mb","qu","ti","tu","di","du","xi","xy","x","yi","ye","zh","kya","kyu","kyo","gya","gyu","gyo","sya","syu","syo","zya","zyu","zyo","tya","tyu","tyo","dya","dyu","dyo","nya","nyu","nyo","hya","hyu","hyo","bya","byu","byo","pya","pyu","pyo","mya","myu","myo","rya","ryu","ryo","sha","shi","shu","she","sho","dja","dji","dju","dje","djo","cha","chi","chu","che","cho","kha","khi","khu","khe","kho","ja","ji","ju","je","jo","tsa","tsi","tsu","tse","tso","dza","dzi","dzu","dze","dzo","fa","fi","fu","fe","fo","ka","ki","ku","ke","ko","ga","gi","gu","ge","go","sa","shi","si","su","se","so","za","ji","zi","zu","ze","zo","ta","chi","tsu","te","to","da","dji","dzu","de","do","na","ni","nu","ne","no","ha","hi","hu","he","ho","ba","bi","bu","be","bo","pa","pi","pu","pe","po","ma","mi","mu","me","mo","ya","yu","yo","ra","ri","ru","re","ro","wa","wi","wu","we","wo","va","vi","vu","ve","vo","n","sh","ch","dj","ts","dz","a","i","u","e","o","c","k","g","s","z","j","t","d","n","h","f","b","p","m","y","r","w","v","q","AA","II","UU","EE","OO","KK","GG","HW","SS","ZZ","JJ","TT","TCH","CCH","DD","HH","BB","PP","MM","YY","RR","CA","CE","CI","CO","CU","CY","CK","L","MP","MB","QU","TI","TU","DI","DU","XI","XY","X","YI","YE","ZH","KYA","KYU","KYO","GYA","GYU","GYO","SYA","SYU","SYO","ZYA","ZYU","ZYO","TYA","TYU","TYO","DYA","DYU","DYO","NYA","NYU","NYO","HYA","HYU","HYO","BYA","BYU","BYO","PYA","PYU","PYO","MYA","MYU","MYO","RYA","RYU","RYO","SHA","SHI","SHU","SHE","SHO","DJA","DJI","DJU","DJE","DJO","CHA","CHI","CHU","CHE","CHO","KHA","KHI","KHU","KHE","KHO","JA","JI","JU","JE","JO","TSA","TSI","TSU","TSE","TSO","DZA","DZI","DZU","DZE","DZO","FA","FI","FU","FE","FO","KA","KI","KU","KE","KO","GA","GI","GU","GE","GO","SA","SHI","SI","SU","SE","SO","ZA","JI","ZI","ZU","ZE","ZO","TA","CHI","TSU","TE","TO","DA","DJI","DZU","DE","DO","NA","NI","NU","NE","NO","HA","HI","HU","HE","HO","BA","BI","BU","BE","BO","PA","PI","PU","PE","PO","MA","MI","MU","ME","MO","YA","YU","YO","RA","RI","RU","RE","RO","WA","WI","WU","WE","WO","VA","VI","VU","VE","VO","N","AR","SH","CH","DJ","A","I","U","E","O","C","K","G","S","Z","J","T","D","N","H","F","B","P","M","Y","R","W","V","Q","_",",","\\.","にほんご","にほんじん","にほん","なまえ","ちゅうごくご","ちゅうごくじん","ちゅうごく","かんこくご","かんこくじん","かんこく","はなし","すき","だい","がくせい","せんせい","ちさい","やまだ","やまぐち","さん","なに","なん");
+		Char_out = new Array("は","を","へ","っk","っg","f","っs","っz","っj","っt","っch","っch","っd","っh","っb","っp","nm","っy","っr","ka","se","si","ko","ku","si","っk","r","np","nb","ku","てぃ","とぅ","でぃ","どぅ","kishi","kishi","ks","i","e","j","きゃ","きゅ","きょ","ぎゃ","ぎゅ","ぎょ","しゃ","しゅ","しょ","じゃ","じゅ","じょ","ちゃ","ちゅ","ちょ","ぢゃ","ぢゅ","ぢょ","にゃ","にゅ","にょ","ひゃ","ひゅ","ひょ","びゃ","びゅ","びょ","ぴゃ","ぴゅ","ぴょ","みゃ","みゅ","みょ","りゃ","りゅ","りょ","しゃ","し","しゅ","しぇ","しょ","ぢゃ","ぢ","ぢゅ","ぢぇ","ぢょ","ちゃ","ち","ちゅ","ちぇ","ちょ","ひぁ","ひ","ひぅ","ひぇ","ひぉ","じゃ","じ","じゅ","じぇ","じょ","つぁ","つぃ","つ","つぇ","つぉ","づぁ","づぃ","づ","づぇ","づぉ","ふぁ","ふぃ","ふ","ふぇ","ふぉ","か","き","く","け","こ","が","ぎ","ぐ","げ","ご","さ","し","し","す","せ","そ","ざ","じ","じ","ず","ぜ","ぞ","た","ち","つ","て","と","だ","ぢ","づ","で","ど","な","に","ぬ","ね","の","は","ひ","ふ","へ","ほ","ば","び","ぶ","べ","ぼ","ぱ","ぴ","ぷ","ぺ","ぽ","ま","み","む","め","も","や","ゆ","よ","ら","り","る","れ","ろ","わ",((wi_we) ? "ゐ" : "うぃ"),"う",((wi_we) ? "ゑ" : "うぇ"),"を","ば","び",((v_syll) ? "ゔ" : "ぶ"),"べ","ぼ","ん","し","さ","ざ","つ","づ","あ","い","う","え","お","k","く","ぐ","す","ず","じ","と","ど","ん","ふ","ふ","ぶ","ぷ","む","い","る","う",((v_syll) ? "ゔ" : "ぶ"),"く","Aー","Iー","Uー","Eー","Oー","ッK","ッG","F","ッS","ッZ","ッJ","ッT","ッCH","ッCH","ッD","ッH","ッB","ッP","NM","ッY","ッR","KA","SE","SI","KO","KU","SI","ッK","R","NP","NB","KU","ティ","トゥ","ディ","ドゥ","KISHI","KISHI","KS","I","E","J","キャ","キュ","キョ","ギャ","ギュ","ギョ","シャ","シュ","ショ","ジャ","ジュ","ジョ","チャ","チュ","チョ","ヂャ","ヂュ","ヂョ","ニャ","ニュ","ニョ","ヒャ","ヒュ","ヒョ","ビャ","ビュ","ビョ","ピャ","ピュ","ピョ","ミャ","ミュ","ミョ","リャ","リュ","リョ","シャ","シ","シュ","シェ","ショ","ヂャ","ヂ","ヂュ","ヂェ","ヂョ","チャ","チ","チュ","チェ","チョ","ヒァ","ヒ","ヒゥ","ヒェ","ヒォ","ジャ","ジ","ジュ","ジェ","ジョ","ツァ","ツィ","ツ","ツェ","ツォ","ヅァ","ヅィ","ヅ","ヅェ","ヅォ","ファ","フィ","フ","フェ","フォ","カ","キ","ク","ケ","コ","ガ","ギ","グ","ゲ","ゴ","サ","シ","シ","ス","セ","ソ","ザ","ジ","ジ","ズ","ゼ","ゾ","タ","チ","ツ","テ","ト","ダ","ヂ","ヅ","デ","ド","ナ","ニ","ヌ","ネ","ノ","ハ","ヒ","フ","ヘ","ホ","バ","ビ","ブ","ベ","ボ","パ","ピ","プ","ペ","ポ","マ","ミ","ム","メ","モ","ヤ","ユ","ヨ","ラ","リ","ル","レ","ロ","ワ",((wi_we) ? "ヰ" : "ウィ"),"ウ",((wi_we) ? "ヱ" : "ウェ"),"ヲ",((v_syll) ? "ヷ" : "バ"),((v_syll) ? "ヸ" : "ビ"),((v_syll) ? "ヴ" : "ブ"),((v_syll) ? "ヹ" : "ベ"),((v_syll) ? "ヺ" : "ボ"),"ン","アー","シ","チ","ヂ","ア","イ","ウ","エ","オ","ク","ク","グ","ス","ズ","ジ","ト","ド","ン","フ","フ","ブ","プ","ム","イ","ル","ウ",((v_syll) ? "ヴ" : "ブ"),"ク","・","、","。","日本語","日本人","日本","名前","中国語","中国人","中国","問国語","問国人","問国","話し","好き","大","学生","先生","小さい","山田","山口","山","何","何");
+
+/* N O T E S ----------------------------------------------------------------------------
+	wi	we	vu
+	ゐ	ゑ	ゔ
+
+	WA	WI	WE	WO	VA	VI	VU	VE	VO
+	ワ	ヰ	ヱ	ヲ	ヷ	ヸ	ヴ	ヹ	ヺ
+
+kgszjtcdnhbpmyrwN
+
+furigana
+65383-65392
+*/
+	}
+//Korean=======================================================================KOREAN
+	else if (char_set.match("4352-4601")) { //Korean
+		document.title = "Korean 한글 Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\nEx.: gim → 김\n(They may take a few minutes to load)")) return;
+
+		Char_inp = new Array("yae","yeo","wae","gg-","kk-","ks-","nj-","nh-","lk-","lm-","lb-","ls-","lt-","lp-","lh-","bs-","ss-","ng-","ch-","kl-","g-","n-","d-","l-","r-","m-","b-","s-","j-","k-","t-","p-","h-","gg","kk","dd","tt","bb","pp","ss","jj","ch","ee","oo","ae","ya","eo","wa","ye","oe","yo","wo","wŏ","we","wi","yu","eu","ui","ŭi","g","n","d","r","m","b","s","w","y","'","j","k","t","p","h","a","ŏ","e","o","u","ŭ","i","l");
+		Char_out = new Array("ᅤ","ᅧ","ᅫ","ᆩ","ᆩ","ᆪ","ᆬ","ᆭ","ᆰ","ᆱ","ᆲ","ᆳ","ᆴ","ᆵ","ᆶ","ᆹ","ᆻ","ᆼ","ᆾ","ᇃ","ᆨ","ᆫ","ᆮ","ᆯ","ᆯ","ᆷ","ᆸ","ᆺ","ᆽ","ᆿ","ᇀ","ᇁ","ᇂ","ᄁ","ᄁ","ᄄ","ᄄ","ᄈ","ᄈ","ᄊ","ᄍ","ᄎ","i","u","ᅢ","ᅣ","ᅥ","ᅪ","ᅨ","ᅬ","ᅭ","ᅯ","ᅯ","ᅰ","ᅱ","ᅲ","ᅳ","ᅴ","ᅴ","ᄀ","ᄂ","ᄃ","ᄅ","ᄆ","ᄇ","ᄉ","'","'","ᄋ","ᄌ","ᄏ","ᄐ","ᄑ","ᄒ","ᅡ","ᅥ","ᅦ","ᅩ","ᅮ","ᅳ","ᅵ","ᆯ");
+
+/* N O T E S ----------------------------------------------------------------------------
+
+*/
+	}
+//Cherokee=======================================================================CHEROKEE
+	else if (char_set.match("5024-5108")) { //Cherokee
+		document.title = "Cherokee ᏣᎳᎩ Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\n\nEx.: ga → Ꭶ\n\n(They may take a few minutes to load)")) return;
+
+		char_inp = "qu kwa kwe kwi kwo kwu kwv dla tla tle tli tlo tlu tlv tsa tse tsi tso tsu tsv ga ka ge gi go gu gv ha he hi ho hu hv la le li lo lu lv ma me mi mo mu na hna nah ne ni no nu nv sa se si so su sv s da ta de te di ti do du dv wa we wi wo wu wv ya ye yi yo yu yv a e i o u v";
+		char_out = "kw Ꮖ Ꮗ Ꮘ Ꮙ Ꮗ Ꮛ Ꮬ Ꮭ Ꮮ Ꮯ Ꮰ Ꮱ Ꮲ Ꮳ Ꮴ Ꮵ Ꮶ Ꮷ Ꮸ Ꭶ Ꭷ Ꭸ Ꭹ Ꭺ Ꭻ Ꭼ Ꭽ Ꭾ Ꭿ Ꮀ Ꮁ Ꮂ Ꮃ Ꮄ Ꮅ Ꮆ Ꮇ Ꮈ Ꮉ Ꮊ Ꮋ Ꮌ Ꮍ Ꮎ Ꮏ Ꮐ Ꮑ Ꮒ Ꮓ Ꮔ Ꮕ Ꮜ Ꮞ Ꮟ Ꮠ Ꮡ Ꮢ Ꮝ Ꮣ Ꮤ Ꮥ Ꮦ Ꮧ Ꮨ Ꮩ Ꮪ Ꮫ Ꮹ Ꮺ Ꮻ Ꮼ Ꮽ Ꮾ Ꮿ Ᏸ Ᏹ Ᏺ Ᏻ Ᏼ Ꭰ Ꭱ Ꭲ Ꭳ Ꭴ Ꭵ";
+
+		Char_inp = char_inp.split(" ");
+		Char_out = char_out.split(" ");
+
+/* N O T E S ----------------------------------------------------------------------------
+	a	e	i	o	u	v
+'	Ꭰ	Ꭱ	Ꭲ	Ꭳ	Ꭴ	Ꭵ
+g	ᎦᎧ	Ꭸ	Ꭹ	Ꭺ	Ꭻ	Ꭼ
+h	Ꭽ	Ꭾ	Ꭿ	Ꮀ	Ꮁ	Ꮂ
+l	Ꮃ	Ꮄ	Ꮅ	Ꮆ	Ꮇ	Ꮈ
+m	Ꮉ	Ꮊ	Ꮋ	Ꮌ	Ꮍ	
+n	ᎾᎿᏀ	Ꮑ	Ꮒ	Ꮓ	Ꮔ	Ꮕ
+qu	Ꮖ	Ꮗ	Ꮘ	Ꮙ	Ꮗ	Ꮛ
+s	ᏍᏌ	Ꮞ	Ꮟ	Ꮠ	Ꮡ	Ꮢ
+d	ᏓᏔ	ᏕᏖ	ᏗᏘ	Ꮩ	Ꮪ	Ꮫ
+tl	ᏜᏝ	Ꮮ	Ꮯ	Ꮰ	Ꮱ	Ꮲ
+ts	Ꮳ	Ꮴ	Ꮵ	Ꮶ	Ꮷ	Ꮸ
+w	Ꮹ	Ꮺ	Ꮻ	Ꮼ	Ꮽ	Ꮾ
+y	Ꮿ	Ᏸ	Ᏹ	Ᏺ	Ᏻ	Ᏼ
+
+zʎxʍʌnʇsɹbdouɯɭʞʆᴉɥɓɟəpɔqɐ
+*/
+	}
+//Deseret========================================================================DESERET
+	else if (char_set.match("66560-66639")) { //Deseret
+		document.title = "Deseret 𐐔𐐇𐐞𐐊𐐡𐐇𐐓 Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\n\nEx.: ee → 𐐀\n\n(They may take a few minutes to load)")) return;
+
+char_inp = "EE	EY	AH	OW	OO	AU	OU	AY	AW	CH	TH	DH	SH	ZH	NG	Ee	Ey	Ah	Ow	Oo	Au	Ou	Ay	Aw	Ch	Th	Dh	Sh	Zh	Ng	O	I	E	A	U	W	Y	H	P	B	T	D	J	K	G	F	V	S	Z	R	L	M	N	Q	Z	ee	ey	ah	ow	oo	au	ch	th	dh	sh	zh	ng	ou	ay	aw	o	i	e	a	u	w	y	h	p	b	t	d	j	k	g	f	v	s	z	r	l	m	n	q	z";
+char_out = "𐐀	𐐁	𐐂	𐐄	𐐅	𐐉	𐐋	𐐌	𐐍	𐐕	𐐛	𐐜	𐐟	𐐠	𐐥	𐐀	𐐁	𐐂	𐐄	𐐅	𐐉	𐐋	𐐌	𐐍	𐐕	𐐛	𐐜	𐐟	𐐠	𐐥	𐐃	𐐆	𐐇	𐐈	𐐊	𐐎	𐐏	𐐐	𐐑	𐐒	𐐓	𐐔	𐐖	𐐗	𐐘	𐐙	𐐚	𐐝	𐐞	𐐡	𐐢	𐐣	𐐤	𐐦	𐐧	𐐨	𐐩	𐐪	𐐬	𐐭	𐐱	𐐽	𐑃	𐑄	𐑇	𐑈	𐑍	𐐳	𐐴	𐐵	𐐫	𐐮	𐐯	𐐰	𐐲	𐐶	𐐷	𐐸	𐐹	𐐺	𐐻	𐐼	𐐾	𐐿	𐑀	𐑁	𐑂	𐑅	𐑆	𐑉	𐑊	𐑋	𐑌	𐑎	𐑏";
+
+		Char_inp = char_inp.split("	");
+		Char_out = char_out.split("	");
+
+/* N O T E S ----------------------------------------------------------------------------
+Deseret - shows up as Cyrillic extended in Scratch Pad
+ - create a table version of Scratch Pad that has a TD for the top section
+*/
+	}
+//Cyrillic=======================================================================CYRILLIC
+	else if (char_set.match("1040-1103")) { //Cyrillic
+		document.title = "Russian Русский Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\n\nEx.: ZH → Ж ; zh → ж\n\n(They may take a few moments to load)")) return;
+
+		char_inp = "SHCH¦CH¦CZ¦EH¦KH¦QU¦SH¦TS¦ZH¦YA¦YE¦YU¦YO¦Y ¦Shch¦Ch¦Cz¦Eh¦Kh¦Qu¦Sh¦Ts¦Zh¦Ya¦Ye¦Yu¦Yo¦A¦B¦V¦G¦H¦D¦E¦Z¦I¦J¦K¦L¦M¦N¦O¦P¦R¦S¦T¦U¦F¦X¦C¦W¦\"¦Y¦~¦shch¦ch¦cz¦eh¦kh¦qu¦sh¦ts¦zh¦ya¦ye¦yu¦yo¦y ¦a¦b¦v¦g¦h¦d¦e¦z¦i¦j¦k¦l¦m¦n¦o¦p¦r¦s¦t¦u¦f¦x¦c¦`¦y¦'¦ŠČ¦Šč¦Č¦Š¦Ž¦šč¦č¦š¦ž";
+		char_out = "Щ¦Ч¦Ц¦Э¦Х¦КВ¦Ш¦Ц¦Ж¦Я¦Е¦Ю¦Ё¦ИЙ ¦Щ¦Ч¦Ц¦Э¦Х¦КВ¦Ш¦Ц¦Ж¦Я¦Е¦Ю¦Ё¦А¦Б¦В¦Г¦Г¦Д¦Е¦З¦И¦Й¦К¦Л¦М¦Н¦О¦П¦Р¦С¦Т¦У¦Ф¦Х¦Ц¦В¦Ъ¦Ы¦Ь¦щ¦ч¦ц¦э¦х¦кв¦ш¦ц¦ж¦я¦е¦ю¦ё¦ий ¦а¦б¦в¦г¦г¦д¦е¦з¦и¦й¦к¦л¦м¦н¦о¦п¦р¦с¦т¦у¦ф¦х¦ц¦ъ¦ы¦ь¦Щ¦Щ¦Ч¦Ш¦Ж¦щ¦ч¦ш¦ж";
+
+		Char_inp = char_inp.split("¦");
+		Char_out = char_out.split("¦");
+	}
+//Greek=============================================================================GREEK
+	else if (char_set.match("900-989")) { //Greek
+		document.title = "Greek Ελλινηκι Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\n\nEx.: Ps → Ψ ; ps → ψ\n\n(They may take a few moments to load)")) return;
+
+		char_inp = "BH¦GH¦DH¦TH¦PH¦CH¦KH¦PS¦Bh¦Gh¦Dh¦Th¦Ph¦Ch¦Kh¦Ps¦A¦B¦G¦D¦E¦Z¦Ē¦H¦I¦K¦L¦M¦N¦X¦O¦P¦R¦S¦T¦U¦F¦W¦J¦V¦bh¦gh¦dh¦th¦ph¦ch¦kh¦ps¦a¦b¦g¦d¦e¦z¦ē¦h¦i¦k¦l¦m¦n¦x¦o¦p¦r¦c¦s ¦s¦t¦u¦f¦w¦j¦v";
+		char_out = "Β¦Γ¦Δ¦Θ¦Φ¦Χ¦Χ¦Ψ¦Β¦Γ¦Δ¦Θ¦Φ¦Χ¦Χ¦Ψ¦Α¦Β¦Γ¦Δ¦Ε¦Ζ¦Η¦Η¦Ι¦Κ¦Λ¦Μ¦Ν¦Ξ¦Ο¦Π¦Ρ¦Σ¦Τ¦Υ¦Φ¦Ω¦Ϊ¦Ϋ¦β¦γ¦δ¦θ¦φ¦χ¦χ¦ψ¦α¦β¦γ¦δ¦ε¦ζ¦η¦η¦ι¦κ¦λ¦μ¦ν¦ξ¦ο¦π¦ρ¦ς¦ς ¦σ¦τ¦υ¦φ¦ω¦ϊ¦ϋ";
+
+		Char_inp = char_inp.split("¦");
+		Char_out = char_out.split("¦");
+	}
+//Hebrew===========================================================================HEBREW
+	else if (char_set.match("1456-1524")) { //Hebrew
+		document.title = "Hebrew אִבֿרִת Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\n\nEx.: kh → כ\n\n(They may take a few moments to load)")) return;
+
+		char_inp = "''	bb	gg	dd	hh	vv	zz	cch	TT	yy	kk	ll	mm	nn	SS	cc	pp	tts	qq	rr	ssh	ss	tt	bh	gh	dh	ch	kh	ph	TS	ts	sh	th	'	b	g	d	h	v	w	z	T	y	K	k	l	M	m	N	n	S	c	P	p	f	q	r	s	t	a	A	e	E	i	I	o	O	U	u";
+		char_out = "אּ	בּ	גּ	דּ	הּ	וּ	זּ	חּ	טּ	יּ	כּ	לּ	מּ	נּ	סּ	עּ	פּ	צּ	קּ	רּ	שּׁ	שּ	תּ	בֿ	גֿ	דֿ	ח	כֿ	פֿ	ץ	צ	שׁ	תֿ	א	ב	ג	ד	ה	ו	ו	ז	ט	י	ך	כ	ל	ם	מ	ן	נ	ס	ע	ף	פ	פֿ	ק	ר	ש	ת	ַ	ָ	ֵ	ֶ	ִ	ִי	ֹ	וֹ	וֻ	ֻ";
+
+		Char_inp = char_inp.split("	");
+		Char_out = char_out.split("	");
+/* N O T E S ----------------------------------------------------------------------------
+*/
+	}
+
+//Arabic===========================================================================ARABIC
+	else if (char_set.match("1548-1792")) { //Arabic
+		document.title = "Arabic عربي Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\n\nEx.: kh → خ\n\n(They may take a few moments to load)")) return;
+
+		char_inp = "'aa	'a	'i	'u	aa	ai	au	ee	ei	ii	oo	ou	uu	aN	iN	uN	N	A	I	U	a	e	i	o	u	thth	khkh	xx	dhdh	shsh	DHDH	ZZ	ghgh	''	bb	tt	jj	HH	dd	rr	zz	ss	SS	DD	TT	cc	ff	qq	kk	ll	mm	nn	hh	ww	yy	th	kh	x	dh	sh	DH	Z	gh	'	b	p	P	t	dj	j	H	d	r	z	s	S	D	T	c	f	v	V	q	k	g	G	l	m	n	h	w	y	W	Y	E	\~	0	1	2	3	4	5	6	7	8	9	,	;";
+		char_out = "آ	أَ	إِ	أُ	ا	ay	aw	ay	ay	ي	uu	uu	و	ً	ٍ	ٌ	ً	أ	إ	أ	َ	ِ	ِ	ُ	ُ	ثّ	خّ	خّ	ذّ	شّ	ظّ	ظّ	غّ	ءّ	بّ	تّ	جّ	حّ	دّ	رّ	زّ	سّ	صّ	ضّ	طّ	عّ	فّ	قّ	كّ	لّ	مّ	نّ	هّ	وّ	يّ	ث	خ	خ	ذ	ش	ظ	ظ	غ	ء	ب	ة	پ	ت	ج	ج	ح	د	ر	ز	س	ص	ض	ط	ع	ف	ف	ڤ	ق	ك	ك	گ	ل	م	ن	ه	و	ي	ؤ	ئ	ى	آ	٠	١	٢	٣	٤	٥	٦	٧	٨	٩	،	؛";
+
+		Char_inp = char_inp.split("	");
+		Char_out = char_out.split("	");
+/* N O T E S ----------------------------------------------------------------------------
+?
+؟
+*/
+
+	}
+
+//Armenian=======================================================================ARMENIAN
+	else if (char_set.match("1328-1423")) { //Armenian
+		document.title = "Armenian Հաերէն Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined character conversions?\n\nEx.: Ch' → Չ\n\n(They may take a few moments to load)")) return;
+
+		Char_inp = new Array("CH'","TS'","P'","T'","K'","YE","ZH","KH","TS","DZ","GH","CH","SH","VO","DJ","RR","Ch'","Ts'","P'","T'","K'","Ye","Zh","Kh","Ts","Dz","Gh","Ch","Sh","Vo","Dj","Rr","A","B","G","D","Z","E","Q","I","L","K","H","M","Y","N","P","S","V","T","R","W","O","F","ch'","ts'","p'","t'","k'","yev","ye","zh","kh","ts","dz","gh","ch","sh","vo","dj","rr","a","b","g","d","z","e","q","i","l","k","h","m","y","n","p","s","v","t","r","w","o","f");
+
+		Char_out = new Array("Չ","Ց","Փ","Թ","Ք","Ե","Ժ","Խ","Ծ","Ձ","Ղ","Ճ","Շ","Ո","Ջ","Ռ","Չ","Ց","Փ","Թ","Ք","Ե","Ժ","Խ","Ծ","Ձ","Ղ","Ճ","Շ","Ո","Ջ","Ռ","Ա","Բ","Գ","Դ","Զ","Է","Ը","Ի","Լ","Կ","Հ","Մ","Յ","Ն","Պ","Ս","Վ","Տ","Ր","Ւ","Օ","Ֆ","չ","ց","փ","թ","ք","և","ե","ժ","խ","ծ","ձ","ղ","ճ","շ","ո","ջ","ռ","ա","բ","գ","դ","զ","է","ը","ի","լ","կ","հ","մ","յ","ն","պ","ս","վ","տ","ր","ւ","օ","ֆ");
+
+/* N O T E S ----------------------------------------------------------------------------
+ye	t'	zh	j	a	b	g	d	z	e	@	i	l	kh	ts	k	h	dz	gh	ch	m	y	n	sh	vo	ch'	p	dj	rr	s	v	t	r	ts'	v	p'	k'	o	f	
+Ե	Թ	Ժ	Ժ	Ա	Բ	Գ	Դ	Զ	Է	Ը	Ի	Լ	Խ	Ծ	Կ	Հ	Ձ	Ղ	Ճ	Մ	Յ	Ն	Շ	Ո	Չ	Պ	Ջ	Ռ	Ս	Վ	Տ	Ր	Ց	Ւ	Փ	Ք	Օ	Ֆ	ա	բ	գ	դ	ե	զ	է	ը	թ	ժ	ի	լ	խ	ծ	կ	հ	ձ	ղ	ճ	մ	յ	ն	շ	ո	չ	պ	ջ	ռ	ս	վ	տ	ր	ց	ւ	փ	ք	օ	ֆ	և
+
+AԱ	BԲ	GԳ	DԴ	YEԵ	ZԶ	EԷ	QԸ	T'Թ	ZHԺ	IԻ	LԼ	KHԽ	TSԾ	KԿ	HՀ	DZՁ	GHՂ	CHՃ	MՄ	YՅ	NՆ	SHՇ	VOՈ	CH'Չ	PՊ	DJՋ	RRՌ	SՍ	VՎ	TՏ	RՐ	TS'Ց	WՒ	P'Փ	K'Ք	OՕ	FՖ	aա	bբ	gգ	dդ	yeե	zզ	eէ	qը	t'թ	zhժ	iի	lլ	khխ	tsծ	kկ	hհ	dzձ	ghղ	chճ	mմ	yյ	nն	shշ	voո	ch'չ	pպ	djջ	rrռ	sս	vվ	tտ	rր	ts'ց	wւ	p'փ	k'ք	oօ	fֆ	yevև
+
+CH'Չ	TS'Ց	P'Փ	T'Թ	K'Ք	YEԵ	ZHԺ	KHԽ	TSԾ	DZՁ	GHՂ	CHՃ	SHՇ	VOՈ	DJՋ	RRՌ	Ch'Չ	Ts'Ց	P'Փ	T'Թ	K'Ք	YeԵ	ZhԺ	KhԽ	TsԾ	DzՁ	GhՂ	ChՃ	ShՇ	VoՈ	DjՋ	RrՌ	AԱ	BԲ	GԳ	DԴ	ZԶ	EԷ	QԸ	IԻ	LԼ	KԿ	HՀ	MՄ	YՅ	NՆ	PՊ	SՍ	VՎ	TՏ	RՐ	WՒ	OՕ	FՖ	ch'չ	ts'ց	p'փ	t'թ	k'ք	yevև	yeե	zhժ	khխ	tsծ	dzձ	ghղ	chճ	shշ	voո	djջ	rrռ	aա	bբ	gգ	dդ	zզ	eէ	qը	iի	lլ	kկ	hհ	mմ	yյ	nն	pպ	sս	vվ	tտ	rր	wւ	oօ	fֆ
+																																					
+ԱԲԳԴԵԶԷԸԹԺԻԼԽԾԿՀՁՂՃՄՅՆՇՈՉՊՋՌՍՎՏՐՑՒՓՔՕՖաբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտրցւփքօֆև
+*/
+
+	}
+
+	showRange(char_set);
+	showCharConv();
+}
+
+//=================================================================↑CHARACTER CONVERSIONS
+//=========================================================================↓CHARACTER MAP
+
+predefined = false;
+
+/* N O T E S ----------------------------------------------------------------------------
+Accented 192-255-(382)
+Arabic 1548—1792
+Armenian 1328-1423
+Cherokee 5024-5108
+Chinese 19968-40891
+Ethiopian 4608-5017
+Egyptian hieroglyphs 77824-78894
+Hebrew 1456-1524
+Hungarian (custom)
+IPA 592-890
+Japanese 12289-12542
+Korean 44032-55203
+Russian 1040-1103
+Sanskrit 2304-2416
+Syriac 1807-1891
+*/
+
+var range_from = 192;
+var range_to = 382;
+
+char_map_width = 20;	//number of characters per line
+
+function showRange(from_,to_,from_selector) {			//Creates the Character Map display
+Current("showing character range "+from_+"—"+to_);
+	var give = "";
+
+	if (from_ == "Hungarian") {				//allows for predefined character sets; NOT WORKING COMPLETELY
+		give = "a á b c cs d dz dzs e é f g gy h i í j k l ly m n ny o ó ö ő p q r s sz t u ú ü ű v w x y z zs";
+
+		Give = give.split(" ");
+
+		give = "<table class=gray border=1>";
+
+		glen = Give.length;
+		for (i=0;i<glen;i++) {
+			if (i%(char_map_width/2) == 0) {
+				give += "</tr><tr>";
+			}
+			char = Give[i];
+			charcode = Give[i].charCodeAt(0);
+			give += "<td align=center class=char_map width=50><a nohref onMouseOver='if (!dragging) charDisp("+charcode+");' onClick='if(CtrlCk(event)){dragging = \""+charcode+"\"; charDisp("+charcode+");} else {input_txt.value += \""+char.toUpperCase()+"\"; updateRecent("+charcode+");}' onMouseOut='if (!dragging) inform();' onDblClick='dragging = \""+i+"\";'>"+char.toUpperCase()+"</a></td>";
+			give += "<td align=center class=char_map width=50><a nohref onMouseOver='if (!dragging) charDisp("+charcode+");' onClick='if(CtrlCk(event)){dragging = \""+charcode+"\"; charDisp("+charcode+");} else {input_txt.value += \""+char+"\"; updateRecent("+charcode+");}' onMouseOut='if (!dragging) inform();' onDblClick='dragging = \""+i+"\";'>"+char+"</a></td>";
+		}
+		char_map_span.innerHTML = give;
+		return;
+	}
+	else {
+		if (from_) range_from = parseInt(from_);
+		if (to_) range_to = parseInt(to_);
+
+		give += "<table class=gray border=1><tr>";
+
+		for (i=range_from;i<(range_to+1);i++) {
+			if ((i-range_from)%char_map_width == 0) {
+				give += "</tr><tr>";
+				newTR = 0;
+			}
+
+			char = String.fromCodePoint(i);
+
+			/*Creates each Character Display as a separate TD
+			 *	The TD contains an Anchor element with some specific behaviors:
+			 *	• HOVER: If nothing is already in the DragBox, it displays the character
+			 *	• CLICK:
+			 *		- Adds the character to the text in scratchpad
+			 *		- Adds the character to the recent_chars string and updates the Recent Characters display
+			 *	• DOUBLE CLICK: Makes the character display persistent. The allows the character to be added to a key on the keyboard map (by clicking)
+			 *	• MOUSEOUT: clears the DragBox unless display has been made persistent
+			*/
+			give += "<td align=center class=char_map width=50><a nohref style='cursor:copy;' onMouseOver='if (!dragging) charDisp("+i+");' onClick='if(CtrlCk(event)){dragging = \""+i+"\"; charDisp("+i+");} else {input_txt.value += String.fromCodePoint("+i+"); updateRecent("+i+");}' onMouseOut='if (!dragging) inform();' onDblClick='dragging = \""+i+"\";'>&#"+i+";<br><font size=2px>"+i+"</font></a></td>";
+		}
+		give += "</tr></table>";
+		char_map_from.value = range_from;
+		char_map_to.value = range_to;
+	}
+	char_map_span.innerHTML = give;
+}
+
+//Recent Characters=====================================================RECENT CHARACTERS
+
+var Recent_Chars = [];
+
+function updateRecent(newest) {
+	
+	if (!newest) {		//If no variable is passed to the function, it deletes the Recent_Chars array and clears the display field
+		Recent_Chars = [];
+		recent_chars_span.innerHTML = "";
+		return;
+	}
+
+	rlen = Recent_Chars.length;
+	if (rlen > 0 && rlen % 10 == 0 && confirm("The recent characters list already contains "+rlen+" characters. Do you want to clear the list before adding "+String.fromCodePoint(newest)+" to the list?")) {
+		Recent_Chars = [];
+		recent_chars_span.innerHTML = "";
+		updateRecent(newest);
+		return;
+	}
+	Recent_Chars[rlen] = newest;
+
+//alert(Recent_Chars);
+
+	var recent_disp = "<table align=center class=gray border=1><tr><td align=center colspan=50><table border=0 cellpadding=0 cellspacing=0 width=100%><td align=left class=thead><span class=smallcaps> Most Recent</span></td><td align=right class=thead><a nohref onClick='updateRecent();'>× </span></td></table></td></tr><tr>";
+	for (i=0;i<(rlen+1);i++) {
+		current_char = Recent_Chars[rlen-i];
+		recent_disp += "<td align=center class=char_map width=50><a nohref style='cursor:copy;' onMouseOver='if (!dragging) charDisp("+current_char+");' onClick='input_txt.value += String.fromCodePoint("+current_char+");' onMouseOut='if (!dragging) inform();' onDblClick='dragging = \""+current_char+"\";'>&#"+current_char+";<br><font size=2px>"+current_char+"</font></a></td>";
+	}
+	recent_disp += "</tr></table>";
+	recent_chars_span.innerHTML = recent_disp;
+}
+
+function charDisp(num,desc) {
+Current("displaying &#"+num+";");
+	if (dragging) msg = "click in the Scratch Pad<br>to add this character<br><br>click any key to assign<br>this character to it";
+	else msg = "click to type<br>ctrl-click to select";
+
+	var disp = "<table class=gray border=1><tr><td align=center class=chardisp>&#"+num+";</td></tr><tr><td>"+((desc) ? (desc+"<br>") : "")+"Unicode #"+num+"</td></tr><tr><td align=right><span class=tooltip>"+msg+"</span></td></tr></table>";
+
+	inform(disp);
+}
+
+//========================================↑char_map Functions
+/*
+var keys1 = "` 1 2 3 4 5 6 7 8 9 0 - ="
+var keys2 = "q w e r t y u i o p [ ] \";
+var keys3 =  "a s d f g h j k l ; '";
+var keys4 =   "z x c v b n m , . /";
+
+var KEYS1 = "~ ! @ # $ % ^ & * ( ) _ +";
+var KEYS2 = "Q W E R T Y U I O P { } |";
+var KEYS3 =  "A S D F G H J K L : \"";
+var KEYS4 =   "Z X C V B N M < > ?";
+
+
+*/
+//===========================================↓Drag Functions
+
+dragging = false;
+hold = false;
+
+var X;
+var Y;
+
+gridsize = 1;
+
+function followMouse(e) {
+//Current("followMouse()");
+	X = Math.round(e.clientX / gridsize);
+	Y = Math.round((e.clientY + document.body.scrollTop) / gridsize);
+
+	X *= gridsize;
+	Y *= gridsize;
+ 
+	window.status = X + "," + Y;
+ 
+	if (dragging && isNaN(dragging)) {
+		X -= 15;
+		Y -= 15;
+	}
+	else {
+		X += 8;
+		Y += 20;
+	}
+
+	if (!hold) {
+		drag_box.style.left = X;
+		drag_box.style.top = Y;
+	}
+}
+
+function interact(msg) {
+//	drag_box.style.margin = "50%";
+	hold = true;
+	drag_box.style.visibility = "visible";
+	drag_box.style.backgroundColor = "white";
+	drag_box.style.zIndex = 5;
+	drag_box.innerHTML = "<div class='modal'>"+msg+"</div>";
+}
+
+function inform(box_html,outline) {
+	if (box_html) {
+		Current("putting "+box_html+" in the Drag Box");
+		if (outline) drag_box.innerHTML = "<table class=gray border=1 cellpadding=5><td bgcolor=efefef>" + box_html + "</td>";
+		else drag_box.innerHTML = box_html;
+		drag_box.style.visibility = "visible";
+		drag_box.style.zIndex = 5;
+//alert(drag_box.style.zIndex);
+	}
+	else {
+		Current("clearing the Drag Box");
+		drag_box.innerHTML = "";
+		drag_box.style.visibility = "hidden";
+		drag_box.style.zIndex = -1;
+		dragging = false;
+	}
+}
+
+function holdInput(num) {
+Current("holdInput("+num+")");
+	if (num) {
+		hold = true;
+		hold_disp = "<input type=text id='hold_input' size=1 onLoad='this.focus();' onChange='key_"+num+".value = this.value;'></input><br><input type=button class=key value='Apply' onClick='holdInput();'></input>";
+		inform(hold_disp);
+		hold_input.focus();
+	}
+	else {
+		hold = false;
+		inform();
+	}
+}
+
+//===========================================↑Drag Functions
+
+function Type(e) {
+//return;
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
+	else alert("Your browser will not support typing outside of the text input area.");
+	
+	if (code == 32) { //spacebar
+		if (!input_focus) input_txt += " ";
+		applyCharConv();
+	}
+	if (!input_focus) {
+		key = String.fromCodePoint(code);
+		key_value = eval("key_"+key+".value");
+		if (key_value) input_txt.value += key_value;
+	}
+}
+
+function CtrlCk(e) {
+	if (e.ctrlKey == 1) return true;
+	else return false;
+}
+
+//==========================================================
+
+var last_function;
+
+function Current(put) {
+	if (put) last_function = "<font color=red>◙ " + put + " ◙</font>";
+	else last_function = "<font color=green>◙ READY ◙</font>";
+
+	current_var.innerHTML = last_function;
+//	dragging_var.innerHTML = "dragging = " + dragging;
+//	hold_var.innerHTML = "hold = " + hold;
+//	predefined_var.innerHTML = "predefined = " + predefined;
+
+	window.setTimeout("Current();",5000);
+}
+
+//==========================================================
+
+var segoe = false;
+
+//ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘ-ʀꜱᴛᴜᴠᴡ-ʏᴢ
+
+function help(newfont) {
+	if (!segoe) {
+		if (!confirm("Switching the font may allow you to see more characters.\n\nDo you want to switch the font?")) return;
+
+		segoe = true;
+
+		changeFont("Segoe, Apple Symbols, Doulos SIL, Code2000, Code2001, Code2002, Ebrima, Aegyptus, Constructium, FreeFont",false);
+	}
+	else {
+		if (!confirm("Do you want to switch the default font back to Tɪᴍᴇs Nᴇᴡ Rᴏᴍᴀɴ?\n\n(Note: This may make some character sets unreadable.)")) return;
+
+		segoe = false;
+
+		changeFont("Times",false);
+	}
+}
+
+function changeFont(newfont,verify) {
+	if (verify && !confirm("Switching the font to "+newfont+" should allow you to these characters.\n\nDo you want to switch the font?")) return;
+
+	Current("Changing the font");
+
+	AllElements = document.getElementsByTagName("*");
+	elen = AllElements.length;
+	for (i=0;i<elen;i++) {
+		AllElements[i].style.fontFamily = newfont;
+	}
+
+	Handles = document.getElementsByClassName("handle");
+	hlen = Handles.length;
+	for (i=0;i<hlen;i++) {
+		Handles[i].style.fontFamily = "monospace";
+	}
+}
+
+//==========================================================
+</script>
+</head>
+
+<!-- =================================================== -->
+<!-- =================================================== -->
+
+<body style='background-image:url(https://dl.dropboxusercontent.com/u/22964498/Web/gwistix%20background.jpg); background-attachment:fixed;' onLoad='init();' onKeyPress='Type(event);' onMouseMove='followMouse(event);'>
+
+<!-- ===========================================↓Toolbar -->
+
+
+
+<div id=toolbar style='position:relative; top:0px; left:0px;'>
+	<table width=100% class=gray>
+		<td class=thead style='font-family:"times new roman";'>&nbsp;[ˈɡwɪs.tɪks] › 
+<!--			<select onChange='alert("Options coming soon!");'>
+				<option value='Home' disabled="disabled">Home</option>
+				<option value='Tools' selected=true>Tools</option>
+			</select> › --><select onChange='if (this.value == "OmniType") window.location = "type.html"; else if (this.value == "Phonology") window.location = "phonology.html"; else if (this.value == "IPA Chart") window.location = "IPA_Chart.html"; else if (this.value == "Sonority") window.location = "sonority.html";'>
+				<option value="OmniType">OmniType</option>
+				<option value="Phonology">Phonology Tool</option>
+        <option value="IPA Chart">IPA Chart</option>
+				<option value="Sonority">Sonority Profiler</option></select>&nbsp;
+            <span><input id='key_map_btn' type='button' onClick='key_map.style.visibility = "visible"; this.disabled = true;' value='Keyboard Map' disabled></span>
+            <span><input id='scratch_pad_btn' type='button' onClick='scratch_pad.style.visibility = "visible"; this.disabled = true;' value='Scratch Pad' disabled></span>
+            <span><input id='char_map_btn' type='button' onClick='char_map.style.visibility = "visible"; this.disabled = true;' value='Character Map' disabled></span>
+            <span><input id='char_conv_btn' type='button' onClick='char_conv.style.visibility = "visible"; this.disabled = true;' value='Character Conversions'></span>
+		</td>
+		<td class=thead align=center width=100>
+			<input type=button value='About' style='cursor:help;' onClick='alert("Created and maintained by Andrew Bayles");' title='Information about this Web Application'>&nbsp;<input type=button value=' ? ' style='cursor:help;' onClick='help();' title='Seeing squares?'>
+		</td>
+	</table>
+</div>
+
+
+<br>
+<center>
+
+<!-- ===========================================↑Toolbar -->
+<!-- ============================================↓VarBox -->
+
+<div id=var_box style='position:absolute; top:50px; left:0px; border:none;'>
+<!-- <pre> -->
+<span id=current_var></span>
+<span id=dragging_var></span>
+<span id=hold_var></span>
+<span id=predefined_var></span>
+<!-- </pre> -->
+</div>
+
+
+<!-- ============================================↑VarBox -->
+<!-- ===========================================↓DragBox -->
+
+<div id=drag_box style='position:absolute; top:0px; left:0px; border:1px dotted blue; z-index:-1; visibility:hidden;'>
+DRAG
+</div>
+
+<!-- ===========================================↑DragBox -->
+<!-- ============================================↓KeyMap -->
+
+<div id=key_map style='visibility:visible;'>
+<table class=gray border=1>
+<tr><td colspan=13>
+	<table class=thead width=100% border=0>
+		<td align=left width=33%><a nohref style='cursor:move;' class='handle' onClick='if (dragging == "key_map") {inform(); key_map.style.position = "absolute"; key_map.style.top = Y; key_map.style.left = X; key_map.style.visibility = "visible";} else {dragging = "key_map"; drag_box.innerHTML = key_map.innerHTML; drag_box.style.visibility = "visible"; drag_box.style.zIndex = 5; key_map.style.visibility = "hidden";}'>::</a></td>
+		<td align=center class=smallcaps width=33%><a nohref style='cursor:help;' onMouseOver='inform("Use the Keyboard Map to set a key to a particular character.",1);' onMouseOut='inform();'>Keyboard&nbsp;Map</a></td>
+		<td align=right width=33%><a nohref onClick='key_map.style.visibility = "hidden"; key_map_btn.disabled = false;'>×</a></td>
+	</table>
+</td></tr>
+<tr>
+	<td align=center><input type=button class=key id='key_backapostrophe' value='`' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_1' value='1' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_2' value='2' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_3' value='3' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_4' value='4' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_5' value='5' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_6' value='6' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_7' value='7' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_8' value='8' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_9' value='9' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_0' value='0' onClick='input_txt.value += this.value;' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_hyphen' value='-' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_equals' value='=' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+</tr>
+<tr>
+	<td align=center><input type=button class=key id='key_q' value='q' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_w' value='w' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_e' value='e' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_r' value='r' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_t' value='t' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_y' value='y' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_u' value='u' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_i' value='i' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_o' value='o' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_p' value='p' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_leftbracket' value='[' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_rightbracket' value=']' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_backslash' value='\' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+</tr>
+<tr>
+	<td align=center></td>
+	<td align=center><input type=button class=key id='key_a' value='a' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_s' value='s' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_d' value='d' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_f' value='f' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_g' value='g' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_h' value='h' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_j' value='j' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_k' value='k' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_l' value='l' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_semicolon' value=';' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key value="'"></input></td>
+</tr>
+<tr>
+	<td align=center class=smallcaps colspan=2><a nohref onClick=''>shift</a></td>
+	<td align=center><input type=button class=key id='key_z' value='z' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_x' value='x' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_c' value='c' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_v' value='v' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_b' value='b' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_n' value='n' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_m' value='m' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_comma' value=',' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_period' value='.' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+	<td align=center><input type=button class=key id='key_slash' value='/' onClick='if (dragging) {this.value = String.fromCodePoint(dragging); inform();} else {input_txt.value += this.value;}' onDblClick='holdInput(this.value);'></input></td>
+</tr>
+</table>
+</div>
+
+<!-- ============================================↑KeyMap -->
+<!-- ===========================================↓CharConv -->
+
+<div id=char_conv style='border:none; position:absolute; top:225; left:70; visibility:hidden;'>
+<table class=gray border=1>
+<tr><td align=center colspan=3>
+	<table class=thead width=100% border=0>
+		<td align=left width=33%><a nohref style='cursor:move;' class='handle' onClick='if (dragging == "char_conv") {inform(); char_conv.style.position = "absolute"; char_conv.style.top = Y; char_conv.style.left = X; char_conv.style.visibility = "visible";} else {dragging = "char_conv"; drag_box.innerHTML = char_conv.innerHTML; drag_box.style.visibility = "visible"; drag_box.style.zIndex = 5; char_conv.style.visibility = "hidden";}'>::</a></td>
+		<td class=smallcaps>Character&nbsp;Conversions</td>
+		<td align=right width=33%><a nohref onClick='char_conv.style.visibility = "hidden"; char_conv_btn.disabled = false;'>×</a></td>
+	</table>
+</td></tr>
+<tr><td align=center><table width=100% border=0>
+	<td align=center class=smallcaps width=50%>Input</td>
+	<td align=center class=smallcaps width=50%>Output</td>
+</table></td></tr>
+<tr><td align=center colspan=3><textarea id=char_conv_span rows=20></textarea></td></tr>
+</table>
+</div>
+
+<!-- ===========================================↑CharConv -->
+<!-- ========================================↓ScratchPad -->
+
+<div id=scratch_pad>
+<table class=gray border=1>
+<tr><td>
+	<table class=thead width=100% border=0>
+		<td align=left width=33%><a nohref style='cursor:move;' class='handle' onClick='if (dragging == "scratch_pad") {inform(); scratch_pad.style.position = "absolute"; scratch_pad.style.top = Y; scratch_pad.style.left = X; scratch_pad.style.visibility = "visible";} else {dragging = "scratch_pad"; drag_box.innerHTML = scratch_pad.innerHTML; drag_box.style.visibility = "visible"; drag_box.style.zIndex = 5; scratch_pad.style.visibility = "hidden";}'>::</a></td>
+		<td align=center class=smallcaps>Scratch&nbsp;Pad</td>
+		<td align=right width=33%><a nohref onClick='scratch_pad.style.visibility = "hidden"; scratch_pad_btn.disabled = false;'>×</a></td>
+	</table>
+</td></tr>
+<tr><td colspan=3>
+	<textarea id='input_txt' onFocus='input_focus = true;' onBlur='input_focus = false; applyCharConv();' onClick='if (dragging) this.value += String.fromCodePoint(dragging); inform();' onChange='applyCharConv();' rows=3 cols=60></textarea>
+</td></tr>
+</table>
+</div>
+
+<!-- dhIs i-z @n i-gzaempl @v dhi aIpiPeI taIp@r tul. -->
+
+<!-- ========================================↑ScratchPad -->
+
+<!-- ===========================================↓CharMap -->
+
+<div id=char_map>
+<table class=gray width=570 border=1>
+<tr><td colspan=3>
+	<table class=thead width=100% border=0>
+		<td align=left width=33%><a nohref style='cursor:move;' class='handle' onClick='if (dragging == "char_map") {inform(); char_map.style.position = "absolute"; char_map.style.top = Y; char_map.style.left = X; char_map.style.visibility = "visible";} else {dragging = "char_map"; drag_box.innerHTML = char_map.innerHTML; drag_box.style.visibility = "visible"; drag_box.style.zIndex = 5; char_map.style.visibility = "hidden";}'>::</a></td>
+		<td align=center class=smallcaps>Character&nbsp;Map</td>
+		<td align=right width=33%><a nohref onClick='char_map.style.visibility = "hidden"; char_map_btn.disabled = false;'>×</a></td>
+	</table>
+</td></tr>
+<tr><td>
+	Range: <input type=text id='char_map_from' size=1 onFocus='this.select();' onClick='this.select();' onChange='char_map_to.value = (parseInt(this.value) + 100);'></input> to <input type=text id='char_map_to' size=1 onFocus()='this.select();' onClick='this.select();' onChange=''></input> 
+	<select id='predef_range' onChange='Temp = this.value.split("-"); Predefined(); showRange(Temp[0],Temp[1],true); if (Temp[2]) {changeFont(Temp[2],true)}; this.blur();'>
+		<option value=''>Select character range</option>
+		<option value='1548-1792'>Arabic عربي</option>
+		<option value='1328-1423'>Armenian Հաերէն</option>
+		<option value='5024-5108'>Cherokee <span style='color:red;'>ᏣᎳᎩ</span></option>
+		<option value='19968-40891'>Chinese</option>
+		<option value='66560-66639-Segoe'>Deseret 𐐔𐐇𐐞𐐊𐐡𐐇𐐓</option>
+		<option value='4608-5017'>Ethiopian</option>
+		<option value='77824-78894-Aegyptus'>Egyptian</option>
+		<option value='5792-5887-Segoe'>Futhårk ᚠᚢᚦᚩᚱᚳ</option>
+		<option value='900-989'>Greek Ελλινηκι</option>
+		<option value='1456-1524'>Hebrew אִבֿרִת</option>
+		<option value='Hungarian'>Hungarian</option>
+		<option value='592-890'>IPA [aɪ.pʰiˈeɪ]</option>
+		<option value='12289-12542'>Japanese 日本語</option>
+		<option value='4352-4601'>Korean 한글</option>
+		<option value='44032-55295'>Korean extended</option>
+		<option value='192-382'>Latin accented</option>
+		<option value='65-567'>Latin full</option>
+		<option value='1040-1103'>Russian Русский</option>
+		<option value='2304-2416'>Sanskrit</option>
+		<option value='1807-1891'>Syriac</option>
+		<option value='11568-11647-Ebrima'>Tifinagh ⵜⵉⴼⵉⵏⴰⵖ</option>
+		<option value='9728-9906'>etc. ☀☁☂☃☄★</option>
+	</select>
+	<input type=button id=char_map_range_button value='Submit' onClick='showRange(char_map_from.value,char_map_to.value);'></input>
+	</td>
+	<td><input type=button value='<' onClick='char_map_width--; showRange(); char_map_width_box.value = char_map_width;'></input><input type=text id=char_map_width_box size=1 value='20' onChange='char_map_width = this.value; showRange();'></input><input type=button value='>' onClick='char_map_width++; showRange(); char_map_width_box.value = char_map_width;'></input> per line
+	</td>
+<!--	<td><input type=button onClick='text2png.replace(input_txt)' value=' ? '>
+	</td> -->
+</tr>
+<tr><td align=center colspan=3><span id=recent_chars_span class=gray></span></td></tr>
+<tr><td align=center colspan=3><span id=char_map_span></span></td></tr>
+</table>
+
+
+</div>
+
+<!-- ===========================================↑CharMap -->
+</center>
+
+<pre style='border:3px solid #123456; width:300px; visibility:hidden;'>
+<input type=checkbox checked=true></input> use character conversions
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ka → か ; KA → カ
+<input type=checkbox checked=true></input> replace <i>hiragana</i> with <i>kanji</i>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;にほん → 日本
+<input type=checkbox checked=true></input> use &lt;wi&gt; and &lt;we&gt; syllables
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ゐ ゑ ヰ ヱ
+<input type=checkbox checked=true></input> use &lt;v&gt; syllables
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ヷ ヸ ヴ ヹ ヺ
+</pre>
