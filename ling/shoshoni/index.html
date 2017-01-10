@@ -1,0 +1,697 @@
+﻿<html>
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Newe Taikwappeh | Shoshoni Dictionary</title>
+	<style type='text/css'>
+		body {margin: 0;}
+		h1 {
+			text-shadow: 0px 2px 20px black;
+			text-align:center;
+			text-decoration:overline;
+			color:white;
+			background-color:#660000;
+			background: linear-gradient(black, #660000);
+			margin: 0;
+			padding-top: 20px;
+			padding-bottom: 5px;
+			box-shadow: 0px 0px 10px #660000;
+			transition:all 2s ease;
+			z-index:6;
+			border-radius:-10px;
+		}
+		h1:hover {text-shadow: 0px 2px 10px white;}
+
+		h2 {
+			text-shadow: 0px 0px 10px black;
+			text-align:center;
+			color:white;
+			background-color:#660000;
+			margin: 0;
+			padding-bottom: 20px;
+			box-shadow: 0px 0px 10px black;
+			z-index:-5;
+			transition:all 2s ease;
+		}
+		h2:hover {text-shadow: 0px 2px 10px white;}
+	
+		h3 {
+			font-family:arial; 
+			text-align:center; 
+		}
+
+		nav {font-weight:bold; text-align:center; margin: 15px 0px 15px 0px;}
+		kbd {
+			background-color:#efefef;
+			border: 1px solid #dedede;
+			border-bottom: 2px solid #cdcdcd;
+			border-radius: 3px;
+			padding:1px 2px 1px 2px;
+		}
+		div {margin: 5px 5px 5px 5px;}
+		summary {cursor:hand; font-weight:bold;}
+
+		label {cursor:hand; vertical-alignment:middle;}
+		label:hover {box-shadow: 0px 0px 5px yellow; transition:all 0.5s ease;}
+
+		img.icon {width:20px; vertical-align:text-top; transition:all 0.5s ease;}
+		img.flip:hover {transform:rotateY(720deg); -webkit-transform:rotateY(720deg); -moz-transform:rotateY(720); -o-transform:rotateY(720deg);}
+		img.spin:hover {transform:rotateZ(360deg); -webkit-transform:rotateZ(360deg); -moz-transform:rotateZ(360); -o-transform:rotateZ(360deg);}
+		img.grow:hover {width:50px;}
+
+		a {cursor:hand; text-decoration:none;}
+		a:hover {text-shadow: 0px 0px 20px yellow;}
+		a:visited {color:blue;}
+		a.menu {cursor:hand; vertical-align:text-top;}
+		a.menu:hover {text-shadow: 0px 10px 20px white;}
+		a.navlink {display:block; position:relative; top:-75px;}
+
+		table {background-color:#efefef;}
+		th {color:white; background-color:#660000; background: linear-gradient(black, #660000);}
+		td {vertical-align:top; background: linear-gradient(cdcdcd,efefef);}
+
+		.headword {font-weight:bold;}
+		.translation {font-style:italic;}
+		.source {font-variant:small-caps;}
+		.pos {font-variant:small-caps;}
+		.info_heading {
+			font-size:150%; 
+			padding:2px;
+			margin:0px;
+		}
+		.info_closer {
+			cursor:hand;
+			font-weight:bold;
+			position:absolute;
+			right:10px;
+		}
+
+		#menu_div {
+			position:fixed;
+			top:0px;
+			width:100%;
+		 	vertical-align:top;
+			font-family:"lucida sans unicode";
+			color:white;
+			z-index:6;
+		}
+		#info_div {
+			background-color:white;
+			position:fixed; 
+			top:-500px; 
+			left:50%;
+			border: 5px solid white;
+			border-radius:5px;
+			margin-left:-200px;
+			padding: 5px;
+			box-shadow: 0px 0px 500px black;
+			width:400px;
+			max-height:500px;
+			overflow-y:scroll;
+			transition:all 1s linear;
+			z-index:5;
+		}
+		#setting_disp {
+			background-color:white; 
+			background: linear-gradient(dedede,white); 
+			border-radius:10px; 
+			width:100px;
+		}
+		#setting_disp_legend {
+			background-color:white; 
+			background:linear-gradient(dedede,white); 
+			border-radius:0px; 
+			border-bottom:2px solid gray; 
+			padding-left:5px; 
+			padding-right:5px;
+		}
+		#load_time_div {
+			text-align:right;
+			position:absolute;
+			right:0px;
+			top:50px;
+			color:white;
+		}
+		#output_div {
+			font-family:'times new roman';
+			margin: 20px; 0px; 0px; 0px;
+			position:absolute; 
+			top:120px; 
+			z-index:4;
+		}
+</style>
+<script language='JavaScript' src='db.js'></script>
+<script language='JavaScript'>
+
+/* TO-DO
+[X] implement Shoshoni OR English search languages
+[X] put examples in help and about
+[X] fix other stuff in help & about menus
+[X] make info_div scrollable
+[X] put delay on search if another key is pressed
+[X] fix the ghost square
+[X] get whole-word search working
+[X] fix Search Options checkboxes so they match the hidden variants when first brought up
+[] make search option radio buttons with Shoshoni only, English only, or Both Shoshoni and English for easier switching
+[] make a whole-word search using spaces by not eliminating them during cleanup()
+*/
+
+//*************************************************************************************************
+	debug_interval = 0;	//set during debugging to refresh the page every X seconds; if set to zero, page will not reload.
+	shortlist_length = 0;	//sets the length (sometimes off a bit) of a shortened database to work with (to avoid reloading all ~30,000 entries with each reload during debugging)
+	table_display = false;	//determines whether entries are displayed as dictionary entries or as glossed tables
+//*************************************************************************************************
+
+var page_title = "Newe Ta̲i̲kwappeh | Shoshoni Dictionary";
+
+var help = "<div class='info_heading'><span id='info_header'>Help</span><span onClick='inform();' class='info_closer' title='Click to close.'>×</span></div>";
+	help += "<p><details><summary>Browsing the dictionary</summary><br>To browse through the dictionary, scroll down the page using the scroll bar on the right side of your browser, or use the scroll wheel on your mouse.</p></details>";
+
+	help += "<p><details><summary>Searching the dictionary</summary><br>To search for a word in English or Shoshoni, just type the word into the search box under the magnifying glass icon (<img src='search.png' class='icon'>) on the right side of the page. Don't worry about special characters, accents or underlining; just type the closest letter on your regular keyboard. You can also ignore hyphens and apostrophes, and even parentheses and spaces. Of course, you're welcome to type with all the special characters, too.</p>";
+	help += "<p>For example, if you want to type the letter <i>ɨ</i> that is used in some Shoshoni dictionaries, just type a regular <i>i</i> and the dictionary will know what you mean.</p>";
+	help += "<p>You can even search for just part of a word if you're not sure what the whole word is. Just type as many letters as you know and the dictionary will show you all the entries that have those letters. If you want to only search for whole words, click on the <b>Search Options</b> link on the right side of the page and check the box that says “Search whole words only.”</p>";
+	help += "<p>By default, typing in the search box finds matches for your search in both English and Shoshoni. If you want to search in only one language, click on the <b>Search Options</b> link on the right side of the page and uncheck the other language's box. When you check or uncheck one of the checkmark boxes, the dictionary automatically starts a new search in the language(s) you've selected.</p>";
+	help += "<p>To clear the search box, make sure the search box is selected and press the <kbd>Esc</kbd> key on your keyboard, or click on the magnifying glass icon (<img src='search.png' class='icon'>). After clearing the search box, it may take a moment for all of the dictionary entries to re-appear.</p></details>"
+
+	help += "<p><details><summary>Viewing options</summary><br>By default, the dictionary displays entries as they would be seen in a standard print dictionary. To view a more detailed table of information for each entry instead, click on the <b>Settings</b> link on the left side of the page, then select &ldquo;Table&rdquo; as the display type. Because the dictionary contains over 30,000 entries, it may take a few minutes (which can feel like forever on a modern computer) to reformat all of the entries. You can switch back and forth between the default &ldquo;Block&rdquo; view and the &ldquo;Table&rdquo; view as much as you'd like in browsing mode, but the &ldquo;Table&rdquo; view isn't currently available in search mode.</p>";
+	help += "<p>If you want to make the text bigger, just press the <kbd>CTRL</kbd>/<kbd>⌘</kbd> and <kbd><b><sup>+</sup><sub>=</sub></b></kbd> keys on your keyboard simultaneously. To make text smaller, press the <kbd>CTRL</kbd>/<kbd>⌘</kbd> and <kbd><b><sup>_</sup><sub>-</sub></b></kbd> keys simultaneously. To return the text to its default size, press <kbd>CTRL</kbd>/<kbd>⌘</kbd>+<kbd><sup>)</sup>0</kbd>. Feel free to try it right now to see how it works.</p></details>";
+
+	help += "<p><details><summary>Advanced options</summary><br>The dictionary contains a few advanced abilities to make browsing and using the dictionary easier:</p>";
+	help += "<p>When your cursor is outside the search box, you can press <br><kbd><sup>!</sup>1</kbd> to bring up the <b>Help</b> menu, <br><kbd><sup>@</sup>2</kbd> to bring up the <b>About</b> menu, <br><kbd><sup>#</sup>3</kbd> to bring up the <b>Settings</b> menu, or <br><kbd><sup>$</sup>4</kbd> to bring up the <b>Search Options</b> menu.</p>";
+	help += "<p>The <kbd>Esc</kbd> key will close any open menu, and if your cursor is in the search box, it will clear the search box and show all of the entries in the dictionary. You can also press the <kbd><sup>?</sup><sub>/</sub></kbd> key to automatically bring the cursor back to the search box and clear any text from it.</p>";
+	help += "<p>In addition, pressing any letter key (<kbd>A </kbd>, <kbd>B </kbd>, <kbd>C </kbd>, etc.) when outside of the search box will make the page automatically jump to entries beginning with that letter. For example, to browse entries that start with <i>p</i>, make sure your cursor is not in the search box and press <kbd>P </kbd> on your keyboard.</p>";
+
+var about = "<div class='info_heading'><span id='info_header'>About</span><span onClick='inform();' class='info_closer' title='Click to close.'>×</span></div>";
+	about += "<p>The <i>Newe Taikwappeh Shoshoni Dictionary</i> is part of the <a href='http://shoshoniproject.utah.edu' title='Click to open in a new tab.' target='_blank'>Shoshoni Language Project</a> at the <a href='http://www.utah.edu' title='Click to open in a new tab.' target='_blank'>University of Utah</a>. The dictionary compiles entries from eight different sources; the differing orthographies of the various sources have been preserved here.</p>";
+	about += "<p>You can browse through the dictionary by scrolling down the page, or you can search the dictionary by typing text into the search box underneath the magnifying glass icon (<img src='search.png' class='icon'>) on the right-hand side of the page. When searching, don't worry about accents, diacritics, dashes, or parentheses. Just type using your regular keyboard.</p>";
+	about += "<address><small>The dictionary was completely hand-coded in HTML and JavaScript by Andrew John Bayles.</small></address>";
+
+var settings = "<div class='info_heading'><span id='info_header'>Settings</span><span onClick='inform();' class='info_closer' title='Click to close.'>×</span></div>";
+	settings += "Display type:¹<br><input name='disp_type' style='margin-left:10px;' type='radio' value='1' onClick='table_display = true; init();'>Table</input>";
+	settings += "<br><input name='disp_type' style='margin-left:10px;' type='radio' value='0' onClick='table_display = false; init();'>Block</input></span>";
+	settings += "<br><br><small>¹Table display only works in browsing mode (not in search mode).</small>";
+
+var search_options = "<div class='info_heading'><span id='info_header'>Search Options</span><span onClick='inform();' class='info_closer' title='Click to close.'>×</span></div>";
+	search_options += "<span style='style='vertical-align:middle;'>Search in...";
+	search_options += "<br><label for='search_shh' onClick='hidden_search_shh.checked = ((hidden_search_shh.checked == true)?false:true); searchEntries();'><input type='checkbox' id='search_shh' checked='true' style='vertical-align:middle;'>Shoshoni</label>";
+	search_options += "<br><label for='search_eng' onClick='hidden_search_eng.checked = ((hidden_search_eng.checked == true)?false:true); searchEntries();'><input type='checkbox' id='search_eng' checked='true' style='vertical-align:middle;'>English</label>";
+	search_options += "</span>";
+	search_options += "<br>";
+	search_options += "<br><label for='whole_word' onClick='hidden_whole_words.checked = ((hidden_whole_words.checked == true)?false:true); searchEntries();'><input type='checkbox' id='whole_words' style='vertical-align:middle;'>Search whole words only</label>";
+	search_options += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>(Doesn't work with special characters like <i>ɨ</i>, <i>ü</i>, etc.)</small>";
+
+//=START=HERE=======================================================================================
+
+//program initializer function, which gets all the other functions going
+function init() {
+document.title = "Loading dictionary...";
+	fixHeaderCSS();
+
+	inform(about);
+	setTimeout("inform();",10000);
+
+	search_inp.focus();
+
+	if (shortlist_length != 0) {
+		shortenEntries();
+	}
+	showEntries();
+	if (debug_interval) {	//only has an effect if debug_interval above is set to something other than 0
+		setClock();
+		update_page = window.setTimeout('location.reload(true);',debug_interval*1000);
+	}
+document.title = (debug_interval > 0 || shortlist_length > 0) ? "***Debug mode***" : page_title;
+}
+
+//-CSS-FORMATTING-----------------------------------------------------------------------------------
+
+//fixes the header's position at the top of the page, even when scrolling; purposely run after load so browsers with no JS will still see a nice header. 
+function fixHeaderCSS() {
+document.title = "Fixing header formatting...";
+
+//	inform("W:" + window.innerWidth + "; H:" + window.innerHeight);
+	if (window.innerWidth < 630) {
+		header_1.innerHTML = "&nbsp;";
+		header_1.style.textDecoration = "none";
+	}
+	else {
+		header_1.innerHTML = "Newe Ta̲i̲kwappeh";
+		header_1.style.textDecoration = "overline";
+	}
+	header_1.style.width = window.innerWidth;
+
+	//necessary due to the fixed position attribute
+	header_1.style.position = "fixed";
+	header_1.style.top = "0px";
+
+	header_2.style.width = window.innerWidth;	//necessary due to the fixed position attribute
+	header_2.style.position = "absolute";
+	header_2.style.top = "60px";
+
+	output_div.style.width = (window.innerWidth - 20);
+	menu_div.style.position = "fixed";
+document.title = "Header formatting complete."
+}
+
+//-DEBUGGING---------------------------------------------------------------------------------------
+
+//variables and function used only for debugging
+
+var load_time;
+var load_time_disp = "";
+function setClock() {
+document.title = "Setting debug timer…";
+	now = new Date();
+	if (!load_time) load_time = new Date();
+
+	load_time_div.innerHTML = "Current time is " + now.toLocaleTimeString() + "<br>Loaded at " + load_time.toLocaleTimeString() + "<br>";
+	load_time_div.innerHTML += "<input type='checkbox' checked='true' onClick='window.clearTimeout(update_page); window.clearTimeout(tick); debug_interval = false;'>Reload after "+(debug_interval)+" seconds<br>Reloading in  " + Math.floor(1+(debug_interval)-((now/1000)-(load_time/1000))) + " seconds";
+ 	tick = window.setTimeout('setClock()',1000);
+document.title = "***Debug timer set.***";
+}
+
+ShoshoniIndex = new Array();
+EnglishIndex = new Array();
+
+var Shortlist;
+
+//creates a shortened version of the database for debugging purposes
+function shortenEntries() {
+document.title = "Creating shortened database…";
+	var denom = Entries.length/shortlist_length;	//the shortlist_length variable is set with the other debugging variables above
+
+	for (i=0;i<30148;i++) {
+		Entries.splice(i,denom);
+	}
+document.title = "Shortened database complete.";
+}
+
+
+//-DISPLAY-----------------------------------------------------------------------------------------
+
+//displays all (or eventually just some) of the database entries on the page using the .disp element of each Entry object
+function showEntries(selection) {
+document.title = "Formatting dictionary entries…";
+	var give = "<nav id='ABC_nav'><a href='#a_index' title='Click to navigate to entries beginning with the letter A.'>A</a>&nbsp;<a href='#b_index' title='Click to navigate to entries beginning with the letter B.'>B</a>&nbsp;<a href='#c_index' title='Click to navigate to entries beginning with the letter C.'>C</a>&nbsp;<a href='#d_index' title='Click to navigate to entries beginning with the letter D.'>D</a>&nbsp;<a href='#e_index' title='Click to navigate to entries beginning with the letter E.'>E</a>&nbsp;<a href='#f_index' title='Click to navigate to entries beginning with the letter F.'>F</a>&nbsp;<a href='#g_index' title='Click to navigate to entries beginning with the letter G.'>G</a>&nbsp;<a href='#h_index' title='Click to navigate to entries beginning with the letter H.'>H</a>&nbsp;<a href='#i_index' title='Click to navigate to entries beginning with the letter I.'>I</a>&nbsp;<a href='#j_index' title='Click to navigate to entries beginning with the letter J.'>J</a>&nbsp;<a href='#k_index' title='Click to navigate to entries beginning with the letter K.'>K</a>&nbsp;<a href='#l_index' title='Click to navigate to entries beginning with the letter L.'>L</a>&nbsp;<a href='#m_index' title='Click to navigate to entries beginning with the letter M.'>M</a>&nbsp;<a href='#n_index' title='Click to navigate to entries beginning with the letter N.'>N</a>&nbsp;<a href='#o_index' title='Click to navigate to entries beginning with the letter O.'>O</a>&nbsp;<a href='#p_index' title='Click to navigate to entries beginning with the letter P.'>P</a>&nbsp;<a href='#q_index' title='Click to navigate to entries beginning with the letter Q.'>Q</a>&nbsp;<a href='#r_index' title='Click to navigate to entries beginning with the letter R.'>R</a>&nbsp;<a href='#s_index' title='Click to navigate to entries beginning with the letter S.'>S</a>&nbsp;<a href='#t_index' title='Click to navigate to entries beginning with the letter T.'>T</a>&nbsp;<a href='#u_index' title='Click to navigate to entries beginning with the letter U.'>U</a>&nbsp;<a href='#v_index' title='Click to navigate to entries beginning with the letter V.'>V</a>&nbsp;<a href='#w_index' title='Click to navigate to entries beginning with the letter W.'>W</a>&nbsp;<a href='#x_index' title='Click to navigate to entries beginning with the letter X.'>X</a>&nbsp;<a href='#y_index' title='Click to navigate to entries beginning with the letter Y.'>Y</a>&nbsp;<a href='#z_index' title='Click to navigate to entries beginning with the letter Z.'>Z</a></nav><a name='a_index' class='navlink'></a>";
+//	give += "<h3><a name='a_index' class=navlink></a><a href='#top' title='Click to return to the top'>— Aa —</a></h3>";	//the give variable is used to collect output data into a single string and pass it to the output_div's innerHTML
+	var ABCindex = ["a"];
+
+	//cycles through each Entry object and adds its .disp element to the string variable give
+	elen = Entries.length;
+	for (i=0;i<elen;i++) {
+		//creates search indexes while cycling through to avoid having to cycle through again in a separate function
+		ShoshoniIndex[i] = cleanup(Entries[i].shoshoni_lexeme);
+		EnglishIndex[i] = cleanup(Entries[i].english_gloss);
+
+		//creates the alphabetical dictionary index
+		if (ShoshoniIndex[i].charAt(0) != ABCindex[ABCindex.length-1]) {
+			var current_letter = ShoshoniIndex[i].charAt(0);
+//			alert(current_letter + " : " + ABCindex[ABCindex.length-1]);
+			ABCindex[ABCindex.length] = current_letter;
+			give += "<h3><a name='"+current_letter+"_index' class='navlink'></a><a href='#top' title='Click to return to the top of the page.'>— "+current_letter.toUpperCase()+current_letter+" —</a></h3>";
+		}
+
+		if (table_display) give += Entries[i].table_disp;
+		else give += Entries[i].block_disp;
+document.title = Math.floor((i/elen)*100) + "% complete";
+	
+	}
+
+	if (give.length > 1) output_div.innerHTML = give;
+	else output_div.innerHTML = "Database not found.";
+
+	entries_shown_div.innerHTML = Entries.length + " entries in dictionary";
+document.title = "Dictionary entries formatted.";
+}
+
+//-SEARCH------------------------------------------------------------------------------------------
+
+var search_while_typing = false;	//default is false; if this variable is true, the page performs a search with each keypress, which slows searching down significantly, but may be preferable for some users for certain types of morphological studies; the user can change this variable's value in the settings menu.
+var input_focus = true;
+
+//implements a delay so that searching begins only after user stops typing; although this puts a delay on the search function, because it is calling the function only once instead of each time a user types a letter, it actually produces faster searches for anything more than a single character.
+var type_delay;
+
+function waitToSearch() {
+	clearTimeout(type_delay);
+	type_delay = setTimeout("searchEntries()",300);
+}
+
+function searchEntries() {	//This function may look like it has lots of redundant code, but this was the only way to avoid a number of conditionals within the for loop, which would slow down the (already slow) search significantly
+document.title = "Searching…";
+	var search_term = search_inp.value;
+	document.title = "Searching for “" + search_term + "”…";
+	var DT_Elements = document.getElementsByTagName("dt");
+	var entries_shown_ref = 0;
+
+	//search behavior for whole words only
+	if (hidden_whole_words.checked == true) {
+		search_term = new RegExp("\\b"+search_term+"\\b","gim");
+
+		elen = Entries.length;
+		if (hidden_search_shh.checked == true && hidden_search_eng.checked == true) {
+			for (j=0;j<elen;j++) {
+				shh_cypher = Entries[j].shoshoni_lexeme;
+				eng_cypher = Entries[j].english_gloss;
+
+				//displays results and hides all other dictionary entries
+				if(shh_cypher.match(search_term)) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else if(eng_cypher.match(search_term)) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+
+				percent_complete = Math.round((j/elen)*100)
+				document.title = "Search is " + percent_complete + "% complete…";
+			}
+			document.title = "Search complete.";
+
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " entry" : " entries") + " in both Shoshoni and English";
+		}
+		else if (hidden_search_shh.checked == true) {
+			for (j=0;j<elen;j++) {
+				shh_cypher = Entries[j].shoshoni_lexeme;
+			
+				//displays results and hides all other dictionary entries
+				if(shh_cypher.match(search_term)) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+		
+				document.title = "Search is " + Math.round((j/elen)*100) + "% complete…";
+			}
+
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " result" : " results") + " in Shoshoni";
+
+			document.title = "Shoshoni search complete.";
+		}
+		else if (hidden_search_eng.checked == true) {
+			for (j=0;j<elen;j++) {
+				eng_cypher = Entries[j].english_gloss;
+		
+				//displays results and hides all other dictionary entries
+				if(eng_cypher.match(search_term)) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+		
+				document.title = "Search is " + Math.round((j/elen)*100) + "% complete…";
+			}
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " result" : " results") + " in English";
+
+			document.title = "English search complete.";
+		}
+	}
+	else if (search_term.match(/[^a-zA-Z]/) || hidden_whole_words.checked) { 	//if the search term includes any special characters (such as ü, for example), special characters are included to allow for more accurate search results
+		elen = Entries.length;
+		if (hidden_search_shh.checked == true && hidden_search_eng.checked == true) {
+			for (j=0;j<elen;j++) {
+				shh_cypher = Entries[j].shoshoni_lexeme;
+				eng_cypher = Entries[j].english_gloss;
+
+				//displays results and hides all other dictionary entries
+				if(shh_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else if(eng_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+
+				percent_complete = Math.round((j/elen)*100)
+				document.title = "Search is " + percent_complete + "% complete…";
+			}
+			document.title = "Search complete.";
+
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " entry" : " entries") + " in both Shoshoni and English";
+		}
+		else if (hidden_search_shh.checked == true) {
+			for (j=0;j<elen;j++) {
+				shh_cypher = ShoshoniIndex[j];
+			
+				//displays results and hides all other dictionary entries
+				if(shh_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+		
+				document.title = "Search is " + Math.round((j/elen)*100) + "% complete…";
+			}
+
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " result" : " results") + " in Shoshoni";
+
+			document.title = "Shoshoni search complete.";
+		}
+		else if (hidden_search_eng.checked == true) {
+			for (j=0;j<elen;j++) {
+				eng_cypher = EnglishIndex[j];
+		
+				//displays results and hides all other dictionary entries
+				if(eng_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+		
+				document.title = "Search is " + Math.round((j/elen)*100) + "% complete…";
+			}
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " result" : " results") + " in English";
+
+			document.title = "English search complete.";
+		}
+	}
+	else { //if the search term does not include special characters, they are not considered
+		search_term = cleanup(search_term);
+
+		elen = Entries.length;
+		if (hidden_search_shh.checked == true && hidden_search_eng.checked == true) {
+			for (j=0;j<elen;j++) {
+				shh_cypher = ShoshoniIndex[j];
+				eng_cypher = EnglishIndex[j];
+
+				//displays results and hides all other dictionary entries
+				if(shh_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else if(eng_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";	
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+			
+				document.title = "Search is " + Math.round((j/elen)*100) + "% complete…";
+			}
+			document.title = "Search complete.";
+
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " entry" : " entries") + " in both Shoshoni and English";
+		}
+		else if (hidden_search_shh.checked == true) {
+			for (j=0;j<elen;j++) {
+				shh_cypher = ShoshoniIndex[j];
+			
+				//displays results and hides all other dictionary entries
+				if(shh_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+		
+				document.title = "Search is " + Math.round((j/elen)*100) + "% complete…";
+			}
+
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " result" : " results") + " in Shoshoni";
+
+			document.title = "Shoshoni search complete.";
+		}
+		else if (hidden_search_eng.checked == true) {
+			for (j=0;j<elen;j++) {
+				eng_cypher = EnglishIndex[j];
+		
+				//displays results and hides all other dictionary entries
+				if(eng_cypher.indexOf(search_term) > -1) {
+					DT_Elements[j].style.display = "";
+					entries_shown_ref++;
+				}
+				else DT_Elements[j].style.display = "none";
+		
+				document.title = "Search is " + Math.round((j/elen)*100) + "% complete…";
+			}
+			entries_shown_div.innerHTML = entries_shown_ref + ((entries_shown_ref == 1) ? " result" : " results") + " in English";
+
+			document.title = "English search complete.";
+		}
+	}
+
+	if (entries_shown_ref < elen) {
+		H3_elements = document.getElementsByTagName("h3");
+		hlen = H3_elements.length;
+		for (k=0;k<hlen;k++) {
+			H3_elements[k].style.display = "none";
+		}
+		ABC_nav.style.display = "none";
+	}
+	else {
+		H3_elements = document.getElementsByTagName("h3");
+		hlen = H3_elements.length;
+		for (k=0;k<hlen;k++) {
+			H3_elements[k].style.display = "";
+		}
+		ABC_nav.style.display = "";
+	}
+
+	location.hash = "#top";
+	document.title = page_title;
+}
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//replaces small-caps (ᴀɪ,ɢ,ʜ,ɴ) and accented characters (ã,đ,ĕ,ɨ,ĭ,ñ,ō,ü,ŭ,û) and deletes non-alphabetic characters (such as hyphens, apostrophes, spaces, and underlining diacritics) for search purposes
+function cleanup(dirty) {
+//document.title = "Standardizing search term(s)…";
+	//replace capitalized characters
+	dirty = dirty.replace(/ᴀɪ/g,"ai");
+//	dirty = dirty.replace(/ɢ/g,"g");
+//	dirty = dirty.replace(/ʜ/g,"h");
+//	dirty = dirty.replace(/ɴ/g,"n");
+
+	//replace accented characters
+	dirty = dirty.replace(/[áàâãäāă]/ig,"a");
+	dirty = dirty.replace(/đ/ig,"d");
+	dirty = dirty.replace(/[éèêẽëēĕ]/ig,"e");
+	dirty = dirty.replace(/[íìîĩïĭīɨ]/ig,"i");
+	dirty = dirty.replace(/ñ/ig,"n");
+	dirty = dirty.replace(/[óòôõöōŏ]/ig,"o");
+	dirty = dirty.replace(/[úùûũüŭū]/ig,"u");
+
+	//eliminate non-alphabetic characters
+	dirty = dirty.replace(/[^a-zA-Z]/ig,"");
+	cleaned = dirty.toLowerCase();
+//	document.title = "Search term(s) standardized.";
+	return cleaned;
+}
+
+//-MENUS-------------------------------------------------------------------------------------------
+
+//places the information passed to the function through the msg variable into info_div's innerHTML and makes the DIV visible—used for help, about, and settings
+function inform(msg) {
+	//if there is no message, info_div is hidden instead
+	if (!msg || msg.length <= 0) {
+		info_div.style.top = "-500px";
+		info_div.style.opacity = "0";
+		setTimeout('info_div.innerHTML = "";',1000);
+	}
+	else { //otherwise, it is shown with the message
+		info_div.style.top = "50px";
+		info_div.style.opacity = "1";
+		info_div.innerHTML = msg;
+
+		if (msg == search_options) {
+			search_shh.checked = ((hidden_search_shh.checked == true)?true:false);
+			search_eng.checked = ((hidden_search_eng.checked == true)?true:false);
+			whole_words.checked = ((hidden_whole_words.checked == true)?true:false);
+		}
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+
+//checks to make sure the key pressed is not an arrow key
+function doKey(e) {
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
+	else alert("Your browser will not support typing outside of the text input area.");
+//	document.title = code;
+	
+	//if the key pressed is the ESC key, it closes any current dialog windows or, if the search input has focus, it clears the search and displays all entries
+	if (code == 27) {					//Esc key
+		inform();					//closes any active menus
+		if (input_focus) {				//clears the search box (if it has focus)
+			search_inp.value = "";
+			searchEntries();
+		}
+	}
+	else if (!input_focus) {
+		if (code == 49) inform(help);			//1 brings up the Help menu
+		else if (code == 50) inform(about);		//2 = About menu
+		else if (code == 51) inform(settings);		//3 = Settings menu
+		else if (code == 52) inform(search_options);	//4 = Search Options menu
+		else if (code == 191) {				//? focuses and clears the search bar
+			search_inp.value = "";
+			search_inp.focus();
+		}
+		else if (code >= 65 && code <= 90) {		//jumps to the letter key pressed (if focus is outside the search box)
+			if (code == 65) location.hash = "#top";
+			else location.hash = ("#" + String.fromCharCode(code) + "_index");
+		}
+	}
+	else if ((code < 35 || code > 40) && code != 16) {	//excludes arrow keys, Home, End, and Shift keys
+		if (input_focus) {
+			if (search_while_typing) searchEntries();
+			else waitToSearch();
+		}
+	}
+}
+
+</script>
+
+<!-- only shows up if the user's browser doesn't support JavaScript or if JavaScript is disabled -->
+
+</head>
+
+<!-- ========================================================================================== -->
+
+<body id='top' onLoad='init();' onKeyUp='doKey(event);' onResize='fixHeaderCSS(); document.title = page_title;'>
+
+<header>
+	<h1 id='header_1'>Newe Ta̲i̲kwappeh</h1>
+	<h2 id='header_2'>Shoshoni Dictionary</h2>
+
+	<div id='menu_div'>
+		<span style='position:absolute; top:0px;'>
+			<a class='menu' nohref onClick='inform(help);'>Help</a> | 
+			<a class='menu' nohref onClick='inform(about);'>About</a> | 
+			<a class='menu' nohref onClick='inform(settings);'>Settings</a>
+		</span>
+		<span style='position:absolute; right:10px;'> 
+			<a nohref onClick='search_inp.value = ""; search_inp.focus();'>
+				<img src='search.png' class='icon spin grow'>
+			</a>
+			<a class='menu' nohref onClick='inform(search_options);' title='Click to access search options.'>Search Options</a>
+			<br>
+			<input type='text' id='search_inp' placeholder='Type here to search' style='position:fixed;' onFocus='input_focus = true;' onBlur='input_focus = false;'></input>
+		</span>
+	</div>
+
+	<!-- used for the HELP and ABOUT displays -->
+	<div id='info_div'></div>
+
+	<div id='hidden_input_div' style='position:absolute; top:-5000px; left:-5000px;'>
+		<input type='checkbox' id='hidden_search_shh' checked>
+		<input type='checkbox' id='hidden_search_eng' checked>
+		<input type='checkbox' id='hidden_whole_words'>
+	</div>
+
+	<!-- only visible in debug mode -->
+	<div id='load_time_div' style='background-color:black; z-index:2; text-shadow: 0px 0px 5px black;' ></div>
+</header>
+
+<div id='entries_shown_div' style='font-weight:bold; position:absolute; top:115px; right:0px; z-index:-5;'></div>
+<div id='output_div'>
+	<!-- The following message is the default display if JavaScript is not enabled. -->
+<b>The dictionary may take a few moments to load.<br>
+To view and search the dictionary, you must enable JavaScript.</b><br><br>
+If it's been a few minutes and the page still hasn't loaded, you may need to change your settings or upgrade to a modern browser, such as <a href='https://www.google.com/intl/en/chrome/browser'>Google Chrome</a>.
+</div>
+
+</body>
+</html>
