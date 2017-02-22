@@ -1,7 +1,40 @@
 ﻿/*
-Make custom Alert(), Prompt(), and Confirm() dialog boxes
+TODO: Make custom Alert(), Prompt(), and Confirm() dialog boxes
 */
 
+/* Returns all individual characters from a string either
+ * sorted by frequency (default) or in lexicographical
+ * order (if the parameter `lexicographical` is true)
+ */
+function getCharacters(lexicographical) {
+	var chars = [],
+	    freqs = [],
+	    list = "",
+	    string = document.body.innerHTML,
+
+	string.split("")
+	.forEach(
+		function(char) {
+			var ref = chars.indexOf(char);
+			if (ref < 0) { // not already in the array
+				chars.push(char);
+				freqs.push( {char:char, freq:1} );
+			}
+			else { // already there
+				freqs[ref].freq++;
+			}
+		}
+	);
+
+	if (lexicographical) {
+		return chars.sort().join("<br>");
+	}
+
+	freqs.sort(function(a, b){return b.freq - a.freq}); // descending freq
+	chars = freqs.map(el => el.char + ":	" + el.freq);
+	console.log(freqs);
+	return chars.join("<br>");
+}
 
 /* Converts seconds into hh:mm:ss or "# days, # hours, # minutes, and # seconds" format */
 function timeDisp(seconds,longform) {
