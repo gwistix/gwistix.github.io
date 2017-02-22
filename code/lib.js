@@ -6,11 +6,11 @@ TODO: Make custom Alert(), Prompt(), and Confirm() dialog boxes
  * sorted by frequency (default) or in lexicographical
  * order (if the parameter `lexicographical` is true)
  */
-function getCharacters(lexicographical) {
+function getCharacters(string, lexicographical) {
 	var chars = [],
 	    freqs = [],
 	    list = "",
-	    string = document.body.innerHTML,
+	    string = string || document.body.innerHTML;
 
 	string.split("")
 	.forEach(
