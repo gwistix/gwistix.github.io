@@ -10,7 +10,7 @@ function getCharacters(string, lexicographical) {
 	var chars = [],
 	    freqs = [],
 	    list = "",
-	    string = string || document.body.innerHTML;
+	    string = string || document.body.innerHTML.replace(/<[^>]*>/g,"");
 
 	string.split("")
 	.forEach(

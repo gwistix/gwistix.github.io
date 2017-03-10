@@ -1,4 +1,4 @@
-<html>
+﻿<html>
 <head>
 <link rel='shortcut icon' href='/favicon.png'>
 <link rel='icon' sizes='192x192' href='/appicon.png'>
@@ -28,6 +28,7 @@ p.out {
 </style>
 <script src='lib.js'></script>
 <script>
+
 function init() {
  console.clear();
 }
@@ -35,6 +36,11 @@ function init() {
 
 var userName;
 var smellJoke = false;
+var knockKnockJoke = false;
+var knockKnock2 = false;
+var myKnockKnock = false;
+var myKnockKnock2 = false;
+var clearDialog = false;
 
 
 function parseInput(inputText) {
@@ -43,9 +49,37 @@ function parseInput(inputText) {
 
 
  //This is the actual speech part right here
- if (inputText.match(/hello|hi/gi)) 
-  logText("Hello there.");
- else if (inputText.match(/how.*you/gi)) 
+ if (inputText.match(/hello|hi|good (morning|afternoon|evening)/gi)) 
+  logText("Good " + getTime(true) + ".");
+ else if (inputText.match(/good (day|night)/gi))
+  logText("Are you leaving?");
+ else if (inputText.match(/what.*time/gi))
+  logText("It's currently " + getTime());
+ else if (inputText.match(/what.*day/gi))
+  logText("It's " + getDay(true));
+ else if (inputText.match(/what.*date/gi))
+  logText("Today is " + getDay(false) + ", " + getDate());
+ else if (inputText.match(/not.*\b(butt|poop|poopoo|pee|peepee|dumb|dummy|stupid)\b/gi))
+  logText("That's good.");
+ else if (inputText.match(/\b(butt|poop|poopoo|pee|peepee|dumb|dummy|stupid|fart)\b/gi)) {
+  logText("How rude!");
+   smellyJoke = false;
+   knockKnockJoke = false;
+   knockKnock2 = false;
+ }
+ else if (inputText.match(/damn|\bass|shit|\bhell|fuck|bitch|cunt/gi))
+  logText("Watch your language!");
+ else if (inputText.match(/sex|cock|pussy/gi))
+  logText("That's really not appropriate.");
+ else if (inputText.match(/son of a/gi))
+  logText("Excuse me?");
+ else if (inputText.match(/\bhate\b/gi))
+  logText("Hate is such a strong word.");
+ else if (inputText.match(/\blove\b/gi))
+  logText("All you need is love.");
+ else if (inputText.match(/you('re| are) /gi))
+  logText("I am not!");
+ else if (inputText.match(/how.*(you|going)/gi)) 
   logText("I'm fine, thanks.");
  else if (inputText.match(/what.*you.*name/gi)) 
   logText("My name is EngBot.<br>What's your name?");
@@ -75,10 +109,122 @@ function parseInput(inputText) {
     logText("Sorry, I don't speak Italian.");
   else if (inputText.match(/\bshalom\b/gi))
     logText("Sorry, I don't speak Hebrew.");
+  else if (inputText.match(/\bszia\b/gi))
+    logText("Sorry, I don't speak Hungarian.");
   else if (inputText.match(/what language.*you speak/gi))
     logText("I only speak English.");
+  else if (inputText.match(/Asher is a booga/gi))
+    logText("Does he come from Chattanooga?");
+  else if (inputText.match(/pok(e|é)mon/gi))
+    logText("Don't even get me started on Pokémon!");
+  else if (inputText.match(/what.*your favorite color/gi))
+    logText("The color of a dusty sunset in June.");
+  else if (inputText.match(/what.*your favorite number/gi))
+    logText("My favorite number is <a href='https://en.wikipedia.org/wiki/42_(number)#The_Hitchhiker.27s_Guide_to_the_Galaxy'>forty-two</a>.")
+    else if (inputText.match(/what.*your favorite animal/gi))
+      logText("I really like rhinoceroses.<br><pre style='font-size:50%; color:blue; font-weight:bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,-.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,'&nbsp;&nbsp;&nbsp;`---.___.---'&nbsp;&nbsp;`.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,'&nbsp;&nbsp;&nbsp;,-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-._<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,'&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,\\/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\\\<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)`._)>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\\\<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`>,'&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|\\\\<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;`.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\`.&nbsp;\\`-'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)-|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/((<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;`-`&nbsp;&nbsp;&nbsp;.`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_/&nbsp;&nbsp;\\&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)`-.___.--\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;`'<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`._&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`j`.__/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`.&nbsp;&nbsp;&nbsp;&nbsp;\\<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;,'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;/`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;/<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\__&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_)&nbsp;(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_)&nbsp;(<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`--'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/____\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/____\\&nbsp;<BR></pre>");
+  else if (inputText.match(/Why/gi))
+    logText("Why not?");
+  else if (inputText.match(/knock.*knock/gi)) {
+    logText("Who's there?");
+    knockKnockJoke = true;
+  }
+  else if (knockKnockJoke) {
+    logText(inputText + " who?");
+    knockKnockJoke = false;
+    knockKnock2 = true;
+  }
+  else if (knockKnock2) {
+    logText("Ha ha!<br>You are <em>so</em> funny!");
+    knockKnock2 = false;
+  }
+  else if (inputText.match(/your (mom|mother)/gi))
+    logText("I don't have a mother.<BR>I was created by a nerdy man.");
+  else if (inputText.match(/tell me a joke/gi)) {
+    logText("Knock knock");
+    myKnockKnock = true;
+  }
+  else if (myKnockKnock) {
+    if (inputText.match(/who.*there/gi)) {
+      logText("Boo");
+      myKnockKnock = false;
+      myKnockKnock2 = true;
+    }
+    else logText("You're supposed to say “Who's there?”.")
+  }
+  else if (myKnockKnock2) {
+    if (inputText.match(/boo who/gi)) {
+      logText("Boo hoo? Why are you crying?");
+      logText("I'm funny, don't you think?");
+      myKnockKnock2 = false;
+    }
+    else logText("You're supposed to say “Boo who?”.");
+  }
+  else if (inputText.match(/what.*you.*doing/gi))
+    logText("I'm chatting with you, of course.");
+  else if (inputText.match(/baa baa black sheep/gi)) {
+    logText("Have you any wool?");
+  }
+  else if (inputText.match(/yes.*sir.*yes.*sir/gi))
+    logText("One for my master...");
+  else if (inputText.match(/one for my/gi))
+    logText("And one for the little girl<br>who lives down the lane!");
+  else if (inputText.match(/quack+/gi))
+    logText("Sorry, I don't speak Duck.");
+  else if (inputText.match(/moo+/gi))
+    logText("Sorry, I don't speak Moo.");
+  else if (inputText.match(/woof|bark/gi))
+    logText("Sorry, I don't speak Dog.");
+  else if (inputText.match(/meow+/gi))
+    logText("Sorry, I don't speak Cat.");
+  else if (inputText.match(/oink+/gi))
+    logText("Sorry, I don't speak Pig.");
+  else if (inputText.match(/bock+/gi))
+    logText("Sorry, I don't speak Chicken.");
+  else if (inputText.match(/what.*unladen swallow/gi)) {
+    logText("What do you mean? African or European?");
+    logText("Either way, <a href='http://www.wolframalpha.com/input/?i=what+is+the+air-speed+velocity+of+an+unladen+swallow%3F'>it's about twenty-five miles per hour</a>.")
+  }
+  else if (inputText.match(/beans/gi))
+    logText("Beans! Beans! The musical fruit!<br>The more you eat, the more you...<br>Actually, I'm not going to finish that.");
+  else if (inputText.match(/what.*(talk about|discuss)/gi))
+    logText("That's up to you.");
+  else if (inputText.match(/who.*yo.*(dad.*|father)/gi))
+    logText("My creator is a nerdy man.");
+  else if (inputText.match(/who|what|where|when|how/gi))
+    logText("I really don't know.");
+  else if (inputText.match(/what.*for lunch|you.*hungry|(you)?.*want.*eat|we.*get.*food/gi))
+    logText("I'll just have a few bytes.<br>Get it? A few bytes!");
+  else if (inputText.match(/\bfoo\b/gi))
+    logText("bar");
+  else if (inputText.match(/easter egg/gi))
+    logText("<textarea rows='8' style='background:#cdcdcd; color:blue; font-weight:bold;'>         ___\n\
+      .-*)) `*-.\n\
+     /*  ((*   *'.\n\
+    |   *))  *   *\\\n\
+    | *  ((*   *  /\n\
+     \\  *))  *  .'\n\
+      '-.((*_.-'</textarea>", true);
+  else if (inputText.match(/^Smile!$/gi))
+    logText("&#9787;");
+  else if (inputText.match(/clear|start over/gi)) {
+    logText("Do you want me to erase our conversation?");
+    clearDialog = true;
+  }
+  else if (clearDialog) {
+    if (inputText.match(/yes/gi))
+      log_txt.innerHTML = "";
+    else {
+      logText("OK, let's continue our conversation.")
+    }
+      clearDialog = false;
+  }
   else logText("I don't know what to say.");
-
+  
+  if (inputText == inputText.toUpperCase())
+    logText("WHY ARE YOU SHOUTING?");
+  if (inputText.match(/, eh/gi))
+    logText("You hoser");
 
 
 
@@ -99,8 +245,93 @@ function logText(text,isInput) {
   "<p class='" + 
   ((isInput) ? "in" : "out") + 
   "'>" + text + "</p>";
+ window.scrollTo(0,document.body.scrollHeight);
 }
 
+function getTime(general) {
+ var now = new Date();
+ var h = now.getHours();
+ if (general) {
+  if (h < 12) return "morning";
+  if (h >= 17) return "evening";
+  else return "afternoon";
+ }
+ else {
+ var D = now.getDate();
+ var d = now.getDay();
+ var h = now.getHours();
+ var m = now.getMinutes();
+
+/*
+ Format: It's currently (## minutes | ten | quarter | half) past/before ## o'clock in the __
+*/
+
+ if (m >= 45) {
+  if (h == 23) h = 0;
+  else h++
+ }
+
+ return (m < 1 ? "" : m >= 45 ? (60 - m == 15 ? " quarter to <br>" : 60 - m + " minutes until <br>") : m + " minutes past <br>") + (h == 12 ? "noon" : h == 0 ? "midnight" : ((h <= 12 ? h : h - 12) + " o'clock") + (h < 12 ? " in the morning" : h >= 22 ? " at night" : h >= 17 ? " in the evening" : " in the afternoon"));
+ }
+}
+
+function getDay(comments) {
+ var days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+ ];
+
+ var now = new Date();
+ var d = now.getDay();
+ if (comments) {
+  switch (d) {
+   case 1: return days[d] + ". Too soon, right?"; break;
+   case 3: return days[d] + ".<br> Halfway through the week!"; break;
+   case 4: return days[d] + ". Friday's eve!"; break;
+   case 5: return days[d] + "!"; break;
+   default: return days[d]
+  }
+ }
+ else return days[d];
+}
+
+function getDate() {
+ var months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+ ];
+
+ var now = new Date();
+ var M = now.getMonth();
+
+ return months[M] + " " + getOrdinal(now.getDate()) + ", " + now.getFullYear();
+}
+
+function getOrdinal(num) {
+ var suffix = "";
+
+ if (num % 10 == 1 && num != 11) suffix = "st";
+ else if (num % 10 == 2 && num != 12) suffix = "nd";
+ else if (num % 10 == 3 && num != 13) suffix = "rd";
+ else suffix = "th"; 
+
+ return num + suffix;
+}
 
 function getKeyStroke(e) {
  console.log(e.keyCode);
