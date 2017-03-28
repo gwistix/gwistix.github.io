@@ -687,7 +687,7 @@ function help(newfont) {
 }
 
 function changeFont(newfont,verify) {
-	if (verify && !confirm("Switching the font to "+newfont+" should allow you to see these characters correctly.\n\nDo you want to switch the font?")) return;
+	if (document.body.style.fontFamily == newfont ||verify && !confirm("Switching the font to "+newfont+" should allow you to see these characters correctly.\n\nDo you want to switch the font?")) return;
 
 	Current("Changing the font");
 
@@ -906,6 +906,7 @@ DRAG
 		<option value='Hungarian'>Hungarian</option>
 		<option value='592-890'>IPA [aɪ.pʰiˈeɪ]</option>
 		<option value='12289-12542'>Japanese 日本語</option>
+		<option value='63696-63743-Constructium'>Klingon</option>
 		<option value='4352-4601'>Korean 한글</option>
 		<option value='44032-55295'>Korean extended</option>
 		<option value='192-382'>Latin accented</option>
