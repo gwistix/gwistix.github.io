@@ -62,8 +62,6 @@ function update()
     old = textarea.value;
     d.open();
     d.write(old);
-    if (old.replace(/[\r\n]/g,"") == defaultStuff.replace(/[\r\n]/g,""))
-      /*d.write(extraStuff);*/
     d.close();
   }
 
