@@ -107,14 +107,6 @@ body {
     src: url(../lib/fonts/FreeFont/FreeSerif.ttf);
 }
 
-/* Emojisymbols font © blockworks – Kenichi Kaneko
- * http://emojisymbols.com
- */
-@font-face {
-    font-family: EmojiSymbols;
-    src: url(../lib/fonts/EmojiSymbols/EmojiSymbols-Regular.woff);
-}
-
 </style>
 <script language=javascript>
 function init() {		//begins the set-up process of the page
@@ -275,6 +267,16 @@ furigana
 65383-65392
 */
 	}
+
+//Klingon=========================================================================KLINGON
+	else if (char_set.match("63696-63743")) { //Klingon
+		document.title = "Klingon Typetool | [ˈɡwɪs.tɪks]";
+		if (!confirm("Do you want to use predefined Klingon character conversions?\n(They may take a few moments to load)")) return;
+
+		Char_inp = new Array("ch",	"gh",	"ng",	"tlh",	"kl",	"cl",	"a",	"b",	"d",	"e",	"h",	"i",	"j",	"l",	"m",	"n",	"o",	"p",	"q",	"Q",	"r",	"s",	"t",	"u",	"v",	"w",	"y",	"'",	"0",	"1",	"2",	"3",	"4",	"5",	"6",	"7",	"8",	"9",	",",	"\\.",	"X");
+		Char_out = new Array("",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"");
+	}
+
 //Korean=======================================================================KOREAN
 	else if (char_set.match("4352-4601")) { //Korean
 		document.title = "Korean 한글 Typetool | [ˈɡwɪs.tɪks]";
