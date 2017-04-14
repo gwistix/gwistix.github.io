@@ -1,5 +1,4 @@
-﻿
-<html>
+﻿<html>
 <head>
 <title>[ˈɡwɪs.tɪks] Phonology Tool</title>
 <meta charset="UTF-8">
@@ -407,7 +406,7 @@ function help() {
 <!-- =================================================================================================== -->
 <!-- =================================================================================================== -->
 
-<body style='background-image:url(https://dl.dropboxusercontent.com/u/22964498/Web/gwistix%20background.jpg); background-attachment:fixed;' onLoad='init();' onMouseMove='followMouse(event);' onKeyPress='doKey(event);'>
+<body style='background-image:url(../lib/img/gwistix%20background.jpg); background-attachment:fixed;' onLoad='init();' onMouseMove='followMouse(event);' onKeyPress='doKey(event);'>
 
 <!-- TOOLBAR -->
 <div id=toolbar style='position:relative; top:0px; left:0px'>
@@ -416,9 +415,9 @@ function help() {
 <!--			<select onChange='alert("Options coming soon!");'>
 				<option value='Home' disabled="disabled">Home</option>
 				<option value='Tools' selected=true>Tools</option>
-			</select> › --><select onChange='if (this.value == "OmniType") window.location = "type.html"; else if (this.value == "Phonology") window.location = "phonology.html"; else if (this.value == "IPA Chart") window.location = "chart.html"; else if (this.value == "Sonority") window.location = "sonority.html";'>
+			</select> › --><select onInput='if (this.value == "OmniType") window.location = "index.html"; else if (this.value == "Phonology") window.location = "phonology.html"; else if (this.value == "IPA Chart") window.location = "chart.html"; else if (this.value == "Sonority") window.location = "sonority.html";'>
 				<option value="OmniType">OmniType</option>
-				<option value="Phonology">Phonology Tool</option>
+				<option value="Phonology" selected>Phonology Tool</option>
         <option value="IPA Chart">IPA Chart</option>
 				<option value="Sonority">Sonority Profiler</option></select>&nbsp;
 			<input type="button" onClick='vertical_list = (vertical_list) ? false : true; displaySegments();' value="Switch direction"> 
