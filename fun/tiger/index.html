@@ -1,0 +1,415 @@
+﻿<html>
+<head>
+<title>Feeding time</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+body {background:#188e00 url('http://bgfons.com/upload/grass_texture240.jpg'); overflow:hidden;}
+rt {font-size:12px; -webkit-filter: drop-shadow(0px 1px 5px rgba(0,0,0,0.5));}
+img {vertical-align:middle;}
+td.control {opacity:0.5; font-size:20; text-align:center; width:20; background-color:#cdcdcd; border:3px groove #cdcdcd; font-weight:bold; cursor:hand;}
+.bunny {font-size:12px; text-align:center; color:white; /*background-color:pink;*/ position:absolute; z-index:-1; transition: all 1s ease-out;}
+.bush {position:absolute; z-index:2; -webkit-filter: drop-shadow(0px 10px 30px rgba(0,0,0,0.5));}
+.shadow {-webkit-filter: drop-shadow(0px 10px 25px rgba(0,0,0,0.5));}
+.cloud {visibility:visible; position:absolute; -webkit-filter: drop-shadow(0px 300px 25px rgba(0,0,0,0.5)); z-index:900;}
+#cloud_1 {transition: all 20s ease;}
+#cloud_2 {transition: all 15s ease;}
+#cloud_3 {transition: all 10s ease;}
+#tiger_div {font-size:12px; color:orange; /*background-color:black;*/ position:absolute; z-index:1; text-shadow:0px 5px 25px black; //transition:all 1s ease;}
+#output {opacity:0.75; text-align:right; z-index:5; position:absolute; top:0; right:0;}
+#counter_span {color:black; background-color:white; border:5px solid white; border-radius: 0px 0px 5px 10px; transition:all 1s ease;}
+#log_txt {color:green; background-color:black; visibility:hidden;}
+#controls {position:absolute; bottom:0; margin-left:auto; margin-right:auto; z-index:1000;}
+#tiger_belly {opacity:0.8; color:black; background-color:pink; border:3px solid black; position:absolute; bottom:0; right:0; z-index:1000;}
+
+</style>
+<script>
+//🐯🐰🐝👻🐇🐸🐺🐻🐾👮
+//🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛
+//🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧
+//🌲 🌳 🌴 🌵 🌷🐂 🐄  🐎  🐑 🐐 🐓 🐔 🐤 🐣 🐥 🐗 🐖 🐷 ☁️🍔 🍕 🍖 💫
+//🏠 🏡 🏢 🏬  🏣 🏤 🏥 🏦 🏨 ⛪️ 🏪 🏫📱 💻 📧🔒 🔓🔉  🔇 💤🔄➕ ➖ 🔍⚠️💢
+/*
+Game overview:
+You are a tiger living in the zoo. Your favorite thing to eat is bunnies. Unfortunately, the zoo's bunny supplier is on strike, and the zoo only has 5 bunnies left to feed you.
+Level 1: You chase down and eat all five of the bunnies in your enclosure. After eating all five bunnies, you get hungry for more, so when they come to clean your cage, you escape and start heading away from the zoo.
+Level 2: While running away from the zoo, you find a quiet community garden full of bunnies hiding in the bushes. The zookeeper followed you there, so avoid getting caught while you eat all the bunnies. If the zookeeper catches you, he (or she) will take you back to the zoo.
+Level 3: After eating all the bunnies in the community garden, you keep moving toward the edge of town and find a small farmyard full of bunnies. The farmyard also has bees. Eat all the bunnies and avoid the bees. If you get stung five times, you'll pass out from the pain and the zookeeper will catch you.
+Level 4: After the farmyard, you keep moving and find a meadow filled with bunnies. And bees. And frogs. Stay away from the bees, and don't eat the frogs—they'll make you sick. Each time you eat a frog, it makes you throw up, and the zookeeper gets an extra second or two to try to catch you.
+Level 5: You've made it to the edge of the forest. There are plenty of bunnies hiding in the bushes and behind logs. There are also bees, frogs, and porcupines! The porcupines will poke you if you get too close, and that slows you down. Watch out for the zookeeper, too. He (or she) called a few friends; they'll be hiding throughout the level trying to catch you before you make it into the deep forest.
+Once you pass level five, you are in the deep forest. The zookeeper and his friends give up and go home. You have won the game.
+ */
+
+var scale = 50;
+var debug = false;
+var freeze = false;
+var tick = 1000;
+
+var count = 0;
+
+function init() {
+	if (debug) {
+		log_txt.style.visibility = "visible";
+		document.body.style.background = "#188e00";
+	}
+	document.body.style.backgroundSize = window.innerWidth+"px " + window.innerHeight+"px";
+//	var Tiger = new Character("Tiger","tiger",0,0,"tiger_div","🐯");
+	//alert(Tiger.name + "\n\n" + Tiger.move);
+
+	generateBunnies();
+
+	tiger_belly.style.fontSize = scale/2;
+
+	placeBushes();
+
+	moveClouds();
+
+	counter = window.setInterval("ticktock()",tick);
+}
+
+var Directions = ["up","down","left","right"];
+var Rotations = [180,0,90,270];
+
+//Creates new Character objects, used for the tiger, the bunnies, and all other characters
+function Character(name,type,x,y,div,disp) {
+	if (debug) inform("OK@Character("+name+","+type+","+x+","+y+","+div+","+disp+")");
+	this.name = name;
+	this.type = type;
+	this.x = x;
+	this.y = y;
+	this.facing = 1;
+	this.div = document.getElementById(div);
+		this.div.innerHTML = disp;
+		this.div.style.fontSize = scale;
+	this.disp = disp;
+	this.card = "<table style='background-color:white;' border=1><td>"+disp+" "+name+"<br>is at ("+x+","+y+")<br>facing "+Directions[this.facing]+".</span></td></table>";
+//	if (debug) inform(this.card);
+
+	this.update = function() {
+//		if (debug) inform("Updating "+this.name);
+		this.div.style.left = this.x;
+		this.div.style.top = this.y;
+			this.div.style.transition = "all 0s ease";//"+tick/2000+"s ease-out";
+			if (this.type == "dead") this.div.style.zIndex = -5;
+			else this.div.style.zIndex = this.y;
+			if (debug) this.div.innerHTML = this.disp + "<sup><small>"+this.div.style.zIndex+"</small></sup><sub><small>("+this.x+","+this.y+")</small></sub>";
+//		this.div.style.transform = "rotate("+Rotations[this.facing]+"deg)";
+		this.card = "<table style='background-color:white;' border=1><td>"+this.disp+" "+this.name+"<br>is at ("+this.x+","+this.y+")<br>facing "+Directions[this.facing]+".</span></td></table>";
+	};
+
+	this.move = function (direction) {
+		/*If the character is already facing that direction, it is moved that direction; 
+		 * otherwise, it is faced that direction.
+		 */
+		if (debug) inform("Moving "+this.name+" "+direction);
+		if (direction == "up") {
+			if (Directions[this.facing] === "up" && this.y > 0) {this.y -= scale;}
+			this.facing = 0;
+		}
+		else if (direction == "down") {
+			if (Directions[this.facing] === "down" && this.y < (window.innerHeight-scale)) {this.y += scale;}
+			this.facing = 1;
+		}
+		else if (direction == "left") {
+			if (Directions[this.facing] === "left" && this.x > 0) {this.x -= scale;}
+			this.facing = 2;
+		}
+		else if (direction == "right") {
+			if (Directions[this.facing] === "right" && this.x < (window.innerWidth-scale)) {this.x += scale;}
+			this.facing = 3;
+		}
+		this.update();
+	};
+}
+
+var Bunnies = [];
+var BunnyNames = ["", "Peter", "Flopsy", "Mopsy", "Cottontail", "Thumper"];
+var bunnies = 5;
+
+//Generates the number of Bunny characters specified in the variable `bunnies` and places them in random locations
+function generateBunnies() {
+	if (debug) inform("OK@generateBunnies()");
+	for (i=0;i<=bunnies;i++) {
+		if (i==0) Bunnies[i] = new Character("Tony","tiger",0,0,"tiger_div","🐯");	//<img src='bead tiger.png' width='"+scale+"'>
+		else {
+		var name = "bunny"+(i-1);
+		if (debug) inform("OK@generate "+name);
+		Xref = Random()*window.innerWidth;
+		Yref = Random()*window.innerHeight;
+		x = (Xref-(scale*0.5))-((Xref-(scale*0.5))%scale);
+		y = (Yref-(scale*0.75))-((Yref-(scale*0.75))%scale);
+/*
+<img src='http://piskel-imgstore-b.appspot.com/img/d8c3b63a-e9d2-11e4-a8f4-4f7c849fab45.gif' width='"+scale+"'>
+*/
+		Bunnies[i] = new Character(name,"bunny",x,y,name+"_div","<ruby><img src='bead%20bunny.png' width='"+scale+"'><rt>"+BunnyNames[i]+"</rt></ruby>");
+		}
+		Bunnies[i].hop = function(direction){
+//			if (debug) inform("OK@hop()");
+			if (!direction) direction = Random(4);
+			Bunnies[i].move(Directions[direction]);
+		}
+		Bunnies[i].update();
+	}
+}
+
+//Creates and returns a rounded random number with the specified range and starting index
+function Random(range,start) {
+	if (!range || range <= 1) return Math.random();
+	else {
+		start = start || 0;
+		randomNumber = Math.floor(Math.random()*range)+start;
+		return randomNumber;
+	}
+}
+
+function ticktock() {
+	count++;
+	counter_span.innerHTML = "&nbsp;"+timeDisp(true)+"&nbsp;";
+	if (!freeze) {
+		moveClouds();
+		if (eaten < bunnies) hopAround();
+		else Bunnies[0].style.transform = "rotate(0deg)";
+	}
+}
+
+//Converts seconds to "hh:mm:ss" or "days, hours, minutes, and seconds" (longform) format
+function timeDisp(longform) {
+
+	d = Math.floor(count/86400)%7;
+	h = Math.floor(count/3600)%24;
+	m = Math.floor(count/60)%60;
+	s = count%60;
+
+	if (longform) {
+		if (d == 0) {d_disp = "";}
+		else {d_disp = d + " day" + ((d==1)?"":"s") + (((h>0&&(m>0||s>0)) || (m>0&&s>0))?", ":"") + (((h==0&&m==0&&s>0) || (h==0&&m>0&&s==0) || (h>0&&m==0&&s==0))?" and ":"");}
+
+		if (h == 0) {h_disp = "";}
+		else {h_disp = h + " hour" + ((h==1)?"":"s") + ((d>0&&((m>0&&s==0)||(m==0&&s>0)))?", and ":"") + ((d==0&&m>0&&s==0)?" and ":"") + ((m>0&&s>0)?", ":"");}
+
+		if (m == 0) {m_disp = "";}
+		else {m_disp = m + " minute" + ((m==1)?"":"s") + (((d>0||h>0)&&s>0)?",":"") + ((s>0)?" and ":"");}
+
+		if (s == 0) {s_disp = "";}
+		else {s_disp = s + " second" + ((s==1)?"":"s");}
+
+		return d_disp + h_disp + m_disp + s_disp;
+	}
+	else return addLeadingZeroes(h)+":"+addLeadingZeroes(m)+":"+addLeadingZeroes(s);
+}
+
+function addLeadingZeroes(num) {
+	if (num<10) return "0" + num;
+	else return num;
+}
+
+function hopAround() {
+	for (i=1;i<=bunnies;i++) {
+		if (Bunnies[i].type != "dead") Bunnies[i].hop();
+	}
+//	checkContact();
+	inform(Bunnies[0].card + "<BR>" + Bunnies[0].card + "<BR>" + Bunnies[1].card + "<BR>" + Bunnies[2].card + "<BR>" + Bunnies[3].card + "<BR>" + Bunnies[4].card);
+}
+
+function moveTiger(dir) {
+	if (dir == "up") {
+		Bunnies[0].div.style.transform = "rotate(180deg)";
+		if (Bunnies[0].y > 0) Bunnies[0].y -= scale;
+	}
+	else if (dir == "right") {
+		Bunnies[0].div.style.transform = "rotate(270deg)";
+		if (Bunnies[0].x < (window.innerWidth-(scale*2))) Bunnies[0].x += scale;
+	}
+	else if (dir == "down") {
+		Bunnies[0].div.style.transform = "rotate(0deg)";
+		if (Bunnies[0].y < (window.innerWidth-(scale*2))) Bunnies[0].y += scale;
+	}
+	else if (dir == "left") {
+		Bunnies[0].div.style.transform = "rotate(90deg)";
+		if (Bunnies[0].x > 0) Bunnies[0].x -= scale;
+	}
+
+	Bunnies[0].update();
+//	if (eaten < 5) checkContact();
+}
+
+var eaten = 0;
+
+function checkContact() {
+	inform("OK@checkContact()");
+	for (i=1;i<=bunnies;i++) {
+		if (Bunnies[i].type != "dead" && Bunnies[i].x == Bunnies[0].x && Bunnies[i].y == Bunnies[0].y) {
+			eaten++;
+			Bunnies[i].type = "dead";
+			Bunnies[i].update();
+			Bunnies[i].div.innerHTML = "💀";
+			Bunnies[i].div.style.opacity = "0.5";
+			tiger_belly.innerHTML += "<s>"+Bunnies[i].disp+"</s>";//"<s>🐇</s> ";
+
+		}
+	}	
+	if (eaten == bunnies) alert("You ate all the bunnies!\nIt took you "+timeDisp(true)+"!");
+	inform("OK after checkContact()");
+}
+
+function moveClouds() {
+if (debug) inform("OK@moveClouds()");
+	if (count%20 == 0 || count < 2) {
+		if (debug) inform("moving cloud 1");
+		cloud_1.style.top = Math.floor(Math.random()*window.innerHeight)-(cloud_1.offsetHeight/2);
+		cloud_1.style.left = Math.floor(Math.random()*window.innerWidth)-(cloud_1.offsetWidth/2);
+		cloud_1.style.zIndex = 1000;
+//		resizeref = Math.floor(Math.random()*50)+"%";
+//		cloud_1_img.style.width = resizeref;
+		if (debug) cloud_1.innerHTML += "<span style='background-color:white;'>("+cloud_1.style.left+","+cloud_1.style.top+") "+cloud_1.offsetWidth+"</span><br>";
+	}
+	if (count%15 == 0 || count < 2) {
+		if (debug) inform("moving cloud 2");
+		cloud_2.style.top = Math.floor(Math.random()*window.innerHeight)-(cloud_2.offsetHeight/2);
+		cloud_2.style.left = Math.floor(Math.random()*window.innerWidth)-(cloud_2.offsetWidth/2);
+		cloud_2.style.zIndex = 1000;
+//		resizeref = Math.floor(Math.random()*50)+"%";
+//		cloud_2_img.style.width = resizeref;
+	}
+	if (count%10 == 0 || count < 2) {
+		if (debug) inform("moving cloud 3");
+		cloud_3.style.top = Math.floor(Math.random()*window.innerHeight)-(cloud_3.offsetHeight/2);
+		cloud_3.style.left = Math.floor(Math.random()*window.innerWidth)-(cloud_3.offsetWidth/2);
+		cloud_3.style.zIndex = 1000;
+//		resizeref = Math.floor(Math.random()*50)+"%";
+//		cloud_3_img.style.width = resizeref;
+	}
+
+}
+
+BushImages = [
+	"bush.png",
+	"shrub.png",
+	"http://vignette4.wikia.nocookie.net/hiddenchronicles/images/e/e5/Marketplace_Bush_3-icon.png/revision/latest?cb=20120310002116",
+	"poky%20bush.png",
+	"hydrangea.png"
+];
+
+function placeBushes() {
+
+	for (i=1;i<=10;i++) {
+		if (debug) inform("Growing bush"+i);
+		var sizeref = (scale*1.5)+Random(2.5*scale);
+		if (debug) inform(sizeref);
+		div = document.getElementById("bush_"+i);
+		Xref = Math.round(Math.random()*(window.innerWidth-100));
+		Yref = Math.round(Math.random()*(window.innerHeight-100));
+		div.style.left = (Xref-(sizeref/2))-((Xref-(sizeref/2))%scale);
+		div.style.top = (Yref-(sizeref/2))-((Yref-(sizeref/2))%scale);
+		div.style.zIndex = parseInt(div.style.top) + (div.offsetHeight*0.75);
+			if (!div.style.zIndex) div.style.zIndex = parseInt(div.style.top);
+//			alert(div.style.top + ":" + div.offsetHeight);
+		div.style.border = "1 px solid blue;"
+		div.innerHTML = "<img src='"+BushImages[Random(BushImages.length)]+"' width='"+sizeref+"'>"+((debug)?("#"+i+":"+div.style.zIndex):"");
+		inform(div.innerHTML);
+	}
+
+	cloud_1.style.zIndex = 100;
+}
+
+var Messages = [];
+
+function inform(msg) {
+	if (debug) log_txt.innerHTML = msg + "<br>" + log_txt.innerHTML.substring(0,500);
+	else log_txt.innerHTML = msg;
+}
+
+function doKey(e) {
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
+	else alert("Please use the on-screen controls to move your tiger.");
+
+	key = String.fromCharCode(code);
+	inform(key + ":" + code);
+
+	/* KEYCODES for onKeyDown (not the same as onKeyPress!)
+	 *	12	numpad 5 w/ numlock off
+	 *	17	CTRL (right OR left)
+	 *	32	SPACE
+	 */
+
+	if (code == 82 /*R*/) location.reload(false);
+	else if (code == 12 || code == 17 || code == 32 || code == 45 || code == 96 /*numpad 0 w/ numlock*/ || code == 101 /*numpad 5 w/ numlock*/) checkContact();
+	else if (code == 38 /**/ || code == 87 /**/ || code == 104 /**/) moveTiger("up");
+	else if (code == 40 /**/ || code == 83 /**/ || code == 98 /**/) moveTiger("down");
+	else if (code == 37 /**/ || code == 65 /**/ || code == 100 /**/) moveTiger("left");
+	else if (code == 39 /**/ || code == 68 /**/ || code == 102 /**/) moveTiger("right");	
+}
+
+function doClick(e) {
+	inform("OK@doClick()");
+	x = e.clientX;
+	y = e.clientY;
+inform("("+x+","+y+")");
+	diffX = x - Bunnies[0].x;
+	diffY = y - Bunnies[0].y;
+inform("X-difference: "+diffX+"; Y-difference: "+diffY);
+	distX = Math.abs(diffX);
+	distY = Math.abs(diffY);
+inform("X-distance: "+distX+"; Y-distance: "+distY+")");
+inform("("+x+","+y+")<br>"+diffX + ":" + diffY+"<br>"+distX+":"+distY);
+	if (distX > distY) {
+		if (diffX > 0) moveTiger("right");
+		else moveTiger("left");
+	}
+	else if (distY > distX) {
+		if (diffY > 0) moveTiger("down");
+		else moveTiger("up");
+	}
+	checkContact();
+}
+
+</script>
+</head>
+
+<body onLoad='init();' onKeyDown='doKey(event);' onClick='doClick(event);'>
+
+<div id=tiger_div>🐯</div>
+<div class='bunny' id='bunny0_div' style='color:#996633;'><ruby>🐰<rt>Peter</rt></ruby></div>
+<div class='bunny' id='bunny1_div' style='color:black;'><ruby>🐰<rt>Flopsy</rt></ruby></div>
+<div class='bunny' id='bunny2_div' style='color:#663300;'><ruby>🐰<rt>Mopsy</rt></ruby></div>
+<div class='bunny' id='bunny3_div'><ruby>🐰<rt>Cottontail</rt></ruby></div>
+<div class='bunny' id='bunny4_div' style='color:gray;'><ruby>🐰<rt>Thumper</rt></ruby></div>
+
+<div id=output>
+	<span id='counter_span' class='shadow'>⚠️ Javascript isn't working!</span><br>
+	<span id='log_txt'></span>
+</div>
+
+<div id=controls>
+	<table>
+		<tr>
+			<td></td>
+			<td class='control' onClick='moveTiger("up");'>↑</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td class='control' onClick='moveTiger("left");'>←</td>
+			<td class='control' onClick='moveTiger("down");'>↓</td>
+			<td class='control' onClick='moveTiger("right");'>→</td>
+		</tr>
+	</table>
+</div>
+
+<div id=tiger_belly></div>
+
+<!-- http://pngimg.com/upload/cloud_PNG8.png -->
+<div class='cloud' id=cloud_1><img id='cloud_1_img' src='cloud.png' width='50%'></div>
+<div class='cloud' id=cloud_2><img id='cloud_2_img' src='cloud.png' width='50%'></div>
+<div class='cloud' id=cloud_3><img id='cloud_3_img' src='cloud.png' width='50%'></div>
+
+<div class='bush' id=bush_1><img id='bush_1_img' src='http://img2.wikia.nocookie.net/__cb20120310001812/hiddenchronicles/images/2/2a/Marketplace_Bush_2-icon.png'></div>
+<div class='bush' id=bush_2><img id='bush_2_img' src='http://th03.deviantart.net/fs71/PRE/i/2014/162/3/8/hydrangea_bush___by_alz_stock-d7lwdoy.png'></div>
+<div class='bush' id=bush_3><img id='bush_3_img' src='http://vignette1.wikia.nocookie.net/hiddenchronicles/images/e/e0/Marketplace_Bush_4-icon.png/revision/latest?cb=20120310002138'></div>
+<div class='bush' id=bush_4><img id='bush_4_img' src='http://vignette1.wikia.nocookie.net/hiddenchronicles/images/e/e0/Marketplace_Bush_4-icon.png/revision/latest?cb=20120310002138'></div>
+<div class='bush' id=bush_5><img id='bush_5_img' src='http://img2.wikia.nocookie.net/__cb20120310001812/hiddenchronicles/images/2/2a/Marketplace_Bush_2-icon.png'></div>
+<div class='bush' id=bush_6><img id='bush_6_img' src='http://vignette4.wikia.nocookie.net/hiddenchronicles/images/e/e5/Marketplace_Bush_3-icon.png/revision/latest?cb=20120310002116'></div>
+<div class='bush' id=bush_7><img id='bush_7_img' src='http://castlevilleclub.altervista.org/wp-content/uploads/2013/02/Bush_02_Icon.png'></div>
+<div class='bush' id=bush_8><img id='bush_8_img' src='http://img2.wikia.nocookie.net/__cb20120310001812/hiddenchronicles/images/2/2a/Marketplace_Bush_2-icon.png'></div>
+<div class='bush' id=bush_9><img id='bush_9_img' src='http://img2.wikia.nocookie.net/__cb20120310001812/hiddenchronicles/images/2/2a/Marketplace_Bush_2-icon.png'></div>
+<div class='bush' id=bush_10><img id='bush_10_img' src='http://th03.deviantart.net/fs71/PRE/i/2014/162/3/8/hydrangea_bush___by_alz_stock-d7lwdoy.png'></div>
