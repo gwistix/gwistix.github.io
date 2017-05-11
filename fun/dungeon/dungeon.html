@@ -1,0 +1,302 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {}
+
+section {
+ border:1px solid black
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+var characters = [];
+var highestLevel = 0;
+var highestGold = 0;
+var gameOver = false;
+
+function init() {
+ console.clear();
+ pseudos();
+// addCharacter("Gorbash","Dragon",20, new Item("Fiery breath",10,0));
+ addCharacter();
+ addCharacter();
+ addCharacter();
+ addCharacter();
+ addCharacter();
+
+ console.log("");
+ console.log("Characters:");
+ characters.forEach(function(element){console.log(element.getInfo())});
+
+ console.log("");
+ console.log("Monsters:");
+ monsters.forEach(function(element){console.log(element.toString())});
+
+ console.log("");
+ console.log(getRandomMonster().toString());
+
+ while (!gameOver) {
+  characters.forEach(function(character){character.takeTurn()});
+ }
+}
+
+function addCharacter(_name, _race, _level, _weapon) {
+ characters.push(new Character(_name, _race, _level, _weapon));
+}
+
+var names = [
+ "Fred",
+ "Nancy",
+ "Bill",
+ "Joe",
+ "Jane",
+ "Friendly",
+ "Fleeblehoff",
+ "Slim",
+ "Smiley"
+];
+
+var races = [
+ "Human",
+ "Orc",
+ "Elf",
+ "Dwarf",
+ "Goblin"
+];
+
+/* Parameters:
+ * _name  -  string
+ * _race  -  string or int
+ * _level -  int
+ * _weapon - object
+ */
+function Character(_name, _race, _level, _weapon) {
+ this.name = _name || getRandomName();
+ this.race = (typeof _race == "number") ? races[_race] : _race || getRandomRace();
+ this.level = _level || getRandomLevel();
+ this.weapon = _weapon || getRandomItem();
+ this.gold = 0;
+
+ this.getInfo = function() {
+  return `${this.name} is a level-${this.level} ${this.race} with a ${this.weapon.toString()}, ${this.gold == 0 ? "no" : this.gold} gold, and an attack power of ${(this.level + this.weapon.bonus)}.`;
+ };
+
+ this.getAttackPower = function() {
+  return this.level + this.weapon.bonus;
+ };
+
+ this.levelUp = function() {
+  this.level++;
+  printLn(`<h3>${this.name} leveled up!</h3>`);
+  if (this.level > highestLevel) {
+   highestLevel = this.level;
+   printLn(`<h2>${this.name} is now the highest-level character!</h2>`);
+  }
+  if (this.level >= 10) {
+   winGame(this);
+  }
+ };
+
+ this.getTreasure = function(rolls) {
+  var dieRoll = roll(rolls);
+  if (dieRoll == 5 || dieRoll == 6) {
+   var newItem = getRandomItem();
+   printLn(`${this.name} found a new ${newItem}!`);
+   var newerIsBetter = newItem.bonus > this.weapon.bonus;
+   if (newerIsBetter) {
+    printLn(`${this.name} traded the old ${this.weapon} for the new ${newItem}`);
+    this.weapon = newItem;
+   }
+   else {
+    printLn(`${this.name} decided to keep the ${this.weapon}.`);
+   }
+  }
+  else if (dieRoll == 1) {
+   printLn(`🙁 There was no treasure in the room!`);
+  }
+  else {
+   this.gold += dieRoll;
+   printLn(`💰 ${this.name} got ${dieRoll} gold!`);
+   if (this.gold > highestGold) {
+    highestGold = this.gold;
+    printLn(`<h2>${this.name} now has the most gold!</h2>`);
+   }
+   if (this.gold >= 20) {
+    winGame(this);
+   }
+  }
+ }
+ 
+ this.takeTurn = function() {
+  printLn(this.getInfo());
+  printLn(`🚪 ${this.name} opens a door...`);
+  var monster = getRandomMonster();
+  printLn(`Inside is a ${monster}`);
+  var playerWins = this.getAttackPower() > monster.level;
+  printLn(`${playerWins ? "" : "😱 "}${this.name} ${playerWins ? "beats" : "can't beat"} the ${monster.type}!`);
+  if (monster.type == "Unicorn") {
+   printLn(`The ${monster.type} grants ${this.name} a wish!`);
+   this.getTreasure(monster.treasure);
+  }
+  else if (playerWins) {
+   printLn(`💀 The ${monster.type} is dead!`);
+   this.levelUp();
+   this.getTreasure(monster.treasure);
+   printLn(`Now, ${this.getInfo()}`);
+  }
+  else {
+   printLn(`${this.name} runs away!`);
+  }
+  printLn(`${this.name}'s turn is over.<hr>`);
+ };
+}
+
+
+var monsters = [
+ new Monster("Unicorn",	Infinity,	2,	"🦄"),
+ new Monster("Bunny rabbit",	0,	1,	"🐇"),
+ new Monster("Spider",	1,	1,	"🕷️"),
+ new Monster("Rat",	2,	1,	"🐀"),
+ new Monster("Snake",	3,	1,	"🐍"),
+ new Monster("Bat",	4,	1,	"🦇"),
+ new Monster("Swarm of Bees",	5,	1,	"🐝"),
+ new Monster("Wolf",	6,	1,	"🐺"),
+ new Monster("Zombie",	8,	1,	"🤢"),
+ new Monster("Beast",	12,	1,	"🐗"),
+ new Monster("Dragon",	20,	1,	"🐲"),
+];
+
+function Monster(_type, _level, _treasure, _icon) {
+ this.type = _type;
+ this.level = _level;
+ this.treasure = _treasure || 1;
+ this.icon = _icon || "";
+ this.toString = function() {
+  return `level-${this.level == Infinity ? "∞" : this.level} ${this.type} <span class='center' style='font-size:2in'>${this.icon}</span>`;
+ }
+ console.log(this.toString());
+}
+
+var itemTypes = [
+ "Non-carried",
+ "One-handed",
+ "Two-handed",
+ "Headgear",
+ "Armor",
+ "Footgear"
+];
+
+/* This will be used for weapons, and could later
+ * be used for other items as well (armor, etc.)
+ * 
+ * Parameters:
+ * _name - string
+ * _bonus - int
+ * _type - int or string:
+ *       0 - generic non-carried item (e.g., magical item, curse, belt, minion, etc.)
+ *       1 or undefined - one-handed item
+ *       2 - two-handed item
+ *       3 or "headgear" - headgear
+ *       4 or "armor" - armor
+ *       5 or "footgear" - footgear
+ */
+function Item(_name, _bonus, _type) {
+ this.name = _name;
+ this.bonus = _bonus;
+ if (_type == undefined) _type = 1;
+ this.type = (typeof _type == "number") ? _type :
+             (_type == "headgear") ? 3 :
+             (_type == "armor") ? 4 :
+             (_type == "footgear") ? 5 :
+             1;
+ this.toString = function() {
+  return `+${this.bonus} ${this.name}`;
+ };
+ console.log("New Item:", this.name, this.bonus, this.type);
+}
+
+var items = [
+ new Item("No items",	0,	0),
+ new Item("Rock",	1),
+ new Item("Stick",	2),
+ new Item("Whip",	3),
+ new Item("Dagger",	4),
+ new Item("Sword",	5),
+ new Item("Battle Axe",	6,	2)
+];
+
+items[0].toString = "no items";
+
+
+/* Returns the total from rolling one or more dice
+ * By default, rolls a single six-sided die
+ *  i.e. roll() rolls a single six-sided die
+ * Additional dice can be rolled by passing an int to `_number`.
+ *  e.g. roll(2) to roll two six-sided dice
+ * Other types of dice (7-sided, 12-sided, etc.) can be rolled
+ *  by passing an int to `_sides`.
+ *  e.g. roll(2,12) rolls two twelve-sided dice
+ */
+function roll(_number, _sides) {
+ _number = _number || 1;
+ _sides = _sides || 6;
+
+ var rollTotal = 0;
+
+ for (var i = _number; i > 0; i--) {
+  var dieRoll = Math.ceil(Math.random() * _sides);
+  if (_number > 1) console.log(`1d${_sides} roll:`,dieRoll);
+  rollTotal += dieRoll;
+ }
+ console.log(`→ ${_number}d${_sides} roll:`,rollTotal);
+ return rollTotal;
+}
+
+function getRandomName() {
+ return names[Math.floor(Math.random() * names.length)];
+}
+
+function getRandomRace() {
+ return races[Math.floor(Math.random() * races.length)];
+}
+
+function getRandomLevel() {
+ var dieRoll = roll();
+ return Math.floor(dieRoll / 2) || 1;
+}
+
+function getRandomItem() {
+ return items[roll()];
+}
+
+function getRandomMonster() {
+ var roll2d6 = roll(2);
+ var monsterIndex = roll2d6 - 2;
+ console.log(monsters[monsterIndex].toString());
+ return monsters[monsterIndex];
+}
+
+function printLn(msg) {
+ document.body.innerHTML += `<p> ${msg || ""} </p>`;
+}
+
+function winGame(character) {
+ printLn(`<h1>${character.name} won the game!</h1>`);
+ gameOver = true;
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
