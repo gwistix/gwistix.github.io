@@ -275,6 +275,9 @@ function pseudos(plain_lists) {
 
 	/* Converts custom HTML entity names to their corresponding entities */
 	customHtmlEntities();
+
+	/* Converts pseudo-dashes (--, ---, etc.) to real dashes */
+	pseudoDashes(); 
 }
 
 var supKbdCharacters = "0123456789+-=()ABDEGHIJKLMNOPRTUVWabcdefghijklmnoprstuvwxyzβγδθιψχɒɕðɜɟɡɥɨɩɪʝɭʟɱɰɲɳɴɵɸʂʃʉʊʋʌʐʑʒθɐɑɛŋɔɯ";
@@ -319,6 +322,15 @@ function customHtmlEntities() {
 		temp = arr.join(entities[i]);
 	}
 	document.body.innerHTML = temp;
+}
+
+function pseudoDashes() {
+ document.body.innerHTML = document.body.innerHTML
+ .replace(/----/g,"―")
+ .replace(/---/g,"—")
+ .replace(/--/g,"–")
+ .replace(/ - /g," ⁃ ")
+ .replace(/	- /g, "	⁃ "); 
 }
 
 /*
