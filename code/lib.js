@@ -326,9 +326,11 @@ function customHtmlEntities() {
 
 function pseudoDashes() {
  document.body.innerHTML = document.body.innerHTML
- .replace(/--/g,"–")
- .replace(/---/g,"—")
  .replace(/----/g,"―")
+ .replace(/---/g,"—")
+ .replace(/--/g,"–")
+ .replace(/ - /g," ⁃ ")
+ .replace(/	- /g, "	⁃ "); 
 }
 
 /*
