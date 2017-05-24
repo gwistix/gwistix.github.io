@@ -1,4 +1,4 @@
-<html>
+﻿<html>
 <head>
 <link rel='shortcut icon' href='/favicon.png'>
 <link rel='icon' sizes='192x192' href='/appicon.png'>
@@ -9,10 +9,24 @@
 <link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
 <style>
 
-body {}
+body {
+ font-family: Lucida sans unicode;
+}
 
 section {
  border:1px solid black
+}
+
+.monster, .dice {
+// font-size:1in;
+}
+
+.box {
+ display:inline-block;
+ text-align:center;
+ border: 1px solid black;
+ width: 1em;
+ height: 1em;
 }
 
 </style>
@@ -22,7 +36,9 @@ section {
 var characters = [];
 var highestLevel = 0;
 var highestGold = 0;
-var gameOver = false;
+var winningLevel = 10;
+var winningGold = 20;
+var gameOver = false; 
 
 function init() {
  console.clear();
@@ -43,11 +59,20 @@ function init() {
  monsters.forEach(function(element){console.log(element.toString())});
 
  console.log("");
- console.log(getRandomMonster().toString());
+ console.log(getMonster().toString());
 
  while (!gameOver) {
   characters.forEach(function(character){character.takeTurn()});
  }
+
+ // Closing dialog
+ printLn(`<p>The valiant warriors return from the dungeon to flaunt their fortune and claim their fame.</p>
+<p>Only the future will tell what lies in store for our heroes&hellip;`);
+
+ // Print all character stats, beginning with superlatives (most gold, etc.)
+
+ printLn("<h1 class='center'>The End</h1>");
+
 }
 
 function addCharacter(_name, _race, _level, _weapon) {
@@ -102,7 +127,7 @@ function Character(_name, _race, _level, _weapon) {
    highestLevel = this.level;
    printLn(`<h2>${this.name} is now the highest-level character!</h2>`);
   }
-  if (this.level >= 10) {
+  if (this.level >= winningLevel) {
    winGame(this);
   }
  };
@@ -131,25 +156,32 @@ function Character(_name, _race, _level, _weapon) {
     highestGold = this.gold;
     printLn(`<h2>${this.name} now has the most gold!</h2>`);
    }
-   if (this.gold >= 20) {
+   if (this.gold >= winningGold) {
     winGame(this);
    }
   }
  }
  
  this.takeTurn = function() {
+  if (gameOver) return;
+
   printLn(this.getInfo());
+  printLn(`Click to roll the dice 🎲🎲!`);
+  var dieRoll = roll(2,6,true);
+  var rollTotal = sumArray(dieRoll);
+  printLn(`<span class='dice center'>${getDiceDisplay(dieRoll)}</span>${this.name} rolled ${rollTotal}!`);
+
   printLn(`🚪 ${this.name} opens a door...`);
-  var monster = getRandomMonster();
+  var monster = getMonster(rollTotal,true);
   printLn(`Inside is a ${monster}`);
   var playerWins = this.getAttackPower() > monster.level;
-  printLn(`${playerWins ? "" : "😱 "}${this.name} ${playerWins ? "beats" : "can't beat"} the ${monster.type}!`);
+  printLn(`${playerWins ? "😤 " : "😱 "}${this.name} ${playerWins ? "beats" : "can't beat"} the ${monster.type}!`);
   if (monster.type == "Unicorn") {
    printLn(`The ${monster.type} grants ${this.name} a wish!`);
    this.getTreasure(monster.treasure);
   }
   else if (playerWins) {
-   printLn(`💀 The ${monster.type} is dead!`);
+   printLn(`☠️ The ${monster.type} is dead!`);
    this.levelUp();
    this.getTreasure(monster.treasure);
    printLn(`Now, ${this.getInfo()}`);
@@ -182,7 +214,7 @@ function Monster(_type, _level, _treasure, _icon) {
  this.treasure = _treasure || 1;
  this.icon = _icon || "";
  this.toString = function() {
-  return `level-${this.level == Infinity ? "∞" : this.level} ${this.type} <span class='center' style='font-size:2in'>${this.icon}</span>`;
+  return `level-${this.level == Infinity ? "∞" : this.level} ${this.type} <span class='monster center'>${this.icon}</span>`;
  }
  console.log(this.toString());
 }
@@ -246,20 +278,68 @@ items[0].toString = "no items";
  * Other types of dice (7-sided, 12-sided, etc.) can be rolled
  *  by passing an int to `_sides`.
  *  e.g. roll(2,12) rolls two twelve-sided dice
+ * Passing `true` to _returnArray returns an array of rolls
+ *  instead of a sum
  */
-function roll(_number, _sides) {
+function roll(_number, _sides, _returnArray) {
  _number = _number || 1;
  _sides = _sides || 6;
 
  var rollTotal = 0;
+ var rolls = [];
 
  for (var i = _number; i > 0; i--) {
   var dieRoll = Math.ceil(Math.random() * _sides);
   if (_number > 1) console.log(`1d${_sides} roll:`,dieRoll);
   rollTotal += dieRoll;
+  rolls.push(dieRoll);
  }
+
+ if (_returnArray) {
+  console.log(rolls);
+  return rolls;
+ }
+
  console.log(`→ ${_number}d${_sides} roll:`,rollTotal);
  return rollTotal;
+}
+
+/* Returns a string of one or more unicode dice characters
+ * Returns a single die if an integer is passed to _dieRoll
+ * Returns a series of dice if an array is passed to _dieRoll
+ * Only works for six-sided dice
+ */
+function getDiceDisplay(_dieRoll) {
+ var unicodeDice = " ⚀⚁⚂⚃⚄⚅"; // Space at index 0
+ if (typeof _dieRoll == "number") {
+  if (_dieRoll < 1 || _dieRoll > 6) {
+   /* To-do: Accept values > 6 by interpreting them as
+    *  a series of sixes plus the remainder.
+    *  e.g., 14 is interpreted as [6, 6, 2] and passed
+    *  back to the function.
+    */
+   console.log(`_dieRoll (${_dieRoll}) is out of range`);
+   return `<span class='box'>${_dieRoll}</span>`;
+  }
+  return unicodeDice[_dieRoll];
+ }
+ else if (typeof _dieRoll == "object" && _dieRoll.length) { // Array
+  var diceDisplay = [];
+  _dieRoll.forEach(function(roll) {
+   diceDisplay.push(getDiceDisplay(roll));
+  });
+  return diceDisplay.join("");
+ }
+}
+
+/* Returns the sum of the elements of a number array
+ */
+function sumArray(array) {
+ var sum = 0;
+ array.forEach(function(element){
+  sum += element;
+ });
+ return sum;
 }
 
 function getRandomName() {
@@ -279,11 +359,21 @@ function getRandomItem() {
  return items[roll()];
 }
 
-function getRandomMonster() {
- var roll2d6 = roll(2);
- var monsterIndex = roll2d6 - 2;
- console.log(monsters[monsterIndex].toString());
- return monsters[monsterIndex];
+/* Returns the monster specified by
+ *  _monsterIndex from the monsters array
+ *  or a random monster if _monsterIndex
+ *  is not specified
+ * If _fromDieRoll is true, returns a monster
+ *  based on the specified 2d6 roll rather than
+ *  directly from an index
+ */
+function getMonster(_monsterIndex, _fromDieRoll) {
+ if (_monsterIndex == undefined) _monsterIndex = roll(2) - 2; // Use this instead of _monsterIndex = _monsterIndex || ... because 0 is a valid value
+
+ if (_fromDieRoll) _monsterIndex = _monsterIndex - 2;
+
+ console.log(monsters[_monsterIndex].toString());
+ return monsters[_monsterIndex];
 }
 
 function printLn(msg) {
