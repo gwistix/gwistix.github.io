@@ -39,13 +39,13 @@ function getCharacters(string, lexicographical) {
 /* Converts seconds into hh:mm:ss or "# days, # hours, # minutes, and # seconds" format */
 function timeDisp(seconds,longform) {
 
-	y = Math.floor(seconds/31556952);
-	M = Math.floor(seconds/2629746)%12;
-	w = Math.floor(Math.floor(seconds/604800)%4.348125);
-	d = Math.floor(seconds/86400)%7;
-	h = Math.floor(seconds/3600)%24;
-	m = Math.floor(seconds/60)%60;
-	s = seconds%60;
+	var y = Math.floor(seconds/31556952);
+	var M = Math.floor(seconds/2629746)%12;
+/*	var w = Math.floor(Math.floor(seconds/604800)%4.348125);*/
+	var d = Math.floor(seconds/86400)%7;
+	var h = Math.floor(seconds/3600)%24;
+	var m = Math.floor(seconds/60)%60;
+	var s = seconds%60;
 
 	if (longform) {
 		if (y == 0) {
@@ -58,10 +58,10 @@ function timeDisp(seconds,longform) {
 		}
 		else M_disp = M + " month" + ((M==1)?"":"s") + ", ";
 
-		if (w == 0) {
+/*		if (w == 0) {
 			w_disp = "";
 		}
-		else w_disp = w + " week" + ((w==1)?"":"s") + ", ";
+		else w_disp = w + " week" + ((w==1)?"":"s") + ", ";*/
 
 
 		if (d == 0) {
@@ -86,7 +86,7 @@ function timeDisp(seconds,longform) {
 		}
 		else s_disp = s + " second" + ((s==1)?"":"s");
 
-		return y_disp + M_disp + w_disp + d_disp + h_disp + m_disp + s_disp;
+		return y_disp + M_disp /*+ w_disp*/ + d_disp + h_disp + m_disp + s_disp;
 	}
 	else return addLeadingZeroes(h)+":"+addLeadingZeroes(m)+":"+addLeadingZeroes(s);
 }
@@ -275,6 +275,9 @@ function pseudos(plain_lists) {
 
 	/* Converts custom HTML entity names to their corresponding entities */
 	customHtmlEntities();
+
+	/* Converts pseudo-dashes (--, ---, etc.) to real dashes */
+	pseudoDashes(); 
 }
 
 var supKbdCharacters = "0123456789+-=()ABDEGHIJKLMNOPRTUVWabcdefghijklmnoprstuvwxyzβγδθιψχɒɕðɜɟɡɥɨɩɪʝɭʟɱɰɲɳɴɵɸʂʃʉʊʋʌʐʑʒθɐɑɛŋɔɯ";
@@ -319,6 +322,15 @@ function customHtmlEntities() {
 		temp = arr.join(entities[i]);
 	}
 	document.body.innerHTML = temp;
+}
+
+function pseudoDashes() {
+ document.body.innerHTML = document.body.innerHTML
+ .replace(/----/g,"―")
+ .replace(/---/g,"—")
+ .replace(/--/g,"–")
+ .replace(/ - /g," ⁃ ")
+ .replace(/	- /g, "	⁃ "); 
 }
 
 /*
