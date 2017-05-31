@@ -2,6 +2,57 @@
 TODO: Make custom Alert(), Prompt(), and Confirm() dialog boxes
 */
 
+/* Converts classes named for unicode HTML fr, scr, opf, and cy entities to those entities
+*/
+function unicodeHtmlEntities() {
+ // Fraktur
+ document.querySelectorAll(".unicode-fr").forEach(function(element){
+  var arr = element.innerHTML.split("");
+  element.innerHTML = "";
+  arr.forEach(function(char){
+   if (char.match("[A-z]")) {
+    element.innerHTML += "&" + char + "fr;";
+   }
+   else element.innerHTML += char;
+  });
+ });
+
+ // Script
+ document.querySelectorAll(".unicode-scr").forEach(function(element){
+  var arr = element.innerHTML.split("");
+  element.innerHTML = "";
+  arr.forEach(function(char){
+   if (char.match("[A-z]")) {
+    element.innerHTML += "&" + char + "scr;";
+   }
+   else element.innerHTML += char;
+  });
+ });
+
+ // Open face
+ document.querySelectorAll(".unicode-opf").forEach(function(element){
+  var arr = element.innerHTML.split("");
+  element.innerHTML = "";
+  arr.forEach(function(char){
+   if (char.match("[A-z]")) {
+    element.innerHTML += "&" + char + "opf;";
+   }
+   else element.innerHTML += char;
+  });
+ });
+
+ // Cyrillic
+ document.querySelectorAll(".unicode-cy").forEach(function(element){
+  var alfavit = ["soft", "hard", "shch", "ie", "io", "zh", "kh", "ts", "ch", "sh", "yu", "ya", "a", "b", "v", "g", "d", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "e"];
+  alfavit.forEach(function(char){
+   var re = new RegExp(char,"g");
+   element.innerHTML = element.innerText.replace(re, "&" + char + "cy;");
+   re = new RegExp(char.toUpperCase(),"g");
+   element.innerHTML = element.innerText.replace(re, "&" + char.toUpperCase() + "cy;");
+  });
+ });
+}
+
 /* Returns all individual characters from a string either
  * sorted by frequency (default) or in lexicographical
  * order (if the parameter `lexicographical` is true)
@@ -36,7 +87,9 @@ function getCharacters(string, lexicographical) {
 	return chars.join("<br>");
 }
 
-/* Converts seconds into hh:mm:ss or "# days, # hours, # minutes, and # seconds" format */
+/* Converts seconds into hh:mm:ss or "# days, # hours, # minutes, and # seconds" format 
+ * This function has some issues
+ */
 function timeDisp(seconds,longform) {
 
 	var y = Math.floor(seconds/31556952);
