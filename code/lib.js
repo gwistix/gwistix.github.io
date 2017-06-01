@@ -1,6 +1,64 @@
-﻿/*
+/*
 TODO: Make custom Alert(), Prompt(), and Confirm() dialog boxes
 */
+
+/* Capitalizes the first letter of a string and changes all other letters to lowercase */
+String.prototype.capitalize = function() {
+ var arr = this.toLowerCase().split("");
+ if (arr[0]) arr[0] = arr[0].toUpperCase();
+ return arr.join("");
+}
+
+/* Capitalizes the first letter at the beginning of a sentence. Does not make other letters lowercase */
+String.prototype.toSentenceCase = function() {
+ var str = this.replace(/ +/g," ");
+ var arr = str.split(". ");
+ console.log(arr);
+ var newArr = [];
+ arr.forEach(function(sentence){
+  newArr.push(sentence.capitalize());
+ });
+ return newArr.join(". ");
+}
+
+/* Formats a single- or multi-word string as camel case */
+String.prototype.toCamelCase = function() {
+ var arr = this.toLowerCase().split(" ");
+ for (var len = arr.length, i=1; i<len; i++) {
+  arr[i] = arr[i].capitalize();
+ }
+ return arr.join("");
+}
+
+/* Formats a string as title case */
+String.prototype.toTitleCase = function() {
+ var excludedWords = ["a", "an", "the", "and", "but", "or", "above", "about", "across", "against", "along", "among", "around", "at", "before", "behind", "below", "beneath", "beside", "between", "beyond", "by", "down", "during", "except", "for", "from", "in", "inside", "into", "like", "near", "of", "off", "on", "since", "to", "toward", "through", "under", "until", "up", "upon", "with", "within"];
+
+ var words = this.toLowerCase().split(" ");
+ console.log(words);
+ words[0] = words[0].capitalize();
+ for (var len = words.length, i=1; i<len; i++) {
+  if (words[i] && !~excludedWords.indexOf(words[i])) {
+   words[i] = words[i].capitalize();
+  }
+ }
+ return words.join(" ");
+}
+
+/* Formats a string as ugly case (i.e., uGlY cAsE) */
+String.prototype.toUglyCase = function() {
+ var words = this.toLowerCase().split(" ");
+ words.forEach(function(word, index){
+  var arr = word.toLowerCase().split("");
+  var str = "";
+  arr.forEach(function(char,index){
+   if (index % 2) str += char.toUpperCase();
+   else str += char;
+  });
+  words[index] = str;
+ });
+ return words.join(" ");
+}
 
 /* Converts classes named for unicode HTML fr, scr, opf, and cy entities to those entities
 */
