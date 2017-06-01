@@ -1,4 +1,4 @@
-﻿/*
+/*
 TODO: Make custom Alert(), Prompt(), and Confirm() dialog boxes
 */
 
