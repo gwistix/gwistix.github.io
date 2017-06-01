@@ -2,6 +2,115 @@
 TODO: Make custom Alert(), Prompt(), and Confirm() dialog boxes
 */
 
+/* Capitalizes the first letter of a string and changes all other letters to lowercase */
+String.prototype.capitalize = function() {
+ var arr = this.toLowerCase().split("");
+ if (arr[0]) arr[0] = arr[0].toUpperCase();
+ return arr.join("");
+}
+
+/* Capitalizes the first letter at the beginning of a sentence. Does not make other letters lowercase */
+String.prototype.toSentenceCase = function() {
+ var str = this.replace(/ +/g," ");
+ var arr = str.split(". ");
+ console.log(arr);
+ var newArr = [];
+ arr.forEach(function(sentence){
+  newArr.push(sentence.capitalize());
+ });
+ return newArr.join(". ");
+}
+
+/* Formats a single- or multi-word string as camel case */
+String.prototype.toCamelCase = function() {
+ var arr = this.toLowerCase().split(" ");
+ for (var len = arr.length, i=1; i<len; i++) {
+  arr[i] = arr[i].capitalize();
+ }
+ return arr.join("");
+}
+
+/* Formats a string as title case */
+String.prototype.toTitleCase = function() {
+ var excludedWords = ["a", "an", "the", "and", "but", "or", "above", "about", "across", "against", "along", "among", "around", "at", "before", "behind", "below", "beneath", "beside", "between", "beyond", "by", "down", "during", "except", "for", "from", "in", "inside", "into", "like", "near", "of", "off", "on", "since", "to", "toward", "through", "under", "until", "up", "upon", "with", "within"];
+
+ var words = this.toLowerCase().split(" ");
+ console.log(words);
+ words[0] = words[0].capitalize();
+ for (var len = words.length, i=1; i<len; i++) {
+  if (words[i] && !~excludedWords.indexOf(words[i])) {
+   words[i] = words[i].capitalize();
+  }
+ }
+ return words.join(" ");
+}
+
+/* Formats a string as ugly case (i.e., uGlY cAsE) */
+String.prototype.toUglyCase = function() {
+ var words = this.toLowerCase().split(" ");
+ words.forEach(function(word, index){
+  var arr = word.toLowerCase().split("");
+  var str = "";
+  arr.forEach(function(char,index){
+   if (index % 2) str += char.toUpperCase();
+   else str += char;
+  });
+  words[index] = str;
+ });
+ return words.join(" ");
+}
+
+/* Converts classes named for unicode HTML fr, scr, opf, and cy entities to those entities
+*/
+function unicodeHtmlEntities() {
+ // Fraktur
+ document.querySelectorAll(".unicode-fr").forEach(function(element){
+  var arr = element.innerHTML.split("");
+  element.innerHTML = "";
+  arr.forEach(function(char){
+   if (char.match("[A-z]")) {
+    element.innerHTML += "&" + char + "fr;";
+   }
+   else element.innerHTML += char;
+  });
+ });
+
+ // Script
+ document.querySelectorAll(".unicode-scr").forEach(function(element){
+  var arr = element.innerHTML.split("");
+  element.innerHTML = "";
+  arr.forEach(function(char){
+   if (char.match("[A-z]")) {
+    element.innerHTML += "&" + char + "scr;";
+   }
+   else element.innerHTML += char;
+  });
+ });
+
+ // Open face
+ document.querySelectorAll(".unicode-opf").forEach(function(element){
+  var arr = element.innerHTML.split("");
+  element.innerHTML = "";
+  arr.forEach(function(char){
+   if (char.match("[A-z]")) {
+    element.innerHTML += "&" + char + "opf;";
+   }
+   else element.innerHTML += char;
+  });
+ });
+
+ // Cyrillic
+ document.querySelectorAll(".unicode-cy").forEach(function(element){
+  var alfavit = ["soft", "hard", "shch", "ie", "io", "zh", "kh", "ts", "ch", "sh", "yu", "ya", "a", "b", "v", "g", "d", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "e"];
+  alfavit.forEach(function(char){
+   var re = new RegExp(char,"g");
+   element.innerHTML = element.innerText.replace(re, "&" + char + "cy;");
+   re = new RegExp(char.toUpperCase(),"g");
+   element.innerHTML = element.innerText.replace(re, "&" + char.toUpperCase() + "cy;");
+  });
+ });
+}
+
 /* Returns all individual characters from a string either
  * sorted by frequency (default) or in lexicographical
  * order (if the parameter `lexicographical` is true)
@@ -36,7 +145,9 @@ function getCharacters(string, lexicographical) {
 	return chars.join("<br>");
 }
 
-/* Converts seconds into hh:mm:ss or "# days, # hours, # minutes, and # seconds" format */
+/* Converts seconds into hh:mm:ss or "# days, # hours, # minutes, and # seconds" format 
+ * This function has some issues
+ */
 function timeDisp(seconds,longform) {
 
 	var y = Math.floor(seconds/31556952);
