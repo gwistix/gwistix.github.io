@@ -1,4 +1,4 @@
-function init() {
+﻿function init() {
  console.clear();
  speak("Go ahead and say something to the parrot.");
 }
