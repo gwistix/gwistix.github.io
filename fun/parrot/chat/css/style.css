@@ -1,0 +1,20 @@
+p.in {text-align:left;}
+p.out {
+ text-align:right;
+ color:blue;
+}
+
+.terminal {
+  padding:10px;
+//  max-width:80%;
+  font-family:monospace;
+  color:green;
+  background:#cdcdcd;
+}
+
+#in_txt, button, .terminal {
+  font-size:200%;
+}
+
+
+
