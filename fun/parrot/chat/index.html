@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>Annoying parrot chat bot</title>
+  
+  
+  
+      <link rel="stylesheet" href="css/style.css">
+
+  
+</head>
+
+<body>
+  <html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='lib.css'><script src='lib.js'></script>
+  </head>
+  <body onLoad='init();'>
+<div id='input_div' style='position:fixed; background:white; border:3px solid rgba(255,255,255,0.5)'>
+  <input id='in_txt' value='' placeholder='Type something!' onKeyPress='getKeyStroke(event);'>
+  <button onClick='console.log("OK @ button"); parseInput(document.querySelector("#in_txt").value);'>Chat</button>
+<button id='listen_btn' onClick='console.log("listening..."); listen();'>Listen</button>
+</div>
+<br>
+<div id='log_txt' class='terminal'>&nbsp;<br>&nbsp;<br></div>
+<div id='parrot' style='position:fixed; bottom:30px; right:30px;'>
+ <img src='../img/parrot.png' onClick='speak("Say something and I will repeat it back to you!"); listen(true);'>
+</div>   
+    <script src="js/index.js"></script>
+
+
+</body>
+</html>
