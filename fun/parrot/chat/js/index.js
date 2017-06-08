@@ -1,10 +1,12 @@
 ﻿function init() {
  console.clear();
- speak("Go ahead and say something to the parrot.");
+ speak("Go ahead and say something to the parrot. You can type in the box or click Listen and use your voice.");
+ document.querySelector("#in_txt").focus();
 }
 
 
 var userName;
+var userBday;
 var smellJoke = false;
 var knockKnockJoke = false;
 var knockKnock2 = false;
@@ -19,59 +21,278 @@ function parseInput(inputText) {
 
  //This is the actual speech part right here
   if (inputText.match(/^Say/i))
-    logText(
-      inputText
-      .replace(/Say /i,"")
-      .replace(/I'm/gi,"you're")
-      .replace(/I am/gi,"you are")
-      .replace(/\bI\b/gi, "you")
-    );
-    else if (inputText.match(/\b(hello|hi)\b/gi)) 
+   logText(
+    inputText
+    .replace(/Say /i,"")
+    .replace(/I'm/gi,"you're")
+    .replace(/I am/gi,"you are")
+    .replace(/\bI\b/gi, "you")
+   );
+   else if (inputText.match(/\b(hello|hi)\b/gi)) 
     logText("Hello there.");
-    else if (inputText.match(/not.*\b(butt|poop|poopoo|pee|peepee|dumb|dummy|stupid)\b/gi))
-    logText("That's good.");
-    else if (inputText.match(/\b(butt|poop|poopoo|pee|peepee|dumb|dummy|stupid|fart)\b/gi)) {
-    logText("How rude!");
-      smellyJoke = false;
-      knockKnockJoke = false;
-      knockKnock2 = false;
+   else if (inputText.match(/what.*going.*on/i)) {
+    logText("That's a good question.");
+    logText("<iframe width='560' height='315' src='https://www.youtube.com/embed/32FB-gYr49Y' frameborder='0' allowfullscreen></iframe>");
+   }
+   else if (inputText.match(/ok(ay)?\?$/i))
+    logText("OK.");
+   else if (inputText.match(/let.s/i))
+    logText(inputText
+            .replace(/let.s /i,"")
+            .replace(/[.!?]/,"") 
+            + "? Sounds like a great idea.");
+   else if (inputText.match(/what time/i) || inputText.match(/^time$/i)) {
+    var now = new Date();
+    var h = now.getHours();
+    var amPm = "a.m.";
+    if (h >= 12) {
+     amPm = "p.m.";
+     h -= 12; // Change to 12-hour clock
     }
-  else if (inputText.match(/damn|\bass|shit|\bhell|fuck|bitch|cunt/gi))
+    h = h || 12; // Change 0h to 12h
+    var m = now.getMinutes();
+    m = m < 9 ? "0"+m : m;
+    logText(`It's ${h}:${m} ${amPm}`);
+    if (h == 4 && m == 20) logText("Woo hoo!");
+    else if (h < 6 && amPm == "a.m." || h != 12 && h > 10 && amPm == "p.m.")
+     logText("Why are you awake right now?");
+   }
+   else if (inputText.match(/what.*date/i)) {
+    var now = new Date();
+
+    var days = [
+     "Sunday",
+     "Monday",
+     "Tuesday",
+     "Wednesday",
+     "Thursday",
+     "Friday",
+     "Saturday"
+    ];
+
+    var months = [
+     "January",
+     "February",
+     "March",
+     "April",
+     "May",
+     "June",
+     "July",
+     "August",
+     "September",
+     "October",
+     "November",
+     "December"
+    ];
+
+    var ordinalSuffix;
+    var date = now.getDate();
+    var modulo = date % 10;
+    if (modulo == 1 && date != 11) ordinalSuffix = "st";
+    else if (modulo == 2 && date != 12) ordinalSuffix = "nd";
+    else if (modulo == 3 && date != 13) ordinalSuffix = "rd";
+    else ordinalSuffix = "th";
+
+    if (inputText.match(/time/i)) {
+     var h = now.getHours();
+     var amPm = "a.m.";
+     if (h >= 12) {
+      amPm = "p.m.";
+      h -= 12; // Change to 12-hour clock
+     }
+     h = h || 12; // Change 0h to 12h
+     var m = now.getMinutes();
+     m = m < 9 ? "0"+m : m;
+     logText(`It's ${h}:${m} ${amPm} on ${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}${ordinalSuffix}, ${now.getFullYear()}`);
+    }
+    else if (inputText.match(/full/i)) 
+     logText(`It's ${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}${ordinalSuffix}, ${now.getFullYear()}`);
+    else logText(`It's ${months[now.getMonth()]} ${date}${ordinalSuffix}.`);
+   }
+   else if (inputText.match(/Voltron/i))
+    logText("Voltron: Defender of the Universe");
+   else if (inputText.match(/power rangers/i))
+    logText("Go, Go, Power Rangers!");
+   else if (inputText.match(/flight of dragons/i)) {
+    logText("...soar in the purple light.<br>In the sky, or in my mind?");
+    /* Add video here */
+   }
+   else if (inputText.match(/penny for your thoughts/i)) {
+    logText("I hate Brenda.");
+    /* Add video here */
+   }
+   else if (inputText.match(/batman.s.*(mother|mom).*dinner/i))
+    logText("Dinner dinner dinner dinner, dinner dinner dinner dinner, Batman!");
+   else if (inputText.match(/who.*(gonna|going to).*call/i))
+    logText(`Ghostbusters!
+<span class='double'>🚫</span><span style='position:relative; left:-2em; top:-0.3em'>👻</span>`);
+   else if (inputText.match(/how.*(long|many.*days).*(until|before).*(Christmas|X-?mas)/i)) {
+    var now = new Date();
+    var xmas = new Date();
+    xmas.setDate(25);
+    xmas.setMonth(11);
+    daysTilXmas = Math.floor((xmas - now) / 1000 / 60 / 60 / 24);
+    logText(`There ${daysTilXmas == 1 ? "is" : "are"} ${daysTilXmas < 10 ? "only" : ""} ${daysTilXmas} day${daysTilXmas == 1 ? "" : "s"} until Christmas.`);
+    if (daysTilXmas < 10) logText("Have you finished your shopping yet?");
+   }
+   else if (inputText.match(/what.*day.*(Christmas|X\-?mas)/i)) {
+    var xmas = new Date();
+    xmas.setMonth(11);
+    xmas.setDate(25);
+    
+    var days = [
+     "Sunday",
+     "Monday",
+     "Tuesday",
+     "Wednesday",
+     "Thursday",
+     "Friday",
+     "Saturday"
+    ];
+    
+    logText(`Christmas is on a ${days[xmas.getDay()]} this year.`);
+
+   }
+   else if (inputText.match(/how.*(long|many.*days).*(until|before).*my.*(birthday|b\-day|bday)/i)) {
+    console.log("Birthday query");
+    if (userBday != undefined) {   
+       
+     var now = new Date();
+     var thisBday = new Date();
+     thisBday.setMonth(userBday.getMonth());
+     thisBday.setDate(userBday.getDate());
+     daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+     if (daysTilBday < 0) {
+      thisBday.setYear(now.getFullYear() + 1);
+      daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+     }
+     if (daysTilBday > 355) logText("Did you have a good birthday?");
+     logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until your birthday.`);
+     logText(`It's on a ${days[thisBday.getDay()]}.`);
+     if (daysTilBday < 10) logText("Are you getting excited yet?");
+    }
+    else logText(`I don't know when your birthday is.`);
+   }
+   else if (inputText.match(/my (birthday|b\-day|bday) is/i)) {
+    userBday = new Date(
+     Date.parse(
+      inputText
+      .replace(/my b(irth|\-)?day is (on )?/i,"")
+      .replace(/(st|nd|rd|th)/g,"")
+     )
+    );
+
+    var days = [
+     "Sunday",
+     "Monday",
+     "Tuesday",
+     "Wednesday",
+     "Thursday",
+     "Friday",
+     "Saturday"
+    ];
+
+    var months = [
+     "January",
+     "February",
+     "March",
+     "April",
+     "May",
+     "June",
+     "July",
+     "August",
+     "September",
+     "October",
+     "November",
+     "December"
+    ];
+
+    var ordinalSuffix;
+    var date = userBday.getDate();
+    var modulo = date % 10;
+    if (modulo == 1 && date != 11) ordinalSuffix = "st";
+    else if (modulo == 2 && date != 12) ordinalSuffix = "nd";
+    else if (modulo == 3 && date != 13) ordinalSuffix = "rd";
+    else ordinalSuffix = "th";
+    logText(`Your birthday is ${months[userBday.getMonth()]} ${userBday.getDate()}${ordinalSuffix}?`);
+
+    var now = new Date();
+    var thisBday = new Date();
+    thisBday.setMonth(userBday.getMonth());
+    thisBday.setDate(userBday.getDate());
+    daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+    if (daysTilBday < 0) {
+     thisBday.setYear(now.getFullYear() + 1);
+     daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+    }
+    if (daysTilBday > 355) logText("Did you have a good birthday?");
+    logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until your birthday.`);
+    logText(`It's on a ${days[thisBday.getDay()]}.`);
+    if (daysTilBday < 10) logText("Are you getting excited yet?");
+   }
+   else if (inputText.match(/what day/i) || inputText.match(/^day$/i)) {
+    var now = new Date();
+    var days = [
+     "Sunday",
+     "Monday",
+     "Tuesday",
+     "Wednesday",
+     "Thursday",
+     "Friday",
+     "Saturday"
+    ];
+    logText(`It's ${days[now.getDay()]}.`);
+   }
+   else if (inputText.match(/not.*\b(butt|poop?|poopoo|pee|peepee|dumb|dummy|stupid)\b/gi))
+    logText("That's good.");
+   else if (inputText.match(/\b(butt|poop|poopoo|pee|peepee|dumb|dummy|stupid|fart)\b/gi)) {
+    logText("How rude!");
+    smellyJoke = false;
+    knockKnockJoke = false;
+    knockKnock2 = false;
+   }
+   else if (inputText.match(/damn|\bass|shit|\bhell|fuck|bitch|cunt/gi))
     logText("Watch your language!");
-  else if (inputText.match(/sex|cock|pussy/gi))
+   else if (inputText.match(/sex|cock|pussy/gi))
     logText("That's really not appropriate.");
-  else if (inputText.match(/son of a/gi))
+   else if (inputText.match(/son of a/gi))
     logText("Excuse me?");
-  else if (inputText.match(/\bhate\b/gi))
+   else if (inputText.match(/\bhate\b/gi))
     logText("Hate is such a strong word.");
-  else if (inputText.match(/\blove\b/gi))
+   else if (inputText.match(/\blove\b/gi))
     logText("All you need is love.");
-  else if (inputText.match(/you('re| are) /gi))
+   else if (inputText.match(/you('re| are) /gi))
     logText("I am not!");
- else if (inputText.match(/how are you/gi)) 
-  logText("I'm fine, thanks.");
- else if (inputText.match(/what.*you.*name/gi)) 
-  logText("My name is Parrot.<br>What's your name?");
-  else if (inputText.match(/I('m| am) your /gi))
+   else if (inputText.match(/how are you/gi)) 
+    logText("I'm fine, thanks.");
+   else if (inputText.match(/what.*you.*name/gi)) {
+    logText("My name is Penelope.");
+    if (!userName || userName.length < 1) logText("What's your name?");
+   }
+   else if (inputText.match(/I('m| am) your /gi))
     logText("I don't think so.");
- else if (inputText.match(/(my name('s| is))|(I('m| am)) /gi)) {
-  userName = inputText.replace(/(my name( is|'s))|(I('m| am)) /gi, "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
-   if (userName == "Luke")
+   else if (inputText.match(/(my name('s| is))|(I('m| am)) /gi)) {
+    userName = inputText.replace(/(my name( is|'s))|(I('m| am)) /gi, "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+    if (userName.match(/Luke/gi))
      logText("Luke, I am your father!");
-   else logText("Nice to meet you, " + userName + ".");
- }
- else if (inputText.match(/what.*you.*smell like/gi)) {
-  logText("Nothing. I don't smell at all.<br>But you smell like a cow.");
-  smellJoke = true;
- }
- else if (smellJoke && inputText.match(/what|why|how|don't|\bno\b/gi))
-  logText("What does a cow smell with?");
- else if (smellJoke && inputText.match(/(it.*|her) nose/gi))
-  logText("What do you smell with?");
- else if (smellJoke && inputText.match(/my nose/gi)) {
-  logText("So, you smell exactly like a cow.<BR>Ha ha!");
-   smellJoke = false;
- }
+    else logText("Nice to meet you, " + userName + ".");
+   }
+   else if (inputText.match(/what.*my.*name/i)) {
+    if (userName) logText("It's " + userName + ", right?");
+    else logText("I don't know.");
+   }
+   else if (inputText.match(/what.*you.*smell like/gi)) {
+    logText("Nothing. I don't smell at all.<br>But you smell like a cow.");
+    smellJoke = true;
+   }
+   else if (smellJoke && inputText.match(/what|why|how|don't|\bno\b/gi))
+    logText("What does a cow smell with?");
+   else if (smellJoke && inputText.match(/(it.*|her) nose/gi))
+    logText("What do you smell with?");
+   else if (smellJoke && inputText.match(/my nose/gi)) {
+    logText("So, you smell exactly like a cow.<BR>Ha ha!");
+    smellJoke = false;
+   }
   else if (inputText.match(/\bhola\b/gi))
     logText("Sorry, I don't speak Spanish.");
   else if (inputText.match(/\bbonjour\b/gi))
@@ -202,8 +423,8 @@ function parseInput(inputText) {
     | *  ((*   *  /\n\
      \\  *))  *  .'\n\
       '-.((*_.-'</textarea>", true);
-  else if (inputText.match(/^Smile!$/gi))
-    logText("&#9787;");
+  else if (inputText.match(/^Smile!?$/gi))
+    logText("🙂");
   else if (inputText.match(/clear|start over/gi)) {
     logText("Do you want me to erase our conversation?");
     clearDialog = true;
@@ -218,14 +439,13 @@ function parseInput(inputText) {
   }
   else logText("I don't know what to say.");
   
-  if (inputText == inputText.toUpperCase())
+  if (inputText.match(/[A-z]/) && inputText == inputText.toUpperCase())
     logText("WHY ARE YOU SHOUTING?");
-
-
-
+  if (inputText.match(/thank(s| you)/i))
+    logText("You're welcome.");
 
  document.querySelector("#in_txt").value = "";
- document.querySelector("#in_txt").focus();
+ if (window.innerWidth > window.innerHeight) document.querySelector("#in_txt").focus();
 }
 
 
@@ -240,7 +460,7 @@ function logText(text,isInput) {
  document.querySelector("#log_txt").innerHTML += 
   "<p class='" + 
   ((isInput) ? "in" : "out") + 
-  "'>" + text + "</p>";
+  "'>" + capitalize(text) + "</p>";
   window.scrollTo(0,document.body.scrollHeight);
   if (!isInput) {
     speak(text.replace(/<[^>]*>/g,""));
