@@ -4,9 +4,11 @@ p.out {
  color:blue;
 }
 
+iframe {position:relative; left:100px}
+
 .terminal {
   padding:10px;
-//  max-width:80%;
+  max-width:80%;
   font-family:monospace;
   color:green;
   background:#cdcdcd;

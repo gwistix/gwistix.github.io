@@ -7,6 +7,7 @@
 
 var userName;
 var userBday;
+var otherBdays = [];
 var smellJoke = false;
 var knockKnockJoke = false;
 var knockKnock2 = false;
@@ -115,11 +116,11 @@ function parseInput(inputText) {
     logText("Go, Go, Power Rangers!");
    else if (inputText.match(/flight of dragons/i)) {
     logText("...soar in the purple light.<br>In the sky, or in my mind?");
-    /* Add video here */
+    logText(`<iframe width="560" height="315" src="https://www.youtube.com/embed/ogsNTmPAIaE" frameborder="0" allowfullscreen></iframe>`);
    }
    else if (inputText.match(/penny for your thoughts/i)) {
     logText("I hate Brenda.");
-    /* Add video here */
+    logText(`<iframe width="560" height="315" src="https://www.youtube.com/embed/U9t-slLl30E" frameborder="0" allowfullscreen></iframe>`);
    }
    else if (inputText.match(/batman.s.*(mother|mom).*dinner/i))
     logText("Dinner dinner dinner dinner, dinner dinner dinner dinner, Batman!");
@@ -153,7 +154,7 @@ function parseInput(inputText) {
     logText(`Christmas is on a ${days[xmas.getDay()]} this year.`);
 
    }
-   else if (inputText.match(/how.*(long|many.*days).*(until|before).*my.*(birthday|b\-day|bday)/i)) {
+   else if (inputText.match(/how.*(long|many.*days).*(until|before).*my.*(birthday|b\-day|bday)/i) || inputText.match(/when.*my.*(birthday|b\-day|bday)/i)) {
     console.log("Birthday query");
     if (userBday != undefined) {   
        
@@ -168,12 +169,44 @@ function parseInput(inputText) {
      }
      if (daysTilBday > 355) logText("Did you have a good birthday?");
      logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until your birthday.`);
-     logText(`It's on a ${days[thisBday.getDay()]}.`);
+<!-- /* Unexplained error */    logText(`It's on a ${days[thisBday.getDay()]}.`); -->
      if (daysTilBday < 10) logText("Are you getting excited yet?");
     }
     else logText(`I don't know when your birthday is.`);
    }
+   else if (inputText.match(/how.*(long|many.*days).*(until|before).*'s.*(birthday|b\-day|bday)/i) || inputText.match(/when.*'s.*(birthday|b\-day|bday)/i)) {
+    /* Find out whose birthday to look for */
+    var bdayName = inputText
+    .replace(/.*(until|before) /i,"")
+    .replace(/when is /i,"")
+    .replace(/'s.*/i,"");
+    var bdayPerson;
+    otherBdays.forEach(function(element){
+     if (element.name.toLowerCase() == bdayName.toLowerCase()) bdayPerson = element;
+    });
+
+    console.log("Other birthday query");
+    if (bdayPerson != undefined) {   
+       
+     var now = new Date();
+     var thisBday = new Date();
+     thisBday.setMonth(bdayPerson.bday.getMonth());
+     thisBday.setDate(bdayPerson.bday.getDate());
+     daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+     if (daysTilBday < 0) {
+      thisBday.setYear(now.getFullYear() + 1);
+      daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+     }
+     if (daysTilBday > 355) logText("That was just a few days ago!");
+     logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until ${bdayPerson.name}'s birthday.`);
+     logText(`It's on a ${days[thisBday.getDay()]}.`);
+     if (daysTilBday < 10) logText("Did you get ${bdayPerson.name} a present yet?");
+    }
+    else logText(`I don't know when ${bdayPerson.name}'s birthday is.`);
+   }
    else if (inputText.match(/my (birthday|b\-day|bday) is/i)) {
+    /* Add inputs like "today", "tomorrow", "yesterday" */
+
     userBday = new Date(
      Date.parse(
       inputText
@@ -229,6 +262,73 @@ function parseInput(inputText) {
     logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until your birthday.`);
     logText(`It's on a ${days[thisBday.getDay()]}.`);
     if (daysTilBday < 10) logText("Are you getting excited yet?");
+   }
+   else if (inputText.match(/'s (birthday|b\-day|bday) is/i)) {
+    var bdayPerson;
+    if (inputText.match(/my/)) {
+     bdayPerson = inputText
+     .replace(/my/,"your")
+     .replace(/'s.*/,"");
+    } 
+    else {
+     bdayPerson = inputText.replace(/'s.*/,"");
+    }
+    otherBdays.push({name:bdayPerson});
+    otherBdays[otherBdays.length-1].bday = new Date(
+     Date.parse(
+      inputText
+      .replace(/.*'s b(irth|\-)?day is (on )?/i,"")
+      .replace(/(st|nd|rd|th)/g,"")
+     )
+    );
+    
+    var days = [
+     "Sunday",
+     "Monday",
+     "Tuesday",
+     "Wednesday",
+     "Thursday",
+     "Friday",
+     "Saturday"
+    ];
+
+    var months = [
+     "January",
+     "February",
+     "March",
+     "April",
+     "May",
+     "June",
+     "July",
+     "August",
+     "September",
+     "October",
+     "November",
+     "December"
+    ];
+
+    var ordinalSuffix;
+    var date = otherBdays[otherBdays.length-1].bday.getDate();
+    var modulo = date % 10;
+    if (modulo == 1 && date != 11) ordinalSuffix = "st";
+    else if (modulo == 2 && date != 12) ordinalSuffix = "nd";
+    else if (modulo == 3 && date != 13) ordinalSuffix = "rd";
+    else ordinalSuffix = "th";
+    logText(`${otherBdays[otherBdays.length-1].name}'s birthday is ${months[otherBdays[otherBdays.length-1].bday.getMonth()]} ${otherBdays[otherBdays.length-1].bday.getDate()}${ordinalSuffix}?`);
+
+    var now = new Date();
+    var thisBday = new Date();
+    thisBday.setMonth(otherBdays[otherBdays.length-1].bday.getMonth());
+    thisBday.setDate(otherBdays[otherBdays.length-1].bday.getDate());
+    daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+    if (daysTilBday < 0) {
+     thisBday.setYear(now.getFullYear() + 1);
+     daysTilBday = Math.floor((thisBday - now) / 1000 / 60 / 60 / 24);
+    }
+    if (daysTilBday > 355) logText("That was just a few days ago!");
+    logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until ${otherBdays[otherBdays.length-1].name}'s birthday.`);
+    logText(`It's on a ${days[thisBday.getDay()]}.`);
+    if (daysTilBday < 10) logText("Did you get ${otherBdays[otherBdays.length-1].name} a present yet?");
    }
    else if (inputText.match(/what day/i) || inputText.match(/^day$/i)) {
     var now = new Date();
