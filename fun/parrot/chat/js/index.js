@@ -200,7 +200,7 @@ function parseInput(inputText) {
      if (daysTilBday > 355) logText("That was just a few days ago!");
      logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until ${bdayPerson.name}'s birthday.`);
      logText(`It's on a ${days[thisBday.getDay()]}.`);
-     if (daysTilBday < 10) logText("Did you get ${bdayPerson.name} a present yet?");
+     if (daysTilBday < 10) logText(`Did you get ${bdayPerson.name} a present yet?`);
     }
     else logText(`I don't know when ${bdayPerson.name}'s birthday is.`);
    }
@@ -328,7 +328,7 @@ function parseInput(inputText) {
     if (daysTilBday > 355) logText("That was just a few days ago!");
     logText(`There ${daysTilBday == 1 ? "is" : "are"} ${daysTilBday < 10 ? "only " : ""}${daysTilBday} day${daysTilBday == 1 ? "" : "s"} until ${otherBdays[otherBdays.length-1].name}'s birthday.`);
     logText(`It's on a ${days[thisBday.getDay()]}.`);
-    if (daysTilBday < 10) logText("Did you get ${otherBdays[otherBdays.length-1].name} a present yet?");
+    if (daysTilBday < 10) logText(`Did you get ${otherBdays[otherBdays.length-1].name} a present yet?`);
    }
    else if (inputText.match(/what day/i) || inputText.match(/^day$/i)) {
     var now = new Date();
