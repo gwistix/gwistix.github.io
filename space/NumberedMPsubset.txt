@@ -1,0 +1,501 @@
+Number   Name                Designation YYYY MM DD  Location                 Discoverer
+     (1) Ceres                           1801 01 01  Palermo                  Piazzi, G.
+     (2) Pallas                          1802 03 28  Bremen                   Olbers, H. W.
+     (3) Juno                            1804 09 01  Lilienthal               Harding, K.
+     (4) Vesta                           1807 03 29  Bremen                   Olbers, H. W.
+     (5) Astraea                         1845 12 08  Driesen                  Hencke, K. L.
+     (6) Hebe                            1847 07 01  Driesen                  Hencke, K. L.
+     (7) Iris                            1847 08 13  London                   Hind, J. R.
+     (8) Flora                           1847 10 18  London                   Hind, J. R.
+     (9) Metis                           1848 04 25  Markree                  Graham, A.
+    (10) Hygiea                          1849 04 12  Naples                   de Gasparis, A.
+    (11) Parthenope                      1850 05 11  Naples                   de Gasparis, A.
+    (12) Victoria                        1850 09 13  London                   Hind, J. R.
+    (13) Egeria                          1850 11 02  Naples                   de Gasparis, A.
+    (14) Irene                           1851 05 19  London                   Hind, J. R.
+    (15) Eunomia                         1851 07 29  Naples                   de Gasparis, A.
+    (16) Psyche                          1852 03 17  Naples                   de Gasparis, A.
+    (17) Thetis                          1852 04 17  Dusseldorf               Luther, R.
+    (18) Melpomene                       1852 06 24  London                   Hind, J. R.
+    (19) Fortuna                         1852 08 22  London                   Hind, J. R.
+    (20) Massalia                        1852 09 19  Naples                   de Gasparis, A.
+    (21) Lutetia                         1852 11 15  Paris                    Goldschmidt, H.
+    (22) Kalliope                        1852 11 16  London                   Hind, J. R.
+    (23) Thalia                          1852 12 15  London                   Hind, J. R.
+    (24) Themis                          1853 04 05  Naples                   de Gasparis, A.
+    (25) Phocaea                         1853 04 06  Marseilles               Chacornac, J.
+    (26) Proserpina                      1853 05 05  Dusseldorf               Luther, R.
+    (27) Euterpe                         1853 11 08  London                   Hind, J. R.
+    (28) Bellona                         1854 03 01  Dusseldorf               Luther, R.
+    (29) Amphitrite                      1854 03 01  London                   Marth, A.
+    (30) Urania                          1854 07 22  London                   Hind, J. R.
+    (31) Euphrosyne                      1854 09 01  Washington               Ferguson, J.
+    (32) Pomona                          1854 10 26  Paris                    Goldschmidt, H.
+    (33) Polyhymnia                      1854 10 28  Paris                    Chacornac, J.
+    (34) Circe                           1855 04 06  Paris                    Chacornac, J.
+    (35) Leukothea                       1855 04 19  Dusseldorf               Luther, R.
+    (36) Atalante                        1855 10 05  Paris                    Goldschmidt, H.
+    (37) Fides                           1855 10 05  Dusseldorf               Luther, R.
+    (38) Leda                            1856 01 12  Paris                    Chacornac, J.
+    (39) Laetitia                        1856 02 08  Paris                    Chacornac, J.
+    (40) Harmonia                        1856 03 31  Paris                    Goldschmidt, H.
+    (41) Daphne                          1856 05 22  Paris                    Goldschmidt, H.
+    (42) Isis                            1856 05 23  Oxford                   Pogson, N. R.
+    (43) Ariadne                         1857 04 15  Oxford                   Pogson, N. R.
+    (44) Nysa                            1857 05 27  Paris                    Goldschmidt, H.
+    (45) Eugenia                         1857 06 27  Paris                    Goldschmidt, H.
+    (46) Hestia                          1857 08 16  Oxford                   Pogson, N. R.
+    (47) Aglaja                          1857 09 15  Dusseldorf               Luther, R.
+    (48) Doris                           1857 09 19  Paris                    Goldschmidt, H.
+    (49) Pales                           1857 09 19  Paris                    Goldschmidt, H.
+    (50) Virginia                        1857 10 04  Washington               Ferguson, J.
+    (51) Nemausa                         1858 01 22  Nimes                    Laurent, J. J. P.
+    (52) Europa                          1858 02 04  Paris                    Goldschmidt, H.
+    (53) Kalypso                         1858 04 04  Dusseldorf               Luther, R.
+    (54) Alexandra                       1858 09 10  Paris                    Goldschmidt, H.
+    (55) Pandora                         1858 09 10  Albany                   Searle, G.
+    (56) Melete                          1857 09 09  Paris                    Goldschmidt, H.
+    (57) Mnemosyne                       1859 09 22  Dusseldorf               Luther, R.
+    (58) Concordia                       1860 03 24  Dusseldorf               Luther, R.
+    (59) Elpis                           1860 09 12  Paris                    Chacornac, J.
+    (60) Echo                            1860 09 14  Washington               Ferguson, J.
+    (61) Danae                           1860 09 09  Paris                    Goldschmidt, H.
+    (62) Erato                           1860 09 14  Berlin                   Lesser, O., Forster, W.
+    (63) Ausonia                         1861 02 10  Naples                   de Gasparis, A.
+    (64) Angelina                        1861 03 04  Marseilles               Tempel, E. W.
+    (65) Cybele                          1861 03 08  Marseilles               Tempel, E. W.
+    (66) Maja                            1861 04 09  Cambridge                Tuttle, H. P.
+    (67) Asia                            1861 04 17  Madras                   Pogson, N. R.
+    (68) Leto                            1861 04 29  Dusseldorf               Luther, R.
+    (69) Hesperia                        1861 04 29  Milan                    Schiaparelli, G.
+    (70) Panopaea                        1861 05 05  Paris                    Goldschmidt, H.
+    (71) Niobe                           1861 08 13  Dusseldorf               Luther, R.
+    (72) Feronia                         1861 05 29  Clinton                  Peters, C. H. F.
+    (73) Klytia                          1862 04 07  Cambridge                Tuttle, H. P.
+    (74) Galatea                         1862 08 29  Marseilles               Tempel, E. W.
+    (75) Eurydike                        1862 09 22  Clinton                  Peters, C. H. F.
+    (76) Freia                           1862 10 21  Copenhagen               d'Arrest, H.
+    (77) Frigga                          1862 11 12  Clinton                  Peters, C. H. F.
+    (78) Diana                           1863 03 15  Dusseldorf               Luther, R.
+    (79) Eurynome                        1863 09 14  Ann Arbor                Watson, J. C.
+    (80) Sappho                          1864 05 02  Madras                   Pogson, N. R.
+    (81) Terpsichore                     1864 09 30  Marseilles               Tempel, E. W.
+    (82) Alkmene                         1864 11 27  Dusseldorf               Luther, R.
+    (83) Beatrix                         1865 04 26  Naples                   de Gasparis, A.
+    (84) Klio                            1865 08 25  Dusseldorf               Luther, R.
+    (85) Io                              1865 09 19  Clinton                  Peters, C. H. F.
+    (86) Semele                          1866 01 04  Berlin                   Tietjen, F.
+    (87) Sylvia                          1866 05 16  Madras                   Pogson, N. R.
+    (88) Thisbe                          1866 06 15  Clinton                  Peters, C. H. F.
+    (89) Julia                           1866 08 06  Marseilles               Stephan, E.
+    (90) Antiope                         1866 10 01  Dusseldorf               Luther, R.
+    (91) Aegina                          1866 11 04  Marseilles               Stephan, E.
+    (92) Undina                          1867 07 07  Clinton                  Peters, C. H. F.
+    (93) Minerva                         1867 08 24  Ann Arbor                Watson, J. C.
+    (94) Aurora                          1867 09 06  Ann Arbor                Watson, J. C.
+    (95) Arethusa                        1867 11 23  Dusseldorf               Luther, R.
+    (96) Aegle                           1868 02 17  Marseilles               Coggia, J.
+    (97) Klotho                          1868 02 17  Marseilles               Tempel, E. W.
+    (98) Ianthe                          1868 04 18  Clinton                  Peters, C. H. F.
+    (99) Dike                            1868 05 28  Marseilles               Borrelly, A.
+   (100) Hekate                          1868 07 11  Ann Arbor                Watson, J. C.
+   (101) Helena                          1868 08 15  Ann Arbor                Watson, J. C.
+   (102) Miriam                          1868 08 22  Clinton                  Peters, C. H. F.
+   (103) Hera                            1868 09 07  Ann Arbor                Watson, J. C.
+   (104) Klymene                         1868 09 13  Ann Arbor                Watson, J. C.
+   (105) Artemis                         1868 09 16  Ann Arbor                Watson, J. C.
+   (106) Dione                           1868 10 10  Ann Arbor                Watson, J. C.
+   (107) Camilla                         1868 11 17  Madras                   Pogson, N. R.
+   (108) Hecuba                          1869 04 02  Dusseldorf               Luther, R.
+   (109) Felicitas                       1869 10 09  Clinton                  Peters, C. H. F.
+   (110) Lydia                           1870 04 19  Marseilles               Borrelly, A.
+   (111) Ate                             1870 08 14  Clinton                  Peters, C. H. F.
+   (112) Iphigenia                       1870 09 19  Clinton                  Peters, C. H. F.
+   (113) Amalthea                        1871 03 12  Dusseldorf               Luther, R.
+   (114) Kassandra                       1871 07 23  Clinton                  Peters, C. H. F.
+   (115) Thyra                           1871 08 06  Ann Arbor                Watson, J. C.
+   (116) Sirona                          1871 09 08  Clinton                  Peters, C. H. F.
+   (117) Lomia                           1871 09 12  Marseilles               Borrelly, A.
+   (118) Peitho                          1872 03 15  Dusseldorf               Luther, R.
+   (119) Althaea                         1872 04 03  Ann Arbor                Watson, J. C.
+   (120) Lachesis                        1872 04 10  Marseilles               Borrelly, A.
+   (121) Hermione                        1872 05 12  Ann Arbor                Watson, J. C.
+   (122) Gerda                           1872 07 31  Clinton                  Peters, C. H. F.
+   (123) Brunhild                        1872 07 31  Clinton                  Peters, C. H. F.
+   (124) Alkeste                         1872 08 23  Clinton                  Peters, C. H. F.
+   (125) Liberatrix                      1872 09 11  Paris                    Henry, P. M.
+   (126) Velleda                         1872 11 05  Paris                    Henry, P. P.
+   (127) Johanna                         1872 11 05  Paris                    Henry, P. M.
+   (128) Nemesis                         1872 11 25  Ann Arbor                Watson, J. C.
+   (129) Antigone                        1873 02 05  Clinton                  Peters, C. H. F.
+   (130) Elektra                         1873 02 17  Clinton                  Peters, C. H. F.
+   (131) Vala                            1873 05 24  Clinton                  Peters, C. H. F.
+   (132) Aethra                          1873 06 13  Ann Arbor                Watson, J. C.
+   (133) Cyrene                          1873 08 16  Ann Arbor                Watson, J. C.
+   (134) Sophrosyne                      1873 09 27  Dusseldorf               Luther, R.
+   (135) Hertha                          1874 02 18  Clinton                  Peters, C. H. F.
+   (136) Austria                         1874 03 18  Pola                     Palisa, J.
+   (137) Meliboea                        1874 04 21  Pola                     Palisa, J.
+   (138) Tolosa                          1874 05 19  Toulouse                 Perrotin, J.
+   (139) Juewa                           1874 10 10  Peking                   Watson, J. C.
+   (140) Siwa                            1874 10 13  Pola                     Palisa, J.
+   (141) Lumen                           1875 01 13  Paris                    Henry, P. P.
+   (142) Polana                          1875 01 28  Pola                     Palisa, J.
+   (143) Adria                           1875 02 23  Pola                     Palisa, J.
+   (144) Vibilia                         1875 06 03  Clinton                  Peters, C. H. F.
+   (145) Adeona                          1875 06 03  Clinton                  Peters, C. H. F.
+   (146) Lucina                          1875 06 08  Marseilles               Borrelly, A.
+   (147) Protogeneia                     1875 07 10  Vienna                   Schulhof, L.
+   (148) Gallia                          1875 08 07  Paris                    Henry, P. M.
+   (149) Medusa                          1875 09 21  Toulouse                 Perrotin, J.
+   (150) Nuwa                            1875 10 18  Ann Arbor                Watson, J. C.
+   (151) Abundantia                      1875 11 01  Pola                     Palisa, J.
+   (152) Atala                           1875 11 02  Paris                    Henry, P. P.
+   (153) Hilda                           1875 11 02  Pola                     Palisa, J.
+   (154) Bertha                          1875 11 04  Paris                    Henry, P. M.
+   (155) Scylla                          1875 11 08  Pola                     Palisa, J.
+   (156) Xanthippe                       1875 11 22  Pola                     Palisa, J.
+   (157) Dejanira                        1875 12 01  Marseilles               Borrelly, A.
+   (158) Koronis                         1876 01 04  Berlin                   Knorre, V.
+   (159) Aemilia                         1876 01 26  Paris                    Henry, P. P.
+   (160) Una                             1876 02 20  Clinton                  Peters, C. H. F.
+   (161) Athor                           1876 04 19  Ann Arbor                Watson, J. C.
+   (162) Laurentia                       1876 04 21  Paris                    Henry, P. M.
+   (163) Erigone                         1876 04 26  Toulouse                 Perrotin, J.
+   (164) Eva                             1876 07 12  Paris                    Henry, P. P.
+   (165) Loreley                         1876 08 09  Clinton                  Peters, C. H. F.
+   (166) Rhodope                         1876 08 15  Clinton                  Peters, C. H. F.
+   (167) Urda                            1876 08 28  Clinton                  Peters, C. H. F.
+   (168) Sibylla                         1876 09 28  Ann Arbor                Watson, J. C.
+   (169) Zelia                           1876 09 28  Paris                    Henry, P. M.
+   (170) Maria                           1877 01 10  Toulouse                 Perrotin, J.
+   (171) Ophelia                         1877 01 13  Marseilles               Borrelly, A.
+   (172) Baucis                          1877 02 05  Marseilles               Borrelly, A.
+   (173) Ino                             1877 08 01  Marseilles               Borrelly, A.
+   (174) Phaedra                         1877 09 02  Ann Arbor                Watson, J. C.
+   (175) Andromache                      1877 10 01  Ann Arbor                Watson, J. C.
+   (176) Iduna                           1877 10 14  Clinton                  Peters, C. H. F.
+   (177) Irma                            1877 11 05  Paris                    Henry, P. P.
+   (178) Belisana                        1877 11 06  Pola                     Palisa, J.
+   (179) Klytaemnestra                   1877 11 11  Ann Arbor                Watson, J. C.
+   (180) Garumna                         1878 01 29  Toulouse                 Perrotin, J.
+   (181) Eucharis                        1878 02 02  Marseilles               Cottenot, P.
+   (182) Elsa                            1878 02 07  Pola                     Palisa, J.
+   (183) Istria                          1878 02 08  Pola                     Palisa, J.
+   (184) Dejopeja                        1878 02 28  Pola                     Palisa, J.
+   (185) Eunike                          1878 03 01  Clinton                  Peters, C. H. F.
+   (186) Celuta                          1878 04 06  Paris                    Henry, P. M.
+   (187) Lamberta                        1878 04 11  Marseilles               Coggia, J.
+   (188) Menippe                         1878 06 18  Clinton                  Peters, C. H. F.
+   (189) Phthia                          1878 09 09  Clinton                  Peters, C. H. F.
+   (190) Ismene                          1878 09 22  Clinton                  Peters, C. H. F.
+   (191) Kolga                           1878 09 30  Clinton                  Peters, C. H. F.
+   (192) Nausikaa                        1879 02 17  Pola                     Palisa, J.
+   (193) Ambrosia                        1879 02 28  Marseilles               Coggia, J.
+   (194) Prokne                          1879 03 21  Clinton                  Peters, C. H. F.
+   (195) Eurykleia                       1879 04 19  Pola                     Palisa, J.
+   (196) Philomela                       1879 05 14  Clinton                  Peters, C. H. F.
+   (197) Arete                           1879 05 21  Pola                     Palisa, J.
+   (198) Ampella                         1879 06 13  Marseilles               Borrelly, A.
+   (199) Byblis                          1879 07 09  Clinton                  Peters, C. H. F.
+   (200) Dynamene                        1879 07 27  Clinton                  Peters, C. H. F.
+   (201) Penelope                        1879 08 07  Pola                     Palisa, J.
+   (202) Chryseis                        1879 09 11  Clinton                  Peters, C. H. F.
+   (203) Pompeja                         1879 09 25  Clinton                  Peters, C. H. F.
+   (204) Kallisto                        1879 10 08  Pola                     Palisa, J.
+   (205) Martha                          1879 10 13  Pola                     Palisa, J.
+   (206) Hersilia                        1879 10 13  Clinton                  Peters, C. H. F.
+   (207) Hedda                           1879 10 17  Pola                     Palisa, J.
+   (208) Lacrimosa                       1879 10 21  Pola                     Palisa, J.
+   (209) Dido                            1879 10 22  Clinton                  Peters, C. H. F.
+   (210) Isabella                        1879 11 12  Pola                     Palisa, J.
+   (211) Isolda                          1879 12 10  Pola                     Palisa, J.
+   (212) Medea                           1880 02 06  Pola                     Palisa, J.
+   (213) Lilaea                          1880 02 16  Clinton                  Peters, C. H. F.
+   (214) Aschera                         1880 02 29  Pola                     Palisa, J.
+   (215) Oenone                          1880 04 07  Berlin                   Knorre, V.
+   (216) Kleopatra                       1880 04 10  Pola                     Palisa, J.
+   (217) Eudora                          1880 08 30  Marseilles               Coggia, J.
+   (218) Bianca                          1880 09 04  Pola                     Palisa, J.
+   (219) Thusnelda                       1880 09 30  Pola                     Palisa, J.
+   (220) Stephania                       1881 05 19  Vienna                   Palisa, J.
+   (221) Eos                             1882 01 18  Vienna                   Palisa, J.
+   (222) Lucia                           1882 02 09  Vienna                   Palisa, J.
+   (223) Rosa                            1882 03 09  Vienna                   Palisa, J.
+   (224) Oceana                          1882 03 30  Vienna                   Palisa, J.
+   (225) Henrietta                       1882 04 19  Vienna                   Palisa, J.
+   (226) Weringia                        1882 07 19  Vienna                   Palisa, J.
+   (227) Philosophia                     1882 08 12  Paris                    Henry, P. P.
+   (228) Agathe                          1882 08 19  Vienna                   Palisa, J.
+   (229) Adelinda                        1882 08 22  Vienna                   Palisa, J.
+   (230) Athamantis                      1882 09 03  Bothkamp                 de Ball, K.
+   (231) Vindobona                       1882 09 10  Vienna                   Palisa, J.
+   (232) Russia                          1883 01 31  Vienna                   Palisa, J.
+   (233) Asterope                        1883 05 11  Marseilles               Borrelly, A.
+   (234) Barbara                         1883 08 12  Clinton                  Peters, C. H. F.
+   (235) Carolina                        1883 11 28  Vienna                   Palisa, J.
+   (236) Honoria                         1884 04 26  Vienna                   Palisa, J.
+   (237) Coelestina                      1884 06 27  Vienna                   Palisa, J.
+   (238) Hypatia                         1884 07 01  Berlin                   Knorre, V.
+   (239) Adrastea                        1884 08 18  Vienna                   Palisa, J.
+   (240) Vanadis                         1884 08 27  Marseilles               Borrelly, A.
+   (241) Germania                        1884 09 12  Dusseldorf               Luther, R.
+   (242) Kriemhild                       1884 09 22  Vienna                   Palisa, J.
+   (243) Ida                             1884 09 29  Vienna                   Palisa, J.
+   (244) Sita                            1884 10 14  Vienna                   Palisa, J.
+   (245) Vera                            1885 02 06  Madras                   Pogson, N. R.
+   (246) Asporina                        1885 03 06  Marseilles               Borrelly, A.
+   (247) Eukrate                         1885 03 14  Dusseldorf               Luther, R.
+   (248) Lameia                          1885 06 05  Vienna                   Palisa, J.
+   (249) Ilse                            1885 08 16  Clinton                  Peters, C. H. F.
+   (250) Bettina                         1885 09 03  Vienna                   Palisa, J.
+   (251) Sophia                          1885 10 04  Vienna                   Palisa, J.
+   (252) Clementina                      1885 10 11  Nice                     Perrotin, J.
+   (253) Mathilde                        1885 11 12  Vienna                   Palisa, J.
+   (254) Augusta                         1886 03 31  Vienna                   Palisa, J.
+   (255) Oppavia                         1886 03 31  Vienna                   Palisa, J.
+   (256) Walpurga                        1886 04 03  Vienna                   Palisa, J.
+   (257) Silesia                         1886 04 05  Vienna                   Palisa, J.
+   (258) Tyche                           1886 05 04  Dusseldorf               Luther, R.
+   (259) Aletheia                        1886 06 28  Clinton                  Peters, C. H. F.
+   (260) Huberta                         1886 10 03  Vienna                   Palisa, J.
+   (261) Prymno                          1886 10 31  Clinton                  Peters, C. H. F.
+   (262) Valda                           1886 11 03  Vienna                   Palisa, J.
+   (263) Dresda                          1886 11 03  Vienna                   Palisa, J.
+   (264) Libussa                         1886 12 22  Clinton                  Peters, C. H. F.
+   (265) Anna                            1887 02 25  Vienna                   Palisa, J.
+   (266) Aline                           1887 05 17  Vienna                   Palisa, J.
+   (267) Tirza                           1887 05 27  Nice                     Charlois, A.
+   (268) Adorea                          1887 06 08  Marseilles               Borrelly, A.
+   (269) Justitia                        1887 09 21  Vienna                   Palisa, J.
+   (270) Anahita                         1887 10 08  Clinton                  Peters, C. H. F.
+   (271) Penthesilea                     1887 10 13  Berlin                   Knorre, V.
+   (272) Antonia                         1888 02 04  Nice                     Charlois, A.
+   (273) Atropos                         1888 03 08  Vienna                   Palisa, J.
+   (274) Philagoria                      1888 04 03  Vienna                   Palisa, J.
+   (275) Sapientia                       1888 04 15  Vienna                   Palisa, J.
+   (276) Adelheid                        1888 04 17  Vienna                   Palisa, J.
+   (277) Elvira                          1888 05 03  Nice                     Charlois, A.
+   (278) Paulina                         1888 05 16  Vienna                   Palisa, J.
+   (279) Thule                           1888 10 25  Vienna                   Palisa, J.
+   (280) Philia                          1888 10 29  Vienna                   Palisa, J.
+   (281) Lucretia                        1888 10 31  Vienna                   Palisa, J.
+   (282) Clorinde                        1889 01 28  Nice                     Charlois, A.
+   (283) Emma                            1889 02 08  Nice                     Charlois, A.
+   (284) Amalia                          1889 05 29  Nice                     Charlois, A.
+   (285) Regina                          1889 08 03  Nice                     Charlois, A.
+   (286) Iclea                           1889 08 03  Vienna                   Palisa, J.
+   (287) Nephthys                        1889 08 25  Clinton                  Peters, C. H. F.
+   (288) Glauke                          1890 02 20  Dusseldorf               Luther, R.
+   (289) Nenetta                         1890 03 10  Nice                     Charlois, A.
+   (290) Bruna                           1890 03 20  Vienna                   Palisa, J.
+   (291) Alice                           1890 04 25  Vienna                   Palisa, J.
+   (292) Ludovica                        1890 04 25  Vienna                   Palisa, J.
+   (293) Brasilia                        1890 05 20  Nice                     Charlois, A.
+   (294) Felicia                         1890 07 15  Nice                     Charlois, A.
+   (295) Theresia                        1890 08 17  Vienna                   Palisa, J.
+   (296) Phaetusa                        1890 08 19  Nice                     Charlois, A.
+   (297) Caecilia                        1890 09 09  Nice                     Charlois, A.
+   (298) Baptistina                      1890 09 09  Nice                     Charlois, A.
+   (299) Thora                           1890 10 06  Vienna                   Palisa, J.
+   (300) Geraldina                       1890 10 03  Nice                     Charlois, A.
+   (301) Bavaria                         1890 11 16  Vienna                   Palisa, J.
+   (302) Clarissa                        1890 11 14  Nice                     Charlois, A.
+   (303) Josephina                       1891 02 12  Rome                     Millosevich, E.
+   (304) Olga                            1891 02 14  Vienna                   Palisa, J.
+   (305) Gordonia                        1891 02 16  Nice                     Charlois, A.
+   (306) Unitas                          1891 03 01  Rome                     Millosevich, E.
+   (307) Nike                            1891 03 05  Nice                     Charlois, A.
+   (308) Polyxo                          1891 03 31  Marseilles               Borrelly, A.
+   (309) Fraternitas                     1891 04 06  Vienna                   Palisa, J.
+   (310) Margarita                       1891 05 16  Nice                     Charlois, A.
+   (311) Claudia                         1891 06 11  Nice                     Charlois, A.
+   (312) Pierretta                       1891 08 28  Nice                     Charlois, A.
+   (313) Chaldaea                        1891 08 30  Vienna                   Palisa, J.
+   (314) Rosalia                         1891 09 01  Nice                     Charlois, A.
+   (315) Constantia                      1891 09 04  Vienna                   Palisa, J.
+   (316) Goberta                         1891 09 08  Nice                     Charlois, A.
+   (317) Roxane                          1891 09 11  Nice                     Charlois, A.
+   (318) Magdalena                       1891 09 24  Nice                     Charlois, A.
+   (319) Leona                           1891 10 08  Nice                     Charlois, A.
+   (320) Katharina                       1891 10 11  Vienna                   Palisa, J.
+   (321) Florentina                      1891 10 15  Vienna                   Palisa, J.
+   (322) Phaeo                           1891 11 27  Marseilles               Borrelly, A.
+   (323) Brucia                          1891 12 22  Heidelberg               Wolf, M. F.
+   (324) Bamberga                        1892 02 25  Vienna                   Palisa, J.
+   (325) Heidelberga                     1892 03 04  Heidelberg               Wolf, M. F.
+   (326) Tamara                          1892 03 19  Vienna                   Palisa, J.
+   (327) Columbia                        1892 03 22  Nice                     Charlois, A.
+   (328) Gudrun                          1892 03 18  Heidelberg               Wolf, M. F.
+   (329) Svea                            1892 03 21  Heidelberg               Wolf, M. F.
+   (330) Adalberta           A910 CB     1910 02 02  Heidelberg               Wolf, M. F.
+   (331) Etheridgea                      1892 04 01  Nice                     Charlois, A.
+   (332) Siri                            1892 03 19  Heidelberg               Wolf, M. F.
+   (333) Badenia             1892 A      1892 08 22  Heidelberg               Wolf, M. F.
+   (334) Chicago             1892 L      1892 08 23  Heidelberg               Wolf, M. F.
+   (335) Roberta             1892 C      1892 09 01  Heidelberg               Staus, A.
+   (336) Lacadiera           1892 D      1892 09 19  Nice                     Charlois, A.
+   (337) Devosa              1892 E      1892 09 22  Nice                     Charlois, A.
+   (338) Budrosa             1892 F      1892 09 25  Nice                     Charlois, A.
+   (339) Dorothea            1892 G      1892 09 25  Heidelberg               Wolf, M. F.
+   (340) Eduarda             1892 H      1892 09 25  Heidelberg               Wolf, M. F.
+   (341) California          1892 J      1892 09 25  Heidelberg               Wolf, M. F.
+   (342) Endymion            1892 K      1892 10 17  Heidelberg               Wolf, M. F.
+   (343) Ostara              1892 N      1892 11 15  Heidelberg               Wolf, M. F.
+   (344) Desiderata          1892 M      1892 11 15  Nice                     Charlois, A.
+   (345) Tercidina           1892 O      1892 11 23  Nice                     Charlois, A.
+   (346) Hermentaria         1892 P      1892 11 25  Nice                     Charlois, A.
+   (347) Pariana             1892 Q      1892 11 28  Nice                     Charlois, A.
+   (348) May                 1892 R      1892 11 28  Nice                     Charlois, A.
+   (349) Dembowska           1892 T      1892 12 09  Nice                     Charlois, A.
+   (350) Ornamenta           1892 U      1892 12 14  Nice                     Charlois, A.
+   (351) Yrsa                1892 V      1892 12 16  Heidelberg               Wolf, M. F.
+   (352) Gisela              1893 B      1893 01 12  Heidelberg               Wolf, M. F.
+   (353) Ruperto-Carola      1893 F      1893 01 16  Heidelberg               Wolf, M. F.
+   (354) Eleonora            1893 A      1893 01 17  Nice                     Charlois, A.
+   (355) Gabriella           1893 E      1893 01 20  Nice                     Charlois, A.
+   (356) Liguria             1893 G      1893 01 21  Nice                     Charlois, A.
+   (357) Ninina              1893 J      1893 02 11  Nice                     Charlois, A.
+   (358) Apollonia           1893 K      1893 03 08  Nice                     Charlois, A.
+   (359) Georgia             1893 M      1893 03 10  Nice                     Charlois, A.
+   (360) Carlova             1893 N      1893 03 11  Nice                     Charlois, A.
+   (361) Bononia             1893 P      1893 03 11  Nice                     Charlois, A.
+   (362) Havnia              1893 R      1893 03 12  Nice                     Charlois, A.
+   (363) Padua               1893 S      1893 03 17  Nice                     Charlois, A.
+   (364) Isara               1893 T      1893 03 19  Nice                     Charlois, A.
+   (365) Corduba             1893 V      1893 03 21  Nice                     Charlois, A.
+   (366) Vincentina          1893 W      1893 03 21  Nice                     Charlois, A.
+   (367) Amicitia            1893 AA     1893 05 19  Nice                     Charlois, A.
+   (368) Haidea              1893 AB     1893 05 19  Nice                     Charlois, A.
+   (369) Aeria               1893 AE     1893 07 04  Marseilles               Borrelly, A.
+   (370) Modestia            1893 AC     1893 07 14  Nice                     Charlois, A.
+   (371) Bohemia             1893 AD     1893 07 16  Nice                     Charlois, A.
+   (372) Palma               1893 AH     1893 08 19  Nice                     Charlois, A.
+   (373) Melusina            1893 AJ     1893 09 15  Nice                     Charlois, A.
+   (374) Burgundia           1893 AK     1893 09 18  Nice                     Charlois, A.
+   (375) Ursula              1893 AL     1893 09 18  Nice                     Charlois, A.
+   (376) Geometria           1893 AM     1893 09 18  Nice                     Charlois, A.
+   (377) Campania            1893 AN     1893 09 20  Nice                     Charlois, A.
+   (378) Holmia              1893 AP     1893 12 06  Nice                     Charlois, A.
+   (379) Huenna              1894 AQ     1894 01 08  Nice                     Charlois, A.
+   (380) Fiducia             1894 AR     1894 01 08  Nice                     Charlois, A.
+   (381) Myrrha              1894 AS     1894 01 10  Nice                     Charlois, A.
+   (382) Dodona              1894 AT     1894 01 29  Nice                     Charlois, A.
+   (383) Janina              1894 AU     1894 01 29  Nice                     Charlois, A.
+   (384) Burdigala           1894 AV     1894 02 11  Bordeaux                 Courty, F.
+   (385) Ilmatar             1894 AX     1894 03 01  Heidelberg               Wolf, M. F.
+   (386) Siegena             1894 AY     1894 03 01  Heidelberg               Wolf, M. F.
+   (387) Aquitania           1894 AZ     1894 03 05  Bordeaux                 Courty, F.
+   (388) Charybdis           1894 BA     1894 03 07  Nice                     Charlois, A.
+   (389) Industria           1894 BB     1894 03 08  Nice                     Charlois, A.
+   (390) Alma                1894 BC     1894 03 24  Paris                    Bigourdan, G.
+   (391) Ingeborg            1894 BE     1894 11 01  Heidelberg               Wolf, M. F.
+   (392) Wilhelmina          1894 BF     1894 11 04  Heidelberg               Wolf, M. F.
+   (393) Lampetia            1894 BG     1894 11 04  Heidelberg               Wolf, M. F.
+   (394) Arduina             1894 BH     1894 11 19  Marseilles               Borrelly, A.
+   (395) Delia               1894 BK     1894 11 30  Nice                     Charlois, A.
+   (396) Aeolia              1894 BL     1894 12 01  Nice                     Charlois, A.
+   (397) Vienna              1894 BM     1894 12 19  Nice                     Charlois, A.
+   (398) Admete              1894 BN     1894 12 28  Nice                     Charlois, A.
+   (399) Persephone          1895 BP     1895 02 23  Heidelberg               Wolf, M. F.
+   (400) Ducrosa             1895 BU     1895 03 15  Nice                     Charlois, A.
+   (401) Ottilia             1895 BT     1895 03 16  Heidelberg               Wolf, M. F.
+   (402) Chloe               1895 BW     1895 03 21  Nice                     Charlois, A.
+   (403) Cyane               1895 BX     1895 05 18  Nice                     Charlois, A.
+   (404) Arsinoe             1895 BY     1895 06 20  Nice                     Charlois, A.
+   (405) Thia                1895 BZ     1895 07 23  Nice                     Charlois, A.
+   (406) Erna                1895 CB     1895 08 22  Nice                     Charlois, A.
+   (407) Arachne             1895 CC     1895 10 13  Heidelberg               Wolf, M. F.
+   (408) Fama                1895 CD     1895 10 13  Heidelberg               Wolf, M. F.
+   (409) Aspasia             1895 CE     1895 12 09  Nice                     Charlois, A.
+   (410) Chloris             1896 CH     1896 01 07  Nice                     Charlois, A.
+   (411) Xanthe              1896 CJ     1896 01 07  Nice                     Charlois, A.
+   (412) Elisabetha          1896 CK     1896 01 07  Heidelberg               Wolf, M. F.
+   (413) Edburga             1896 CL     1896 01 07  Heidelberg               Wolf, M. F.
+   (414) Liriope             1896 CN     1896 01 16  Nice                     Charlois, A.
+   (415) Palatia             1896 CO     1896 02 07  Heidelberg               Wolf, M. F.
+   (416) Vaticana            1896 CS     1896 05 04  Nice                     Charlois, A.
+   (417) Suevia              1896 CT     1896 05 06  Heidelberg               Wolf, M. F.
+   (418) Alemannia           1896 CV     1896 09 07  Heidelberg               Wolf, M. F.
+   (419) Aurelia             1896 CW     1896 09 07  Heidelberg               Wolf, M. F.
+   (420) Bertholda           1896 CY     1896 09 07  Heidelberg               Wolf, M. F.
+   (421) Zahringia           1896 CZ     1896 09 07  Heidelberg               Wolf, M. F.
+   (422) Berolina            1896 DA     1896 10 08  Berlin                   Witt, G.
+   (423) Diotima             1896 DB     1896 12 07  Nice                     Charlois, A.
+   (424) Gratia              1896 DF     1896 12 31  Nice                     Charlois, A.
+   (425) Cornelia            1896 DC     1896 12 28  Nice                     Charlois, A.
+   (426) Hippo               1897 DH     1897 08 25  Nice                     Charlois, A.
+   (427) Galene              1897 DJ     1897 08 27  Nice                     Charlois, A.
+   (428) Monachia            1897 DK     1897 11 18  Munich                   Villiger, W.
+   (429) Lotis               1897 DL     1897 11 23  Nice                     Charlois, A.
+   (430) Hybris              1897 DM     1897 12 18  Nice                     Charlois, A.
+   (431) Nephele             1897 DN     1897 12 18  Nice                     Charlois, A.
+   (432) Pythia              1897 DO     1897 12 18  Nice                     Charlois, A.
+   (433) Eros                1898 DQ     1898 08 13  Berlin                   Witt, G.
+   (434) Hungaria            1898 DR     1898 09 11  Heidelberg               Wolf, M. F.
+   (435) Ella                1898 DS     1898 09 11  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (436) Patricia            1898 DT     1898 09 13  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (437) Rhodia              1898 DP     1898 07 16  Nice                     Charlois, A.
+   (438) Zeuxo               1898 DU     1898 11 08  Nice                     Charlois, A.
+   (439) Ohio                1898 EB     1898 10 13  Mount Hamilton           Coddington, E. F.
+   (440) Theodora            1898 EC     1898 10 13  Mount Hamilton           Coddington, E. F.
+   (441) Bathilde            1898 ED     1898 12 08  Nice                     Charlois, A.
+   (442) Eichsfeldia         1899 EE     1899 02 15  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (443) Photographica       1899 EF     1899 02 17  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (444) Gyptis              1899 EL     1899 03 31  Marseilles               Coggia, J.
+   (445) Edna                1899 EX     1899 10 02  Mount Hamilton           Coddington, E. F.
+   (446) Aeternitas          1899 ER     1899 10 27  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (447) Valentine           1899 ES     1899 10 27  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (448) Natalie             1899 ET     1899 10 27  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (449) Hamburga            1899 EU     1899 10 31  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (450) Brigitta            1899 EV     1899 10 10  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (451) Patientia           1899 EY     1899 12 04  Nice                     Charlois, A.
+   (452) Hamiltonia          1899 FD     1899 12 06  Mount Hamilton           Keeler, J. E.
+   (453) Tea                 1900 FA     1900 02 22  Nice                     Charlois, A.
+   (454) Mathesis            1900 FC     1900 03 28  Heidelberg               Schwassmann, A.
+   (455) Bruchsalia          1900 FG     1900 05 22  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (456) Abnoba              1900 FH     1900 06 04  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (457) Alleghenia          1900 FJ     1900 09 15  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (458) Hercynia            1900 FK     1900 09 21  Heidelberg               Wolf, M. F., Schwassmann, A.
+   (459) Signe               1900 FM     1900 10 22  Heidelberg               Wolf, M. F.
+   (460) Scania              1900 FN     1900 10 22  Heidelberg               Wolf, M. F.
+   (461) Saskia              1900 FP     1900 10 22  Heidelberg               Wolf, M. F.
+   (462) Eriphyla            1900 FQ     1900 10 22  Heidelberg               Wolf, M. F.
+   (463) Lola                1900 FS     1900 10 31  Heidelberg               Wolf, M. F.
+   (464) Megaira             1901 FV     1901 01 09  Heidelberg               Wolf, M. F.
+   (465) Alekto              1901 FW     1901 01 13  Heidelberg               Wolf, M. F.
+   (466) Tisiphone           1901 FX     1901 01 17  Heidelberg               Wolf, M. F., Carnera, L.
+   (467) Laura               1901 FY     1901 01 09  Heidelberg               Wolf, M. F.
+   (468) Lina                1901 FZ     1901 01 18  Heidelberg               Wolf, M. F.
+   (469) Argentina           1901 GE     1901 02 20  Heidelberg               Carnera, L.
+   (470) Kilia               1901 GJ     1901 04 21  Heidelberg               Carnera, L.
+   (471) Papagena            1901 GN     1901 06 07  Heidelberg               Wolf, M. F.
+   (472) Roma                1901 GP     1901 07 11  Heidelberg               Carnera, L.
+   (473) Nolli               1901 GC     1901 02 13  Heidelberg               Wolf, M. F.
+   (474) Prudentia           1901 GD     1901 02 13  Heidelberg               Wolf, M. F.
+   (475) Ocllo               1901 HN     1901 08 14  Arequipa                 Stewart, D.
+   (476) Hedwig              1901 GQ     1901 08 17  Heidelberg               Carnera, L.
+   (477) Italia              1901 GR     1901 08 23  Heidelberg               Carnera, L.
+   (478) Tergeste            1901 GU     1901 09 21  Heidelberg               Carnera, L.
+   (479) Caprera             1901 HJ     1901 11 12  Heidelberg               Carnera, L.
+   (480) Hansa               1901 GL     1901 05 21  Heidelberg               Wolf, M. F., Carnera, L.
+   (481) Emita               1902 HP     1902 02 12  Heidelberg               Carnera, L.
+   (482) Petrina             1902 HT     1902 03 03  Heidelberg               Wolf, M. F.
+   (483) Seppina             1902 HU     1902 03 04  Heidelberg               Wolf, M. F.
+   (484) Pittsburghia        1902 HX     1902 04 29  Heidelberg               Wolf, M. F.
+   (485) Genua               1902 HZ     1902 05 07  Heidelberg               Carnera, L.
+   (486) Cremona             1902 JB     1902 05 11  Heidelberg               Carnera, L.
+   (487) Venetia             1902 JL     1902 07 09  Heidelberg               Carnera, L.
+   (488) Kreusa              1902 JG     1902 06 26  Heidelberg               Wolf, M. F., Carnera, L.
+   (489) Comacina            1902 JM     1902 09 02  Heidelberg               Carnera, L.
+   (490) Veritas             1902 JP     1902 09 03  Heidelberg               Wolf, M. F.
+   (491) Carina              1902 JQ     1902 09 03  Heidelberg               Wolf, M. F.
+   (492) Gismonda            1902 JR     1902 09 03  Heidelberg               Wolf, M. F.
+   (493) Griseldis           1902 JS     1902 09 07  Heidelberg               Wolf, M. F.
+   (494) Virtus              1902 JV     1902 10 07  Heidelberg               Wolf, M. F.
+   (495) Eulalia             1902 KG     1902 10 25  Heidelberg               Wolf, M. F.
+   (496) Gryphia             1902 KH     1902 10 25  Heidelberg               Wolf, M. F.
+   (497) Iva                 1902 KJ     1902 11 04  Heidelberg               Dugan, R. S.
+   (498) Tokio               1902 KU     1902 12 02  Nice                     Charlois, A.
+   (499) Venusia             1902 KX     1902 12 24  Heidelberg               Wolf, M. F.
+   (500) Selinur             1903 LA     1903 01 16  Heidelberg               Wolf, M. F.
