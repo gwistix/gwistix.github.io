@@ -39,7 +39,15 @@ var editboxHTML =
 "<\/body>" +
 "<\/html>";
 
-var defaultStuff = "<html>\n<head>\n<link rel='shortcut icon' href='\/favicon.png'>\n<link rel='icon' sizes='192x192' href='\/appicon.png'>\n<title><\/title>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<meta name='apple-mobile-web-app-capable' content='yes'>\n<meta name='mobile-web-app-capable' content='yes'>\n<link rel='stylesheet' href='https:\/\/gwistix.github.io\/code\/lib.css'>\n<style>\n\nbody {}\n\n<\/style>\n<script src='https:\/\/gwistix.github.io\/code\/lib.js'><\/script>\n<script>\n\nfunction init() {\n console.clear();\n pseudos();\n\n}\n\n<\/script>\n\n<\/head>\n\n<body onLoad='init();'>\n\n" +
+var defaultStuff = "<html>\n<head>\n" 
++ "<link rel='shortcut icon' href='\/favicon.png'>\n"
++ "<link rel='icon' sizes='192x192' href='\/appicon.png'>\n"
++ "<title><\/title>\n"
++ "<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n"
++ "<meta name='apple-mobile-web-app-capable' content='yes'>\n"
++ "<meta name='mobile-web-app-capable' content='yes'>\n"
++ "<link rel='stylesheet' href='https:\/\/gwistix.github.io\/code\/lib.css'>\n"
++ "<style>\n\nbody {\n\/\/ white-space: pre-wrap\n}\n\n<\/style>\n<script src='https:\/\/gwistix.github.io\/code\/lib.js'><\/script>\n<script>\n\nfunction init() {\n console.clear();\n pseudos();\n\n}\n\n<\/script>\n\n<\/head>\n\n<body onLoad='init();'>\n\n" +
 "<h3>Welcome to the real-time HTML editor!<\/h3>\n" +
 "<p>Type HTML on the left, and it will magically appear on the right.<\/p>";
 
