@@ -29,11 +29,17 @@ section {
  height: 1em;
 }
 
+.explanation {
+ font-family: cursive;
+}
+
 </style>
 <script src='https://gwistix.github.io/code/lib.js'></script>
 <script>
 
+var players = 5; //Number of players
 var characters = [];
+var characterNames = [];
 var highestLevel = 0;
 var highestGold = 0;
 var winningLevel = 10;
@@ -44,15 +50,18 @@ function init() {
  console.clear();
  pseudos();
 // addCharacter("Gorbash","Dragon",20, new Item("Fiery breath",10,0));
- addCharacter();
- addCharacter();
- addCharacter();
- addCharacter();
- addCharacter();
+ for (var i=0;i<players;i++) {
+  addCharacter();
+ }
+ characters.sort(function(a,b){
+  return a.getAttackPower() - b.getAttackPower();
+ });
 
- console.log("");
- console.log("Characters:");
- characters.forEach(function(element){console.log(element.getInfo())});
+ printLn("<h3>Characters:</h3>");
+ characters.forEach(function(element){printLn(element.getInfo())});
+ printLn("<span class='explanation'>The character with the lowest attack power goes first&hellip;</span>");
+ printLn("<hr>");
+ printLn("<h3>Gameplay</h3>");
 
  console.log("");
  console.log("Monsters:");
@@ -76,6 +85,7 @@ function init() {
 }
 
 function addCharacter(_name, _race, _level, _weapon) {
+ _level = _level || 1;
  characters.push(new Character(_name, _race, _level, _weapon));
 }
 
@@ -96,7 +106,15 @@ var races = [
  "Orc",
  "Elf",
  "Dwarf",
- "Goblin"
+ "Goblin",
+ "Halfling"
+];
+
+var classes = [
+ "Warrior",
+ "Mage",
+ "Cleric",
+ "Thief"
 ];
 
 /* Parameters:
@@ -113,7 +131,7 @@ function Character(_name, _race, _level, _weapon) {
  this.gold = 0;
 
  this.getInfo = function() {
-  return `${this.name} is a level-${this.level} ${this.race} with a ${this.weapon.toString()}, ${this.gold == 0 ? "no" : this.gold} gold, and an attack power of ${(this.level + this.weapon.bonus)}.`;
+  return `<b>${this.name}</b> is a level-${this.level} ${this.race} with a ${this.weapon.toString()}, ${this.gold == 0 ? "no" : this.gold} gold, and an attack power of ${(this.level + this.weapon.bonus)}.`;
  };
 
  this.getAttackPower = function() {
@@ -127,18 +145,30 @@ function Character(_name, _race, _level, _weapon) {
    highestLevel = this.level;
    printLn(`<h2>${this.name} is now the highest-level character!</h2>`);
   }
+  else if (this.level == highestLevel) {
+   printLn(`<h2>${this.name} is now tied for highest-level character!</h2>`);
+  }
   if (this.level >= winningLevel) {
    winGame(this);
   }
  };
 
+ /* Awards treasure or other loot based on a 6-sided die roll:
+  * 1	No reward
+  * 2—4	The corresponding number of gold coins
+  * 5,6	New weapon or other item
+  */
  this.getTreasure = function(rolls) {
   var dieRoll = roll(rolls);
   if (dieRoll == 5 || dieRoll == 6) {
    var newItem = getRandomItem();
-   printLn(`${this.name} found a new ${newItem}!`);
-   var newerIsBetter = newItem.bonus > this.weapon.bonus;
-   if (newerIsBetter) {
+   printLn(`${this.name} found a skeleton clutching a ${newItem}!`);
+
+   /* If the new weapon is better than the player's existing weapon,
+    * the character keeps the new weapon; otherwise, the character
+    * keeps the existing weapon.
+    */
+   if (newItem.bonus > this.weapon.bonus) {
     printLn(`${this.name} traded the old ${this.weapon} for the new ${newItem}`);
     this.weapon = newItem;
    }
@@ -147,11 +177,11 @@ function Character(_name, _race, _level, _weapon) {
    }
   }
   else if (dieRoll == 1) {
-   printLn(`🙁 There was no treasure in the room!`);
+   printLn(`🙁 There was nothing else in the room!`);
   }
   else {
    this.gold += dieRoll;
-   printLn(`💰 ${this.name} got ${dieRoll} gold!`);
+   printLn(`💰 ${this.name} found a skeleton clutching a pouch containing ${dieRoll} gold!`);
    if (this.gold > highestGold) {
     highestGold = this.gold;
     printLn(`<h2>${this.name} now has the most gold!</h2>`);
@@ -342,8 +372,16 @@ function sumArray(array) {
  return sum;
 }
 
+/* Returns a random name that has not yet been used
+ * from the names array
+ */
 function getRandomName() {
- return names[Math.floor(Math.random() * names.length)];
+ var randomName = names[Math.floor(Math.random() * names.length)];
+ while (~characterNames.indexOf(randomName)) {
+  randomName = names[Math.floor(Math.random() * names.length)];
+ }
+ characterNames.push(randomName);
+ return randomName;
 }
 
 function getRandomRace() {
@@ -390,3 +428,9 @@ function winGame(character) {
 </head>
 
 <body onLoad='init();'>
+
+<h3>Introduction</h3>
+
+<p class='indented explanation'>In the game of <span style='font-family:cursive; font-weight:bold'>Fame & Fortune</span>, a group of intrepid adventurers has found the entrance to an ancient dungeon, full of monsters and treasure. The adventurers decide to have a competition, and make a pact that the first who attains <i>fame</i> <small>(by reaching level 10)</small> or <i>fortune</i> <small>(by acquiring 20 gold)</small> will be the champion.</p>
+
+<hr>
