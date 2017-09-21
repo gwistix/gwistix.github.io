@@ -1,4 +1,4 @@
-/*
+﻿/*
 TODO: Make custom Alert(), Prompt(), and Confirm() dialog boxes
 */
 
@@ -388,7 +388,36 @@ function pseudos(plain_lists) {
 	customHtmlEntities();
 
 	/* Converts pseudo-dashes (--, ---, etc.) to real dashes */
-	pseudoDashes(); 
+	pseudoDashes();
+
+	/* Changes dumb quotes to smart quotes and ellipses to the ellipses character */
+	fixTypography();
+}
+
+function fixTypography() {
+ var str = document.body.innerHTML;
+
+ // Use smart quotes
+ str = str
+ .replace(/[^A-z]"/g,function(match){
+  return match.replace(/"/,"") + "“";
+ })
+ .replace(/"/g,"”")
+ ;
+
+ str = str
+ .replace(/[^A-z]'/g,function(match){
+  return match.replace(/'/,"") + "‘";
+ })
+ .replace(/'[^A-z]/g,function(match){
+  return "’" + match.replace(/'/,""); 
+ })
+ ;
+
+ // Smart ellipses
+ str = str.replace(/\.{3}/g,"…");
+
+ document.body.innerHTML = str;
 }
 
 var supKbdCharacters = "0123456789+-=()ABDEGHIJKLMNOPRTUVWabcdefghijklmnoprstuvwxyzβγδθιψχɒɕðɜɟɡɥɨɩɪʝɭʟɱɰɲɳɴɵɸʂʃʉʊʋʌʐʑʒθɐɑɛŋɔɯ";
