@@ -390,10 +390,14 @@ function pseudos(plain_lists) {
 	/* Converts pseudo-dashes (--, ---, etc.) to real dashes */
 	pseudoDashes();
 
-	/* Changes dumb quotes to smart quotes and ellipses to the ellipses character */
-	fixTypography();
 }
 
+/* Changes dumb quotes to smart quotes and ellipses to 
+ * the ellipses character.
+ * Currently, it does this inside HTML tags too, so it
+ * breaks everything. I'm leaving it here so I can fix 
+ * it later.
+ */
 function fixTypography() {
  var str = document.body.innerHTML;
 
