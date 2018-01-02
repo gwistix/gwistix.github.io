@@ -1,0 +1,186 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+}
+
+Array.prototype.random = function() {
+ return this[Math.floor(Math.random() * this.length)];
+}
+
+var knopekins = [];
+
+function generateKnopekin() {
+ var knopekin = adverbs.random() + " "
+ + primaryAdjectives.random() + " and "
+ + secondaryAdjectives.random() + " "
+ + primaryNouns.random() + " of "
+ + secondaryNouns.random()
+ ;
+
+ var article = knopekin[0].match(/[aeiou]/i) ? "an" : "a";
+ console.log(knopekin, article);
+
+ document.body.innerHTML += "<p>You are " + article + " " + knopekin + "</p>";
+}
+
+var adverbs = [
+ "Expertly",
+ "Willfully",
+ "Endlessly",
+ "Delightfully",
+ "Eternally",
+ "Beautifully",
+ "Truthfully ",
+ "Delicately",
+ "Firmly",
+ "Weirdly",
+ "Splendidly",
+ "Cheerfully",
+ "Brutally",
+ "Wholeheartedly",
+ "Randomly",
+ "Completely",
+ "Absolutely",
+ "Marvelously",
+ "Heartily",
+ "Breathtakingly",
+ "Frighteningly",
+ "Hopelessly",
+ "Devotedly",
+ "Defiantly",
+];
+
+var primaryAdjectives = [
+ "Sassy",
+ "Poetic",
+ "Brilliant",
+ "Noble",
+ "Perfect",
+ "Rainbow Infused",
+ "Beautiful",
+ "Sophisticated",
+ "Glowing",
+ "Fierce",
+ "Spicy",
+ "Brave",
+ "Alluring",
+ "Graceful",
+ "Wry",
+ "Debonair",
+ "Magnificent",
+ "Lovely",
+ "Fancy",
+ "Elegant",
+ "Resplendent",
+ "Impressive",
+ "Regal",
+ "Triumphant"
+];
+
+var secondaryAdjectives = [
+ "Magical",
+ "Sparkling",
+ "Opalescent",
+ "Wild",
+ "Wiry",
+ "Wonderful",
+ "Quirky",
+ "Adorable",
+ "Jazzy",
+ "Aquatic",
+ "Vast",
+ "Majestic",
+ "Cunning",
+ "Sexy",
+ "Ambidextrous",
+ "Angelic",
+ "Powerful",
+ "Ruddy",
+ "Swanky",
+ "Stunning",
+ "Venerable",
+ "Exquisite",
+ "Dazzling",
+ "Pure"
+];
+
+var primaryNouns = [
+ "Goddess",
+ "Unicorn",
+ "Sunfish",
+ "Rainbow",
+ "Fairy",
+ "Treeshark",
+ "Angel",
+ "Vixen",
+ "Wanderer",
+ "Poem",
+ "Hero",
+ "Wolf",
+ "Oasis",
+ "Mermaid",
+ "Sunflower",
+ "Peony",
+ "Mountain",
+ "Symphony",
+ "Champion",
+ "Lioness",
+ "Barnacle",
+ "Cuttlefish",
+ "Forest",
+ "Peacock"
+];
+
+var secondaryNouns = [
+ "Wonder",
+ "Mystery",
+ "Majesty",
+ "Cheer",
+ "Intelligence",
+ "Power",
+ "Strength",
+ "Friendship",
+ "Justice",
+ "Grace",
+ "Benevolence",
+ "Truth",
+ "Equity",
+ "Orgasms",
+ "Happiness",
+ "Elegance",
+ "Peace",
+ "Joy",
+ "Authenticity",
+ "Passion",
+ "Ambition",
+ "Spirit",
+ "Hope",
+ "Pleasure",
+];
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<button onClick='generateKnopekin()'>Generate new Knopekin</button>
