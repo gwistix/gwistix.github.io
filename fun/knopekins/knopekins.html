@@ -13,6 +13,21 @@ body {
 // white-space: pre-wrap
 }
 
+button {
+ background:blue;
+ border:none;
+ color:white;
+ border-radius:10px;
+ padding:15px;
+ font-size:30px
+}
+
+#main {
+ margin:auto;
+ font-family: arial;
+ font-size:150%;
+}
+
 </style>
 <script src='https://gwistix.github.io/code/lib.js'></script>
 <script>
@@ -39,7 +54,8 @@ function generateKnopekin() {
  var article = knopekin[0].match(/[aeiou]/i) ? "an" : "a";
  console.log(knopekin, article);
 
- document.body.innerHTML += "<p>You are " + article + " " + knopekin + "</p>";
+ document.querySelector("#knopekinsDiv").innerHTML = "<p>You are " + article + " " + knopekin + "</p>" + document.querySelector("#knopekinsDiv").innerHTML;
+ 
 }
 
 var adverbs = [
@@ -183,4 +199,10 @@ var secondaryNouns = [
 
 <body onLoad='init();'>
 
-<button onClick='generateKnopekin()'>Generate new Knopekin</button>
+<div id='main' class='center'>
+
+ <button onClick='generateKnopekin()'>Generate new Knopekin</button>
+
+ <div id='knopekinsDiv'></div>
+
+</div>
