@@ -22,11 +22,27 @@ button {
  font-size:30px
 }
 
+img {
+ width:300px;
+}
+
+.card {
+ border-radius:10px;
+ background:white;
+ padding:5px;
+ margin-top:10px; 
+}
+
+.card > div {
+ width:400px;
+}
+
 #main {
  margin:auto;
  font-family: arial;
  font-size:150%;
 }
+
 
 </style>
 <script src='https://gwistix.github.io/code/lib.js'></script>
@@ -35,6 +51,7 @@ button {
 function init() {
  console.clear();
  pseudos();
+ putCard();
 }
 
 Array.prototype.random = function() {
@@ -44,18 +61,35 @@ Array.prototype.random = function() {
 var knopekins = [];
 
 function generateKnopekin() {
- var knopekin = adverbs.random() + " "
- + primaryAdjectives.random() + " and "
- + secondaryAdjectives.random() + " "
- + primaryNouns.random() + " of "
- + secondaryNouns.random()
+ var knopekin = (Math.round(Math.random()) ?
+ adverbs.random() + " " : "")
+ + primaryAdjectives.random()
+ + (Math.round(Math.random()) ? " and " + secondaryAdjectives.random() : "") + " "
+ + primaryNouns.random()
+ + (Math.round(Math.random()) ? "&nbsp;of&nbsp;" + secondaryNouns.random() : "")
  ;
 
  var article = knopekin[0].match(/[aeiou]/i) ? "an" : "a";
  console.log(knopekin, article);
 
- document.querySelector("#knopekinsDiv").innerHTML = "<p>You are " + article + " " + knopekin + "</p>" + document.querySelector("#knopekinsDiv").innerHTML;
+ return "You are " + article + " " + knopekin; 
+}
+
+function generateCard(knopekin) {
+ knopekin = knopekin || generateKnopekin();
+
+ return "<div><figure class=''><img src='images/" + (Math.floor(Math.random() * 14)) + "'><figcaption>" + knopekin + "</figcaption></figure></div>";
  
+}
+
+function addCard(card) {
+ card = card || generateCard();
+ document.querySelector("#knopekinsDiv").innerHTML = card + document.querySelector("#knopekinsDiv").innerHTML;
+}
+
+function putCard(card) {
+ card = card || generateCard();
+ document.querySelector("#knopekinsDiv").innerHTML = card;
 }
 
 var adverbs = [
@@ -201,7 +235,7 @@ var secondaryNouns = [
 
 <div id='main' class='center'>
 
- <button onClick='generateKnopekin()'>Generate new Knopekin</button>
+ <button onClick='putCard()'>Generate new Knopekin</button>
 
  <div id='knopekinsDiv'></div>
 
