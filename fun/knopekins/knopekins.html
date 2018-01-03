@@ -8,12 +8,12 @@
 <meta name='mobile-web-app-capable' content='yes'>
 <link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
 <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css?family=Lobster+Two" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
 <style>
 
 body {
- background-color: #ffbf47;
- color:white;
+// background-color: #ffbf47;
+ color:black;
 }
 
 button {
@@ -46,6 +46,7 @@ img {
  font-size: 4rem;
  font-family: 'Lobster', cursive;
  font-weight: 700;
+ color:white;
  background: #7eccc3;//radial-gradient(#cdcdcd 10%, #7f7f7f 80%, black);
  position:fixed;
  top:0px;
@@ -56,9 +57,14 @@ img {
 
 #main {
  margin:auto;
- margin-top:150px;
- font-family: 'Lobster Two', cursive;
+ margin-top:100px;
+ font-family: 'Quicksand', sans-serif;
  font-size:150%;
+}
+
+#imageContainer {
+ max-height:240px;
+ overflow:hidden;
 }
 
 #buttonDiv {
@@ -108,7 +114,7 @@ function generateKnopekin() {
 function generateCard(knopekin) {
  knopekin = knopekin || generateKnopekin();
 
- return "<div><figure class=''><img src='images/" + (Math.ceil(Math.random() * 14)) + ".jpg' alt='Leslie & Ann are BFFs'><figcaption>" + knopekin + "</figcaption></figure></div>";
+ return "<figure><div id='imageContainer'><img src='images/" + (Math.ceil(Math.random() * 14)) + ".jpg' alt='Leslie & Ann are BFFs'></div><figcaption>" + knopekin + "</figcaption></figure>";
  
 }
 
