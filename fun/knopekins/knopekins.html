@@ -7,19 +7,24 @@
 <meta name='apple-mobile-web-app-capable' content='yes'>
 <meta name='mobile-web-app-capable' content='yes'>
 <link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Lobster+Two" rel="stylesheet">
 <style>
 
 body {
-// white-space: pre-wrap
+ background-color: #ffbf47;
+ color:white;
 }
 
 button {
- background:blue;
- border:none;
+ background:#7eccc3;
+ border:15px;
  color:white;
- border-radius:10px;
- padding:15px;
- font-size:30px
+ border-radius:50%;
+ margin:auto;
+ width:100px;
+ height:100px;
+ box-shadow: 0px -1px 5px 0 #065881 inset, 0px 1px 5px 1px #ccc;
 }
 
 img {
@@ -37,10 +42,29 @@ img {
  width:400px;
 }
 
+.heading {
+ font-size: 4rem;
+ font-family: 'Lobster', cursive;
+ font-weight: 700;
+ background: #7eccc3;//radial-gradient(#cdcdcd 10%, #7f7f7f 80%, black);
+ position:fixed;
+ top:0px;
+ left:0px;
+ width:100%;
+ box-shadow: 0px 0px 15px 0 gray;
+}
+
 #main {
  margin:auto;
- font-family: arial;
+ margin-top:150px;
+ font-family: 'Lobster Two', cursive;
  font-size:150%;
+}
+
+#buttonDiv {
+ width:100%;
+ position:fixed;
+ bottom:10px; 
 }
 
 
@@ -51,7 +75,7 @@ img {
 function init() {
  console.clear();
  pseudos();
-// putCard();
+ putCard();
 }
 
 Array.prototype.random = function() {
@@ -59,6 +83,12 @@ Array.prototype.random = function() {
 }
 
 var knopekins = [];
+var images = [
+ "https://i.imgur.com/OeNIjM4h.jpg",
+ "https://pbs.twimg.com/media/CLlxEX2UwAAvOv5.jpg",
+ "https://az616578.vo.msecnd.net/files/2016/10/15/636121467825673426-1707937715_parks_rec2.jpg",
+ "https://assets.rbl.ms/10428678/980x.jpg"
+];
 
 function generateKnopekin() {
  var knopekin = (Math.round(Math.random()) ?
@@ -78,7 +108,7 @@ function generateKnopekin() {
 function generateCard(knopekin) {
  knopekin = knopekin || generateKnopekin();
 
- return "<div><figure class=''><img src='images/" + (Math.ceil(Math.random() * 14)) + ".jpg' alt='Leslie and Ann are BFFs'><figcaption>" + knopekin + "</figcaption></figure></div>";
+ return "<div><figure class=''><img src='images/" + (Math.ceil(Math.random() * 14)) + ".jpg' alt='Leslie & Ann are BFFs'><figcaption>" + knopekin + "</figcaption></figure></div>";
  
 }
 
@@ -217,7 +247,7 @@ var primaryAdjectives = [
  "Steady",
  "Deep",
  "Intense",
- "Punctually",
+ "Punctual",
  "Strange"
 ];
 
@@ -260,7 +290,6 @@ var secondaryAdjectives = [
  "Enormous",
  "Proud",
  "Extraordinary",
- "Scrawny",
  "Melodic",
  "Ripe",
  "Addictive",
@@ -299,9 +328,7 @@ var primaryNouns = [
  "Forest",
  "Peacock",
  "Puppy",
- "Knife",
  "Book",
- "Nose",
  "Cupcake",
  "Palm Tree",
  "Kidney",
@@ -363,7 +390,6 @@ var secondaryNouns = [
  "Anonymity",
  "Speed",
  "Softness",
- "Expensiveness",
  "Agility",
  "Tranquility",
  "Devoutness",
@@ -383,9 +409,15 @@ var secondaryNouns = [
 
 <body onLoad='init();'>
 
+<div class='center heading'>Knope-kin</div>
+
+
 <div id='main' class='center'>
 
- <button onClick='putCard()'>Generate new Knopekin</button>
+ <div id='buttonDiv'>
+  <button class='center' onClick='putCard()'></button>
+  Generate Knope-kin
+ </div>
 
  <div id='knopekinsDiv'></div>
 
