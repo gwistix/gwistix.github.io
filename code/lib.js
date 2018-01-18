@@ -34,15 +34,15 @@ String.prototype.toCamelCase = function() {
 String.prototype.toTitleCase = function() {
  var excludedWords = ["a", "an", "the", "and", "but", "or", "above", "about", "across", "against", "along", "among", "around", "at", "before", "behind", "below", "beneath", "beside", "between", "beyond", "by", "down", "during", "except", "for", "from", "in", "inside", "into", "like", "near", "of", "off", "on", "since", "to", "toward", "through", "under", "until", "up", "upon", "with", "within"];
 
- var words = this.toLowerCase().split(" ");
+ var words = this.replace(/\(/g,"( ").toLowerCase().split(" ");
  console.log(words);
  words[0] = words[0].capitalize();
  for (var len = words.length, i=1; i<len; i++) {
-  if (words[i] && !~excludedWords.indexOf(words[i])) {
+  if (words[i] && !~excludedWords.indexOf(words[i]) || (words[i-1] && ~words[i-1].indexOf(":"))) {
    words[i] = words[i].capitalize();
   }
  }
- return words.join(" ");
+ return words.join(" ").replace(/\( /g,"(");
 }
 
 /* Formats a string as ugly case (i.e., uGlY cAsE) */
