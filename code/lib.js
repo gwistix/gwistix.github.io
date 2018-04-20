@@ -35,18 +35,31 @@ String.prototype.toTitleCase = function() {
 
  var romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
 
- var words = this.replace(/\(/g,"( ").toLowerCase().split(" ");
+ var words = this
+ .replace(/\(/g,"( ")
+ .replace(/[\.,;:\?\!]/g, function(str){
+  return " " + str;
+ })
+ .toLowerCase()
+ .split(" ");
  words[0] = words[0].capitalize();
  for (var len = words.length, i=1; i<len; i++) {
   if (words[i] && !~excludedWords.indexOf(words[i]) || (words[i-1] && ~words[i-1].indexOf(":"))) {
    words[i] = words[i].capitalize();
   }
-  if (~romanNumerals.indexOf(words[i])) {
+  if (~romanNumerals.indexOf(words[i].toUpperCase())) {
+   console.log(words[i]);
    words[i] = words[i].toUpperCase()
   }
  }
- return words.join(" ").replace(/\( /g,"(");
+ return words
+ .join(" ")
+ .replace(/\( /g,"(")
+ .replace(/ [\.,;:\?\!]/g, function(str){
+  return str.replace(/ /,"");
+ });
 }
+
 
 /* Formats a string as ugly case (i.e., uGlY cAsE) */
 String.prototype.toUglyCase = function() {
