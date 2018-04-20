@@ -48,7 +48,6 @@ String.prototype.toTitleCase = function() {
    words[i] = words[i].capitalize();
   }
   if (~romanNumerals.indexOf(words[i].toUpperCase())) {
-   console.log(words[i]);
    words[i] = words[i].toUpperCase()
   }
  }
