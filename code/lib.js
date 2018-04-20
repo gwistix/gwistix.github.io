@@ -13,7 +13,6 @@ String.prototype.capitalize = function() {
 String.prototype.toSentenceCase = function() {
  var str = this.replace(/ +/g," ");
  var arr = str.split(". ");
- console.log(arr);
  var newArr = [];
  arr.forEach(function(sentence){
   newArr.push(sentence.capitalize());
@@ -34,12 +33,16 @@ String.prototype.toCamelCase = function() {
 String.prototype.toTitleCase = function() {
  var excludedWords = ["a", "an", "the", "and", "but", "or", "above", "about", "across", "against", "along", "among", "around", "at", "before", "behind", "below", "beneath", "beside", "between", "beyond", "by", "down", "during", "except", "for", "from", "in", "inside", "into", "like", "near", "of", "off", "on", "since", "to", "toward", "through", "under", "until", "up", "upon", "with", "within"];
 
+ var romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+
  var words = this.replace(/\(/g,"( ").toLowerCase().split(" ");
- console.log(words);
  words[0] = words[0].capitalize();
  for (var len = words.length, i=1; i<len; i++) {
   if (words[i] && !~excludedWords.indexOf(words[i]) || (words[i-1] && ~words[i-1].indexOf(":"))) {
    words[i] = words[i].capitalize();
+  }
+  if (~romanNumerals.indexOf(words[i])) {
+   words[i] = words[i].toUpperCase()
   }
  }
  return words.join(" ").replace(/\( /g,"(");
@@ -141,7 +144,6 @@ function getCharacters(string, lexicographical) {
 
 	freqs.sort(function(a, b){return b.freq - a.freq}); // descending freq
 	chars = freqs.map(el => el.char + ":	" + el.freq);
-	console.log(freqs);
 	return chars.join("<br>");
 }
 
