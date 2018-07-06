@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Faller's Quest</title>
+
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+<script language=javascript src=lib.js></script>
+<script language=javascript src=level1.js></script>
+<script language=javascript src=code.js></script>
+
+</head>
+
+<body onLoad='init(); gravitate();' onKeyPress='DisplayKey(event);' background=obj/background.gif>
+
+<!-- ------------------------------------------------------------- -->
+<center>
+<!--
+<form name=form1>
+	<input type=text name=input1 size=40><br>
+</form>
+
+<form name=form2>
+	<input type=text name=input2 size=40><br>
+</form>
+
+<form name=form3>
+	<input type=text name=input3 size=40><br>
+</form>
+-->
+
+<form name=form4>
+	<input type=text name=input4 size=40><br>
+</form>
+
+</center>
+<!-- ------------------------------------------------------------- -->
+<!--						DIVS START HERE -->
+<div id=char_div>
+<img name=guy src=guy.gif width=100 height=150>
+</div>
+
+<div id=inbox_div>
+<img name=inbox src=obj/blank.gif>
+</div>
+
+<div id=ground>
+<table width=100%><td align=center width=100%><img src=obj/ground.gif width=1125 height=118></td></table>
+</div>
+
+<!--
+<div id=mountains>
+<table width=100%><td align=center width=100%><img src=obj/mountains.gif width=1125 height=114></td></table>
+</div>
+-->
+
+<div id=trampoline>
+<table width=100%><td align=center width=100%><img name=trampoline src=obj/trampoline.gif width=200 height=50></td></table>
+</div>
+
+<div id=platform1>
+<table width=100%><td align=center width=100%><img src=obj/pillar.gif width=100 height=110></td></table>
+</div>
+
+<div id=gallows>
+<table width=100%><td align=center width=100%><img src=obj/gallows.gif width=100 height=230></td></table>
+</div>
+
+<div id=palm_tree>
+<table width=100%><td align=center width=100%><img name=palm_tree src=obj/palm.gif width=175 height=300></td></table>
+</div>
+
+
+<div id=coconut1>
+	<img name=coco_1 src=obj/blank.gif width=35 height=35>
+</div>
+
+<div id=coconut2>
+	<img name=coco_2 src=obj/blank.gif width=35 height=35>
+</div>
+
+
+<div id=coconut3>
+	<img name=coco_3 src=obj/blank.gif width=35 height=35>
+</div>
+
+
+<div id=moon>
+<table width=100%><td align=center width=100%><img src=obj/moon.gif width=200 height=200></td></table>
+<!-- change body bgcolor to 7799ff for day -->
+</div>
