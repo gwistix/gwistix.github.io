@@ -97,7 +97,7 @@ function show(el) {
 
 <p style='margin-top:20px;'>Enter the consonants that you want your language to have, separated by commas. Feel free to use <a href='https://goo.gl/dQSLKr'>characters from the <abbr title='International Phonetic Alphabet'>IPA</abbr></a>. To make a consonant more common, enter it more than once.</p>
 
-<input id='consonants' onChange='onsets = this.value.split(", ");' value='p, b, t, d, k, g'>
+<input id='consonants' onChange='onsets = this.value.replace(/, /g,",").split(",");' value='p, b, t, d, k, g'>
 
 </div>
 
@@ -107,13 +107,13 @@ function show(el) {
 
 <p id='onsetsP'>Enter the consonants that you want your language to have at the start of syllables, separated by commas. Feel free to use <a href='https://goo.gl/dQSLKr'>characters from the <abbr title='International Phonetic Alphabet'>IPA</abbr></a>. To make a consonant more common, enter it more than once.</p>
 
-<input id='onsets' onChange='onsets = this.value.split(", ")' value='p, b, t, d, k, g'>
+<input id='onsets' onChange='onsets = this.value.replace(/, /g,",").split(",")' value='p, b, t, d, k, g'>
 
 <h4>End-of-syllable consonants</h4>
 
 <p id='codasP'>Enter the consonants that you want your language to have at the end of syllables, separated by commas. Feel free to use <a href='https://goo.gl/dQSLKr'>characters from the <abbr title='International Phonetic Alphabet'>IPA</abbr></a>. To make a consonant more common, enter it more than once. If you don't want consonants at the end of syllables, leave this blank.</p>
 
-<input id='codas' onChange='codas = this.value.split(", ")' value='m, n, r, l'>
+<input id='codas' onChange='codas = this.value.replace(/, /g,",").split(",")' value='m, n, r, l'>
 
 </div>
 
@@ -124,7 +124,7 @@ function show(el) {
 
 <p id='codasP'>Enter the vowels that you want your language to have in the middle of syllables, separated by commas. Feel free to use <a href='https://goo.gl/dQSLKr'>characters from the <abbr title='International Phonetic Alphabet'>IPA</abbr></a>. You can also enter vowel combinations, such as <i>ai</i>, <i>au</i>, <i>ei</i>, <i>oi</i>, and <i>ou</i>. If your language allows other sounds to appear in the middle of a syllable (such as the <i>r</i> sound in the English word <i>bird</i>), enter those here as well. To make a sound more common, enter it more than once.</p>
 
-<input id='nuclei' onChange='nuclei = this.value.split(", ")' value='a, e, i, o, u'>
+<input id='nuclei' onChange='nuclei = this.value.replace(/, /g,",").split(",")' value='a, e, i, o, u'>
 
 </fieldset>
 
@@ -140,9 +140,9 @@ function show(el) {
 <fieldset>
 <legend><h3>Step 4: Text to translate</h3> (optional)</legend>
 
-<p id='codasP'>Enter any text that you wish to be translated. Capitalized words will be assumed to be names and will not be translated (so don't capitalize the first word in each sentence). Note that this will be a word-for-word translation; if you type in a sentence in English, the translated version will still be structured exactly like English, but with different words.</p>
+<p id='codasP'>Enter any text that you wish to be translated. Capitalized words will be assumed to be names and will not be translated. Note that this will be a word-for-word translation; if you type in English text, it will still be structured exactly like English, but with different words.</p>
 
-<textarea id='textToTranslate' style='width:100%' onInput='textToTranslate = this.value;'>words you type here will be given a meaning in English.
+<textarea id='textToTranslate' style='width:100%' onInput='textToTranslate = this.value;'>words you type here will be given a meaning in English
 </textarea>
 
 </fieldset>
@@ -216,14 +216,26 @@ var onsets = [];
 var nuclei = [];
 var codas = [];
 
+var words = [];
+var frequency = [];
+var wordList = [];
+
+var clearEverything = true;
+
 function init() {
- onsets = matchCodas ? document.querySelector("#consonants").value.split(", ")
- : document.querySelector("#onsets").value.split(", ");
+ onsets = matchCodas ? document.querySelector("#consonants").value.replace(/, /g,",").split(",")
+ : document.querySelector("#onsets").value.replace(/, /g,",").split(",");
 
- nuclei = document.querySelector("#nuclei").value.split(", ");
+ nuclei = document.querySelector("#nuclei").value.replace(/, /g,",").split(",");
 
- codas = matchCodas ? document.querySelector("#consonants").value.split(", ")
- : document.querySelector("#codas").value.split(", ");
+ codas = matchCodas ? document.querySelector("#consonants").value.replace(/, /g,",").split(",")
+ : document.querySelector("#codas").value.replace(/, /g,",").split(",");
+
+ if (clearEverything) {
+  words.splice(0,words.length);
+  frequency.splice(0,frequency.length);
+  wordList.splice(0,wordList.length);
+ }
 
  console.log(document.querySelector("#textToTranslate").innerHTML)
  textToTranslate = document.querySelector("#textToTranslate").value;
@@ -261,8 +273,6 @@ function generateWord() {
  ;
 }
 
-var words = [];
-
 function generateText() {
  document.querySelector("#generatedText").innerHTML = "";
  console.clear();
@@ -275,8 +285,6 @@ function generateText() {
  sortByFrequency();
 }
 
-var frequency = [];
-var wordList = [];
 
 function sortByFrequency() {
 
@@ -321,9 +329,6 @@ function sortByFrequency() {
 function translateText(text) {
  console.log(text);
  text = text || textToTranslate;
- text = text.replace(/[\.,:;\?!]/g, function(str){
-  return " " + str;
- });
  var translatedWords = [];
 
  arr = text.split(" ");
