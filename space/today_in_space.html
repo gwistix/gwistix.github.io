@@ -69,6 +69,7 @@ function init() {
    else if (ssbody[4].match("Asteroid")) object_type = "Asteroid";
    else if (ssbody[4].match("Satellite")) object_type = "Moon";
    else if (ssbody[4].match("Comet")) object_type = "Comet";
+   else if (ssbody[8] > 250) object_type = "Dwarf planet*";
    else object_type = "Small body";
 
   /* Set the object name */
