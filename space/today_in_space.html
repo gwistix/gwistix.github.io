@@ -104,7 +104,7 @@ function init() {
    symbol:ssbody[6],
    discovery:Discovery[0]+"-"+Discovery[1], /* Month and day only */
    full_discovery:ssbody[7],
-   diameter:parseFloat(ssbody[8].replace(/,/g,""))*2,
+   diameter:(parseFloat(ssbody[8].replace(/,/g,""))*2).toLocaleString(),
    link:
     "https://en.wikipedia.org/wiki/" + 
     ((ssbody[0]) ? ssbody[0] + " " : "") + /* the Minor Planet number, if there is one */
