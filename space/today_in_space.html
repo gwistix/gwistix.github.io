@@ -69,7 +69,7 @@ function init() {
    else if (ssbody[4].match("Asteroid")) object_type = "Asteroid";
    else if (ssbody[4].match("Satellite")) object_type = "Moon";
    else if (ssbody[4].match("Comet")) object_type = "Comet";
-   else if (ssbody[8] > 250) object_type = "Dwarf planet*";
+   else if (ssbody[8] > 200) object_type = "Dwarf planet*";
    else object_type = "Small body";
 
   /* Set the object name */
@@ -180,7 +180,7 @@ function checkDate() {
 
 	mlen = Matches.length;
 
-	document.body.innerHTML += "<br><center>" + ((mlen == 1) ? mlen + " solar-system object was" : ((mlen == 0) ? "No interesting solar-system objects were" : mlen + " solar-system objects were")) + " discovered on this date:<br>";
+	document.body.innerHTML += "<br><center>" + ((mlen == 1) ? mlen + " solar-system object was" : ((mlen == 0) ? "No particularly interesting solar-system objects were" : mlen + " solar-system objects were")) + " discovered on this date:<br>";
 
 	document.body.innerHTML += "<center>";
  	for (i=0;i<mlen;i++) {
@@ -188,8 +188,10 @@ function checkDate() {
 			document.body.innerHTML += " <br>";
 			if (i == mlen - 1) document.body.innerHTML += "<center>and ";
 		}
-
-		if (Matches[i].diameter) {
+		if (!Matches[i].diameter || isNaN(Matches[i].diameter)) {
+			diameter_disp = "";
+		}
+		else if (Matches[i].diameter) {
 			if (useMiles) {
 				cm = Matches[i].diameter*100000;
 				inches = cm/2.54;
@@ -1192,4 +1194,6 @@ function nextDate() {
 	2007 TB434			Centaur				
 	2009 SH2			Asteroid (Aten)—NEO—Arjuna asteroid				
 1776	2520 P-L	Kuiper		Asteroid (main belt)			9/24/1960	18.0
-	2015 TG387	“The Goblin”	Sednoid			10/13/2015	300</div>
+	2015 TG387	“The Goblin”		Sednoid			10/13/2015	150</div>
+</body>
+</html>
