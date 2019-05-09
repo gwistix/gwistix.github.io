@@ -1,4 +1,4 @@
-﻿<html>
+<html>
 <head>
 <title>[ˈɡwɪs.tɪks] OmniType Tool</title>
 <meta charset="UTF-8">
@@ -429,6 +429,7 @@ Chinese 19968-40891
 Ethiopian 4608-5017
 Egyptian hieroglyphs 77824-78894
 Hebrew 1456-1524
+Coptic (custom)
 Hungarian (custom)
 IPA 592-890
 Japanese 12289-12542
@@ -449,6 +450,26 @@ Current("showing character range "+from_+"—"+to_);
 
 	if (from_ == "Hungarian") {				//allows for predefined character sets; NOT WORKING COMPLETELY
 		give = "a á b c cs d dz dzs e é f g gy h i í j k l ly m n ny o ó ö ő p q r s sz t u ú ü ű v w x y z zs";
+
+		Give = give.split(" ");
+
+		give = "<table class=gray border=1>";
+
+		glen = Give.length;
+		for (i=0;i<glen;i++) {
+			if (i%(char_map_width/2) == 0) {
+				give += "</tr><tr>";
+			}
+			char = Give[i];
+			charcode = Give[i].charCodeAt(0);
+			give += "<td align=center class=char_map width=50><a nohref onMouseOver='if (!dragging) charDisp("+charcode+");' onClick='if(CtrlCk(event)){dragging = \""+charcode+"\"; charDisp("+charcode+");} else {input_txt.value += \""+char.toUpperCase()+"\"; updateRecent("+charcode+");}' onMouseOut='if (!dragging) inform();' onDblClick='dragging = \""+i+"\";'>"+char.toUpperCase()+"</a></td>";
+			give += "<td align=center class=char_map width=50><a nohref onMouseOver='if (!dragging) charDisp("+charcode+");' onClick='if(CtrlCk(event)){dragging = \""+charcode+"\"; charDisp("+charcode+");} else {input_txt.value += \""+char+"\"; updateRecent("+charcode+");}' onMouseOut='if (!dragging) inform();' onDblClick='dragging = \""+i+"\";'>"+char+"</a></td>";
+		}
+		char_map_span.innerHTML = give;
+		return;
+	}
+	else if (from_ == "Coptic") {				//allows for predefined character sets; NOT WORKING COMPLETELY
+		give = "ⲁ ⲃ ⲅ ⲇ ⲉ ⲋ ⲍ ⲏ ⲑ ⲓ ⲕ ⲗ ⲙ ⲛ ⲝ ⲟ ⲡ ϥ ⲣ ⲥ ⲧ ⲩ ⲫ ⲭ ⲯ ⲱ ⳁ ϣ ϧ ϩ ϫ ϭ ϯ ⳉ ⳥ ⳦ ⳧ ⳨ ⳩ ⳪";
 
 		Give = give.split(" ");
 
@@ -906,6 +927,7 @@ DRAG
 		<option value='5024-5108'>Cherokee <span style='color:red;'>ᏣᎳᎩ</span></option>
 		<option value='19968-40891'>Chinese</option>
 		<option value='57472-57579-Constructium'>Cirth</option>
+		<option value='Coptic'>Coptic</option>
 		<option value='73728-74868'>Cuneiform</option>
 		<option value='66560-66639-Segoe'>Deseret 𐐔𐐇𐐞𐐊𐐡𐐇𐐓</option>
 		<option value='4608-5017'>Ethiopian</option>
@@ -959,3 +981,6 @@ DRAG
 <input type=checkbox checked=true></input> use &lt;v&gt; syllables
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ヷ ヸ ヴ ヹ ヺ
 </pre>
+
+</body>
+</html>
