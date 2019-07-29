@@ -2,7 +2,7 @@
 <head>
 <link rel='shortcut icon' href='/favicon.png'>
 <link rel='icon' sizes='192x192' href='/appicon.png'>
-<title></title>
+<title>Space Clock</title>
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <meta name='apple-mobile-web-app-capable' content='yes'>
 <meta name='mobile-web-app-capable' content='yes'>
@@ -110,18 +110,24 @@ function updatePlanets() {
 
  /* Inner planets (minute-based movement) */
 
+ var mref = 365 / 4; //Mercury completes one orbit in 87.97 Earth days
  var m = (continuousMovement)
-       ? mm * 24 + ss * (360/15/60)
-       : mm * 24;
+       ? mm * (360 / 60 * 365 / mref) + ss * ((360 / 60 * 365 / mref) / 60)
+       : mm * (360 / 60 * 365 / mref);
+
+ var vref = 365 / 2; //Venus completes one orbit in 224.70 Earth days
  var v = (continuousMovement)
-       ? mm * 12 + ss * (360/30/60)
-       : mm * 12;
+       ? mm * (360 / 60 * 365 / vref) + ss * ((360 / 60 * 365 / vref) / 60)
+       : mm * (360 / 60 * 365 / vref);
+
  var e = (continuousMovement)
-       ? mm * 6 + ss * (360/60/60)
-       : mm * 6;
+       ? mm * (360 / 60) + ss * (360 / 60 / 60)
+       : mm * (360 / 60);
+
+ var Mref = 365 * 2 //Mars completes one orbit in 686.97 Earth days
  var M = (continuousMovement)
-       ? mm * 3 + ss * (360/120/60)
-       : mm * 3;
+       ? mm * (360 / 60 * 365 / Mref) + ss * ((360 / 60 * 365 / Mref) / 60)
+       : mm * (360 / 60 * 365 / Mref);
 
  Mercury_orbit.style.transform = "rotate( " + m + "deg)";
  Mercury_shadow_orbit.style.transform = "rotate(" + (m - 180) + "deg)";
@@ -138,18 +144,25 @@ function updatePlanets() {
 
  /* Outer planets (hour-based movement) */
 
+ var jref = 365 * 12; //Jupiter completes one orbit in 4332.59 Earth days (11.86 Earth years)
  var j = (continuousMovement)
-       ? hh * (360 / 12) + mm * (360 / 12 / 60) + ss * (360 / 12 / 60 / 60)
-       : hh * (360 / 12);
+       ? hh * (360 * 365 / jref) + mm * ((360 * 365 / jref) / 60) + ss * ((360 * 365 / jref) / 60 / 60)
+       : hh * (360 * 365 / jref);
+
+ var sref = 365 * 24; //Saturn completes one orbit in 10759.22 Earth days (29.46 Earth years)
  var s = (continuousMovement)
-       ? hh * (360 / 24) + mm * (360 / 24 / 60) + ss * (360 / 24 / 60 / 60)
-       : hh * (360 / 24);
+       ? hh * (360 * 365 / sref) + mm * ((360 * 365 / sref) / 60) + ss * ((360 * 365 / sref) / 60 / 60)
+       : hh * (360 * 365 / sref);
+
+ var uref = 365 * 84 //Uranus completes one orbit in 30799.10 Earth days (84.33 Earth years)
  var u = (continuousMovement)
-       ? hh * (360 / 84) + mm * (360 / 84 / 60) + ss * (360 / 84 / 60 / 60)
-       : hh * (360 / 84);
+       ? hh * (360 * 365 / uref) + mm * ((360 * 365 / uref) / 60) + ss * ((360 * 365 / uref) / 60 / 60)
+       : hh * (360 * 365 / uref);
+
+ var nref = 365 * 168; //Neptune completes one orbit in 60190.03 Earth days (164.80 Earth years)
  var n = (continuousMovement)
-       ? dd * (360 / 7) + hh * (360 / 168) + mm * (360 / 168 / 60) + ss * (360 / 168 / 60 / 60)
-       : dd * (360 / 7);
+       ? dd * (360 * 365 * 24 / nref) + hh * (360 * 365 / nref) + mm * ((360 * 365 / nref) / 60) + ss * ((360 * 365 / nref) / 60 / 60)
+       : dd * (360 * 365 * 24 / nref);
 
  Jupiter_orbit.style.transform = "rotate(" + j + "deg)";
  Jupiter_shadow_orbit.style.transform = "rotate(" + (j - 180) + "deg)";
