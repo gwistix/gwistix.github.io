@@ -1,0 +1,852 @@
+
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Space Clock</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<style>
+
+body {
+// white-space: pre-wrap;
+ background: radial-gradient(#222, black);
+ font-size: 30px;
+ font-family: Arial;
+ color: gray;
+ overflow: hidden;
+}
+
+label {
+ font-size: 75%;
+}
+
+div.orbit {
+ position:absolute;
+ top:50%;
+ left:50%;
+ border-width:1px;
+ border-style:dotted;
+ border-color:gray;
+ border-radius:50%;
+ transition: all 1s linear;
+}
+
+div.round {
+ border-radius: 50%;
+ cursor: help;
+}
+
+div.asteroid {
+ border: none;
+ width: 350px;
+ height: 350px;
+ margin-left: -175px;
+ margin-top: -175px; 
+}
+
+.numeral {
+ color: gray;
+// background: #efefef;
+ width:2em;
+ margin-top: -15px;
+ z-index: 100;
+}
+
+.hand, shadow {
+ visibility: hidden;
+ border:none;
+}
+
+#settings {
+ position: absolute;
+ bottom: -110px;
+ right: -220px;
+ opacity: 0.25;
+ background: #111;
+ border-radius: 5px;
+ padding-left: 10px;
+ transition: all 0.5s ease
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+//Show or hide the clock hands
+var showHands = false; //default is false
+
+//Show or hide the planet shadows
+var showShadows = true; //default is true
+
+//Display the planets as shaded or monochrome
+var shadePlanets = true; //default is true
+
+//Choose between continuous and discrete movement
+var continuousMovement = true; //default is false
+
+function init() {
+ console.clear();
+ checkShadows();
+ checkHands();
+ checkPlanets();
+
+ //Update planets' positions every second (1000 ms)
+ var tick = window.setInterval("updatePlanets()",1000);
+}
+
+function updatePlanets() {
+ var now = new Date();
+ var dd = now.getDay();
+ var hh = now.getHours();
+ var mm = now.getMinutes();
+ var ss = now.getSeconds();
+
+ /* Comet (second-based movement) */
+
+ var c = ss * (360 /* degrees */ / 60 /* seconds */);
+ comet_orbit.style.transform = "rotate( " + c + "deg)"; 
+ comet_shadow_orbit.style.transform = "rotate(" + (c - 180) + "deg)";
+
+ /* Inner planets (minute-based movement) */
+
+ var mref = 87.97; //Mercury completes one orbit in 87.97 Earth days (~365/4)
+ var m = (continuousMovement)
+       ? mm * (360 / 60 * 365 / mref) + ss * ((360 / 60 * 365 / mref) / 60)
+       : mm * (360 / 60 * 365 / mref);
+
+ var vref = 224.70; //Venus completes one orbit in 224.70 Earth days (365/2)
+ var v = (continuousMovement)
+       ? mm * (360 / 60 * 365 / vref) + ss * ((360 / 60 * 365 / vref) / 60)
+       : mm * (360 / 60 * 365 / vref);
+
+ var e = (continuousMovement)
+       ? mm * (360 / 60) + ss * (360 / 60 / 60)
+       : mm * (360 / 60);
+
+ var lref = 27.3 //Luna completes one orbit in 27.3 days (~365/12)
+ var l = (continuousMovement)
+       ? mm * (360 / 60 * 365 / lref) + ss * ((360 / 60 * 365 / lref) / 60)
+       : mm * (360 / 60 * 365 / lref);
+
+ var Mref = 686.97 //Mars completes one orbit in 686.97 Earth days (365*2)
+ var M = (continuousMovement)
+       ? mm * (360 / 60 * 365 / Mref) + ss * ((360 / 60 * 365 / Mref) / 60)
+       : mm * (360 / 60 * 365 / Mref);
+
+ Mercury_orbit.style.transform = "rotate( " + m + "deg)";
+ Mercury_shadow_orbit.style.transform = "rotate(" + (m - 180) + "deg)";
+
+ Venus_orbit.style.transform = "rotate( " + v + "deg)";
+ Venus_shadow_orbit.style.transform = "rotate(" + (v - 180) + "deg)";
+
+ Earth_orbit.style.transform = "rotate( " + e + "deg)";
+ Earth_shadow_orbit.style.transform = "rotate(" + (e - 180) + "deg)";
+
+ Luna_orbit.style.transform = "rotate( " + l + "deg)";
+
+ Mars_orbit.style.transform = "rotate( " + M + "deg)";
+ Mars_shadow_orbit.style.transform = "rotate(" + (M - 180) + "deg)";
+
+
+ /* Outer planets (hour-based movement) */
+
+ var jref = 4332.59; //Jupiter completes one orbit in 4332.59 Earth days (11.86 Earth years) (~365*12)
+ var j = (continuousMovement)
+       ? hh * (360 * 365 / jref) + mm * ((360 * 365 / jref) / 60) + ss * ((360 * 365 / jref) / 60 / 60)
+       : hh * (360 * 365 / jref);
+
+ var ioref = 1.769138; //Io completes one orbit in 1.769138 Earth days (365/150)
+ var io = (continuousMovement)
+       ? mm * (360 / 60 * 365 / ioref) + ss * ((360 / 60 * 365 / ioref) / 60)
+       : mm * (360 / 60 * 365 / ioref);
+
+ var euref = 3.55; //Europa completes one orbit in 3.55 Earth days (365 / (150/2))
+ var eu = (continuousMovement)
+       ? mm * (360 / 60 * 365 / euref) + ss * ((360 / 60 * 365 / euref) / 60)
+       : mm * (360 / 60 * 365 / euref);
+
+ var garef = 7.16; //Ganymede completes one orbit in 7.16 Earth days (365 / (150/4))
+ var ga = (continuousMovement)
+       ? mm * (360 / 60 * 365 / garef) + ss * ((360 / 60 * 365 / garef) / 60)
+       : mm * (360 / 60 * 365 / garef);
+
+ var caref = 16.69; //Callisto completes one orbit in 16.69 Earth days
+ var ca = (continuousMovement)
+       ? mm * (360 / 60 * 365 / caref) + ss * ((360 / 60 * 365 / caref) / 60)
+       : mm * (360 / 60 * 365 / caref);
+
+ var sref = 10759.22; //Saturn completes one orbit in 10759.22 Earth days (29.46 Earth years) (365 * 24)
+ var s = (continuousMovement)
+       ? hh * (360 * 365 / sref) + mm * ((360 * 365 / sref) / 60) + ss * ((360 * 365 / sref) / 60 / 60)
+       : hh * (360 * 365 / sref);
+
+ var miref = 0.942; //Mimas completes one orbit in 0.942 Earth days (365/365)
+ var mi = (continuousMovement)
+       ? mm * (360 / 60 * 365 / miref) + ss * ((360 / 60 * 365 / miref) / 60)
+       : mm * (360 / 60 * 365 / miref);
+
+ var enref = 1.370; //Enceladus completes one orbit in 1.370 Earth days (1.5)
+ var en = (continuousMovement)
+       ? mm * (360 / 60 * 365 / enref) + ss * ((360 / 60 * 365 / enref) / 60)
+       : mm * (360 / 60 * 365 / enref);
+
+ var teref = 1.888; //Tethys completes one orbit in 1.888 Earth days (2)
+ var te = (continuousMovement)
+       ? mm * (360 / 60 * 365 / teref) + ss * ((360 / 60 * 365 / teref) / 60)
+       : mm * (360 / 60 * 365 / teref);
+
+ var diref = 2.737; //Dione completes one orbit in 2.737 Earth days (3)
+ var di = (continuousMovement)
+       ? mm * (360 / 60 * 365 / diref) + ss * ((360 / 60 * 365 / diref) / 60)
+       : mm * (360 / 60 * 365 / diref);
+
+ var rhref = 4.518; //Rhea completes one orbit in 4.518 Earth days (4.5)
+ var rh = (continuousMovement)
+       ? mm * (360 / 60 * 365 / rhref) + ss * ((360 / 60 * 365 / rhref) / 60)
+       : mm * (360 / 60 * 365 / rhref);
+
+ var tiref = 15.945; //Titan completes one orbit in 15.945 Earth days (16)
+ var ti = (continuousMovement)
+       ? mm * (360 / 60 * 365 / tiref) + ss * ((360 / 60 * 365 / tiref) / 60)
+       : mm * (360 / 60 * 365 / tiref);
+
+ var iaref = 79.33; //Iapetus completes one orbit in 79.33 Earth days (80)
+ var ia = (continuousMovement)
+       ? mm * (360 / 60 * 365 / iaref) + ss * ((360 / 60 * 365 / iaref) / 60)
+       : mm * (360 / 60 * 365 / iaref);
+
+ var uref = 30799.10 //Uranus completes one orbit in 30799.10 Earth days (84.33 Earth years) (365 * 84)
+ var u = (continuousMovement)
+       ? hh * (360 * 365 / uref) + mm * ((360 * 365 / uref) / 60) + ss * ((360 * 365 / uref) / 60 / 60)
+       : hh * (360 * 365 / uref);
+
+ var maref = 1.41; //Miranda completes one orbit in 1.41 Earth days (1.5)
+ var ma = (continuousMovement)
+       ? mm * (360 / 60 * 365 / maref) + ss * ((360 / 60 * 365 / maref) / 60)
+       : mm * (360 / 60 * 365 / maref);
+
+ var arref = 2.52; //Ariel completes one orbit in 2.52 Earth days (2.5)
+ var ar = (continuousMovement)
+       ? mm * (360 / 60 * 365 / arref) + ss * ((360 / 60 * 365 / arref) / 60)
+       : mm * (360 / 60 * 365 / arref);
+
+ var umref = 4.14; //Umbriel completes one orbit in 4.14 Earth days (4)
+ var um = (continuousMovement)
+       ? mm * (360 / 60 * 365 / umref) + ss * ((360 / 60 * 365 / umref) / 60)
+       : mm * (360 / 60 * 365 / umref);
+
+ var taref = 8.71; //Titania completes one orbit in 8.71 Earth days (9)
+ var ta = (continuousMovement)
+       ? mm * (360 / 60 * 365 / taref) + ss * ((360 / 60 * 365 / taref) / 60)
+       : mm * (360 / 60 * 365 / taref);
+
+ var obref = 13.46; //Oberon completes one orbit in 13.46 Earth days (14)
+ var ob = (continuousMovement)
+       ? mm * (360 / 60 * 365 / obref) + ss * ((360 / 60 * 365 / obref) / 60)
+       : mm * (360 / 60 * 365 / obref);
+
+ var nref = 60190.03; //Neptune completes one orbit in 60190.03 Earth days (164.80 Earth years) (365 * 168)
+ var n = (continuousMovement)
+       ? dd * (360 * 365 * 24 / nref) + hh * (360 * 365 / nref) + mm * ((360 * 365 / nref) / 60) + ss * ((360 * 365 / nref) / 60 / 60)
+       : dd * (360 * 365 * 24 / nref);
+
+ var laref = 0.56; //Larissa completes one orbit in 0.56 Earth days (0.5)
+ var la = (continuousMovement)
+       ? mm * (360 / 60 * 365 / laref) + ss * ((360 / 60 * 365 / laref) / 60)
+       : mm * (360 / 60 * 365 / laref);
+
+ var prref = 1.12; //Proteus completes one orbit in 1.12 Earth days (1)
+ var pr = (continuousMovement)
+       ? mm * (360 / 60 * 365 / prref) + ss * ((360 / 60 * 365 / prref) / 60)
+       : mm * (360 / 60 * 365 / prref);
+
+ var trref = 5.88; //Titan completes one retrograde orbit in 5.88 Earth days (6)
+ var tr = (continuousMovement)
+       ? mm * (360 / 60 * 365 / trref) + ss * ((360 / 60 * 365 / trref) / 60)
+       : mm * (360 / 60 * 365 / trref);
+
+ var neref = 360.14; //Nereid completes one orbit in 360.14 Earth days (360)
+ var ne = (continuousMovement)
+       ? mm * (360 / 60 * 365 / neref) + ss * ((360 / 60 * 365 / neref) / 60)
+       : mm * (360 / 60 * 365 / neref);
+
+ /* Jupiter system */
+
+ Jupiter_orbit.style.transform = "rotate(" + j + "deg)";
+ Jupiter_shadow_orbit.style.transform = "rotate(" + (j - 180) + "deg)";
+
+ Io_orbit.style.transform = "rotate(" + io + "deg)";
+
+ Europa_orbit.style.transform = "rotate(" + eu + "deg)";
+
+ Ganymede_orbit.style.transform = "rotate(" + ga + "deg)";
+
+ Callisto_orbit.style.transform = "rotate(" + ca + "deg)";
+
+ /* Saturn system */
+
+ Saturn_orbit.style.transform = "rotate(" + s + "deg)";
+ Saturn_shadow_orbit.style.transform = "rotate(" + (s - 180) + "deg)";
+
+ Mimas_orbit.style.transform = "rotate(" + mi + "deg)";
+
+ Enceladus_orbit.style.transform = "rotate(" + en + "deg)";
+
+ Tethys_orbit.style.transform = "rotate(" + te + "deg)";
+
+ Dione_orbit.style.transform = "rotate(" + di + "deg)";
+
+ Rhea_orbit.style.transform = "rotate(" + rh + "deg)";
+
+ Titan_orbit.style.transform = "rotate(" + ti + "deg)";
+
+ Iapetus_orbit.style.transform = "rotate(" + ia + "deg)";
+
+ /* Uranus system */
+
+ Uranus_orbit.style.transform = "rotate( " + u + "deg)";
+ Uranus_shadow_orbit.style.transform = "rotate(" + (u - 180) + "deg)";
+
+ Ariel_orbit.style.transform = "rotate(" + ar + "deg)";
+
+ Umbriel_orbit.style.transform = "rotate(" + um + "deg)";
+
+ Titania_orbit.style.transform = "rotate(" + ta + "deg)";
+
+ Oberon_orbit.style.transform = "rotate(" + ob + "deg)";
+
+ Miranda_orbit.style.transform = "rotate(" + ma + "deg)";
+
+ /* Neptune system */
+
+ Neptune_orbit.style.transform = "rotate( " + n + "deg)";
+ Neptune_shadow_orbit.style.transform = "rotate(" + (n - 180) + "deg)";
+
+ Larissa_orbit.style.transform = "rotate(" + la + "deg)";
+
+ Proteus_orbit.style.transform = "rotate(" + pr + "deg)";
+
+ Triton_orbit.style.transform = "rotate(-" + tr + "deg)";
+
+ Nereid_orbit.style.transform = "rotate(" + ne + "deg)";
+
+ /* Clock hands */
+
+ hour_hand_orbit.style.transform = "rotate(" + (j - 180) + "deg)";
+
+ minute_hand_orbit.style.transform = "rotate(" + (mm * 6 + ss * (360/60/60) - 180) + "deg)";
+
+ second_hand_orbit.style.transform = "rotate(" + (ss * 6 - 180 + 0.5) + "deg)";
+
+ checkShadows();
+ checkHands();
+
+}
+
+function checkShadows() {
+ var shadows = document.querySelectorAll(".shadow");
+ shadows.forEach(element => {
+  if (showShadows) element.style.visibility = "visible";
+  else element.style.visibility = "hidden";
+ });
+}
+
+function checkHands() {
+ var hands = document.querySelectorAll(".hand");
+ hands.forEach(element => {
+  if (showHands) element.style.visibility = "visible";
+  else element.style.visibility = "hidden";
+ });
+}
+
+//Contains the base colors for each planet
+var colors = [
+ "yellow",
+ "gray",
+ "tan",
+ "blue",
+ "#f60",
+ "tan",
+ "#9a5",
+ "#7bf",
+ "blue"
+];
+
+function checkPlanets() {
+ if (shadePlanets) {
+  Sun.style.background = "radial-gradient(white, white, " + colors[0] + ")";
+  Mercury.style.background = "linear-gradient(black, " + colors[1] + ", white)";
+  Venus.style.background = "linear-gradient(black, " + colors[2] + ", white)";
+  Earth.style.background = "linear-gradient(black, " + colors[3] + ", #99f)";
+  Mars.style.background = "linear-gradient(black, " + colors[4] + ", white)";
+  Jupiter.style.background = "linear-gradient(black, " + colors[5] + ", white)";
+  Saturn.style.background = "linear-gradient(black, " + colors[6] + ", white)";
+  Uranus.style.background = "linear-gradient(black, " + colors[7] + ", white)";
+  Neptune.style.background = "linear-gradient(black, " + colors[8] + ", #99f)";
+
+  hour_hand.style.background = "linear-gradient(white, white, rgba(0,0,0,0)";
+  minute_hand.style.background = "linear-gradient(white, white, rgba(0,0,0,0)";
+  second_hand.style.background = "linear-gradient(white, white, rgba(0,0,0,0)";
+ }
+ else {
+  Sun.style.background = colors[0];
+  Mercury.style.background = colors[1];
+  Venus.style.background = colors[2];
+  Earth.style.background = colors[3];
+  Mars.style.background = colors[4];
+  Jupiter.style.background = colors[5];
+  Saturn.style.background = colors[6];
+  Uranus.style.background = colors[7];
+  Neptune.style.background = colors[8];
+
+  hour_hand.style.background = "white";
+  minute_hand.style.background = "white";
+  second_hand.style.background = "white";
+ }
+}
+
+function checkSettings() {
+
+ shadePlanets = !minimalist_check.checked;
+ showShadows = !minimalist_check.checked;
+ if (shadePlanets) document.body.style.background = "radial-gradient(#222, black)";
+ else document.body.style.background = "black";
+
+ if (hands_check.checked) {
+  showHands = true;
+  showShadows = false;
+ }
+ else {
+  showHands = false;
+ }
+
+ continuousMovement = movement_check.checked;
+ var orbits = document.querySelectorAll(".orbit");
+ orbits.forEach(element => {
+  element.style.transition = "all 1s " + (movement_check.checked ? "linear" : "ease");
+ })
+ ;
+
+ checkShadows();
+ checkPlanets();
+ checkHands();
+
+}
+
+/*
+
+ INNER PLANETS (minute-based movement)
+
+ Mercury
+ 360/15 = 90 degrees per minute
+ 360/15/60 = 0.4 degrees per second
+
+ Venus
+ 360/30 = 12 degrees per minute
+ 360/30/60 = 0.2 degrees per second
+
+ Each minute rotates the Earth's orbit 6 degrees
+ 360/60 = 6 degrees per minute
+ 360/60/60 = 0.1 degrees per second
+
+ Mars
+ 360/120 = 3 degrees per minute
+ 360/120/60 = 0.05 degrees per second
+
+ OUTER PLANETS (hour-based movement)
+ 
+ Each hour rotates Jupiter's orbit 30 degrees
+ 360/12 = 30 degrees per hour
+ 360/12/60 = 0.5 degrees per minute
+ 360/12/60/60 = 0.00833 degrees per second
+
+ Saturn
+ 360/24 = 15 degrees per hour
+ 360/24/60 = 0.25 degrees per minute
+ 360/24/60/60 = 0.00417 degrees per second
+
+ Uranus
+ 1 orbit per 3.5 days
+ 360/84 = 4.286 degrees per hour
+ 360/84/60 = 0.0714 degrees per minute
+ 360/84/60/60 = 0.00119 degrees per second
+
+ Neptune
+ 1 orbit per 7 days
+ 360/168 = 2.143 degrees per hour
+ 360/168/60 = 0.0357 degrees per minute
+ 360/168/60/60 = 0.000595 degrees per second
+
+*/
+
+function inform(msg, x, y) {
+ info_div.innerHTML = msg || "";
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+<center>
+
+
+<!-- Planet shadows -->
+
+<div id='comet_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='comet_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:5px; height:300px; margin-left:-2.5px; margin-top:175px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Mercury_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Mercury_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:10px; height:300px; margin-left:-5px; margin-top:75px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Venus_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Venus_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:20px; height:300px; margin-left:-10px; margin-top:100px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Earth_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Earth_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:20px; height:300px; margin-left:-10px; margin-top:125px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Mars_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Mars_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:10px; height:300px; margin-left:-5px; margin-top:150px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Jupiter_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Jupiter_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:40px; height:300px; margin-left:-20px; margin-top:200px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Saturn_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Saturn_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:40px; height:300px; margin-left:-20px; margin-top:250px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Uranus_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Uranus_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:30px; height:300px; margin-left:-15px; margin-top:300px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='Neptune_shadow_orbit' class='shadow orbit' style='border: none; visibility: hidden; width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='Neptune_shadow' style='background: linear-gradient(black, rgba(0,0,0,0)); border:none; width:30px; height:300px; margin-left:-15px; margin-top:350px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<!-- Roman numeral asteroid alternatives -->
+
+<!--
+<div id='asteroid_1' class='asteroid orbit' style='transform: rotate(30deg)'>
+ <div id='numeral_1' class='numeral'>Ⅰ</div>
+</div>
+
+<div id='asteroid_2' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(60deg)'>
+ <div id='numeral_2' class='numeral'>Ⅱ</div>
+</div>
+
+<div id='asteroid_3' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(90deg)'>
+ <div id='numeral_3' class='numeral'>Ⅲ</div>
+</div>
+
+<div id='asteroid_4' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(120deg)'>
+ <div id='numeral_4' class='numeral'>Ⅳ</div>
+</div>
+
+<div id='asteroid_5' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(150deg)'>
+ <div id='numeral_5' class='numeral'>Ⅴ</div>
+</div>
+
+<div id='asteroid_6' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(180deg)'>
+ <div id='numeral_6' class='numeral'>Ⅵ</div>
+</div>
+
+<div id='asteroid_7' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(210deg)'>
+ <div id='numeral_7' class='numeral'>Ⅶ</div>
+</div>
+
+<div id='asteroid_8' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(240deg)'>
+ <div id='numeral_8' class='numeral'>Ⅷ</div>
+</div>
+
+<div id='asteroid_9' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(270deg)'>
+ <div id='numeral_9' class='numeral'>Ⅸ</div>
+</div>
+
+<div id='asteroid_10' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(300deg)'>
+ <div id='numeral_10' class='numeral'>Ⅹ</div>
+</div>
+
+<div id='asteroid_11' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(330deg)'>
+ <div id='numeral_11' class='numeral'>Ⅺ</div>
+</div>
+
+<div id='asteroid_12' class='asteroid orbit' style='border: none; width: 350px; height: 350px; margin-left: -175px; margin-top: -175px; transform: rotate(0deg)'>
+ <div id='numeral_12' class='numeral'>Ⅻ</div>
+</div>
+-->
+
+<!-- Kuiper belt -->
+
+<div id='Pluto_orbit' class='asteroid orbit' style='border: none; width: 750px; height: 750px; margin-left: -375px; margin-top: -375px; transform: rotate(0deg)'>
+ <div id='Pluto' class='round' style='background: tan; width:4px; height: 4px; margin-top: -2px' onMouseOver='inform("Pluto")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Eris_orbit' class='asteroid orbit' style='border: none; width: 750px; height: 750px; margin-left: -375px; margin-top: -375px; transform: rotate(51.428deg)'>
+ <div id='Eris' class='round' style='background: #efefef; width:4px; height: 4px; margin-top: -2px' onMouseOver='inform("Eris")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Haumea_orbit' class='asteroid orbit' style='border: none; width: 750px; height: 750px; margin-left: -375px; margin-top: -375px; transform: rotate(102.857deg)'>
+ <div id='Haumea' class='round' style='background: #efefef; width:3.5px; height: 1.5px; margin-top: -0.75px' onMouseOver='inform("Haumea")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Makemake_orbit' class='asteroid orbit' style='border: none; width: 750px; height: 750px; margin-left: -375px; margin-top: -375px; transform: rotate(154.256deg)'>
+ <div id='Makemake' class='round' style='background: #ff6600; width:2px; height: 2px; margin-top: -1px' onMouseOver='inform("Makemake")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Gonggong_orbit' class='asteroid orbit' style='border: none; width: 750px; height: 750px; margin-left: -375px; margin-top: -375px; transform: rotate(205.714deg)'>
+ <div id='Gonggong' class='round' style='background: #ff6600; width:2px; height: 2px; margin-top: -1px' onMouseOver='inform("Gonggong <small>(2007 OR<sub>10</sub>)</small>")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Quaoar_orbit' class='asteroid orbit' style='border: none; width: 750px; height: 750px; margin-left: -375px; margin-top: -375px; transform: rotate(257.143deg)'>
+ <div id='Quaoar' class='round' style='background: #ff6600; width:2px; height: 2px; margin-top: -1px' onMouseOver='inform("Quaoar")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Sedna_orbit' class='asteroid orbit' style='border: none; width: 750px; height: 750px; margin-left: -375px; margin-top: -375px; transform: rotate(308.571deg)'>
+ <div id='Sedna' class='round' style='background: #ff6600; width:2px; height: 2px; margin-top: -1px' onMouseOver='inform("Sedna")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<!-- Outer planets -->
+
+<div id='Neptune_orbit' class='orbit' style='width: 700px; height: 700px; margin-left: -350px; margin-top: -350px'>
+ <div id='Neptune_system'>
+  <div id='Neptune' class='round' style='background: linear-gradient(black, blue, #99f); width:30px; height: 30px; margin-top: -15px' onMouseOver='inform("Neptune")' onMouseOut='inform()'>&nbsp;</div>
+
+  <div id='Nereid_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 70px; height: 70px; margin-top: -51px; transition: 1s all linear'>
+   <div id='Nereid' class='round' style='background: #666; width: 1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Neptune Ⅱ Nereid")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Triton_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 60px; height: 60px; margin-top: -67px; transition: 1s all linear'>
+   <div id='Triton' class='round' style='background: #666; width: 4px; height: 4px; margin-top: -2px' onMouseOver='inform("Neptune Ⅰ Triton")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Proteus_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 50px; height: 50px; margin-top: -57px; transition: 1s all linear'>
+   <div id='Proteus' class='round' style='background: #666; width: 1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Neptune Ⅷ Proteus")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Larissa_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 40px; height: 40px; margin-top: -47px; transition: 1s all linear'>
+   <div id='Larissa' class='round' style='background: #666; width: 1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Neptune Ⅷ Proteus")' onMouseOut='inform()'></div>
+  </div>
+
+ </div>
+</div>
+
+<!-- Uranus system -->
+
+<div id='Uranus_orbit' class='orbit' style='width: 600px; height: 600px; margin-left: -300px; margin-top: -300px'>
+ <div id='Uranus_system'>
+  <div id='Uranus' class='round' style='background: linear-gradient(black, #77bbff, white); width:30px; height: 30px; margin-top: -15px' onMouseOver='inform("Uranus")' onMouseOut='inform()'>&nbsp;</div>
+
+  <div id='Oberon_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 80px; height: 80px; margin-top: -55px; transition: 1s all linear'>
+   <div id='Oberon' class='round' style='background: #666; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Uranus Ⅳ Oberon")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Titania_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 70px; height: 70px; margin-top: -77.5px; transition: 1s all linear'>
+   <div id='Titania' class='round' style='background: #666; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Uranus Ⅲ Titania")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Umbriel_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 60px; height: 60px; margin-top: -67px; transition: 1s all linear'>
+   <div id='Umbriel' class='round' style='background: #666; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Uranus Ⅱ Umbriel")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Ariel_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 50px; height: 50px; margin-top: -57px; transition: 1s all linear'>
+   <div id='Ariel' class='round' style='background: #666; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Uranus Ⅰ Ariel")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Miranda_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 40px; height: 40px; margin-top: -47px; transition: 1s all linear'>
+   <div id='Miranda' class='round' style='background: #666; width: 1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Uranus Ⅴ Miranda")' onMouseOut='inform()'></div>
+  </div>
+
+ </div>
+</div>
+
+<!-- Saturn system -->
+
+<div id='Saturn_orbit' class='orbit' style='width: 500px; height: 500px; margin-left: -250px; margin-top: -250px'>
+ <div id='Saturn_system'>
+  <div id='Saturn' class='round' style='background: linear-gradient(black, #99aa55, white); width:40px; height: 40px; margin-top: -20px' onMouseOver='inform("Saturn")' onMouseOut='inform()'>&nbsp;</div>
+
+  <div id='Iapetus_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 120px; height: 120px; margin-top: -81px; transition: 1s all linear'>
+   <div id='Iapetus' class='round' style='background: #666; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Saturn Ⅷ Iapetus")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Titan_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 105px; height: 105px; margin-top: -115px; transition: 1s all linear'>
+   <div id='Titan' class='round' style='background: #666; width: 10px; height: 10px; margin-top: -5px' onMouseOver='inform("Saturn Ⅵ Titan")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Rhea_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 90px; height: 90px; margin-top: -100px; transition: 1s all linear'>
+   <div id='Rhea' class='round' style='background: #666; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Saturn Ⅴ Rhea")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Dione_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 80px; height: 80px; margin-top: -87px; transition: 1s all linear'>
+   <div id='Dione' class='round' style='background: #666; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Saturn Ⅳ Dione")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Tethys_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 70px; height: 70px; margin-top: -77px; transition: 1s all linear'>
+   <div id='Tethys' class='round' style='background: gray; width: 2px; height: 2px; margin-top: -1px' onMouseOver='inform("Saturn Ⅲ Tethys")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Enceladus_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 60px; height: 60px; margin-top: -67px; transition: 1s all linear'>
+   <div id='Enceladus' class='round' style='background: #efefef; width: 1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Saturn Ⅱ Enceladus")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Mimas_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 50px; height: 50px; margin-top: -57px; transition: 1s all linear'>
+   <div id='Mimas' class='round' style='background: yellow; width: 1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Saturn Ⅰ Mimas")' onMouseOut='inform()'></div>
+  </div>
+
+ </div>
+</div>
+
+<!-- Jupiter system -->
+
+<div id='Jupiter_orbit' class='orbit' style='width: 400px; height: 400px; margin-left: -200px; margin-top: -200px'>
+ <div id='Jupiter_system'>
+  <div id='Jupiter' class='round' style='background: linear-gradient(black, tan, white); width:40px; height: 40px; margin-top: -20px' onMouseOver='inform("Jupiter")' onMouseOut='inform()'>&nbsp;</div>
+
+  <div id='Callisto_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 95px; height: 95px; margin-top: -67px; transition: 1s all linear'>
+   <div id='Callisto' class='round' style='background: #666; width: 10px; height: 10px; margin-top: -5px' onMouseOver='inform("Jupiter Ⅳ Callisto")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Ganymede_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 75px; height: 75px; margin-top: -88px; transition: 1s all linear'>
+   <div id='Ganymede' class='round' style='background: gray; width: 10px; height: 10px; margin-top: -5px' onMouseOver='inform("Jupiter Ⅲ Ganymede")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Europa_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 60px; height: 60px; margin-top: -70px; transition: 1s all linear'>
+   <div id='Europa' class='round' style='background: #efefef; width: 4px; height: 4px; margin-top: -2px' onMouseOver='inform("Jupiter Ⅱ Europa")' onMouseOut='inform()'></div>
+  </div>
+
+  <div id='Io_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 50px; height: 50px; margin-top: -57px; transition: 1s all linear'>
+   <div id='Io' class='round' style='background: yellow; width: 6px; height: 6px; margin-top: -3px' onMouseOver='inform("Jupiter Ⅰ Io")' onMouseOut='inform()'></div>
+  </div>
+
+ </div>
+</div>
+
+<!-- Asteroid belt -->
+
+<div id='comet_orbit' class='asteroid orbit' style='transform: rotate(30deg)'>
+ <div id='comet' class='round' style='width: 5px; height: 5px; background: #cdcdcd'></div>
+</div>
+
+<div id='Ceres_orbit' class='asteroid orbit' style='transform: rotate(0deg)'>
+ <div id='Ceres' class='round' style='background: gray; width:2px; height: 2px; margin-top: -1px' onMouseOver='inform("Ceres")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Vesta_orbit' class='asteroid orbit' style='transform: rotate(30deg)'>
+ <div id='Vesta' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Vesta")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Pallas_orbit' class='asteroid orbit' style='transform: rotate(60deg)'>
+ <div id='Pallas' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Pallas")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Hygiea_orbit' class='asteroid orbit' style='transform: rotate(90deg)'>
+ <div id='Hygiea' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Hygiea")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Iris_orbit' class='asteroid orbit' style='transform: rotate(120deg)'>
+ <div id='Iris' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Iris")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Interamnia_orbit' class='asteroid orbit' style='transform: rotate(150deg)'>
+ <div id='Interamnia' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Interamnia")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='MP_Europa_orbit' class='asteroid orbit' style='transform: rotate(180deg)'>
+ <div id='MP_Europa' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("MP_Europa")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Davida_orbit' class='asteroid orbit' style='transform: rotate(210deg)'>
+ <div id='Davida' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Davida")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Sylvia_orbit' class='asteroid orbit' style='transform: rotate(240deg)'>
+ <div id='Sylvia' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Sylvia")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Cybele_orbit' class='asteroid orbit' style='transform: rotate(270deg)'>
+ <div id='Cybele' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Cybele")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Eunomia_orbit' class='asteroid orbit' style='transform: rotate(300deg)'>
+ <div id='Eunomia' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Eunomia")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Euphrosyne_orbit' class='asteroid orbit' style='transform: rotate(330deg)'>
+ <div id='Euphrosyne' class='round' style='background: gray; width:1px; height: 1px; margin-top: -0.5px' onMouseOver='inform("Euphrosyne")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<!-- Inner planets -->
+
+<div id='Mars_orbit' class='orbit' style='width: 300px; height: 300px; margin-left: -150px; margin-top: -150px'>
+ <div id='Mars' class='round' style='background: linear-gradient(black, #ff6600, white); width:10px; height: 10px; margin-top: -5px' onMouseOver='inform("Mars")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Earth_orbit' class='orbit' style='width: 250px; height: 250px; margin-left: -125px; margin-top: -125px'>
+ <div id='Earth_system'>
+  <div id='Earth' class='round' style='background: linear-gradient(black, blue, #99f); width:20px; height: 20px; margin-top: -10px' onMouseOver='inform("Earth <small>(you are here)</small>")' onMouseOut='inform()'>&nbsp;</div>
+
+  <div id='Luna_orbit' style='border: 1px dotted gray; border-radius: 50%; width: 30px; height: 30px; margin-top: -26px; transition: 1s all linear'>
+   <div id='Luna' class='round' style='background: gray; width: 4px; height: 4px; margin-top: -2px' onMouseOver='inform("Luna <small>(the Moon)</small>")' onMouseOut='inform()'></div>
+  </div>
+
+ </div>
+</div>
+
+<div id='Venus_orbit' class='orbit' style='width: 200px; height: 200px; margin-left: -100px; margin-top: -100px;'>
+ <div id='Venus' class='round' style='background: linear-gradient(black, tan, white); width:20px; height: 20px; margin-top: -10;' onMouseOver='inform("Venus")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<div id='Mercury_orbit' class='orbit' style='width: 150px; height: 150px; margin-left: -75px; margin-top: -75px'>
+ <div id='Mercury' class='round' style='background: linear-gradient(black, gray, white); width:10px; height: 10px; margin-top: -5px' onMouseOver='inform("Mercury")' onMouseOut='inform()'>&nbsp;</div>
+</div>
+
+<!-- Clock hands -->
+
+
+<div id='hour_hand_orbit' class='hand orbit' style='width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+ <div id='hour_hand' style='background: linear-gradient(white, white, rgba(0,0,0,0)); border:none; width:1px; height:300px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='minute_hand_orbit' class='hand orbit' style='width:400px; height:400px; margin-top: -200px; margin-left: -200px'>
+ <div id='minute_hand' style='background: linear-gradient(white, white, rgba(0,0,0,0)); border:none; width:1px; height:400px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<div id='second_hand_orbit' class='hand orbit' style='width:400px; height:400px; margin-top: -200px; margin-left: -200px'>
+ <div id='second_hand' style='background: linear-gradient(white, white, rgba(0,0,0,0)); border:none; width:1px; height:200px; position:absolute; top: 50%; left:50%'></div>
+</div>
+
+<!-- Sun -->
+
+<div id='Sun' class='round' style='background: radial-gradient(white, white, yellow); width:100px; height: 100px; position: absolute; top: 50%; left: 50%; margin-top: -50px; margin-left: -50px' onMouseOver='inform("Sol")' onMouseOut='inform()'>&nbsp;</div>
+
+<!-- Information modal -->
+
+<div id='info_div' style='position:absolute;'></div>
+
+<!-- Settings -->
+
+<div id='settings' onMouseOver='inform("Settings"); this.style.bottom = "0"; this.style.right = "0"; this.style.opacity = 1' onMouseOut='inform(); this.style.bottom = "-110px"; this.style.right = "-220px"; this.style.opacity = 0.25'>
+ <div style='text-align: left'>
+  <span style='cursor:hand'>☰</span>
+  <br>
+  <input id='minimalist_check' type='checkbox' onClick='checkSettings()'>
+  <label for='minimalist_check'>Minimalist</label>
+  <br>
+  <input id='hands_check' type='checkbox' onClick='checkSettings()'>
+  <label for='hands_check'>Show clock hands</label>
+  <br>
+  <input id='movement_check' type='checkbox' onClick='checkSettings()'>
+  <label for='movement_check'>Continuous movement</label>
+ </div>
+</div>
+
+</body>
+</html>
