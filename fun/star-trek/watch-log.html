@@ -115,14 +115,20 @@ function init() {
 
 }
 
-var watchedEpisodes = "pilot,1_1_29-,1_2_26-,1_3_8-,3_1_9-,4_1_11-,7_1_15-,7_2_9-";
+//var watchedEpisodes = "pilot,1_1_29-,1_2_26-,1_3_8-,3_1_9-,4_1_11-,7_1_15-,7_2_9-";
 
 function parseWatchedEpisodes() {
  var arr;
- if (getCookie("alreadyWatched") {
-  arr = getCookie("alreadyWatched").split(",");
+ var cookie = getCookie("alreadyWatched");
+ if (cookie && cookie.length > 0) {
+  arr = cookie.split(",");
+  console.log("Got cookie!", arr);
  }
- else arr = watchedEpisodes.split(",");
+ else if (watchedEpisodes && watchedEpisodes.length > 0) {
+  arr = watchedEpisodes.split(",");
+ }
+ else return;
+
  arr.forEach(function(element) {
   var previousEpisodes = false;
   if (element.match(/-/)) previousEpisodes = true;
@@ -192,8 +198,10 @@ function checkCheckboxes() {
  //Update the percentage watched for the entire franchise
  document.querySelector("#allSeries").innerHTML = (100 * totalWatchedCount / totalEpisodeCount).toFixed(1) + "% of all episodes watched (" + totalWatchedCount + " of " + totalEpisodeCount + " episodes complete; " + (totalEpisodeCount - totalWatchedCount) + " episodes remaining)";
 
- console.log(watchedEpisodesArray);
+// console.log(watchedEpisodesArray);
+//   setCookie("alreadyWatched", "");
  setCookie("alreadyWatched", watchedEpisodesArray.join(","));
+// console.log(getCookie("alreadyWatched"));
 
  return;
 }
