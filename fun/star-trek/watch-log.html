@@ -12,8 +12,7 @@
 body {
 // white-space: pre-wrap;
 }
-
-
+ 
 </style>
 <script src='https://gwistix.github.io/code/lib.js'></script>
 <script>
@@ -141,7 +140,30 @@ function checkCheckboxes() {
 function writeHtml(html) {
  document.body.innerHTML += html;
 }
+ 
+function setCookie(cookieName, cookieValue, expiry) {
+ exdays = expiry || 365;
+ var d = new Date();
+ d.setTime(d.getTime() + (expiry * 24 /*hours a day*/ * 60 /*minutes per hour*/ * 60 /*seconds per minute*/ * 1000 /*milliseconds per second*/));
+ var expires = "expires=" + d.toGMTString();
+ document.cookie = cookieName + "=" + cookieValue + ";" + expires + ";path=/";
+}
 
+function getCookie(cookieName) {
+ var name = cookieName + "=";
+ var decodedCookie = decodeURIComponent(document.cookie);
+ var ca = decodedCookie.split(';');
+ for(var i = 0; i < ca.length; i++) {
+  var c = ca[i];
+  while (c.charAt(0) == ' ') {
+   c = c.substring(1);
+  }
+  if (c.indexOf(name) == 0) {
+   return c.substring(name.length, c.length);
+  }
+ }
+ return "";
+}
 </script>
 
 </head>
