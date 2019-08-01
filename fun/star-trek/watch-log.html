@@ -17,12 +17,13 @@ body {
 <script src='https://gwistix.github.io/code/lib.js'></script>
 <script>
 
+//An array containing all Star Trek series, seasons, and episodes
 var starTrek = [
  {
   name: "Star Trek [The Original Series]",
   began: 1966,
   ended: 1969,
-  seasons: [29, 26, 24]
+  seasons: [29, 26, 24] /* number of episodes per season */
  },
  {
   name: "Star Trek: The Animated Series",
@@ -72,18 +73,24 @@ function init() {
 
  document.write("<span id='allSeries'>0% of all Star Trek episodes watched (0 of 758 episodes)</span>");
  
- //Create a 
+ //Create a display section for each series
  starTrek.forEach(function(show, index) {
+
+  //Series title and running dates
   document.write("<fieldset style='border-radius: 10px;'><legend><h1>" + show.name + " (" + show.began + "&zwj;&ndash;&zwj;" + (show.ended ? show.ended : "present") + ")</h1></legend>");
 
+  //Progress bar
   document.write("<div id='div_" + index + "' style='position:relative; top:-20; background:rgba(255,0,255,0.5); transition: 1s ease all;'>&nbsp;</div>");
 
   document.write("<details style='position:relative; top: -20'><summary><h2 style='display: inline-block'>" + show.seasons.length + " Season" + (show.seasons.length == 1 ? "" : "s") + "</h2></summary>");
 
+  //Create a separate section for each season
   show.seasons.forEach(function(episodes, season) {
    document.write("<div id='div_" + index + "_" + season + "' style='margin-left: 1em'><h3>Season " + (season + 1) + "</h3>");
+
+   //List each episode with a corresponding checkbox
    for (var i = 0; i < episodes; i++) {
-    document.write("<input type='checkbox' onClick='checkCheckboxes()' " + ((show.name == "Star Trek [The Original Series]" && (season < 2 || season == 2 && i < 5)) || (show.name == "Star Trek: The Next Generation" && season == 0 && i < 10) || (show.name == "Star Trek: Deep Space Nine" && (season == 0 && i < 11) || show.name == "Star Trek: Discovery" && (season == 0 || (season == 1 && i < 10))) ? "checked" : "") + ">" + (i + 1) + " ");
+    document.write("<input id='" + (index + 1) + "_" + (season + 1) + "_" + (i + 1) + "' type='checkbox' onClick='checkCheckboxes()'>" + (i + 1) + " ");
    }
    document.write("</div>")
   });
@@ -98,16 +105,58 @@ function init() {
  document.body.style.padding = "50px";
 
  //Add a checkbox for the pilot episode
- document.querySelector("#div_0_0").innerHTML = "<h4>Pilot episode</h4><input type='checkbox' id='pilot' onClick='checkCheckboxes()' checked>&nbsp;0<br>" + document.querySelector("#div_0_0").innerHTML;
+ document.querySelector("#div_0_0").innerHTML = "<h4>Pilot episode</h4><input type='checkbox' id='pilot' onClick='checkCheckboxes()'>&nbsp;0<br>" + document.querySelector("#div_0_0").innerHTML;
 
+ //Percentage display
  document.write("<p id='percentWatched'></p>");
  checkCheckboxes();
 
+ parseWatchedEpisodes();
+
+}
+
+var watchedEpisodes = "pilot,1_1_29-,1_2_26-,1_3_8-,3_1_9-,4_1_11-,7_1_15-,7_2_9-";
+
+function parseWatchedEpisodes() {
+ var arr;
+ if (getCookie("alreadyWatched") {
+  arr = getCookie("alreadyWatched").split(",");
+ }
+ else arr = watchedEpisodes.split(",");
+ arr.forEach(function(element) {
+  var previousEpisodes = false;
+  if (element.match(/-/)) previousEpisodes = true;
+  var element = element.replace(/-/,"");
+  markWatchedEpisodes(element, previousEpisodes);
+ });
 }
 
 /*
- Count the number of checked checkboxes and update the relevant progress bars
-*/
+ * Auto-check either a single episode or a range of episodes
+ * If a single episode index is passed to the `episode` parameter,
+ *  that episode is checked off automatically
+ * If `previousInSeason` is true, all episodes in the relevant season
+ *  up to that episode are automatically checked 
+ */
+function markWatchedEpisodes(referenceEpisode, previousInSeason) {
+ if (previousInSeason) {
+  var arr = referenceEpisode.split("_");
+  var prefix = arr[0] + "_" + arr[1];
+  var lastEpisode = parseInt(arr[2]);
+  for (var i = 1; i <= lastEpisode; i++) {
+   document.getElementById(prefix + "_" + i).checked = true;
+
+  }
+ }
+ document.getElementById(referenceEpisode).checked = true;
+ checkCheckboxes();
+}
+
+var watchedEpisodesArray = [];
+
+/*
+ * Count the number of checked checkboxes and update the relevant progress bars
+ */
 function checkCheckboxes() {
  var totalWatchedCount = 0;
  var totalEpisodeCount = 0;
@@ -115,24 +164,36 @@ function checkCheckboxes() {
  //Voodoo magic to account for the pilot episode
  totalEpisodeCount++;
 
+ //For each display card...
  document.querySelectorAll("fieldset").forEach(function(series, seriesIndex){
   var count = 0;
   var checkboxes = series.querySelectorAll("input[type=checkbox]");
+
+  //Check how many checkboxes are checked
   checkboxes.forEach(function(checkbox){
-   if (checkbox.checked) count++;
+   if (checkbox.checked) {
+    count++;
+    if (!~watchedEpisodesArray.indexOf(checkbox.id))
+     watchedEpisodesArray.push(checkbox.id);
+   }
   });
   var seriesEpisodes = checkboxes.length;
 
+  //Update the progress indicator for that series
   var progressIndicator = series.querySelector("#div_"+seriesIndex);
   progressIndicator.style.width = (count / seriesEpisodes) * progressIndicator.parentElement.offsetWidth;
-  console.log(progressIndicator.offsetWidth);
 
+  //Update the percentage watched for that series
   series.querySelector("#p_"+seriesIndex).innerHTML = (100 * count / seriesEpisodes).toFixed(1) + "% watched (" + count + " of " + seriesEpisodes + " episodes complete; " + (seriesEpisodes - count) + " episodes remaining)";
   totalWatchedCount += count;
   totalEpisodeCount += checkboxes.length;
  });
 
+ //Update the percentage watched for the entire franchise
  document.querySelector("#allSeries").innerHTML = (100 * totalWatchedCount / totalEpisodeCount).toFixed(1) + "% of all episodes watched (" + totalWatchedCount + " of " + totalEpisodeCount + " episodes complete; " + (totalEpisodeCount - totalWatchedCount) + " episodes remaining)";
+
+ console.log(watchedEpisodesArray);
+ setCookie("alreadyWatched", watchedEpisodesArray.join(","));
 
  return;
 }
