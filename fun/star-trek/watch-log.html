@@ -83,7 +83,7 @@ function init() {
   show.seasons.forEach(function(episodes, season) {
    document.write("<div id='div_" + index + "_" + season + "' style='margin-left: 1em'><h3>Season " + (season + 1) + "</h3>");
    for (var i = 0; i < episodes; i++) {
-    document.write("<input type='checkbox' onClick='checkCheckboxes()' " + ((show.name == "Star Trek [The Original Series]" && (season < 2)) || (show.name == "Star Trek: The Next Generation" && season == 0 && i < 10) || (show.name == "Star Trek: Deep Space Nine" && (season == 0 && i < 11) || show.name == "Star Trek: Discovery" && (season == 0 || (season == 1 && i < 10))) ? "checked" : "") + ">" + (i + 1) + " ");
+    document.write("<input type='checkbox' onClick='checkCheckboxes()' " + ((show.name == "Star Trek [The Original Series]" && (season < 2 || season == 2 && i < 5)) || (show.name == "Star Trek: The Next Generation" && season == 0 && i < 10) || (show.name == "Star Trek: Deep Space Nine" && (season == 0 && i < 11) || show.name == "Star Trek: Discovery" && (season == 0 || (season == 1 && i < 10))) ? "checked" : "") + ">" + (i + 1) + " ");
    }
    document.write("</div>")
   });
