@@ -1,0 +1,151 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/starfleet.png'>
+<link rel='icon' sizes='192x192' href='/starfleet.png'>
+<title>Star Trek watching log</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+var starTrek = [
+ {
+  name: "Star Trek [The Original Series]",
+  began: 1966,
+  ended: 1969,
+  seasons: [29, 26, 24]
+ },
+ {
+  name: "Star Trek: The Animated Series",
+  began: 1973,
+  ended: 1974,
+  seasons: [16, 6]
+ },
+ {
+  name: "Star Trek: The Next Generation",
+  began: 1987,
+  ended: 1994,
+  seasons: [26, 22, 26, 26, 26, 26, 26]
+ },
+ {
+  name: "Star Trek: Deep Space Nine",
+  began: 1993,
+  ended: 1999,
+  seasons: [20, 26, 26, 26, 26, 26, 26]
+ },
+ {
+  name: "Star Trek: Voyager",
+  began: 1995,
+  ended: 2001,
+  seasons: [16, 26, 26, 26, 26, 26, 26]
+ },
+ {
+  name: "Star Trek: Enterprise",
+  began: 2001,
+  ended: 2005,
+  seasons: [26, 26, 24, 22]
+ },
+ {
+  name: "Star Trek: Discovery",
+  began: 2017,
+  seasons: [15, 14]
+ },
+ {
+  name: "Star Trek: Short Treks",
+  began: 2018,
+  seasons: [4]
+ },
+
+];
+
+function init() {
+ console.clear();
+
+ document.write("<span id='allSeries'>0% of all Star Trek episodes watched (0 of 758 episodes)</span>");
+ 
+ //Create a 
+ starTrek.forEach(function(show, index) {
+  document.write("<fieldset style='border-radius: 10px;'><legend><h1>" + show.name + " (" + show.began + "&zwj;&ndash;&zwj;" + (show.ended ? show.ended : "present") + ")</h1></legend>");
+
+  document.write("<div id='div_" + index + "' style='position:relative; top:-20; background:rgba(255,0,255,0.5); transition: 1s ease all;'>&nbsp;</div>");
+
+  document.write("<details style='position:relative; top: -20'><summary><h2 style='display: inline-block'>" + show.seasons.length + " Season" + (show.seasons.length == 1 ? "" : "s") + "</h2></summary>");
+
+  show.seasons.forEach(function(episodes, season) {
+   document.write("<div id='div_" + index + "_" + season + "' style='margin-left: 1em'><h3>Season " + (season + 1) + "</h3>");
+   for (var i = 0; i < episodes; i++) {
+    document.write("<input type='checkbox' onClick='checkCheckboxes()' " + ((show.name == "Star Trek [The Original Series]" && (season < 2)) || (show.name == "Star Trek: The Next Generation" && season == 0 && i < 10) || (show.name == "Star Trek: Deep Space Nine" && (season == 0 && i < 11) || show.name == "Star Trek: Discovery" && (season == 0 || (season == 1 && i < 10))) ? "checked" : "") + ">" + (i + 1) + " ");
+   }
+   document.write("</div>")
+  });
+
+  document.write("</details>");
+  document.write("<p id='p_" + index + "'>0% watched</p>");
+  document.write("</fieldset>");
+ }); 
+
+ document.body.style.background = "black";
+ document.body.style.color = "white";
+ document.body.style.padding = "50px";
+
+ //Add a checkbox for the pilot episode
+ document.querySelector("#div_0_0").innerHTML = "<h4>Pilot episode</h4><input type='checkbox' id='pilot' onClick='checkCheckboxes()' checked>&nbsp;0<br>" + document.querySelector("#div_0_0").innerHTML;
+
+ document.write("<p id='percentWatched'></p>");
+ checkCheckboxes();
+
+}
+
+/*
+ Count the number of checked checkboxes and update the relevant progress bars
+*/
+function checkCheckboxes() {
+ var totalWatchedCount = 0;
+ var totalEpisodeCount = 0;
+
+ //Voodoo magic to account for the pilot episode
+ totalEpisodeCount++;
+
+ document.querySelectorAll("fieldset").forEach(function(series, seriesIndex){
+  var count = 0;
+  var checkboxes = series.querySelectorAll("input[type=checkbox]");
+  checkboxes.forEach(function(checkbox){
+   if (checkbox.checked) count++;
+  });
+  var seriesEpisodes = checkboxes.length;
+
+  var progressIndicator = series.querySelector("#div_"+seriesIndex);
+  progressIndicator.style.width = (count / seriesEpisodes) * progressIndicator.parentElement.offsetWidth;
+  console.log(progressIndicator.offsetWidth);
+
+  series.querySelector("#p_"+seriesIndex).innerHTML = (100 * count / seriesEpisodes).toFixed(1) + "% watched (" + count + " of " + seriesEpisodes + " episodes complete; " + (seriesEpisodes - count) + " episodes remaining)";
+  totalWatchedCount += count;
+  totalEpisodeCount += checkboxes.length;
+ });
+
+ document.querySelector("#allSeries").innerHTML = (100 * totalWatchedCount / totalEpisodeCount).toFixed(1) + "% of all episodes watched (" + totalWatchedCount + " of " + totalEpisodeCount + " episodes complete; " + (totalEpisodeCount - totalWatchedCount) + " episodes remaining)";
+
+ return;
+}
+
+function writeHtml(html) {
+ document.body.innerHTML += html;
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+</body>
+</html>
