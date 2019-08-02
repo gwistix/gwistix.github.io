@@ -112,12 +112,10 @@ function init() {
  checkCheckboxes();
 
  parseWatchedEpisodes();
-
 }
 
-//var watchedEpisodes = "pilot,1_1_29-,1_2_26-,1_3_8-,3_1_9-,4_1_11-,7_1_15-,7_2_9-";
-
 function parseWatchedEpisodes() {
+ console.log("OK @ parseWatchedEpisodes()");
  var arr;
  var cookie = getCookie("alreadyWatched");
  if (cookie && cookie.length > 0) {
