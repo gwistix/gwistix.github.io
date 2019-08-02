@@ -124,9 +124,6 @@ function parseWatchedEpisodes() {
   arr = cookie.split(",");
   console.log("Got cookie!", arr);
  }
- else if (watchedEpisodes && watchedEpisodes.length > 0) {
-  arr = watchedEpisodes.split(",");
- }
  else return;
 
  arr.forEach(function(element) {
