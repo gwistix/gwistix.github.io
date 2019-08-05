@@ -180,9 +180,9 @@ function updatePlanets() {
 
  hour_hand_orbit.style.transform = "rotate(" + (j - 180) + "deg)";
 
- minute_hand_orbit.style.transform = "rotate(" + (mm * 6 + ss * (360/60/60) - 180) + "deg)";
+ minute_hand_orbit.style.transform = "rotate(" + (e - 180) + "deg)";
 
- second_hand_orbit.style.transform = "rotate(" + (ss * 6 - 180 + 0.5) + "deg)";
+ second_hand_orbit.style.transform = "rotate(" + (c - 180) + "deg)";
 
  checkShadows();
  checkHands();
@@ -549,16 +549,15 @@ function inform(msg, x, y) {
 
 <!-- Clock hands -->
 
-
-<div id='hour_hand_orbit' class='hand orbit' style='width:300px; height:300px; margin-top: -150px; margin-left: -150px'>
+<div id='hour_hand_orbit' class='hand orbit' style='width:300px; height:300px; margin-top: -150px; margin-left: -150px; border:none; z-index:-1'>
  <div id='hour_hand' style='background: linear-gradient(white, white, rgba(0,0,0,0)); border:none; width:1px; height:300px; position:absolute; top: 50%; left:50%'></div>
 </div>
 
-<div id='minute_hand_orbit' class='hand orbit' style='width:400px; height:400px; margin-top: -200px; margin-left: -200px'>
+<div id='minute_hand_orbit' class='hand orbit' style='width:400px; height:400px; margin-top: -200px; margin-left: -200px; border:none; z-index:-1'>
  <div id='minute_hand' style='background: linear-gradient(white, white, rgba(0,0,0,0)); border:none; width:1px; height:400px; position:absolute; top: 50%; left:50%'></div>
 </div>
 
-<div id='second_hand_orbit' class='hand orbit' style='width:400px; height:400px; margin-top: -200px; margin-left: -200px'>
+<div id='second_hand_orbit' class='hand orbit' style='width:400px; height:400px; margin-top: -200px; margin-left: -200px; border:none; z-index:-1'>
  <div id='second_hand' style='background: linear-gradient(white, white, rgba(0,0,0,0)); border:none; width:1px; height:200px; position:absolute; top: 50%; left:50%'></div>
 </div>
 
