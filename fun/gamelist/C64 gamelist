@@ -1,0 +1,448 @@
+
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best Commodore 64 games</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique Commodore 64 games:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = 1 / length;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+
+ });
+
+
+
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+
+Currently, the & → "and" conversion isn't working
+
+  It's combining International Karate and International Karate +, which it shouldn't
+ */
+function normalizeTitle(title) {
+ return normalizeRomanNumerals(
+  title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/\&/g,"and")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9]/g, "")
+ )
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+/* https://www.lemon64.com/games/votes_list.php */
+
+ ["Zak McKracken and the Alien Mindbenders (1988)", "Pirates! (1987)", "Maniac Mansion (1987)", "Wasteland (1988)", "International Karate + (1987)", "Last Ninja 2 (1988)", "Turrican II: The Final Fight (1991)", "Ultima IV: Quest of the Avatar (1986)", "Bubble Bobble (1987)", "Archon: The Light and the Dark (1983)", "Defender of the Crown (1987)", "Elite (1985)", "Turrican (1990)", "Impossible Mission (1984)", "Bruce Lee (1984)", "Paradroid (1985)", "M.U.L.E. (1983)", "Winter Games (1985)", "The Last Ninja (1987)", "Boulder Dash (1984)", "MicroProse Soccer (1988)", "Summer Games 2 (1985)", "Airborne Ranger (1987)", "Project Firestart (1989)", "The Great Giana Sisters (1987)", "Leaderboard Golf (1986)", "Katakis (1988)", "World Class Leader Board (1987)", "The Bard's Tale (1985)", "Emlyn Hughes International Soccer (1988)", "California Games (1987)", "Wizball (1987)", "World Games (1986)", "Creatures 2: Torture Trouble (1992)", "Armalyte (1988)", "Summer Games (1984)", "Space Taxi (1984)", "International Karate (1986)", "Samurai Warrior: The Battles of Usagi Yojimbo (1988)", "Raid on Bungeling Bay (1984)", "H.E.R.O.: Helicopter Emergency Rescue Operation (1984)", "Mayhem in Monsterland (1993)", "Creatures (1990)", "Skate or Die! (1987)", "Stunt Car Racer (1989)", "Jumpman (1983)", "Spy vs Spy (1984)", "The Way of the Exploding Fist (1985)", "Wizard of Wor (1983)", "Pitstop II (1984)", "Montezuma's Revenge (1984)", "Boulder Dash II: Rockford's Revenge (1985)", "MYTH: History in the Making (1989)", "Newcomer (2001)", "Midnight Resistance (1990)", "Racing Destruction Set (1985)", "Rainbow Islands: The Story of Bubble Bobble 2 (1990)", "Buggy Boy (1987)", "Beach-Head II: The Dictator Strikes Back (1985)", "Lode Runner (1983)", "Grand Prix Circuit (1989)", "Fort Apocalypse (1982)", "Barbarian: The Ultimate Warrior (1987)", "Head Over Heels (1987)", "Little Computer People (1985)", "Rick Dangerous (1989)", "Hyper Sports (1985)", "Blue Max (1983)", "Raid Over Moscow (1984)", "Lazy Jones (1984)", "Salamander (1988)", "Power Drift (1990)", "Thrust (1986)", "Lemmings (1994)", "Ghosts 'n Goblins (1986)", "Decathlon (1984)", "Platoon (1987)", "Law of the West (1985)", "Krakout (1987)", "Kikstart II (1987)", "Forbidden Forest (1983)", "Nebulus (1987)", "Uridium (1986)", "Turbo Out Run (1989)", "Super Cycle (1986)", "Arkanoid: Revenge of Doh (1988)", "Commando (1985)", "Aztec Challenge (1983)", "The Newzealand Story (1989)", "Ghostbusters (1984)", "Spy Hunter (1983)", "Flimbo's Quest (1990)", "Beach-Head (1983)", "Ikari Warriors (1988)", "Ghouls 'n Ghosts (1989)", "Bionic Commando (1988)", "Cabal (1989)", "Impossible Mission 2 (1988)", "Delta (1987)", "River Raid (1984)"],
+
+/* https://www.toplessrobot.com/2008/10/the_20_greatest_games_on_the_commodore_64.php */
+
+ ["Ultima IV: Quest of the Avatar (1985)", "Archon: The Light and the Dark (1983)", "Jumpman (1983)", "Wasteland (1988)", "Pirates! (1987)", "Telengard (1982)", "Barbarian: The Ultimate Warrior (1987)", "Bruce Lee (1984)", "Sword of Fargoal (1983)", "Impossible Mission (1984)", "Sex Games (1983)", "Summer Games (1984)", "Forbidden Forest (1983)", "Zork (1980)", "Castle Wolfenstein (1983)", "Pool of Radiance (1988)", "Loderunner (1983)", "Elite (1985)", "Karateka (1984)", "Return of Heracles (1984)"],
+
+/* http://www.blockfort.com/game-lists/commodore64/  */
+
+ ["Paradroid (1985)", "Mayhem in Monsterland (1993)", "Bubble Bobble (1987)", "Wizball (1987)", "Maniac Mansion (1987)", "Ms. Pac-Man (1984)", "Impossible Mission (1984)", "Laser Squad (1988)", "Dropzone (1984)", "International Karate + (1987)"],
+
+/* https://medium.com/@gwobcke/6-of-the-best-games-commodore-64-7f03c117016c [top ten] */
+
+ ["Lode Runner", "Archon: The Light and the Dark (1983)", "Impossible Mission", "Boulder Dash", "Into the Eagles Nest", "Wizball", "Curse of the Azure Bonds", "World Class Leaderboard", "Microprose Soccer", "Hardball!"],
+
+/* https://www.google.com/search?q=best+commodore+64+games */
+
+ ["Impossible Mission (1984)", "International Karate + (1987)", "Maniac Mansion (1987)", "California Games (1987)", "Boulder Dash (1984)", "Bubble Bobble (1986)", "Winter Games (1985)", "Turrican (1990)", "Ghosts 'n Goblins (1985)", "Wizball (1987)", "Paradroid (1985)", "Armalyte (1988)", "The Last Ninja (1987)", "Turrican II: The Final Fight (1991)", "The Great Giana Sisters (1987)", "Defender of the Crown (1986)", "Mayhem in Monsterland (1993)", "Summer Games (1984)", "Pirates! (1987)", "Lode Runner (1983)", "Bruce Lee (1984)", "The Way of the Exploding Fist (1985)", "Wasteland (1988)", "Uridium (1986)", "Zak McKracken and the Alien Mindbenders (1988)", "Elite (1984)", "Spy vs. Spy (1984)", "Katakis (1988)", "Mario Bros. (1983)", "Commando (1985)", "Colossal Cave Adventure (1976)", "Archon: The Light and the Dark (1983)", "R-Type (1987)", "Rainbow Islands: The Story of Bubble Bobble 2", "Pitstop II (1984)", "Skate or Die! (1987)", "Summer Games II (1985)", "Airborne Ranger (1987)", "Beach Head (1983)", "Microprose Soccer (1988)", "Ultima IV: Quest of the Avatar (1985)", "Stunt Car Racer (1989)", "Karateka (1984)", "World Games (1986)", "Project Firestart (1989)", "Space Taxi (1984)", "Jumpman (1983)", "Arkanoid (1986)", "Nebulus (1987)", "Barbarian: The Ultimate Warrior (1987)", "Midnight Resistance (1989)"],
+
+/* https://www.youtube.com/watch?v=MUsAW7b8vMQ */
+
+ ["Elite", "Gauntlet", "Stunt Car Racer", "Uridium", "Paradroid", "Thrust", "International Karate +", "Rainbow Islands: The Story of Bubble Bobble 2", "Leader Board", "Bombjack", "Pyjamarama", "Pitstop II", "California Games", "Commando", "Turrican", "Kikstart II", "Impossible Mission", "Ghostbusters", "Dizzy", "Cauldron", "Chuckie Egg", "Bounder", "The Last Ninja", "Ballblazer", "Rambo", "R-Type", "Robocop", "Archon: The Light and the Dark (1983)", "Seaside Special", "Raid Over Moscow"],
+
+/* https://www.youtube.com/watch?v=Z1-HTSrOB74 */
+
+ ["Last Ninja 2", "Impossible Mission", "Mayhem in Monsterland", "International Karate +", "Pitstop II", "Bubble Bobble", "Pirates!", "Maniac Mansion", "Boulder Dash", "Ghostbusters", "Ultima IV: Quest of the Avatar", "Defender of the Crown", "Uridium", "Gauntlet"],
+
+/* https://www.funstockretro.co.uk/news/the-top-10-commodore-64-games/ */
+
+ ["Wasteland", "Skate or Die!", "Ultima IV: Quest of the Avatar", "Maniac Mansion", "Ghouls 'n Ghosts", "Turrican II: The Final Fight", "The Bard's Tale", "Lode Runner", "California Games", "Bubble Bobble"],
+
+/* https://www.c64-wiki.com/wiki/C64-Wiki:TOP1000_of_C64-Wiki */
+
+ ["Pirates!", "Zak McKracken and the Alien Mindbenders", "Maniac Mansion", "Boulder Dash", "Archon: The Light and the Dark", "The Great Giana Sisters", "Bubble Bobble", "Turrican II: The Final Fight", "Red Storm Rising", "Last Ninja 2", "Winter Games", "Turrican", "International Karate", "International Karate +", "Summer Games", "Impossible Mission", "Prince of Persia", "Katakis", "Summer Games II", "Armalyte", "Elite", "The Last Ninja", "Lemmings", "World Games", "Defender of the Crown", "Neuromancer", "M.U.L.E.", "X-Out", "The Bard's Tale", "Space Taxi", "Fort Apocalypse", "Rainbow Islands: The Story of Bubble Bobble 2", "Little Computer People", "Wizard of Wor", "Creatures", "Wizball", "Microprose Soccer", "Seven Cities of Gold", "Dragon Wars", "Grand Prix Circuit", "Hard'n'Heavy", "Wasteland", "California Games", "Project Firestart", "Nebulus", "Paradroid", "Barbarian: The Ultimate Warrior", "Caren and the Tangled Tentacles", "Hawkeye", "Enforcer: Fullmetal Megablaster", "Crillion", "Midnight Resistance", "Alter Ego", "Gunship: The Helicopter Simulation", "Knight 'n' Grail", "Krakout", "Lode Runner", "Skate or Die!", "R-Type", "Leaderboard", "Arkanoid", "The Way of the Exploding Fist", "Mafia", "Rodland", "Newcomer", "Ultima V: Warriors of Destiny", "David's Midnight Magic", "The Train: Escape to Normandy", "Mr.Do!", "Turrican III", "Oils Well", "Law of the West", "Bruce Lee", "Impossible Mission II", "The Sentinel", "Pool of Radiance", "H.E.R.O.: Helicopter Emergency Rescue Operation", "Montezuma's Revenge", "Blue Max", "Scarabæus", "Spherical", "Spelunker", "Times of Lore", "Wizard", "Pitstop II", "Ultima III: Exodus", "Steel Thunder", "Test Drive II: The Duel", "Tau Ceti", "Mission Elevator", "Joe Gunn: Gold Edition", "Ultima IV: Quest of the Avatar", "Raid on Bungeling Bay", "Atomino", "Ultima VI: The False Prophet", "Sinbad and the Throne of the Falcon", "Bombuzal", "Infiltrator", "Buggy Boy", "The Castles of Dr. Creep", "Spindizzy", "Wonder Boy in Monster Land", "Delta", "Ghosts'n Goblins", "Heart of Africa", "International Soccer", "It's Magic", "Yie Ar Kung-Fu", "Salamander", "Platoon", "Airborne Ranger", "R.M.S. Titanic", "Revs+", "Super Cycle", "Cybernoid: The Fighting Machine", "Park Patrol", "Arkanoid: Revenge of Doh", "Last Ninja 3", "Rick Dangerous", "Decathlon", "Solomon's Key", "Super Nibbly", "The Untouchables", "Bomberman C64", "Frogger Arcade", "IO: Into Oblivion", "Monty on the Run", "Zoo Mania", "Starquake", "Uridium", "Mr. Robot and his Robot Factory", "Raid over Moscow", "Zamzara", "Nemesis (Konami)", "Spy vs Spy", "Commando", "Frogger (Sierra Online, Inc.)", "The Bard's Tale II: The Destiny Knight", "Frogs", "Ultima II: The Revenge of the Enchantress!", "Lords of Midnight", "Ghostbusters", "Zynaps", "Test Drive", "B.C.'s Quest for Tires", "S.E.U.C.K.", "One on One: Julius Erving and Larry Bird", "Kung-Fu Master", "Tetris", "Kennedy Approach", "Flimbo's Quest", "Mechanicus", "Spy Hunter", "Frankie goes to Hollywood", "Deflektor", "Stunt Car Racer", "Miner 2049er", "Cauldron", "Donald Duck's Playground", "Wonder Boy", "Dropzone", "Vendetta", "Sanxion", "PP Hammer", "Spike", "Karateka", "Theatre Europe", "The Trap Door", "Football Manager", "Thrust", "Street Sports Basketball", "Hyper Sports", "Ghouls 'n Ghosts", "Gyruss", "Burger Time '97", "Grand Monster Slam", "Road Runner", "Druid", "Colossus Chess", "BMX Simulator", "West Bank", "The Goonies", "Stormlord", "Jim Slim", "Hunter's Moon", "Jack the Nipper", "Madness", "Psi-5: Trading Company", "Metal Warrior", "Combat School", "Street Sports Baseball", "Log!cal", "Gribbly's Day Out", "Out Run (US)", "Crillion '93", "G.I. Joe: A Real American Hero", "Bounty Bob Strikes Back!", "Ranarama", "Gauntlet", "Mikie", "Frantic Freddie", "Battleships", "Barry McGuigan World Championship Boxing", "Ping Pong", "The Rats", "Donkey Kong (Atarisoft)", "Uchi Mata", "F-14 Tomcat", "Gremlins: The Adventure", "Green Beret", "Skramble", "Split Personalities", "Battle through Time", "Archon II: Adept", "Jumpman Junior", "Water Polo", "Rally Speedway", "Trailblazer", "Brickout", "Jack the Nipper II: Coconut Capers", "Manic Miner", "Alleykat", "B.C. II: Grog's Revenge", "The Newzealand Story", "Cosmox", "Choplifter", "Ivan 'Ironman' Stewart's Super Off Road", "Cauldron 2: The Pumpkin Strikes Back", "First Strike", "Lords of Conquest", "Sword of Fargoal", "Into the Eagle's Nest", "Cliff Hanger", "Nibbly '92", "Moon Patrol", "Shotgun", "Advanced Space Battle", "Th!nk Cross", "Operation Wolf", "Lazy Jones", "Batty", "Fire Ant", "Lady Tut", "Cavelon", "Flight Simulator II", "Henry's House", "Pharaoh's Curse", "Bop'n Rumble", "Mega Apocalypse", "A Journey to the Centre of the Earth", "Winter Camp", "Short Circuit", "NATO Commander", "Aztec Challenge", "Paperboy", "Aliens (Activision)", "Indiana Jones and the last Crusade", "Pooyan", "Space-Pilot", "Falcon Patrol II", "Congo Bongo (1985)", "Dark Caves", "Tapper", "Zaxxon (Synapse)", "Auf Wiedersehen Monty", "1942", "Bandits", "Dig Dug", "Klax", "Project Stealth Fighter", "Jumpman", "Q*bert", "Maze Mania", "Black Hawk", "Puzznic", "Pengo", "Pacmania", "Save New York", "Alien Syndrome", "Eagle Empire", "Wavy Navy", "Gold Quest III", "Agricola", "Shadow of the Beast", "Crossfire", "Highnoon", "Pitstop", "Murder on the Zinderneuf", "Marble Madness", "Pac-Man", "Squish 'em", "Kane", "Shamus", "Gateway to Apshai", "Artillery Duel", "Jet Set Willy", "Street Surfer", "Ms. Pac-Man", "Galaxy (Kingsoft)", "The Heist", "Match Point", "Clystron", "Frogger (Parker Brothers)", "Out Run (EU)", "Complex", "Monty Mole", "Drelbs", "The Movie Monster Game", "Trash Course", "Survivor", "Helikopter Jagd", "Hacker", "Bomb Jack", "Gryzor", "Space Pope", "Jungle Hunt", "Lightforce", "Hades Nebula", "Olympic Skier", "Golden Axe", "Blagger", "Mario Bros (Atari)", "Son of Blagger", "Fortress (SSI)", "Pitfall", "BattleTech: The Crescent Hawk's Inception", "Zeppelin", "Licence to Kill", "Warhawk", "Apple Cider Spider", "Agent USA", "Sim City", "Gold Quest 4", "Thing on a Spring", "Rocket Roger", "Painterboy", "Count Duckula: No Sax Please, We're Egyptian!", "Neptune's Daughters", "Iridis Alpha", "Exterminator", "Battle of Britain", "Popeye", "Summer Olympiad", "Robin of the Wood", "Encounter", "Alien", "Stix (Supersoft)", "Ollie's Follies", "Frogger II: ThreeeDeep!", "Pole Position", "Boom", "Uuno Turhapuro Muuttaa Maalle", "Falcon Patrol", "Zaxxon (Sega)", "Exolon", "Pitfall II: Lost Caverns", "Zorro", "Terminator 2", "Vixen", "Aliens (Electric Dreams Software)", "Burnin Rubber", "BoneCruncher", "Strike Force Cobra", "Mountie Mick's Deathride", "Le Mans", "5th Gear", "Super Pac-Man", "Hunchback", "Burger Time", "Night Mission Pinball", "Gold Quest 5", "Beamrider", "Yie Ar Kung-Fu II", "Alternative World Games", "Ultima I: The First Age of Darkness", "ACE: Air Combat Emulator", "Snare", "Brain Spasm", "Hard Hat Mack", "Turrican III", "Tazz", "Sabre Wulf", "Coalminer", "Dragonsden", "Pac-Land", "Hägar", "Tooth Invaders", "Gorf", "Crazy Comets", "Congo Bongo (1983)", "Return of the Jedi", "Winter Olympiad 88", "The Living Daylights", "Space Harrier", "Dragon's Lair", "subLOGIC Scenery Disks", "Frankie Crashed on Jupiter", "4x4 Off-Road Racing", "Mario Bros (Ocean)", "Iron Horse", "Jack Attack", "Glider Rider", "Gold Quest 2007", "Laser Zone", "Bozo's Night Out", "Eskimo Games", "Stellar 7", "Snokie", "3D Pinball", "Trashman", "Space Battle deluxe V2.3", "Kettle", "Rabbit Pie", "Magic Madness", "Giana Sisters Construction Kit", "Harvey Smith Showjumper", "C-2048", "Gold Quest", "Ladybug", "Bomb Squad", "Indiana Jones and the Fate of Atlantis", "Poster Paster", "Star Wars (Domark)", "Clowns", "Trollie Wallie", "The Empire Strikes Back", "Defender", "I, Ball", "Buck Rogers: Planet of Zoom", "Gold Quest II", "Enduro Racer", "Back To The Future", "Gremlins: The Adventure", "Dinky Doo", "Nemesis (British Software)", "Ghostbusters II", "Street Fighter (US Gold)", "Indiana Jones and the Temple of Doom", "Axis Assassin", "Tarzan", "Street Fighter II", "Las Vegas Casino", "The Tomb of Dracula", "Omega Race", "Sammy Lightfoot", "Airwolf", "Double Dragon (Melbourne House)", "Balloonacy", "Caverns of Khafka", "Hyper Aggressive", "Eagle Eyes", "Pinball Spectacular"],
+
+/* https://retrogamingloft.com/the-10-best-commodore-64-games-everlasting-gems */
+
+ ["Zak McKracken and the Alien Mindbenders (1988)", "Creatures II: Torture Trouble (1992)", "Creatures (1990)", "MicroProse Soccer (1988)", "Winter Games (1985)", "Jet Bike Simulator (1988)", "Turrican II: The Final Fight (1991)", "Turrican (1990)", "Bruce Lee (1984)", "Pirates! (1987)", "Wasteland (1988)", "International Karate + (1987)", "Last Ninja 2 (1988)", "Emlyn Hughes International Soccer (1988)", "Barbarian: The Ultimate Warrior (1987)"],
+
+/* http://henshinengine.com/best-c64-games/ */
+
+ ["Lode Runner", "Archon: The Light and the Dark", "Impossible Mission", "Boulder Dash", "Into the Eagles Nest", "Wizball", "Curse of the Azure Bonds", "World Class Leaderboard", "Microprose Soccer", "Hardball!"],
+
+/* http://www.hecklerspray.com/top-30-commodore-64-games/200938428.php */
+
+ ["Elite", "Gauntlet", "Uridium", "Paradroid", "Thrust", "Raid on Bungeling Bay", "M.U.L.E.", "Rainbow Islands: The Story of Bubble Bobble 2", "Leaderboard", "Bombjack", "Pyjamarama", "Pitstop 2", "Night Shift", "Mr Do", "Lords of Midnight", "Kikstart II", "Impossible Mission", "Gogo the Ghost", "Dizzy", "Cauldron", "Chuckie Egg", "Bounder", "Nebulus", "Ballblazer", "Rambo", "Attack of the Mutant Camels", "International Karate +", "Archon: The Light and the Dark (1983)", "Seaside Special", "Raid Over Moscow"]
+
+
+];
+
+
+/* =============================================================== */
+
+
+var unranked = [
+
+/* https://www.retrogamer.net/top_10/top-ten-commodore-64-games/ */
+
+ ["The Sentinel (1986)", "International Karate + (1987)", "Bubble Bobble (1987)", "Mayhem in Monster Land (1993)", "Turrican (1990)", "Impossible Mission (1984)", "Paradroid (1985)", "Wizball (1987)", "Project Firestart (1989)", "Zak McKracken and the Alien Mindbenders (1988)"],
+
+/* https://gamesnostalgia.com/en/games/platform/commodore+64 */
+
+ ["The Last Ninja (1987)", "Turrican II: The Final Fight (1991)", "Zenji (1984)", "The Way of the Exploding Fist (1985)", "The Last Ninja 3 (1991)", "Scarabæus (1985)", "Uridium (1986)", "Wizball (1987)", "Armalyte (1988)", "PItfall! (1983)", "Mercenary (1985)", "International Karate + (1988)", "Cauldron II: The Pumpkin Strikes Back (1986)", "Boulder Dash (1984)", "Head Over Heels (1989)", "Ghostbusters (1984)", "Impossible Mission (1984)", "Monty on the Run (1985)", "Neuromancer (1988)", "Little Computer People (1985)", "Times of Lore (1988)", "The Sentinel (1986)", "Karateka (1985)", "Burgertime (1984)", "Revs (1986)", "Barbarian: The Ultimate Warrior (1987)", "The Activision Decathlon (1984)", "Pitstop II (1984)", "Ultima II: The Revenge of the Enchantress (1983)"],
+
+/* https://zammetti.com/blog/2018/02/26/the-top-100-commodore-64-games-of-all-time/ */
+
+ ["10th Frame", "1942", "Action Biker", "Agent USA", "Alternative Reality", "Aztec Challenge", "Ballblazer", "Barbarian: The Ultimate Warrior", "BC's Quest for Tires", "Beach Head", "Below the Root", "Blue Max", "Boulder Dash", "Break Dance", "Break Street", "Bruce Lee", "Burnin' Rubber", "California Games", "Chimera", "Chuck Norris", "Congo Bongo", "Crystal Castles", "Defender of the Crown", "Dino Eggs", "Elite", "Farmer's Daughter", "Forbidden Forest", "Fort Apocalypse", "Friday the 13th", "Gateway to Apshai", "Gauntlet", "Ghostbusters", "Ghosts 'n Goblins", "GI Joe: A Real American Hero", "Goonies", "Great American Cross-Country Road Race", "Gyruss", "Hardball", "Hot Wheels", "Hover Bovver", "Impossible Mission", "Infiltrator", "Jumpman Junior", "Jungle Hunt", "Karate Champ", "Karateka", "Kung-Fu Master", "Last Ninja", "Last V8", "Law of the West", "Lazy Jones", "Little Computer People's Research Project", "Lode Runner", "Mail Order Monsters", "Master of the Lamps", "Miner 2049er", "Montezuma's Revenge", "Moon Patrol", "Mountain King", "Nuclear Attack", "Oils Well", "One on One: Julius Erving and Larry Bird", "Parallax", "Pooyan", "Popeye", "Predator", "PSI 5 Trading Company", "Raid Over Moscow", "Rambo", "Rampage", "Realm of Impossibility", "Rescue on Fractalus", "Roadrunner", "Satan's Hollow", "Serpentine", "Shamus", "Skool Daze", "Space Taxi", "Spelunker", "Spy Vs. Spy", "Star Wars", "Strip Poker", "Summer Games", "Tag Team Wrestling", "Tapper", "Telengard", "Temple of Apshai", "Temple of Apshai 2", "Temple of Apshai 3", "Time Pilot", "Transformers", "Trolls and Tribulations", "Tron", "Ultima III: Exodus", "Ultima IV: Quest of the Avatar", "Up 'n Down", "Uridium", "Winter Games", "Xevious", "Yie Ar Kung Fu", "Zaxxon", "Zork"],
+
+/* https://www.amazon.com/Best-Sellers-Video-Games-Commodore-64/zgbs/videogames/12508471 */
+
+ ["Airborne Ranger", "Express Raider", "Pool of Radiance", "Ultima VI: The False Prophet", "Gunship: The Helicopter Simulation", "Flight Simulator II", "Skyfox (1985)", "The Eternal Dagger", "Realm of Impossibility", "The Guild of Thieves", "Pac-Man", "Superman: The Game", "One on One: Julius Erving and Larry Bird", "Jumpman Junior", "Q*Bert", "Music Composer", "F-15 Strike Eagle", "Silent Service", "World Games", "The Pawn", "Shiloh: Grant's Trial in the West", "4th & Inches", "ZORK", "ZORK 2", "ZORK 3", "Winter Games", "Omega", "Pitfall", "Where in Time is Carmen Sandiego?", "The Bard's Tale III: Thief of Fate", "Oil Barons", "Centipede", "Bubble Ghost", "Lemans", "Classic Concentration", "Snow Strike", "The Hitchhiker's Guide to the Galaxy", "The Bard's Tale II: The Destiny Knight", "Designasaurus", "Koronis Rift", "Kings of the Beach", "Test Drive", "Might and Magic, Book 1: Secret of the Inner Sanctum", "Garry Kitchen's Gamemaker", "Dungeon Master's Assistant Volume I: Encounters", "Kickman", "After Burner", "The Fourth Protocol", "Speedball", "Indiana Jones in the Lost Kingdom", "Ghost Manor & Spike's Peak", "The President is Missing", "Pitfall!", "Space Taxi", "The Captive", "Skate Crazy", "Summer Games 2", "Deathlord", "Arcticfox", "Ikari Warriors (1986)", "Where in Europe is Carmen Sandiego?", "Visible Solar System", "Bulldog", "Radar Rat Race", "Jupiter Lander", "Pocket Rockets", "Advanced Dungeons & Dragons: Heroes of the Lance", "International Soccer", "Legacy of the Ancients", "Uridium", "The Rubicon Alliance", "Seven Cities of Gold", "Aliens", "Project Stealth Fighter", "Tapper", "Moon Patrol", "Ultima III: Exodus", "Robotron 2084"],
+
+/* https://medium.com/@gwobcke/6-of-the-best-games-commodore-64-7f03c117016c [all recommended games] */
+
+ ["10th Frame", "4th & Inches", "1942", "720 degrees", "Armalyte", "Avenger", "ACE: Air Combat Emulator", "Auto Duel", "Ace of Aces", "Airborne Ranger", "Arkanoid", "Amazing Spiderman", "Atomix", "Arnie", "Alley Cat", "Bruce Lee", "The Bard's Tale", "Bubble Bobble", "Buggy Boy", "Beach Head", "Barbarian: The Ultimate Warrior", "Burnin' Rubber", "Below the Root", "Black Magic", "Boot Camp", "Bad Street Brawler", "Batman: Caped Crusader", "Battle Chess", "Blood Money", "The Cycles", "California Games", "Choplifter", "Commando", "Crystal Castles", "Cauldron II: The Pumpkin Strikes Back", "Championship Sprint", "Cybernoid: The Fighting Machine", "Clystron", "Chuck Rock", "Cyberdine Warrior", "Castle of Terror", "Creatures", "Creatures 2: Torture Trouble", "Delta", "David's Midnight Magic", "Dig Dug", "Decathlon", "Dam Busters", "Dracula", "Druid", "Denaris", "Demon's Winter", "Dragon Wars", "Dragon Ninja", "Double Dragon II: The Revenge", "Spellbound Dizzy", "Elite", "Express Raider", "Emlyn Hughes International Soccer", "Elvira: Mistress of the Dark", "Enforcer: Fullmetal Megablaster", "Eternal Dagger", "Flight Simulator II", "F-15 Strike Eagle", "Fast Break", "Face Off!", "First Samurai", "First II: The Legend Continues", "Flimbo's Quest", "Forbidden Forest", "Gauntlet", "The Great Giana Sisters", "Galaxians", "Gateway to Apshai", "Gyruss", "Gremlins: The Adventure", "Ghosts 'n Goblins", "Gradius", "Green Beret", "Gunship: The Helicopter Simulation", "Gauntlet II", "Gryzor", "Grand Prix Circuit", "Great Courts", "Ghostbusters", "Henry's House", "Hard Hat Mack", "Hyper Sports", "Hacker II", "Head Over Heels", "Hammer Fist", "Hot Rod", "Hunchback", "International Karate +", "Infiltrator", "IO: Into Oblivion", "Ikari Warriors", "Impossamole", "Iron Man Super Off Road", "Indy Heat", "IPLAY: 3d Tennis", "Jack the Nipper", "Jack the Nipper II: Coconut Capers", "Jinxter", "Jumpman", "Kikstart", "Kikstart II", "Karateka", "Kung Fu Master", "Krakout", "Katakis", "Last Ninja", "Last Ninja 2", "Law of the West", "Leaderboard Golf", "Leaderboard Executive", "Leather Goddesses of Phobos", "LED Storm", "Myth: History in the Making", "Maniac Mansion", "Moon Patrol", "Ms. Pacman", "Montezuma's Revenge", "Midnight Resistance", "Nine Princes of Amber", "Nemesis", "Nebulus", "Netherworld", "Ninja Spirit", "Nick Faldo Championship Golf", "On Court Tennis", "One on One: Julius Erving and Larry Bird", "Operation Wolf", "Outrun", "Paradroid", "Pirates!", "Prince of Persia", "Planetfall", "Pitstop II", "Parallax", "Phantasie", "Phantasie II", "Phantasie III", "Pacmania", "Q-Bert", "Questron", "Questron II", "Quedex", "Raid Over Moscow", "Racing Destruction Set", "Rambo First Blood Part II", "Rings of Zilfin", "Roadwar 2000", "Rastan", "Renegade", "Rolling Thunder", "Rygar", "R-Type", "Rick Dangerous 2", "Riqocett", "Stunt Car Racer", "Slicks", "Snokie", "Spy Hunter", "Sword of Fargoal", "Star League Baseball", "Sargon III", "Sentinal", "Spy vs Spy", "Summer Games", "Silent Service", "Skyfox", "Slap Shot", "Summer Games II", "Super Huey", "Saboteur", "S.W.A.T", "Street Surfer", "Super Cycle", "Skate or Die", "Super Sprint", "Salamander", "Speedball 2", "Super Pipeline", "Turrican", "Turrican II: The Final Fight", "Track and Field", "Tass Times in Tone Town", "Terra Cresta", "Trailblazer", "Test Drive", "Target Renegade", "Times of Lore", "Test Drive 2: The Duel", "Teenage Mutant Hero Turtles", "Uridium", "Ultima IV: Quest of the Avatar", "Ultima V: Warriors of Destiny", "Ultima VI: The False Prophet", "Valkyrie 17", "Vendetta", "Vincent", "Vigilante", "World Games", "Wavy Navy", "Wizard of Wor", "Way of the Exploding Fist", "Winter Games", "Where in the World is Carmen Sandiego?", "Wonderboy", "Wasteland", "Wings of Fury", "X-Out", "Xenomorph", "Xiphoids", "Yie Ar Kung Fu", "Yogi Bear and Friends in the Greed Monster", "Yogi’s Great Escape", "Zork", "Zorro", "Zone Z", "Zynaps", "Zoylx", "Zak McKracken and the Alien Mind Benders"],
+
+/* https://www.youtube.com/watch?v=ZLHhyI35Dgw */
+
+ ["Lode Runner", "Boulder Dash", "Elite", "Ghosts 'n Goblins", "Legend of Kage", "Paperboy", "International Karate", "PIrates!", "Defender of the Crown", "The Last Ninja", "Maniac Mansion", "Barbarian: The Ultimate Warrior", "California Games", "Bubble Bobble", "Wasteland", "Last Ninja 2", "Zak McKracken and the Alien Mindbenders", "Battle Chess", "Turrican", "Turrican II: The Final Fight"],
+
+/* https://www.arcadepunks.com/add-more-games-to-your-c64-mini-with-ransoms-c64-mini-pack-1/ */
+
+ ["10th Frame", "1942", "5th Axis", "Action Biker", "Ad Infinitum", "Airborne Ranger", "Alcazar: The Forgotten Fortress", "Aliens (Electric Dreams)", "Anabalt", "Andy Capp", "Archon: The Light and the Dark", "Arkanoid", "Arkanoid: Revenge Of Doh", "Army Moves", "Arnie", "Auf Wiedersehen Monty", "Aztec Challenge", "Bandits", "Barbarian: The Ultimate Warrior", "Batman: The Movie", "Batty", "BC II: Grog’s Revenge", "Beach Head", "Beach-head II: The Dictator Strikes Back", "Bedlam", "Below the Root", "Beyond Forbidden Forrest", "Beyond the Ice Palace", "Big Mac: The Mad Maintenance Man", "Blue Max", "Bobby Bearing", "Bomberman C64", "Bombjack", "Bombuzal", "Booty", "Boulder Dash II: Rockford's Revenge", "Bounder", "Bounty Bob Strikes Back", "Bozo’s Night Out", "Bruce Lee", "Bubble Bobble", "Bubble Dizzy", "Buggy Boy", "Canabalt", "Castles Of Dr. Creep", "Cauldron", "Cauldron II: The Pumpkin Strikes Back", "Caveman Ugh-Lympics", "Chuckie Egg", "Citadel", "CJ Elephant Antics", "CJ In The USA", "Cliff Hanger", "Clik Clak", "Cobra", "Combat School", "Comic Bakery", "Cosmox", "Creatures 2: Torture Trouble", "Dan Dare", "Dark Castle", "Decathlon", "Delta", "Detective Game", "Dino Eggs", "Dizzy", "Dizzy 2: Treasure Island Dizzy", "Dizzy 3: Fantasy World Dizzy", "Dizzy 4: Magicland Dizzy", "Dropzone", "Druid", "Druid II: Enlightenment", "Dynamite Dan", "Eliminator", "Elite", "Enforcer: Fullmetal Megablaster", "Entombed", "Exile", "Exolon", "Fairlight: A Prelude", "Fernandez Must Die", "Finders Keepers", "Firefly", "First Samurai", "First Strike", "Flimbo’s Quest", "Flip and Flop", "Forbidden Forest", "Force Seven", "Fort Apocalypse", "Frank Bruno’s Boxing", "Frantic Freddie", "Freddy Hardest", "G.I. Joe: A Real American Hero", "Game Over", "Ghettoblaster", "Ghost Hunters", "Ghostbusters", "Ghosts ’n Goblins", "Goonies", "Gordian Tomb", "Great Escape", "Great Giana Sisters", "Green Beret", "H.E.R.O.: Helicopter Emergency Rescue Operation", "Hard Hat Mack", "Hard ‘n’ Heavy", "Head Over Heels", "Henry’s House", "Hopeless", "Horace Goes Skiing", "Hover Bovver", "Hudson Hawk", "Human Race", "Hunchback", "Hunchback II: Quasimodo’s Revenge", "Hyper Sports", "I ball", "I ball 2", "International Karate", "International Karate +", "Indiana Jones And The Temple Of Doom", "Into The Eagle’s Nest", "Jack The Nipper", "Jeep Command", "Jet Pac", "Jet Set Willy", "Jet Set Willy II: The Final Frontier", "Joe Blade", "Jumpman Junior", "Jupiter Lander", "Kane", "Karateka", "Kikstart II", "Killed Until Dead", "Knight ‘n’ Grail", "Krakout", "Kung-Fu Master", "Laser Squad (expanded)", "Last Ninja", "Last Ninja 2", "Last Ninja 3", "Last Ninja Remix", "Last V8", "Law Of The West", "Leaderboard Golf", "Led Storm", "Lightforce", "Little Computer People", "Lode Runner", "Maniac Mansion", "Manic Miner", "Mario Bros", "Match Day II", "Match Point", "Mayhem In Monsterland", "Microprose Soccer", "Mighty Bombjack", "Mikie", "Miner 2049er", "Mission Elevator", "Montezuma’s Revenge", "Movie Monster Game", "Myth: History in the Making", "Navy Seals", "Nemesis The Warlock", "Neuromancer", "Night Shade", "Olli & Lissa 3", "Olympic Skier", "One Man And His Droid", "Out Run Europa", "Pac-land", "Pac-Mania", "Paperboy", "Park Patrol", "Passing Shot", "Piracy", "Platoon", "Pogo Joe", "Popeye (Parker)", "Poster Paster", "Potty Pigeon", "Power Drift", "Predator", "Project Firestart", "Psycho Pigs UXB", "Pyjamarama!", "Raging Beast", "Rags to Riches", "Raid On Bungeling Bay", "Raid Over Moscow", "Rainbow Islands: The Story of Bubble Bobble 2", "Rambo: First Blood Part II", "Rambo III: The Rescue", "Re-Bounder", "Renegade", "Rescue On Fractalus", "Revenge of the Mutant Camels", "Rick Dangerous", "Rick Dangerous 2", "River Raid", "Robin Hood Legend Quest", "Rock n’ Bolt", "Rockford: The Arcade Game", "Rock’n Wrestle", "Rocky Horror Show", "Rollaround", "Saboteur", "Saboteur II: Avenging Angel", "Sabre Wulf", "Sacred Armour of Antiriad", "Samurai Warrior: The Battles of Usagi Yojimbo", "Scooby Doo", "Seaside Special", "Sentinel", "Shao-Lin’s Road", "Sidewalk", "Skate Or Die", "Slapfight", "Slicks", "Slimey’s Mine", "Solar Jetman", "Soldier of Fortune (Graftgold)", "Son of blagger", "Space Taxi", "Spy Vs Spy", "Spy vs Spy 2: The Island Caper", "Staff Of karnath", "Starquake", "Steg the Slug", "Stop The Express", "Stormlord", "Stunt Car Racer", "Stuntman Seymour", "Summer Games", "Super Pipeline II", "Tai-Pan", "Tales Of The Arabian Nights", "Tapper", "Target Renegade", "Terry’s Big Adventure", "Test Drive", "Through The Trap Door", "Thrust", "Train: Escape to Normandy", "Train Robbers", "Trapdoor", "Trashman", "Trollie Wallie", "Trolls And Tribulations", "Turbo Charge", "Turrican", "Turrican II: The Final Fight", "Tusker", "Ultimate Wizard", "Underwurlde", "Untouchables", "Uridium Plus", "Uwol-Quest For  Money", "Vendetta", "Vindicator: Green Beret 2", "Way Of The Exploding Fist", "Way Of The Exploding Fist 2", "West Bank", "Who Dares Wins", "Wizball", "World Class Leaderboard", "Yie ar Kung-Fu", "Zak McKracken and the Alien Mindbenders", "Zamzara", "Zig Zag", "Zorro"],
+
+/* http://www.hecklerspray.com/top-30-commodore-64-games/200938428.php [comments] */
+
+ ["International Karate +", "Dizzy", "Gauntlet", "Choplifter", "Impossible Mission", "Renegade", "Target Renegade", "Exolon", "Cybernoid: The Fighting Machine", "Head Over Heels", "Ghosts 'n Goblins", "Seven Cities of Gold", "Stellar Seven", "Falcon Patrol", "Falcon Patrol 2", "Entombed", "Radar Rat Race", "Spy Hunter", "F15 Strike Eagle", "ZORK", "Dino Eggs", "Jumpman", "Frantic Freddie", "BoulderDash", "Spy vs. Spy", "Summer Games", "Summer Games 2", "World Games", "Renegade", "Where in the World is Carmen Sandiego", "International Soccer", "Wizball", "Flash Gordon", "1942", "Skate or Die", "Dam Busters", "The Goonies", "Hacker", "Defender of the Crown", "Championship Wrestling", "Druid", "Paper Boy", "S.W.A.T.", "Ultima I: The First Age of Darkness", "Barbarian: The Ultimate Warrior", "Rampage", "Sub Battle Sim", "Test Drive", "Test Drive II: The Duel", "Slam Dunk", "Double Dragon", "Street Rod", "Tony LaRussa's Ultimate Baseball", "Arnie", "Choplifter", "Falcon Patrol", "Crystals of Zong", "Fort Apocalypse", "Creatures", "Creatures II: Torture Trouble", "Mayhem in Monsterland", "Nobby the Aardvark", "Krakout", "Turrican", "Creatures II: Torture Trouble", "Turrican II: The Final Fight", "Chips Challenge", "Loopz", "The Last Ninja", "Mayhem in Monsterland", "Spindizzy", "Boulderdash", "The Great Giana Sisters", "Space Taxi", "The Great Giana Sisters", "Wonderboy", "Summer Games II", "Dragon Riders of Pern", "Do Who and the Mines of Terror"],
+	
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Boris Sušanj] */
+
+ ["Wasteland", "Exile", "Impossible Mission", "Paradroid", "Armalyte", "Turrican 2: The Final Fight", "Creatures 2: Torture Trouble", "Mayhem in Monsterland", "Bubble Bobble", "Stunt Car Racer", "The Sentinel", "Maniac Mansion"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Jukka Aho] */
+
+ ["Boulder Dash", "Boulder Dash Construction Kit", "Rally Speedway", "H.E.R.O.: Helicopter Emergency Rescue Operation", "Elite", "Zoids", "The Sentinel", "Psi-5 Trading Company", "Zak McKracken and the Alien Mindbenders", "Maniac Mansion", "Mercenary", "Mercenary II", "Tau Ceti", "Paradroid", "Driller"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Tamás Polgár] */
+
+ ["Impossible Mission", "Impossible Mission II", "Newcomer", "Creatures", "Creatures 2: Torture Trouble", "Mercenary", "Total Eclipse", "Uridium", "Choplifter", "Barbarian: The Ultimate Warrior", "Zak McKracken and the Alien Mindbenders", "Maniac Mansion", "The Last Ninja", "Bionic Commando", "The Great Giana Sisters", "Street Rod", "Head Over Heels"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Curtis Lindsay] */
+
+ ["Treasure Island", "The Wizard of Oz", "Swiss Family Robinson", "Below the Root", "Alice in Wonderland"], 
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Martín Gavilán] */
+
+ ["Bruce Lee", "Zorro", "Bubble Bobble", "Barbarian: The Ultimate Warrior", "Barbarian 2", "The Way of the Exploding Fist", "International Karate", "International Karate +", "Boulder Dash", "One on One: Julius Erving and Larry Bird", "Cybernoid: The Fighting Machine", "Cybernoid 2", "Henry's House", "Pitfall II: Lost Caverns", "Save New York", "The Castles of Dr Creep", "Law of the West", "Bank Panic", "The Last Ninja", "The Fury", "Time Tunnel", "On Court Tennis", "Beach Head", "Beach-Head II: The Dictator Strikes Back", "Bionic Commando", "Draconus", "Archon: The Light and the Dark (1983)"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Håkon Søreide] */
+
+ ["Head On", "Pool of Radiance", "Curse of the Azure Bonds"], 
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [David Weinehall] */
+
+ ["Paradroid", "Starquake", "Nebulus", "Pirates!", "The Great Giana Sisters", "Wizball", "Zak McKracken and the Alien Mindbenders", "Monty on the Run", "Auf Wiedersehen Monty", "The Last Ninja", "Bubble Bobble", "Mayhem in Monsterland", "Times of Lore", "Arkanoid"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Brice Fleckenstein] */
+
+ ["M.U.L.E.", "Frogger", "Pirates!", "Wizardry: Proving Grounds of the Mad Overlord", "Bard's Tale"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Steve Williams] */
+
+ ["Elite", "Ultima IV: Quest of the Avatar", "Mayhem in Monsterland", "Fort Apocalypse", "Phantasie", "Phantasie 2", "Phantasie 3", "Wasteland", "Super Pipeline", "Super Pipeline 2", "Thing on a Spring", "Paradroid", "Uridium", "Outrun", "Bubble Bobble"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [Russell Truex] */
+
+ ["Spy vs. Spy"],
+
+/* https://www.quora.com/What-are-some-must-play-Commodore-64-games [David Hancock] */
+
+ ["Title Bout"],
+
+/* http://www.64apocalypse.com/bestever1.htm */
+
+ ["Boulderdash", "Elite", "Delta", "Ghosts 'n Goblins", "Bounder", "Mega Apocalypse", "Commando", "Chuckie Egg", "Son of Blagger", "CJ in the USA", "Green Beret", "Thrust", "Thing on a Spring", "Spy Hunter", "Paradroid", "Loderunner", "Master of the Lamps", "Little Computer People", "Park Patrol", "Bruce Lee", "Sentinel", "Wizball", "Night Mission Pinball", "Monty on the Run", "H.E.R.O.: Helicopter Emergency Rescue Operation", "The Hobbit", "Ballblazer", "Miner 2049er", "Forbidden Forest", "Impossible Mission", "Leaderboard Golf", "Gyruss", "Avenger", "Guardian", "Ms Pacman", "Pitstop 2", "Manic Miner", "Stunt Car Racer", "Son of Blagger", "Arkanoid", "Donkey Kong", "Head Over Heels", "Gribbly's Day Out", "Aztec Challenge", "Hypersports", "Bubble Bobble", "Armalyte", "Creatures", "Attack of the Mutant Camels", "Dropzone", "International Karate +", "Hitchhikers Guide", "Uridium", "Wanted: Monty Mole", "Potty Pigeon", "Bounty Bob Strikes Back", "Trailblazer", "Fort Apocalypse", "Rambo", "Turrican 2: The Final Fight", "Flip and Flop", "Encounter", "Mayhem in Monsterland", "Last Ninja 2", "Drelbs", "L.O.C.O.", "Myth", "Koronis Rift", "Katakis", "Exile", "Beachhead", "Rainbow Islands: The Story of Bubble Bobble 2", "Reckless Rufus", "Poster Paster", "Iridis Alpha", "Who Dares Wins 2", "Mercenary", "B.C. II: Grog's Revenge", "Defender of the Crown", "Spelunker", "Bombuzal", "Super Pipeline 2", "Creatures 2: Torture Trouble", "Powerdrift", "Rock 'n' Bolt"],
+
+/* https://forum.digitpress.com/forum/showthread.php?457-Top-150-all-time-favorite-Commodore-64-games */
+
+ ["1942", "Adventure", "Adventure 2", "Adventure 3", "Adventure Construction Set", "Airborne Ranger", "Altered Beast", "Arcadia 64", "Archon: The Light and the Dark (1983)", "Archon II: Adept", "Arkanoid", "Arkanoid: Revenge of Doh", "Armalyte", "Asteroids 64", "BMX Simulator", "Ballblazer", "Ballistix", "Barbarian: The Ultimate Warrior", "The Bard's Tale", "The Bard's Tale 2: The Destiny Knight", "The Bard's Tale 3: Thief of Fate", "Batman: The Movie", "Battle Chess!", "Beachhead", "Beachhead 2: The Dictator Strikes Back", "Bionic Commando", "Boulderdash", "Boulderdash Construction Kit", "Bruce Lee", "Bubble Bobble", "Bubble Ghost", "Buggy Boy", "Car Wars", "Castle Wolfenstein", "Cauldron", "Cauldron 2: The Pumpkin Strikes Back", "Chimera", "Choplifter", "Citadel", "Commando", "Creatures 2: Torture Trouble", "Crystal Castles", "Decathlon", "Defender 2", "Defender of the Crown", "Demon Attack", "Dig Dug", "Dino Eggs", "Donkey Kong", "Donkey Kong Jr", "Dragon's Lair 2: Escape from Singe's Castle", "Dropzone", "Elevator Action", "Elite", "F-15 Strike Eagle", "Falcon Patrol", "Food Fight", "Frogger II: Threeedeep!", "Gateway to Apshai", "Gauntlet", "Gauntlet 2", "Ghosts 'N Goblins", "The Great Giana Sisters", "The Great Giana Sisters 2", "Glider Rider", "Great American Cross Country Road Race", "Guild of Thieves", "Gunship", "Gyruss", "H.E.R.O.: Helicopter Emergency Rescue Operation", "Hacker", "Hitchhiker's Guide to the Galaxy", "Hostages", "Impossible Mission", "International Karate +", "Ikari Warriors", "Jumpman", "Jungle Hunt", "Last Ninja", "Last Ninja 2", "Last Ninja 3", "Legacy of the Ancients", "Lemmings", "Lode Runner", "M.U.L.E.", "Maniac Mansion", "Marble Madness", "Mario Bros", "Mario Bros 2", "Master of Magic", "Mayhem in Monsterland", "Microsoft Flight Simulator", "Montezuma's Revenge", "Mr. Do!", "Mr. Do's Castle", "Myth", "Neuromancer", "Neverending Story", "Neverending Story 2", "Operation: Wolf", "Fast Tracks", "Pac-Man", "Ms. Pac-Man", "Jr. Pac-Man", "Super Pac-Man", "Pac-Mania", "Paperboy", "Paradroid", "The Pawn", "Phantasie", "Phantasie 2", "Pinball Construction Set", "Pipe Dreams", "Pirates!", "Pitfall 2: Lost Caverns", "Pitstop", "Pole Position 2", "PSI-5 Trading Company", "Q-bert", "Qix", "R-Type", "Rainbow Islands: The Story of Bubble Bobble 2", "Rambo First Blood Part 2", "Rampage", "Red Storm Rising", "Revs+", "Road Runner", "Robotron: 2084", "Rocket Ranger", "Salamander", "Satan's Hollow", "Sentinel The", "Skate or Die", "Silent Service", "Sim City", "Solomons Key", "Space Invaders", "Space Taxi", "Spindizzy", "Spy Hunter", "Spy vs. Spy", "Spy vs. Spy II: The Island Caper", "Spy vs. Spy III: Arctic Antics", "Star Trek: Promethean Prophecy", "Star Wars: The Arcade Game", "Stunt Car Racer", "Summer Games", "Super Pipeline", "Super Hang-on", "Sword of Fargoal", "Temple of Apshai", "Temple of Apshai 2", "Temple of Apshai 3", "Terra Cresta", "Test Drive", "Test Drive 2: The Duel", "Tetris", "Three Stooges", "Thrust", "Times of Lore", "Toobin'", "Traz", "Tron", "Turbo Outrun", "Turrican 2: The Final Fight", "Ultima I: The First Age of Darkness", "Ultima II: The Revenge of the Enchantress", "Ultima III: Exodus", "Ultima IV: Quest of the Avatar", "Ultimate Wizard", "Up N Down", "Wasteland", "Way of the Exploding Fist", "Wing Commander", "Wizard of Wor", "Wizball", "Xenomorph", "Xevious", "Yie ar Kung Fu", "Zoom", "Zork", "Zork 2", "Zork 3", "The Goonies", "Space Rogue", "Portal", "LCP", "Alter Ego", "Omega", "Pool of Radiance", "SSI Wargames", "Castles of Dr Creep", "Essex", "Breakers", "Mindwheel", "Battletech: The Crescent Hawk's Inception", "Stationfall", "Lurking Horror", "Plundered Hearts", "Clowns", "International Soccer", "Katakis", "Rock 'n' Roll", "Wizardry: Proving Grounds of the Mad Overlord", "Wizardry II: The Kinght of Diamonds", "Wizardry III: Legacy of Llylgamyn", "Wizardry IV: The Return of Werdna", "Wizardry V: Heart of the Maelstrom", "Bristles", "Trivial Pursuit", "Game Over II", "Barbarian 2", "Universe", "Might and Magic, Book 1: Secret of the Inner Sanctum", "Might and Magic II", "Rock Star Ate My Hamster", "10th Frame", "Leaderboard Golf", "World Class Leader Board", "Caveman Games", "Club House Sports", "Mini Putt", "Accolade Comics", "Gee Bee Air Rally", "Kikstart", "Hardball", "Mikie", "Lemonade Stand", "Eliminator", "Skate Rock", "Quasimodo", "Spindizzy", "Spindizzy Worlds"]
+
+];
+
+</script>
