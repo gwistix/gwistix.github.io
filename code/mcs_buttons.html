@@ -1,0 +1,55 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+a.button {
+ text-decoration:none;
+ background: #def;
+ padding: 15px;
+ border-radius:10px;
+ display: inline-block;
+ margin-bottom: 10px;
+ color: black'
+}
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<p>Drag any of these to your bookmarks bar!</p>
+
+<a class='button' href='javascript:(function(){ document.querySelector("#primary_phone1").value = Math.floor(Math.random() * 799) + 200; document.querySelector("#primary_phone2").value = Math.floor(Math.random() * 888) + 111; document.querySelector("#primary_phone3").value = Math.floor(Math.random() * 8888) + 1111; })()'>Random phone number</a>
+
+<a class='button' href='javascript:(function(){ var now = new Date; var YYYY = now.getFullYear(); var MM = now.getMonth() > 9 ? now.getMonth() : "0" + now.getMonth(); var DD = now.getDay() > 9 ? now.getDay() : "0" + now.getDay(); var hh = now.getHours() > 9 ? now.getHours() : "0" + now.getHours(); var mm = now.getMinutes() > 9 ? now.getMinutes() : "0" + now.getMinutes(); var ss = now.getSeconds() > 9 ? now.getSeconds() : "0" + now.getSeconds(); document.querySelector("#email").value = ("email" + YYYY + MM + DD + hh + mm + ss + "@domain.com"); })()'>Random email</a>
+
+<a class='button' href='javascript:(function(){ var now = new Date(); var M = now.getMonth(); var D = now.getDay(); var Y = now.getFullYear(); var upperBound = new Date(Y-100, M, D); var lowerBound = new Date(Y-18, M, D); var upperMs = upperBound.getTime(); var lowerMs = lowerBound.getTime(); var randomMs = Math.round(Math.random() * (lowerMs - upperMs)) + upperMs; var randomAdultBday = new Date(randomMs); document.querySelector("#dob1").value = randomAdultBday.getMonth()+1; document.querySelector("#dob2").value = randomAdultBday.getDate(); document.querySelector("#dob3").value = randomAdultBday.getFullYear(); })()'>Random adult birthday</a>
+
+<a class='button' href='javascript:(function(){ document.querySelector("#ssn1").value = "666"; var nextTwo = ""; for (var i = 0; i < 2; i++) { nextTwo += Math.round(Math.random() * 9); } var lastFour = ""; for (var i = 0; i < 4; i++) { lastFour += Math.round(Math.random() * 9); } document.querySelector("#ssn2").value = nextTwo; document.querySelector("#ssn3").value = lastFour;})()'>Random test SSN</a>
+
+<a class='button' href='javascript:(function(){ var now = new Date(); var M = now.getMonth(); var D = now.getDay(); var Y = now.getFullYear(); var upperBound = new Date(Y-100, M, D); var lowerBound = new Date(Y-18, M, D); var upperMs = upperBound.getTime(); var lowerMs = lowerBound.getTime(); var randomMs = Math.round(Math.random() * (lowerMs - upperMs)) + upperMs; var randomAdultBday = new Date(randomMs); document.querySelector("#dob1").value = randomAdultBday.getMonth(); document.querySelector("#dob2").value = randomAdultBday.getDay(); document.querySelector("#dob3").value = randomAdultBday.getFullYear(); var YYYY = now.getFullYear(); var MM = now.getMonth() > 9 ? now.getMonth() : "0" + now.getMonth(); var DD = now.getDay() > 9 ? now.getDay() : "0" + now.getDay(); var hh = now.getHours() > 9 ? now.getHours() : "0" + now.getHours(); var mm = now.getMinutes() > 9 ? now.getMinutes() : "0" + now.getMinutes(); var ss = now.getSeconds() > 9 ? now.getSeconds() : "0" + now.getSeconds(); document.querySelector("#email").value = ("email" + YYYY + MM + DD + hh + mm + ss + "@domain.com");})()'>Random email & DOB</a>
+
+<a class='button' href='javascript:(function(){var streetNames = ["Second", "Third", "First", "Fourth", "Park", "Fifth", "Main", "Sixth", "Oak", "Seventh", "Pine", "Maple", "Cedar", "Eighth", "Elm", "View", "Washington", "Ninth", "Lake", "Hill"]; var streetTypes = ["Street", "Avenue", "Drive", "Boulevard", "Road", "Circle", "Court", "Place", "Lane", "Way"]; document.querySelector("#address").value = Math.ceil(Math.random() * 10000) + " " + streetNames[Math.floor(Math.random() * streetNames.length)] + " " + streetTypes[Math.floor(Math.random() * streetTypes.length)]; var zipCode = ""; for (var i = 0; i < 5; i++) { zipCode += Math.round(Math.random() * 9); } var zips = ["79936", "90011", "60629", "90650", "90201", "77084", "92335", "78521", "77449", "78572", "90250", "90280", "11226", "90805", "91331", "08701", "90044", "92336", "00926", "94565", "10467", "92683", "75052", "91342", "92704", "30044", "10025", "92503", "92804", "78577", "75217", "92376", "93307", "10456", "10002", "91911", "91744", "75070", "77036", "93722", "92345", "60618", "93033", "93550", "95076", "11230", "11368", "37013", "11373", "79912", "37211", "30043", "11206", "10453", "92154", "11355", "95823", "77479", "91706", "10458", "92553", "90706", "23464", "11212", "60617", "91709", "11214", "11219", "91910", "22193", "77429", "93535", "66062", "93257", "30349", "60647", "77584", "10452", "77573", "11377", "11207", "77494", "75211", "11234", "28269", "11235", "94544", "10029", "60625", "89110", "92509", "77083", "91335", "85364", "87121", "10468", "90255", "93065", "91710", "10462"]; document.querySelector("#zip").value = zips[Math.floor(Math.random() * zips.length)]; document.querySelector("#zip").focus() })()'>Random address</a>
+
+<a class='button' href='javascript:javascript:(function(){document.querySelector("#first_name").value = [ "John", "Robert", "Michael", "William", "David", "Richard", "Charles", "Joseph", "Thomas", "Christopher", "Daniel", "Paul", "Mark", "Donald", "George", "Kenneth", "Steven", "Edward", "Brian", "Ronald", "Anthony", "Kevin", "Jason", "Matthew", "Gary", "Timothy", "Jose", "Larry", "Jeffrey", "Frank", "Scott", "Eric", "Stephen", "Andrew", "Raymond", "Gregory", "Joshua", "Jerry", "Dennis", "Walter", "Patrick", "Peter", "Harold", "Douglas", "Henry", "Carl", "Arthur", "Ryan", "Roger", "Joe", "Juan", "Jack", "Albert", "Jonathan", "Justin", "Terry", "Gerald", "Keith", "Samuel", "Willie", "Ralph", "Lawrence", "Nicholas", "Roy", "Benjamin", "Bruce", "Brandon", "Adam", "Harry", "Fred", "Wayne", "Billy", "Steve", "Louis", "Jeremy", "Aaron", "Randy", "Howard", "Eugene", "Carlos", "Russell", "Bobby", "Victor", "Martin", "Ernest", "Phillip", "Todd", "Jesse", "Craig", "Alan", "Shawn", "Clarence", "Sean", "Philip", "Chris", "Johnny", "Earl", "Jimmy", "Antonio", "Mary", "Patricia", "Linda", "Barbara", "Elizabeth", "Jennifer", "Maria", "Susan", "Margaret", "Dorothy", "Lisa", "Nancy", "Karen", "Betty", "Helen", "Sandra", "Donna", "Carol", "Ruth", "Sharon", "Michelle", "Laura", "Sarah", "Kimberly", "Deborah", "Jessica", "Shirley", "Cynthia", "Angela", "Melissa", "Brenda", "Amy", "Anna", "Rebecca", "Virginia", "Kathleen", "Pamela", "Martha", "Debra", "Amanda", "Stephanie", "Carolyn", "Christine", "Marie", "Janet", "Catherine", "Frances", "Ann", "Joyce", "Diane", "Alice", "Julie", "Heather", "Teresa", "Doris", "Gloria", "Evelyn", "Jean", "Cheryl", "Mildred", "Katherine", "Joan", "Ashley", "Judith", "Rose", "Janice", "Kelly", "Nicole", "Judy", "Christina", "Kathy", "Theresa", "Beverly", "Denise", "Tammy", "Irene", "Jane", "Lori", "Rachel", "Marilyn", "Andrea", "Kathryn", "Louise", "Sara", "Anne", "Jacqueline", "Wanda", "Bonnie", "Julia", "Ruby", "Lois", "Tina", "Phyllis", "Norma", "Paula", "Diana", "Annie", "Lillian", "Emily", "Robin" ][Math.round(Math.random() * 199)];document.querySelector("#last_name").value = [ "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia", "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young", "Hernandez", "King", "Wright", "Lopez", "Hill", "Scott", "Green", "Adams", "Baker", "Gonzalez", "Nelson", "Carter", "Mitchell", "Perez", "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans", "Edwards", "Collins", "Stewart", "Sanchez", "Morris", "Rogers", "Reed", "Cook", "Morgan", "Bell", "Murphy", "Bailey", "Rivera", "Cooper", "Richardson", "Cox", "Howard", "Ward", "Torres", "Peterson", "Gray", "Ramirez", "James", "Watson", "Brooks", "Kelly", "Sanders", "Price", "Bennett", "Wood", "Barnes", "Ross", "Henderson", "Coleman", "Jenkins", "Perry", "Powell", "Long", "Patterson", "Hughes", "Flores", "Washington", "Butler", "Simmons", "Foster", "Gonzales", "Bryant", "Alexander", "Russell", "Griffin", "Diaz", "Hayes" ][Math.round(Math.random() * 100)]})()'>Random full name</a>
+
+</body>
+</html>
+
