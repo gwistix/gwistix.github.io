@@ -53,15 +53,15 @@ function parseBodies() {
   var arr = line.split("\t");
   console.log(arr)
 
-  if (index && arr.length) {
+  if (index && arr.length > 1) {
    bodies.push({
     name: arr[0],
     q: arr[1] || arr[2],
-    a: arr[2],
+    a: arr[2], 
     Q: arr[3] || arr[2],
     D: arr[4],
     toString: function() {
-     return "<div class='planet' style='margin-left: " + this.q + "; padding-left: " + (this.a - this.q) + "; width: " + (this.Q - this.q) + "'><b>" + this.name + "</b>&nbsp;" + this.a + "&nbsp;AU</div>";
+     return "<div class='planet' style='margin-left: " + this.q + "; padding-left: " + (this.a - this.q) + "; width: " + (this.Q - this.q) + "'><b>&bull;&nbsp;" + this.name + "</b>&nbsp;" + this.a + "&nbsp;AU</div>";
     }
    });
   }
