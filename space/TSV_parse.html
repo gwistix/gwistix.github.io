@@ -1,17 +1,7 @@
 <html>
-<head>
-<script>
-var xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-                var arrayWithValues = xhttp.responseText.trim().split('\t');
-                console.log(arrayWithValues);
-        };
-};
-xhttp.open("GET", "/ceres_plus.txt", true);
-xhttp.send();
-</script>
-</head>
 <body>
 
+        <div><object data='/ceres_plus.txt'></object></div>
+        
 </body>
+</html>
