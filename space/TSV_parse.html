@@ -1,7 +1,84 @@
 <html>
-<body>
-This is the new version as of 8:49
-        <div><object data='/ceres_plus.txt'></object></div>
-        
-</body>
-</html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap
+}
+
+.planet {
+ background: #cdcdcd;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+ var tsv;
+
+function init() {
+ console.clear();
+ pseudos();
+
+ var txtFile = new XMLHttpRequest();
+ txtFile.open("GET", "https://gwistix.github.io/space/ceres_plus.txt", true);
+ txtFile.onreadystatechange = function() {
+  // Makes sure the document is ready to parse
+  if (txtFile.readyState === 4) {
+    // Makes sure it's found the file
+    if (txtFile.status === 200) {
+      allText = txtFile.responseText;
+      var customTextElement = document.getElementById('textHolder');
+ customTextElement.innerHTML = txtFile.responseText;
+    }
+  }
+ }
+ txtFile.send(null);
+ setTimeout("parseBodies();", 500);
+}
+
+var bodies = [];
+
+function parseBodies() {
+ textHolder.innerHTML
+ .split("\n")
+ .forEach(function(line, index) {
+  var arr = line.split("\t");
+  console.log(arr)
+
+  if (index && arr.length) {
+   bodies.push({
+    name: arr[0],
+    q: arr[1] || arr[2],
+    a: arr[2],
+    Q: arr[3] || arr[2],
+    D: arr[4],
+    toString: function() {
+     return "<div class='planet' style='margin-left: " + this.q + "; padding-left: " + (this.a - this.q) + "; width: " + (this.Q - this.q) + "'><b>" + this.name + "</b>&nbsp;" + this.a + "&nbsp;AU</div>";
+    }
+   });
+  }
+ })
+ ;
+ bodies = bodies.sort(function(a, b) {
+  return a.a - b.a;
+ });
+ document.body.innerHTML = bodies.join("\n")
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<textarea id='textHolder' style='width:100%; height:70% '></textarea>
+
+<button onClick='parseBodies()'>Parse it</button>
