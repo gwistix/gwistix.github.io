@@ -1,0 +1,34 @@
+Name	q	a	Q	Dimensions
+Sol	0	0	0	1391600
+Jupiter	5.0	5.2	5.5	139882
+Saturn	9	9.6	10.1	120536
+Uranus	18.3	19.2	20.1	51118
+Neptune	29.8	30.1	30.3	49528
+Earth	1.0	1.0	1.0	12742
+Venus	0.7	0.7	0.7	12103
+Mars		1.4	1.5	1.7	6792
+Ganymede		5.2		5268
+Titan		9.6		5152
+Mercury	0.3	0.4	0.5	4879
+Callisto		5.2		4821
+Io		5.2		3630
+Luna		1.0		3474
+Europa		5.2		3138
+Triton		30.1		2707
+Pluto	30.0	39.3	48.9	2374
+Eris		37.9	67.8	97.7	2328
+Titania		19.2		1578
+Rhea		9.6		1528
+Oberon		19.2		1523
+Iapetus		9.6		1470
+Haumea	35.0	43.2	51.5	1462
+Makemake	38.6	45.7	52.8	1447
+Gonggong	33.0	66.8	100.1	1315
+Charon		39.5		1212
+Umbriel		19.2		1169
+Ariel		19.2		1158
+Dione		9.6		1124
+Tethys		9.6		1067
+Quaoar	41.7	43.4	45.1	1046
+Sedna	76.1	506.0	972.4	1032
+Ceres	2.6	2.8	3.0	946
