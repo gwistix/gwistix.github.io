@@ -1,0 +1,136 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>The Spacefarer's Paradox</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap
+}
+
+div {
+ border:1px solid black;
+ width:20px;
+ height:20px;
+ text-align:center;
+// border-radius:50%;
+ position:absolute;
+ top:10px;
+ left:10px;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+
+ // Set a timer to display the current year
+
+ // For numbers 1 through 20...
+ for (var i = 0; i < 20; i++) {
+
+  // Create a DIV for a rocket named r#
+
+  document.querySelector("#rockets").innerHTML += "<div></div>";
+
+   // The rocket's speed is a function of the original speed
+
+    // speed = originSpeed / 1.15 ** #
+
+  // Set a timeout for when the rocket will launch (equal to # seconds)
+
+ }
+
+ window.setTimeout("launchRocket(1)", 1000);
+ window.setTimeout("launchRocket(2)", 2000);
+ window.setTimeout("launchRocket(3)", 3000);
+ window.setTimeout("launchRocket(4)", 4000);
+ window.setTimeout("launchRocket(5)", 5000);
+ window.setTimeout("launchRocket(6)", 6000);
+ window.setTimeout("launchRocket(7)", 7000);
+ window.setTimeout("launchRocket(8)", 8000);
+ window.setTimeout("launchRocket(9)", 9000);
+ window.setTimeout("launchRocket(10)", 10000);
+ window.setTimeout("launchRocket(11)", 11000);
+ window.setTimeout("launchRocket(12)", 12000);
+ window.setTimeout("launchRocket(13)", 13000);
+ window.setTimeout("launchRocket(14)", 14000);
+ window.setTimeout("launchRocket(15)", 15000);
+ window.setTimeout("launchRocket(16)", 16000);
+ window.setTimeout("launchRocket(17)", 17000);
+ window.setTimeout("launchRocket(18)", 18000);
+ window.setTimeout("launchRocket(19)", 19000);
+ window.setTimeout("launchRocket(20)", 20000);
+
+}
+
+function launchRocket(num) {
+ document.querySelector("#r"+num).style.left = 400; 
+}
+
+</script> 
+
+</head>
+
+<body onLoad='init();'>
+
+<h1>The Spacefarer's paradox</h1>
+
+<p>The <i>spacefarer's paradox</i> is based on the possibility that if we continue to improve our technology, it's likely that for a distant enough target, <b>a spacecraft launched in the future might actually arrive before a spacecraft launched right now</b>. Put another way, if we continue to improve our technology, the benefit of waiting may outweigh the benefit of launching earlier.</p>
+
+<p>Even given the spacefarer's paradox, there's a point at which the benefit of waiting no longer outweighs the benefit of launching earlier. If a decade of research results in us developing a spacecraft that can arrive only two years faster than the previous model, then the benefit of waiting no longer outweighs the benefit of launching earlier. This is demonstrated in the following simulation:</p>
+
+<div id='rockets' style='position:relative; border: none;'>
+
+ <div id='line' style='top:10px; left:10px; border-radius:0; border-top:none; border-bottom:none; width:410px; height:420px'></div>
+
+ <div id='r1' style='top:20px; transition: all 74.8s ease'>1</div>
+
+ <div id='r2' style='top:40px; transition: all 64.5s ease'>2</div>
+
+ <div id='r3' style='top:60px; transition: all 55.6s ease'>3</div>
+
+ <div id='r4' style='top:80px; transition: all 47.9s ease'>4</div>
+
+ <div id='r5' style='top:100px; transition: all 41.3s ease'>5</div>
+
+ <div id='r6' style='top:120px; transition: all 35.6s ease'>6</div>
+
+ <div id='r7' style='top:140px; transition: all 30.7s ease'>7</div>
+
+ <div id='r8' style='top:160px; transition: all 26.5s ease'>8</div>
+
+ <div id='r9' style='top:180px; transition: all 22.8s ease'>9</div>
+
+ <div id='r10' style='top:200px; transition: all 19.7s ease'>10</div>
+
+ <div id='r11' style='top:220px; transition: all 17.0s ease'>11</div>
+
+ <div id='r12' style='top:240px; transition: all 14.6s ease'>12</div>
+
+ <div id='r13' style='top:260px; transition: all 12.6s ease'>13</div>
+
+ <div id='r14' style='top:280px; transition: all 10.9s ease'>14</div>
+
+ <div id='r15' style='top:300px; transition: all 9.4s ease'>15</div>
+
+ <div id='r16' style='top:320px; transition: all 8.1s ease'>16</div>
+
+ <div id='r17' style='top:340px; transition: all 7.0s ease'>17</div>
+
+ <div id='r18' style='top:360px; transition: all 6.0s ease'>18</div>
+
+ <div id='r19' style='top:380px; transition: all 5.2s ease'>19</div>
+
+ <div id='r20' style='top:400px; transition: all 4.5s ease'>20</div>
+
+</div>
+
+<p style='position:relative; top:420'>In this simulation, a spacecraft is launched every second, representing ten years of research and a speed increase of about 15%.
