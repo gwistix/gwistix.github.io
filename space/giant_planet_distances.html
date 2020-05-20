@@ -1,0 +1,300 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<style>
+html, body {
+    zoom:1;
+    overflow: hidden;
+ 
+    /* The universe takes up all available space */
+    width: 100%;
+    height: 100%;
+     
+    /* The universe is black */
+    background-color: black;
+}
+ 
+#sol {
+    position: absolute;
+    /* Positions the top-left corner of the image to be *
+    /* in the middle of the box */
+    top: 50%;
+    left: 50%;
+     
+    /* Play with these numbers to see what it does */
+    height: 10px;
+    width: 10px;
+    margin-top: -4px; 
+    margin-left: -4px;
+     
+    background-color:yellow;
+    border-radius:50%;
+ 
+    animation: spin-left 0.25s linear infinite;
+ 
+}
+
+/* Semi-major axes of the jovian planets:
+
+ Jupiter  5.2044 AU
+ Saturn   9.5826 AU
+ Uranus  19.2184 AU
+ Neptune 30.1100 AU
+   
+*/
+ 
+#jupiter {
+    position: absolute;
+    top: 0;
+    left: 50%;
+     
+    height:5px;
+    width:5px;
+    margin-left:-2.5px;
+    margin-top:-2.5px;
+ 
+    background-color:tan;
+    border-radius:50%;
+}
+ 
+#jupiter-orbit {
+    position: absolute;
+    top:50%;
+    left:50%;
+     
+    width: calc(5.2044 * 20px);
+    height: calc(5.2044 * 20px);
+    margin-top: calc(5.2044 * -10px);
+    margin-left: calc(5.2044 * -10px);
+     
+    border-width:2px;
+    border-style:dotted;
+    border-color:gray;
+    border-radius:50%;
+     
+    animation: spin-left 1.1862s linear infinite;
+}
+ 
+#saturn {
+    position: absolute;
+    top: 0;
+    left: 50%;
+     
+    height:5px;
+    width:5px;
+    margin-left:-2.5px;
+    margin-top:-2.5px;
+ 
+    background-color:#ccdd55;
+    border-radius:50%;
+}
+ 
+#saturn-orbit {
+    position: absolute;
+    top:50%;
+    left:50%;
+     
+    width: calc(9.5826 * 20px);
+    height: calc(9.5826 * 20px);
+    margin-top: calc(9.5826 * -10px);
+    margin-left: calc(9.5826 * -10px);
+     
+    border-width:2px;
+    border-style:dotted;
+    border-color:gray;
+    border-radius:50%;
+     
+    animation: spin-left 2.9471s linear infinite;
+}
+ 
+#uranus {
+    position: absolute;
+    top: 0;
+    left: 50%;
+     
+    height:5px;
+    width:5px;
+    margin-left:-2.5px;
+    margin-top:-2.5px;
+
+    background-color:#aaccff;
+    border-radius:50%;
+}
+ 
+#uranus-orbit {
+    position: absolute;
+    top:50%;
+    left:50%;
+     
+    width: calc(19.2184 * 20px);
+    height: calc(19.2184 * 20px);
+    margin-top: calc(19.2184 * -10px);
+    margin-left: calc(19.2184 * -10px);
+     
+    border-width:2px;
+    border-style:dotted;
+    border-color:gray;
+    border-radius:50%;
+     
+    animation: spin-left 8.4s linear infinite;
+}
+
+#neptune {
+    position: absolute;
+    top: 0;
+    left: 50%;
+     
+    height:5px;
+    width:5px;
+    margin-left:-2.5px;
+    margin-top:-2.5px;
+ 
+    background-color:#4455ff;
+    border-radius:50%;
+}
+ 
+#neptune-orbit {
+    position: absolute;
+    top:50%;
+    left:50%;
+     
+    width: calc(30.1100 * 20px);
+    height: calc(30.1100 * 20px);
+    margin-top: calc(30.1100 * -10px);
+    margin-left: calc(30.1100 * -10px);
+     
+    border-width:2px;
+    border-style:dotted;
+    border-color:gray;
+    border-radius:50%;
+     
+    animation: spin-left 16.48s linear infinite;
+}
+ 
+@keyframes spin-right {
+    100% {
+                transform: rotate(360deg);
+    }
+}
+ 
+@keyframes spin-left {
+    100% {
+                transform: rotate(-360deg);
+    }
+}
+ 
+</style>
+
+<script>
+
+function init() {
+ console.clear();
+ updateDistances();
+ var tick = setInterval("updateDistances();", 1);
+}
+
+var j_s = [];
+var j_u = [];
+var j_n = [];
+var s_u = [];
+var s_n = [];
+var u_n = [];
+
+function updateDistances() {
+ var j = jupiter.getBoundingClientRect();
+ var e = saturn.getBoundingClientRect();
+ var g = uranus.getBoundingClientRect();
+ var c = neptune.getBoundingClientRect();
+
+ j_s.push(calculateDistance(j,e));
+ j_u.push(calculateDistance(j,g));
+ j_n.push(calculateDistance(j,c));
+ s_u.push(calculateDistance(e,g));
+ s_n.push(calculateDistance(e,c));
+ u_n.push(calculateDistance(g,c));
+
+ inform("j_s: Min: "  + Math.min(...j_s).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.min(...j_s)).toFixed(1) + " AU)"
+ + "\t\tMean: " + average(j_s).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(average(j_s)).toFixed(1) + " AU)"
+ + "\tMax: " + Math.max(...j_s).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.max(...j_s)).toFixed(1) + " AU)<br>"
+
+ + "s_u: Min: "  + Math.min(...s_u).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.min(...s_u)).toFixed(1) + " AU)"
+ + "\tMean: " + average(s_u).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(average(s_u)).toFixed(1) + " AU)"
+ + "\tMax: " + Math.max(...s_u).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.max(...s_u)).toFixed(1) + " AU)<br>"
+	   
+ + "u_n: Min: "  + Math.min(...u_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.min(...u_n)).toFixed(1) + " AU)"
+ + "\tMean: " + average(u_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(average(u_n)).toFixed(1) + " AU)"
+ + "\tMax: " + Math.max(...u_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.max(...u_n)).toFixed(1) + " AU)"
+/* + "\t\tCurrent: " + u_n[u_n.length-1].toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(u_n[u_n.length-1]).toLocaleString(undefined,{maximumFractionDigits:1}) + " AU)" */
+ + "<br><br>"
+	   
+ + "j_u: Min: "  + Math.min(...j_u).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.min(...j_u)).toFixed(1) + " AU)"
+ + "\tMean: " + average(j_u).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(average(j_u)).toFixed(1) + " AU)"
+ + "\tMax: " + Math.max(...j_u).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.max(...j_u)).toFixed(1) + " AU)<br>"
+	   
+ + "j_n: Min: "  + Math.min(...j_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.min(...j_n)).toFixed(1) + " AU)"
+ + "\tMean: " + average(j_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(average(j_n)).toFixed(1) + " AU)"
+ + "\tMax: " + Math.max(...j_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.max(...j_n)).toFixed(1) + " AU)<br>"
+	   
+ + "s_n: Min: "  + Math.min(...s_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.min(...s_n)).toFixed(1) + " AU)"
+ + "\tMean: " + average(s_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(average(s_n)).toFixed(1) + " AU)"
+ + "\tMax: " + Math.max(...s_n).toLocaleString(undefined,{maximumFractionDigits:0}) + " Gm (" + GmToAU(Math.max(...s_n)).toFixed(1) + " AU)<br>"
+	   
+
+ + "<br>1 pixel &approx; " + scale.toLocaleString(undefined, {maximumFractionDigits:0}) + " Gm (" + GmToAU(scale).toFixed(1) + " AU)"
+ );
+}
+
+var scale = 14.9597871; // 1 pixel ≈ 15 gigameters ≈ 0.1 AU
+function GmToAU(Gm) {
+ return Gm / 149.597871
+}
+
+function calculateDistance(a, b) {
+ var deltaX = Math.abs(a.left - b.left);
+ var deltaY = Math.abs(a.top - b.top);
+ return Math.sqrt(deltaX**2 + deltaY**2) * scale;
+}
+
+function average(arr) {
+ var sum = 0;
+ var len = arr.length;
+
+ for (var i = 0; i < len; i++) {
+  sum += arr[i];
+ }
+
+ return sum / len;
+ 
+}
+
+function inform(msg) {
+ info_div.innerHTML = msg
+}
+
+</script>
+</head>
+<body onLoad='init()'>
+
+<div id='info_div' style='border-radius:0; position:absolute; top:0; left:0; color:white; font-size:12px; white-space: pre-wrap'>Info will appear here</div>
+ 
+<div id="sol"></div>
+ 
+<div id='jupiter-orbit'>
+    <div id='jupiter'></div>
+</div>
+ 
+<div id='saturn-orbit'>
+    <div id='saturn'></div>
+</div>
+ 
+<div id='uranus-orbit'>
+    <div id='uranus'></div>
+</div>
+ 
+<div id='neptune-orbit'>
+    <div id='neptune'></div>
+</div>
+ 
+</body>
+</html>
