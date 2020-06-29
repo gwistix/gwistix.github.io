@@ -1,4 +1,4 @@
-solarSystemBodies = [
+var solarSystemBodies = [
 {  
  name: "Sol",  
  symbol: "☉", 
