@@ -122,7 +122,7 @@ function parseLists() {
      books[ref].title = book;
     }
 
-    // Update the book's score
+    // Update the title's score
     books[ref].score += rank;
 
    }
@@ -275,8 +275,8 @@ function generateTable(list) {
   ref = ~ref ? ref : book.title.length;
   var titleOnly = book.title.substring(0, ref).toTitleCase();
   var authorOnly = book.title.substring(ref);
-  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
-  + "<td class='gray'>" + book.score.toFixed(2) + "</td>" 
+  tableHtml += "<tr><td style='text-align: right'>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray' style='font-size: 50%'>" + book.score.toFixed(2) + "</td>" 
   + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
  });
 
@@ -291,7 +291,7 @@ var ranked = [
 ["DYNAMITE DAN", "Dynamite Dan 2", "CONTACT SAM CRUISE", "M.O.V.I.E.", "PIPPO", "TRAVEL WITH TRASHMAN", "GHOULS ‘N’ GHOSTS", "TURBO ESPRIT", "BEHIND CLOSED DOORS", "SOFTWARE STAR", "SPLIT PERSONALITIES", "THUNDERBIRDS", "ERIC AND THE FLOATERS", "KNIGHT TYME", "TRACK SUIT MANAGER", "JOE BLADE III", "JUMPING JACK", "WRIGGLER", "BATMAN: THE CAPED CRUSADER", "MATCH POINT", "KRAKOUT", "TRAP DOOR", "AUF WIEDERSEHEN, MONTY", "MY NAME IS UNCLE GROUCHO, YOU WIN A FAT CIGAR", "SHOCKWAY RIDER", "MAKE A CHIP", "BIONIC COMMANDO", "BOOTY", "TRAILBLAZER", "FOOTBALLER OF THE YEAR", "FOOTBALLER OF THE YEAR 2", "CAULDRON", "TECHNO COP", "SUPER SCRAMBLE SIMULATOR", "AMAUROTE", "DAN DARE 3", "COBRA", "FAT WORM BLOWS A SPARKY", "CHUCKIE EGG 2", "DEFLEKTOR", "CABAL", "RANARAMA", "KARNOV", "RUN THE GAUNTLET", "SubscribeTHE MUNCHER", "OVERLANDER", "CASTLE MASTER", "FORMULA ONE", "VALHALLA", "TRANTOR: THE LAST STORMTROOPER", "GRAND NATIONAL", "ROCK STAR ATE MY HAMSTER"],
 
 /* https://retromash.com/2019/09/12/top-ten-nostalgia-zx-spectrum-games/ */
-["Manic Miner", "Elite", "Jetpac", "Knight Lore ", "Wheelie", "Bruce Lee", "Jet Set Willy", "Penetrator", "Target: Renegade", "Cobra"],
+["Manic Miner", "Elite", "Jetpac", "Knight Lore", "Wheelie", "Bruce Lee", "Jet Set Willy", "Penetrator", "Target: Renegade", "Cobra"],
 
 /* https://www.funstockretro.co.uk/news/the-top-10-underrated-zx-spectrum-games/ */
 ["My Name is Uncle Groucho, You Win a Fat Cigar", "Match Point", "Thunderbirds", "Travel with Trashman", "The Rocky Horror Show", "Dynamite Dan", "Ghouls ‘N Ghosts", "Batman: The Caped Crusader", "Bionic Commando", "Karnov"],
@@ -390,3 +390,5 @@ var unranked = [
 ];
 
 </script>
+</body>
+</html>
