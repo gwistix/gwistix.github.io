@@ -1,0 +1,95 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Collatz Conjecture</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap
+}
+
+#data, p, h1 {
+ background: rgba(255,255,255,0.75);
+ border-radius: 5px;
+}
+
+#plots {
+ position: fixed;
+ bottom: 0px;
+ z-index: -1;
+}
+
+.plot {
+ display: inline-block;
+ margin-bottom: 20px;
+ vertical-align: bottom;
+// border: 1px solid red;
+ background: linear-gradient(#e66465, #9198e5);
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+
+// algorithm(70)
+
+/*
+ for (var i = 1; i <= 10; i++) {
+  algorithm(i);
+ }
+*/
+}
+
+var sequence = [];
+
+function algorithm(number) {
+ sequence.push(number);
+ if (number == 1 && sequence.length > 1) {	// 1
+  document.querySelector("#data").innerHTML += "<i>Seed number " + sequence[0] + " yields " + sequence.length + " hailstorm numbers:</i><br>" + sequence.join(", ") + "<br><br>";
+  plot(sequence);
+  sequence = [];
+  return;
+ }
+ else if (number % 2) {	// odd
+  algorithm(number * 3 + 1)
+ }
+ else {			// even
+  algorithm(number / 2)
+ }
+}
+
+function plot(array) {
+ var text = "";
+ array.forEach(function(number) {
+  text += "<div class='plot' style='height:"+number+"px'>"+number+"</div>";
+ });
+ plots.innerHTML = text;
+}
+
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<h1>The Collatz Conjecture</h1>
+
+<p>The Collatz Conjecture is based on a simple algorithm. Start with any number&mdash;any positive integer, to be specific. If that number is odd, multiply it by 3, then add 1; if it's even, divide by 2. Then continue with the next number, and the next and so on. Eventually, every number results in a sequence that ends in a <em>4, 2, 1</em> loop (1 is odd, 1 &times; 3 + 1 = 4; 4 &divide; 2 = 2; 2 &divide; 2 = 1; and the loop continues infinitely). The numbers in each sequence are referred to as <cite>hailstorm numbers</cite>.</p>
+
+<p>Enter a number below to test it out:<br>
+<input type='number' onInput='data.innerHTML = ""; plots.innerHTML = ""; algorithm(this.value)'>
+</p>
+
+<div id='data'></div>
+
+<div id='plots'></div>
