@@ -52,6 +52,10 @@ function init() {
 var sequence = [];
 
 function algorithm(number) {
+ if (!number || number < 1) {
+  data.innerHTML = "<span class='red'>Please enter a positive integer</span>";
+  return
+ }
  sequence.push(number);
  if (number == 1 && sequence.length > 1) {	// 1
   document.querySelector("#data").innerHTML += "<i>Seed number " + sequence[0] + " yields " + sequence.length + " hailstorm numbers:</i><br>" + sequence.join(", ") + "<br><br>";
