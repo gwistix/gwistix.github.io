@@ -2,7 +2,7 @@
 <head>
 <link rel='shortcut icon' href='/favicon.png'>
 <link rel='icon' sizes='192x192' href='/appicon.png'>
-<title>Best PS5 games</title>
+<title></title>
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <meta name='apple-mobile-web-app-capable' content='yes'>
 <meta name='mobile-web-app-capable' content='yes'>
@@ -103,7 +103,7 @@ function init() {
 }
 
 function stripTitle(title) {
- return title.toLowerCase().replace(/&/g, "and").replace(/[^A-z0-9]/g, "");
+ return title.toLowerCase().replace(/&/g, "and").replace(/[^A-z0-9]/g, "").replace(/the /gi, "");
 }
 
 var ranked = [
@@ -130,16 +130,19 @@ var ranked = [
 var unranked = [
 
  /* TechRadar [https://www.techradar.com/best/best-ps5-games] unranked */
- ["Assassin's Creed Valhalla", "Astro's Playroom", "Call of Duty: Black Ops Cold War", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Devil May Cry 5: Special Edition", "Disco Elysium: The Final Cut", "FIFA 22", "Final Fantasy VII Remake Intergrade", "Final Fantasy XIV Online", "Ghost of Tsushima: Director's Cut", "God of War", "Hades", "Hitman 3", "It Takes Two", "Marvel's Spider-Man: Miles Morales", "Ratchet & Clank: Rift Apart", "Resident Evil Village", "Returnal", "Sackboy: A Big Adventure", "Nioh Collection", "Tony Hawk's Pro Skater 1+2"],
+ ["Assassin's Creed Valhalla", "Astro's Playroom", "Call of Duty: Black Ops Cold War", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Devil May Cry 5: Special Edition", "Disco Elysium: The Final Cut", "FIFA 22", "Final Fantasy VII Remake Intergrade", "Final Fantasy XIV Online", "Ghost of Tsushima: Director's Cut", "God of War", "Hades", "Hitman 3", "It Takes Two", "Marvel's Spider-Man: Miles Morales", "Ratchet & Clank: Rift Apart", "Resident Evil Village", "Returnal", "Sackboy: A Big Adventure", "The Nioh Collection", "Tony Hawk's Pro Skater 1+2"],
 
  /* The Loadout [https://www.theloadout.com/best-ps5-games] unranked */
- ["Astro's Playroom", "Assassin's Creed Valhalla", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Dirt 5", "Disco Elysium: The Final Cut", "Ghost of Tsushima: Director's Cut", "Marvel's Spider-Man: Miles Morales", "Mortal Kombat 11: Ultimate", "Ratchet & Clank: Rift Apart", "Returnal", "Sackboy: A Big Adventure", "The Pathless", "Warframe"],
+ ["Astro's Playroom", "Assassin's Creed Valhalla", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Dirt 5", "Disco Elysium: The Final Cut", "Ghost of Tsushima: Director's Cut", "Marvel's Spider-Man: Miles Morales", "Mortal Kombat 11", "Ratchet & Clank: Rift Apart", "Returnal", "Sackboy: A Big Adventure", "The Pathless", "Warframe"],
 
  /* Gamespot [https://www.gamespot.com/articles/best-ps5-games/1100-6487615/] unranked */
- ["Assassin's Creed Valhalla", "Astro's Playroom", "Chicory: A Colorful Tale", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Destiny 2", "Devil May Cry 5: Special Edition", "Final Fantasy VII Remake: Intergrade", "The Forgotten City", "Ghost of Tsushima: Director's Cut", "God of War", "Hitman 3", "Hades", "It Takes Two", "Marvel's Spider-Man: Miles Morales", "MLB The Show 21", "Mortal Kombat 11 Ultimate", "No Man's Sky", "Tom Clancy's: Rainbow Six Siege", "Ratchet & Clank: Rift Apart", "Resident Evil Village", "Returnal", "The Nioh Collection", "Yakuza: Like a Dragon"],
+ ["Assassin's Creed Valhalla", "Astro's Playroom", "Chicory: A Colorful Tale", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Destiny 2", "Devil May Cry 5: Special Edition", "Final Fantasy VII Remake: Intergrade", "The Forgotten City", "Ghost of Tsushima: Director's Cut", "God of War", "Hitman 3", "Hades", "It Takes Two", "Marvel's Spider-Man: Miles Morales", "MLB The Show 21", "Mortal Kombat 11", "No Man's Sky", "Tom Clancy's: Rainbow Six Siege", "Ratchet & Clank: Rift Apart", "Resident Evil Village", "Returnal", "The Nioh Collection", "Yakuza: Like a Dragon"],
 
  /* The Verge [https://www.theverge.com/22825859/ps5-best-games-playstation-5-sony-2021] unranked */
- ["Deathloop", "Returnal", "Ratchet & Clank: Rift Apart", "Final Fantasy VII Remake Intergrade", "Ghost of Tsushima: Director's Cut", "Astro's Playroom", "Demon's Souls"]
+ ["Deathloop", "Returnal", "Ratchet & Clank: Rift Apart", "Final Fantasy VII Remake Intergrade", "Ghost of Tsushima: Director's Cut", "Astro's Playroom", "Demon's Souls"],
+
+ /* AMG's list - unranked */
+ ["Marvel's Spider-Man: Miles Morales", "Ratchet & Clank: Rift Apart", "The Last of Us: Part II", "God of War", "Spider-Man: Remastered", "Persona 5 Royal", "Ghost of Tsushima: Director's Cut", "Horizon Zero Dawn", "Horizon Forbidden West", "Kena: Bridge of Spirits", "Bloodborne", "Demon's Souls", "Bugsnax"]
 
 ];
 
