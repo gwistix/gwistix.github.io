@@ -1,0 +1,153 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best PS5 games</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap
+}
+
+small {
+ color: gray
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+
+ var titleList = [];
+ var titles = [];
+
+ //Go through the meta-list of ranked lists
+ ranked.forEach(function(list) {
+
+  //Get the length of the list
+  var len = list.length;
+
+  //Go through each ranked list
+  list.forEach(function(title, index) {
+   var strippedTitle = stripTitle(title);
+   var ref = titleList.indexOf(strippedTitle);
+   if (!~ref) { // not yet in list
+    titleList.push(strippedTitle);
+    titles.push({
+     title: title,
+     score: (1 - index / len),
+     toString: function() {
+      return "<small>[" + this.score.toFixed(2) + "]</small>\t" + this.title
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score += (1 - index / len);
+   }
+  });
+ });
+
+ //Go through the meta-list of unranked lists
+ unranked.forEach(function(list) {
+
+  //Get the length of the list
+  var len = list.length;
+
+  //Go through each unranked list
+  list.forEach(function(title) {
+   var strippedTitle = stripTitle(title);
+   var ref = titleList.indexOf(strippedTitle);
+   if (!~ref) { // not yet in list
+    titleList.push(strippedTitle);
+    titles.push({
+     title: title,
+     score: (((1 - 1 / len) + (1/2)) / 2),
+     toString: function() {
+      return "<small>[" + this.score.toFixed(2) + "]</small>\t" + this.title
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score += (((1 - 1 / len) + (1/2)) / 2);
+   }
+  });
+ });
+
+ var sortByScore = true;
+
+ titles = titles.sort(function(a, b) {
+  if (sortByScore) {
+   if (a.score > b.score) return -1;
+   if (a.score < b.score) return 1;
+  }
+  else {
+   if (a.title > b.title) return 1;
+   if (a.title < b.title) return -1;
+  }
+  return 0;
+ });
+
+ document.body.innerHTML = "<h1>" + titles.length + " unique PS5 titles aggregated from " + (ranked.length + unranked.length) + " lists:</h1>";
+
+ titles.forEach(function(title, index){
+  document.body.innerHTML += (index + 1) + "\t" + title + "</br>";
+ });
+
+}
+
+function stripTitle(title) {
+ return title.toLowerCase().replace(/&/g, "and").replace(/[^A-z0-9]/g, "");
+}
+
+var ranked = [
+ /* Google search results [https://www.google.com/search?q=best+ps5+games&rlz=1C1EJFA_enUS957US957&oq=best+ps5+games&aqs=chrome.0.0i433i512l5j69i60j69i61l2.2441j0j9&sourceid=chrome&ie=UTF-8] ranked */
+ ["Marvel's Spider-Man: Miles Morales", "Demon's Souls", "Ratchet & Clank: Rift Apart", "Returnal", "Astro's Playroom", "Spider-Man Remastered", "Assassin's Creed: Valhalla", "Sackboy: A Big Adventure", "Ghost of Tsushima: Director's Cut", "Deathloop", "Turbo Overkill", "Hitman 3", "Resident Evil Village", "Horizon: Forbidden West", "Call of Duty: Black Ops Cold War", "God of War Ragnarök", "Control: Ultimate Edition", "Final Fantasy VII: Remake Intergrade", "It Takes Two", "Bugsnax", "Hades", "Kena: Bridge of Spirits", "The Pathless", "Devil May Cry 6", "Gran Turismo 7", "Marvel's Guardians of the Galaxy", "Insurgency: Sandstorm", "Dirt 5", "Elden Ring", "Death Stranding: Director's Cut", "Final Fantasy XVI", "Infestor", "Far Cry 6", "Battlefield 2042", "Ghost of Tsushima: Iki Island Expansion", "The Last of Us: Part II", "FIFA 22", "Horizon Zero Dawn", "Tales of Arise", "The Nioh Collection", "NBA 2K22", "Asdivine Saga", "Tony Hawk's Pro Skater 1 + 2", "Mortal Kombat 11", "Tom Clancy's Rainbow Six Extraction", "Godfall", "Resogun", "Without Escape", "Yakuza: Like a Dragon"],
+
+ /* GamesRadar [https://www.gamesradar.com/best-ps5-games/] ranked */
+ ["Ratchet & Clank: Rift Apart", "Marvel's Spider-Man: Miles Morales", "Deathloop", "Returnal", "Demon's Souls", "Sackboy: A Big Adventure", "Ghost of Tsushima: Director's Cut", "Assassin's Creed Valhalla", "Hitman 3", "Marvel's Guardians of the Galaxy", "Solar Ash", "Death's Door", "Astro's Playroom", "Bugsnax", "Kena: Bridge of Spirits"],
+
+ /* IGN [https://www.ign.com/articles/the-best-ps5-games] ranked */
+ ["Marvel's Spider-Man: Miles Morales", "Demon's Souls", "Assassin's Creed Valhalla", "Astro's Playroom", "Spider-Man Remastered", "Hitman 3", "The Pathless", "Bugsnax", "Sackboy: A Big Adventure", "Yakuza: Like a Dragon"],
+
+ /* Tom's Guide [https://www.tomsguide.com/best-picks/the-best-ps5-games] ranked */
+ ["Ratchet & Clank: Rift Apart", "Demon's Souls", "Marvel's Spider-Man: Miles Morales", "Returnal", "Final Fantasy VII Remake: Intergrade", "Assassin's Creed Valhalla", "Astro's Playroom", "Dirt 5", "Devil May Cry 5: Special Edition", "Call of Duty: Black Ops Cold War", "Godfall", "The Pathless", "Sackboy: A Big Adventure"],
+
+ /* Laptop Mag [https://www.laptopmag.com/best-picks/best-ps5-games] ranked */
+ ["Deathloop", "Marvel's Spider-Man: Miles Morales", "Demon's Souls", "Bugsnax", "Astro's Playroom", "Sackboy: A Big Adventure", "Resident Evil Village", "Ratchet & Clank: Rift Apart"],
+
+ /* Metacritic [https://www.metacritic.com/browse/games/score/metascore/all/ps5/filtered] ranked */
+ ["Final Fantasy XIV: Endwalker", "Hades", "Demon's Souls", "Tony Hawk's Pro Skater 1 + 2", "Final Fantasy VII Remake Intergrade", "Disco Elysium: The Final Cut", "Devil May Cry 5: Special Edition", "It Takes Two", "Deathloop", "Ratchet & Clank: Rift Apart", "Ghost of Tsushima: Director's Cut", "Mortal Kombat 11", "The Nioh Collection", "Guilty Gear -Strive-", "Chicory: A Colorful Tale", "Tales of Arise", "Crash Bandicoot 4: It's About Time", "Yakuza: Like a Dragon", "Chivalry 2", "Returnal", "Marvel's Spider-Man: Miles Morales", "Control: Ultimate Edition", "Röki", "Warframe", "The Forgotten City", "Death Stranding: Director's Cut", "F1 2021", "Assassin's Creed Valhalla", "Hitman 3", "Overcooked! All You Can Eat", "Resident Evil Village", "Ghost of Tsushima: Iki Island Expansion", "The Pedestrian", "Astro's Playroom", "Metro Exodus: Complete Edition", "Lost Judgment", "Judgment", "WRC 9 FIA World Rally Championship", "Final Fantasy VII Remake Intergrade", "Diablo II: Resurrected", "Life is Strange: True Colors", "Tails of Iron", "Planet Coaster: Console Edition", "TOEM", "Kena: Bridge of Spirits", "F.I.S.T.: Forged In Shadow Torch", "Dirt 5", "Marvel's Guardians of the Galaxy", "Scarlet Nexus", "Wreckfest", "Sackboy: A Big Adventure", "Eldest Souls", "Jurassic World Evolution 2", "NBA 2K21", "Alan Wake Remastered", "Subnautica: Below Zero", "Lost in Random", "Ghostrunner", "Atelier Ryza 2: Lost Legends & the Secret Fairy", "Lemnis Gate", "MLB The Show 21", "FIFA 22", "Evil Genius 2: World Domination", "Back 4 Blood", "Cyber Shadow", "Observer: System Redux", "The Pathless", "Riders Republic", "Life is Strange: True Colors - Wavelengths", "MotoGP 21", "Immortals Fenyx Rising", "NBA 2K22", "Solar Ash", "WRC 10", "Puyo Puyo Tetris 2", "Farming Simulator 22", "Call of Duty: Black Ops Cold War", "Super Monkey Ball: Banana Mania", "Hot Wheels Unleashed", "Heavenly Bodies", "The Falconeer: Warrior Edition", "The Sinking City", "Bugsnax", "The Medium", "Demon Turf", "Greak: Memories of Azur", "Beyond A Steel Sky", "DARQ: Complete Edition", "Mortal Shell: Enhanced Edition", "The Elder Scrolls V: Skyrim Anniversary Edition", "Far Cry 6", "Outriders", "FIFA 21 NXT LVL Edition", "Call of Duty: Vanguard", "Greedfall: Gold Edition", "Chorus", "MXGP 2021 - The Official Motocross Videogame", "Tribes of Midgard", "Assassin's Creed Valhalla: The Siege of Paris", "Marvel's Avengers", "The Dark Pictures Anthology: House of Ashes", "Haven", "Tormented Souls", "Operation: Tango", "Where the Heart Leads", "RIDE 4", "NHL 22", "RiMS Racing", "In Sound Mind", "Sherlock Holmes: Chapter One", "Worms Rumble", "MXGP 2020 - The Official Motocross Videogame", "Assassin's Creed Valhalla: Wrath of the Druids", "Maquette", "Demon Slayer: Kimetsu no Yaiba - The Hinokami Chronicles", "A Juggler's Tale", "Cris Tales", "Hell Let Loose", "JETT: The Far Shore", "Spacebase Startopia", "Madden NFL 22", "Warhammer: Chaosbane", "Neptunia ReVerse", "Aliens: Fireteam Elite", "Oddworld: Soulstorm", "Monster Energy Supercross - The Official Videogame 4", "Button City", "Last Stop", "Nickelodeon All-Star Brawl", "Terminator: Resistance - Annihilation Line", "Aragami 2", "Serious Sam 4: Planet Badass", "Spirit of the North: Enhanced Edition", "Hood: Outlaws & Legends", "Fatal Frame: Maiden of Black Water", "Override 2: Super Mech League", "Astria Ascending", "Destruction AllStars", "Terminator: Resistance Enhanced", "Godfall", "Battlefield 2042", "Foreclosed", "Curved Space", "Rustler", "Clid the Snail", "Tennis World Tour 2", "Dungeons & Dragons: Dark Alliance", "Recompile", "Necromunda: Hired Gun", "Grand Theft Auto: The Trilogy - Definitive Edition", "Werewolf: The Apocalypse - Earthblood", "Balan Wonderworld"]
+
+];
+
+var unranked = [
+
+ /* TechRadar [https://www.techradar.com/best/best-ps5-games] unranked */
+ ["Assassin's Creed Valhalla", "Astro's Playroom", "Call of Duty: Black Ops Cold War", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Devil May Cry 5: Special Edition", "Disco Elysium: The Final Cut", "FIFA 22", "Final Fantasy VII Remake Intergrade", "Final Fantasy XIV Online", "Ghost of Tsushima: Director's Cut", "God of War", "Hades", "Hitman 3", "It Takes Two", "Marvel's Spider-Man: Miles Morales", "Ratchet & Clank: Rift Apart", "Resident Evil Village", "Returnal", "Sackboy: A Big Adventure", "Nioh Collection", "Tony Hawk's Pro Skater 1+2"],
+
+ /* The Loadout [https://www.theloadout.com/best-ps5-games] unranked */
+ ["Astro's Playroom", "Assassin's Creed Valhalla", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Dirt 5", "Disco Elysium: The Final Cut", "Ghost of Tsushima: Director's Cut", "Marvel's Spider-Man: Miles Morales", "Mortal Kombat 11: Ultimate", "Ratchet & Clank: Rift Apart", "Returnal", "Sackboy: A Big Adventure", "The Pathless", "Warframe"],
+
+ /* Gamespot [https://www.gamespot.com/articles/best-ps5-games/1100-6487615/] unranked */
+ ["Assassin's Creed Valhalla", "Astro's Playroom", "Chicory: A Colorful Tale", "Control: Ultimate Edition", "Deathloop", "Demon's Souls", "Destiny 2", "Devil May Cry 5: Special Edition", "Final Fantasy VII Remake: Intergrade", "The Forgotten City", "Ghost of Tsushima: Director's Cut", "God of War", "Hitman 3", "Hades", "It Takes Two", "Marvel's Spider-Man: Miles Morales", "MLB The Show 21", "Mortal Kombat 11 Ultimate", "No Man's Sky", "Tom Clancy's: Rainbow Six Siege", "Ratchet & Clank: Rift Apart", "Resident Evil Village", "Returnal", "The Nioh Collection", "Yakuza: Like a Dragon"],
+
+ /* The Verge [https://www.theverge.com/22825859/ps5-best-games-playstation-5-sony-2021] unranked */
+ ["Deathloop", "Returnal", "Ratchet & Clank: Rift Apart", "Final Fantasy VII Remake Intergrade", "Ghost of Tsushima: Director's Cut", "Astro's Playroom", "Demon's Souls"]
+
+];
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<h3>Welcome to the real-time HTML editor!</h3>
+<p>Type HTML on the left, and it will magically appear on the right.</p>
