@@ -78,7 +78,7 @@ function init() {
  )
  ;
 
- document.body.innerHTML = "<h1>Best Stadia games:</h1>";
+ document.body.innerHTML = "<h1>" + titles.length + " unique Stadia games from " + (ranked.length + unranked.length) + " lists:</h1>";
  titles.forEach(function(title, index) {
   document.body.innerHTML += (index + 1) + "\t" + title + "<br>";
  })
