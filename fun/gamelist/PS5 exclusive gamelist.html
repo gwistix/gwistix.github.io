@@ -1,0 +1,173 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best PS5 exclusives</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ white-space: pre-wrap
+}
+
+small {
+ color: gray
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+
+ var titleList = [];
+ var titles = [];
+
+ //Go through the meta-list of ranked lists
+ ranked.forEach(function(list) {
+
+  //Get the length of the list
+  var len = list.length;
+
+  //Go through each ranked list
+  list.forEach(function(title, index) {
+   var strippedTitle = stripTitle(title);
+   var ref = titleList.indexOf(strippedTitle);
+   if (!~ref) { // not yet in list
+    titleList.push(strippedTitle);
+    titles.push({
+     title: title,
+     score: (1 - index / len),
+     toString: function() {
+      return "<small>[" + this.score.toFixed(2) + "]</small>\t" + this.title
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score += (1 - index / len);
+   }
+  });
+ });
+
+ //Go through the meta-list of unranked lists
+ unranked.forEach(function(list) {
+
+  //Get the length of the list
+  var len = list.length;
+
+  //Go through each unranked list
+  list.forEach(function(title) {
+   var strippedTitle = stripTitle(title);
+   var ref = titleList.indexOf(strippedTitle);
+   if (!~ref) { // not yet in list
+    titleList.push(strippedTitle);
+    titles.push({
+     title: title,
+     score: (((1 - 1 / len) + (1/2)) / 2),
+     toString: function() {
+      return "<small>[" + this.score.toFixed(2) + "]</small>\t" + this.title
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score += (((1 - 1 / len) + (1/2)) / 2);
+   }
+  });
+ });
+
+ var sortByScore = true;
+
+ titles = titles.sort(function(a, b) {
+  if (sortByScore) {
+   if (a.score > b.score) return -1;
+   if (a.score < b.score) return 1;
+  }
+  else {
+   if (a.title > b.title) return 1;
+   if (a.title < b.title) return -1;
+  }
+  return 0;
+ });
+
+ document.body.innerHTML = "<h1>" + titles.length + " unique PS5 exclusives aggregated from " + (ranked.length + unranked.length) + " lists:</h1>";
+
+ titles.forEach(function(title, index){
+  document.body.innerHTML += (index + 1) + "\t" + title + "</br>";
+ });
+
+}
+
+function stripTitle(title) {
+ return title.toLowerCase().replace(/&/g, "and").replace(/[^A-z0-9]/g, "").replace(/the /gi, "");
+}
+
+var ranked = [
+
+ /* Cultured Vultures [https://culturedvultures.com/best-ps5-exclusives-games-playstation-5/] ranked */
+ ["Ratchet & Clank: Rift Apart", "Demon's Souls", "Returnal", "Astro's Playroom", "Destruction AllStars"],
+
+ /* California 18 [https://california18.com/best-ps5-exclusives/2339262021/] ranked */
+ ["Astro's Playroom", "Ratchet & Clank: Rift Apart", "Demon's Souls", "Deathloop", "Sackboy: A Big Adventure", "Returnal", "Marvel's Spider-Man: Miles Morales", "Marvel's Spider-Man: Remastered"],
+
+ /* Inverse [https://www.inverse.com/gaming/returnal-reviews-ps5-exclusive] ranked */
+ ["Returnal"]
+
+
+];
+
+var unranked = [
+
+ /* Push Square [https://www.pushsquare.com/guides/best-ps5-exclusive-games] unranked */
+ ["Demon's Souls", "Astro's Playroom", "Returnal", "Ratchet & Clank: Rift Apart", "Death Stranding: Director's Cut", "Marvel's Spider-Man: Remastered", "Final Fantasy VII Remake Intergrade"],
+
+ /* PSU [https://www.psu.com/news/all-best-ps5-exclusives-a-complete-list/] unranked */
+ ["Astro's Playroom", "Deathloop", "Demon's Souls", "Destruction AllStars", "God of War: Ragnarok", "Gran Turismo 7", "Horizon Forbidden West", "Marvel’s Spider-Man: Miles Morales", "Marvel’s Spider-Man Remastered", "Ratchet & Clank: Rift Apart", "Returnal", "Sackboy: A Big Adventure"],
+
+ /* Laptop mag [https://www.laptopmag.com/best-picks/best-ps5-exclusive-games-of-the-year-2021] unranked */
+ ["Kena: Bridge of Spirits", "Death Stranding Director’s Cut", "Solar Ash", "Ratchet & Clank: Rift Apart", "Returnal"],
+
+ /* GameSpot [https://www.gamespot.com/articles/the-best-playstation-exclusive-games-of-2021/1100-6498986/] unranked */
+ ["Ratchet & Clank: Rift Apart", "Returnal", "Deathloop", "Chicory: A Colorful Tale", "Kena: Bridge Of Spirits"],
+
+ /* Glitched [https://www.glitched.online/best-ps5-exclusives-you-can-play-right-now/] unranked */
+ ["Returnal", "Deathloop", "Demon’s Souls", "Ratchet & Clank: Rift Apart", "Astro’s Playroom", "Final Fantasy VII Remake Intergrade", "Marvel’s Spider-Man Remastered"],
+
+ /* Tech Junkie [https://www.techjunkie.com/best-ps5-exclusives/] unranked */
+ ["Returnal", "Ratchet and Clank: Rift Apart", "God of War: Ragnarok", "Demon’s Souls", "Destruction AllStars", "Astro’s Playroom", "Gran Turismo 7", "Horizon Forbidden West", "Marvel’s Spider-Man: Miles Morales", "Sackboy: A Big Adventure"],
+
+ /* steelseries [https://steelseries.com/blog/best-ps5-exclusives-359] unranked */
+ ["Final Fantasy XVI", "Ratchet and Clank: Rift Apart", "Demon's Souls", "Marvel's Spider-Man: Miles Morales", "God of War Ragnarök"],
+
+ /* Quora user Praveen Jayaram [https://www.quora.com/What-are-the-best-PS5-exclusive-games-right-now/answer/Praveen-Jayaram-5?ch=10&oid=304073065&share=9a591cdd&srid=G3LJ&target_type=answer] unranked */
+ ["Returnal", "Demon's Souls", "Marvel's Spider-Man: Remastered", "Marvel's Spider-Man: Miles Morales", "Call of Duty: Black Ops Cold War", "Sackboy: A Big Adventure"],
+
+ /* Holy Gamer Z [https://www.holygamerz.com/en/best-ps5-exclusives-to-buy-november-2021] unranked */
+ ["Demon's Souls", "Marvel's Spider-Man: Miles Morales", "Sackboy: A Big Adventure"],
+
+ /* Android Authority [https://www.androidauthority.com/best-ps5-games-1103624/] unranked */
+ ["Final Fantasy XVI", "Stray", "Horizon Forbidden West", "God of War: Ragnarök", "Deathloop", "Gran Turismo 7", "Mass Effect 5", "Dragon Age 4", "Ghostwire: Tokyo", "Season", "Open Roads", "Kena: Bridge of Spirits"],
+
+ /* Reddit poll on r/playstation [https://www.reddit.com/r/playstation/comments/q3da21/best_ps5_exclusive_title/] unranked */
+ ["Returnal", "Demon's Souls", "Ratchet & Clank: Rift Apart", "Returnal", "Ghost of Tsushima", "Conan Exiles", "Demon's Souls", "Ghost of Tsushima", "Ghost of Tsushima", "Marvel's Spider-Man: Miles Morales", "Marvel's Spider-Man Remastered", "Marvel's Spider-Man: Miles Morales", "Returnal", "Demon's Souls", "Returnal", "Shadow of the Colossus", "Demon's Souls", "Marvel's Spider-Man: Remastered", "Marvel's Spider-Man: Remastered", "Ratchet & Clank: Rift Apart", "Returnal", "Ratchet & Clank: Rift Apart", "Deathloop", "Returnal", "Returnal", "Demon's Souls", "Demon's Souls", "Returnal", "Ghost of Tsushima", "Astro's Playroom", "Ratchet & Clank: Rift Apart", "Demon's Souls", "Destruction AllStars", "Returnal", "Final Fantasy VII Remake Intergrade", "Death Stranding Director's Cut", "Deathloop", "Marvel's Spider-Man: Miles Morales", "Ratchet & Clank: Rift Apart", "Deathloop"],
+
+ /* sportskeeda [https://www.sportskeeda.com/esports/5-best-exclusive-games-coming-ps5] unranked */
+ ["Demon's Souls", "Gran Turismo 7", "Horizon Forbidden West", "Marvel's Spider-Man: Miles Morales", "Sackboy: A Big Adventure"],
+
+ /* Metro [https://metro.co.uk/2021/10/29/games-inbox-what-is-the-best-ps5-exclusive-game-15506388/] unranked */
+ ["Returnal", "Demon's Souls", "Marvel's Guardians of the Galaxy", "Marvel's Spider-Man: Miles Morales", "Ratchet & Clank: Rift Apart", "Final Fantasy VII Remake"]
+
+];
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<h3>Welcome to the real-time HTML editor!</h3>
+<p>Type HTML on the left, and it will magically appear on the right.</p>
