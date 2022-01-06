@@ -1,0 +1,151 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best Stadia games</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ white-space: pre-wrap
+}
+
+small {
+ color: gray
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ var titleList = [];
+ var titles = [];
+
+ ranked.forEach(function(list) {
+  var len = list.length;
+  list.forEach(function(title, index) {
+   var stripped = stripTitle(title); // removes non-alpha-numerics
+   var ref = titleList.indexOf(stripped);
+   if (!~ref) { // not yet in list
+    titleList.push(stripped);
+    titles.push({
+     title: title,
+     score: calcScore(index, len, true),
+     toString: function() {
+      return " <small>[" + this.score.toFixed(2) + "]</small>\t<a href='" + stadiaURL(this.title) + "'>" + this.title + "</a>";
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score++;
+   }
+  })
+ });
+
+ unranked.forEach(function(list) {
+  var len = list.length;
+  list.forEach(function(title, index) {
+   var stripped = stripTitle(title); // removes non-alpha-numerics
+   var ref = titleList.indexOf(stripped);
+   if (!~ref) { // not yet in list
+    titleList.push(stripped);
+    titles.push({
+     title: title,
+     score: calcScore(index, len, true),
+     toString: function() {
+      return " <small>[" + this.score.toFixed(2) + "]</small>\t<a href='" + stadiaURL(this.title) + "'>" + this.title + "</a>";
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score++;
+   }
+  })
+ });
+
+ titles = titles
+ .sort(
+  function (a, b) {
+   if (a.score < b.score) return 1;
+   if (a.score > b.score) return -1;
+   return 0;
+  }
+ )
+ ;
+
+ document.body.innerHTML = "<h1>Best Stadia games:</h1>";
+ titles.forEach(function(title, index) {
+  document.body.innerHTML += (index + 1) + "\t" + title + "<br>";
+ })
+
+}
+
+function stripTitle(title) {
+ return title.replace(/[^A-z0-9]/g, "").toUpperCase();
+}
+
+function calcScore(index, length, ranked) {
+ if (ranked) return (1 - (index / length));
+ else return ((1 / length) + 0.5) / 2;
+}
+
+function stadiaURL(title) {
+ return "https://stadia.google.com/store?query=" + title.toLowerCase().replace(/[^A-z0-9\ ]/g, "");
+}
+
+var ranked = [
+/* Google Search results - ranked */
+
+["Cyberpunk 2077", "Red Dead Redemption 2", "Destiny 2", "DOOM Eternal", "Assassin's Creed Odyssey", "Borderlands 3", "Assassin's Creed Valhalla", "Mortal Kombat 11", "Watch Dogs: Legion", "Final Fantasy XV", "Wreckfest", "Disco Elysium", "Metro Exodus", "Gylt", "Octopath Traveler", "Orcs Must Die! 3", "Control", "Shadow of the Tomb Raider", "Resident Evil Village", "The Elder Scrolls Online", "PlayerUnknown's Battlegrounds", "Hitman 3", "The Division 2", "Thumper", "Star Wars Jedi: Fallen Order", "Superhot", "Baldur's Gate 3", "Dead By Daylight", "Crayta", "Spiritfarer", "Sekiro: Shadows Die Twice", "Marvel's Avengers", "Far Cry 6", "Darksiders Genesis", "Celeste", "Rise of the Tomb Raider", "Super Bomberman R Online", "Outriders", "Resident Evil 7: Biohazard", "RAGE 2: Insanity Rules", "SteamWorld Quest: Hand of Gilgamech", "Hitman 2", "FIFA 22", "Terraria", "HITMAN: World of Assassination", "DOOM", "Outcasters", "Trials Rising", "Tomb Raider", "The Crew 2"],
+	
+/* Digital Trends [https://www.digitaltrends.com/gaming/best-google-stadia-games/ - ranked] */
+["Destiny 2", "Darksiders Genesis", "Borderlands 3", "Gylt", "Assassin's Creed Odyssey", "DOOM Eternal", "Octopath Traveler", "Final Fantasy XV", "Metro Exodus", "Mortal Kombat 11", "Red Dead Redemption 2", "Kine", "Thumper", "Rise of the Tomb Raider", "Trials Rising", "Celeste", "Superhot"],
+
+/* Pocket Tactics [https://www.pockettactics.com/google-stadia/games - ranked] */
+["Red Dead Redemption 2", "Super Bomberman R Online", "RAGE 2: Insanity Rules", "DOOM", "Cris Tales", "Destiny 2", "Borderlands 3", "Final Fantasy XV", "Octopath Traveler", "Spiritfarer"],
+
+/* Reddit [https://www.reddit.com/r/Stadia/comments/oxwl8j/what_are_your_top_3_stadia_pro_games/ - ranked top 10] */
+["Star Wars Jedi Fallen Order", "Resident Evil 7: Biohazard", "Orcs Must Die 3", "AVICII Invector", "GRIME", "Moonlighter", "Ys VIII: Lacrimosa of DANA", "The Elder Scrolls Online", "Into the Breach", "Metro Exodus"],
+
+/* Polygon [https://www.polygon.com/2020/10/16/21430651/google-stadia-best-games-streaming-cloud - ranked] */
+["Assassin's Creed Odyssey", "Super Bomberman R Online", "West of Loathing", "DOOM", "RAGE 2: Insanity Rules", "Red Dead Redemption 2", "SpiritFarer", "The Division 2", "Little Nightmares", "Marvel's Avengers", "Superhot"],
+
+/* CellularNews.com [https://cellularnews.com/mobile-games/best-google-stadia-games/ - ranked] */
+["Destiny 2", "Crayta", "Little Nightmares 2", "Assassin's Creed Valhalla", "Everspace", "Outriders", "Marvel's Avengers", "DOOM", "Spiritfarer", "Final Fantasy XV"],
+
+/* Android Headlines [https://www.androidheadlines.com/top-10-google-stadia-games-ranked.html - ranked] */
+["Far Cry 6", "Child of Light", "PlayerUnknown's Battlegrounds", "Destiny 2", "Star Wars Jedi: Fallen Order", "Cyberpunk 2077", "Octopath Traveler", "Assassin's Creed Odyssey", "PixelJunk Raiders", "DOOM Eternal"]
+
+];
+
+var unranked = [
+
+/* Android Central [https://www.androidcentral.com/best-games-google-stadia - unranked] */
+["Cyberpunk 2077", "Baldur's Gate 3", "Resident Evil Village", "Assassin's Creed Valhalla", "Hitman 3", "Crayta", "Dead By Daylight", "Destiny 2", "DOOM Eternal", "The Elder Scrolls Online", "GRID", "Little Nightmares 2", "Mortal Kombat 11", "Red Dead Redemption 2", "Sekiro: Shadows Die Twice", "Terraria"],
+
+/* Android Authority [https://www.androidauthority.com/best-google-stadia-games-1056090/ - unranked] */
+["Assassin's Creed Odyssey", "Cyberpunk 2077", "Destiny 2", "DOOM Eternal", "Red Dead Redemption 2", "Final Fantasy XV", "Metro Exodus", "PlayerUnknown's Battlegrounds", "Rise of the Tomb Raider", "Orcs Must Die 3", "Mortal Kombat 11", "Thumper"],
+
+
+/* TechRadar [https://www.techradar.com/news/best-google-stadia-games - unranked] */
+["Assassin's Creed Odyssey", "Assassin's Creed Valhalla", "Baldur's Gate 3", "Borderlands 3", "Cyberpunk 2077", "Darksiders Genesis", "Destiny 2", "Football Manager 2020", "Gylt", "Hitman 3", "Immortals Fenyx Rising", "Kine", "Metro Exodus", "RAGE 2: Insanity Rules", "Red Dead Redemption 2", "SteamWorld Heist"],
+
+/* Reddit [https://www.reddit.com/r/Stadia/comments/oxwl8j/what_are_your_top_3_stadia_pro_games/ - unranked] */
+["Star Wars Jedi Fallen Order", "Risk of Rain 2", "Little Nightmares", "Kine", "PlayerUnknown's Battlegrounds", "Orcs Must Die 3", "Journey to the Savage Planet", "Destiny 2", "Star Wars Jedi: Fallen Order", "Journey to the Savage Planet", "Grime", "Little Nightmares", "Darkside Detective", "The Turing Test", "Superhot", "Just Shapes & Beats", "Celeste", "Sundered: Eldritch Edition", "Into the Breach", "Hotline Miami", "Hotline Miami 2", "Chronos: Before the Ashes", "GRIME", "Metro Exodus", "Jotun: Valhalla Edition", "The Turing Test", "Monster Boy and the Cursed Kingdom", "Orcs Must Die 3", "Outcasters", "Avicii Invector", "Avicii Invector", "Star Wars Jedi Fallen Order", "Monster Boy and the Cursed Kingdom", "Valkyria Chronicles 4", "Octopath Traveler", "Dragon Quest XI", "Spiritfarer", "Moonlighter", "Into the Breach", "Celeste", "SteamWorld Quest: Hand of Gilgamech", "Star Wars Jedi Fallen Order", "Journey to the Savage Planet", "GRIME", "The Gardens Between", "Resident Evil 7: Biohazard", "Into the Breach", "Orcs Must Die 3", "Rock of Ages", "Ys VIII: Lacrimosa of DANA", "Trails of Cold Steel III", "Valkyria Chronicles 4", "Human", "Resident Evil 7: Biohazard", "Star Wars Jedi Fallen Order", "Journey to the Savage Planet", "Everspace", "Hotline Miami", "Orcs Must Die 3", "Zombie Army 4", "Star Wars Jedi Fallen Order", "GRIME", "The Turing Test", "Thumper", "Thumper", "Thumper", "Trails of Cold Steel", "Pikaniku", "Avicii Invector", "Madden NFL 22", "F1 2020", "Star Wars Jedi Fallen Order", "PlayerUnknown's Battlegrounds", "SteamWorld Dig 2", "Ys VIII: Lacrimosa of DANA", "Sniper Elite 4", "Panzer Dragoon: Remake", "It Came From Space and Ate Our Brains", "GRIME", "Enter the Gungeon", "Moonlighter", "Resident Evil 7: Biohazard", "Gylt", "Little Nightmares", "Resident Evil 7: Biohazard", "Orcs Must Die 3", "Ys VIII: Lacrimosa of DANA", "SteamWorld Quest: Hand of Gilgamech", "Into the Breach", "GRIME", "Crew 2", "Resident Evil 7: Biohazard", "The Elder Scrolls Online", "Cyberpunk 2077", "Tom Clancy's Rainbow Six Siege", "Trine 4", "Avicii Invector", "GRIME", "Moonlighter", "Moonlighter", "Resident Evil 7: Biohazard", "Sniper Elite 4", "Disco Elysium", "Orcs Must Die 3", "Destiny 2", "Zombie Army 4", "The Elder Scrolls Online", "Everspace", "Star Wars Jedi Fallen Order", "Metro Exodus", "Tomb Raider", "Resident Evil 7: Biohazard", "Terraria", "Monster Boy and the Cursed Kingdom", "PlayerUnknown's Battlegrounds", "Metro Exodus", "GRID", "Avicii Invector", "Enter the Gungeon", "Dead by Daylight", "SteamWorld Quest: Hand of Gilgamech", "Avicii Invector", "Outcasters", "Killer Queen Black", "Rock of Ages", "Cake Bash"],
+
+/* Talk Android [https://www.talkandroid.com/guides/best-games-google-stadia-2021/ - unranked] */
+["Destiny 2", "Red Dead Redemption 2", "Saints Row: The Third Remastered", "DOOM Eternal", "Family Feud", "Madden NFL 22"]
+
+];
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
