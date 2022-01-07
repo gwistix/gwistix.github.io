@@ -1,0 +1,148 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best Nintendo Switch games</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ white-space: pre-wrap
+}
+
+small {
+ color: gray
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ var titleList = [];
+ var titles = [];
+
+ ranked.forEach(function(list) {
+  var len = list.length;
+  list.forEach(function(title, index) {
+   var stripped = stripTitle(title); // removes non-alpha-numerics
+   var ref = titleList.indexOf(stripped);
+   if (!~ref) { // not yet in list
+    titleList.push(stripped);
+    titles.push({
+     title: title,
+     score: calcScore(index, len, true),
+     toString: function() {
+      return " <small>[" + this.score.toFixed(2) + "]</small>\t" + this.title + "</a>";
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score++;
+   }
+  })
+ });
+
+ unranked.forEach(function(list) {
+  var len = list.length;
+  list.forEach(function(title, index) {
+   var stripped = stripTitle(title); // removes non-alpha-numerics
+   var ref = titleList.indexOf(stripped);
+   if (!~ref) { // not yet in list
+    titleList.push(stripped);
+    titles.push({
+     title: title,
+     score: calcScore(index, len, true),
+     toString: function() {
+      return " <small>[" + this.score.toFixed(2) + "]</small>\t" + this.title + "</a>";
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score++;
+   }
+  })
+ });
+
+ var sortByScore = true;
+
+ titles = titles
+ .sort(
+  function (a, b) {
+   if (sortByScore) {
+    if (a.score < b.score) return 1;
+    if (a.score > b.score) return -1;
+   }
+   else {
+    if (a.title < b.title) return -1;
+    if (a.title > b.title) return 1;
+   }
+   return 0;
+  }
+ )
+ ;
+
+ document.body.innerHTML = "<h1>" + titles.length + " unique Nintendo Switch games from " + (ranked.length + unranked.length) + " lists:</h1>";
+ titles.forEach(function(title, index) {
+  document.body.innerHTML += (index + 1) + "\t" + title + "<br>";
+ })
+
+}
+
+function stripTitle(title) {
+ return title.replace(/&/g, "and").replace(/[^A-z0-9]/g, "").toUpperCase();
+}
+
+function calcScore(index, length, ranked) {
+ if (ranked) return (1 - (index / length));
+ else return ((1 / length) + 0.5) / 2;
+}
+
+function stadiaURL(title) {
+ return "https://stadia.google.com/store?query=" + title.toLowerCase().replace(/[^A-z0-9\ ]/g, "");
+}
+
+var ranked = [
+
+ /* Google Search results [https://www.google.com/search?q=best+nintendo+switch+games&rlz=1C1EJFA_enUS957US957&biw=1463&bih=723&sxsrf=AOaemvI1eqbQkr08zj5pf9tvOyVpzM3VcQ%3A1641510764915&ei=bHfXYf6cN9r0tAas75TADw&ved=0ahUKEwj-gqaQoJ71AhVaOs0KHaw3Bfg4MhDh1QMIDg&uact=5&oq=best+nintendo+switch+games&gs_lcp=Cgdnd3Mtd2l6EAMyCAgAEIAEELEDMggIABCABBCxAzIFCAAQgAQyCAgAEIAEELEDMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEOgcIIxCwAxAnOgcIABBHELADOgcIABCwAxBDOhAILhDHARCjAhDIAxCwAxBDOgoILhDIAxCwAxBDOgQIIxAnOgQIABBDOgUIABCRAjoNCAAQgAQQhwIQsQMQFDoKCAAQgAQQhwIQFDoICAAQsQMQgwE6BQgAELEDOgsIABCABBCxAxCDAToICAAQsQMQkQJKBAhBGABKBAhGGAFQxg1Y7TJgnTRoA3ACeAGAAbwCiAHpGpIBCDAuMjQuMS4xmAEAoAEByAEUwAEB&sclient=gws-wiz] ranked */
+ ["Animal Crossing: New Horizons", "The Legend of Zelda: Breath of the Wild", "Super Mario Odyssey", "Super Smash Bros. Ultimate", "Super Mario 3D World + Bowser's Fury", "Mario Kart 8 Deluxe", "Metroid Dread", "Pokémon Sword and Shield", "Luigi's Mansion 3", "Monster Hunter Rise", "New Pokémon Snap", "Pokémon Shining Pearl", "Super Mario 3D World", "Hollow Knight", "Stardew Valley", "Super Mario Maker 2", "Hades", "Mario Party Superstars", "Splatoon 2", "Fire Emblem: Three Houses", "Mario + Rabbids Kingdom Battle", "Minecraft", "Celeste", "Super Mario 3D All-Stars", "The Legend of Zelda: Link's Awakening", "Donkey Kong Country: Tropical Freeze", "Pokémon Legends: Arceus", "The Elder Scrolls V: Skyrim", "Ring Fit Adventure"],
+
+ /* IGN [https://www.ign.com/articles/best-nintendo-switch-games-2] ranked */
+ ["The Legend of Zelda: Breath of the Wild", "Super Smash Bros. Ultimate", "Super Mario Odyssey", "Animal Crossing: New Horizons", "Fire Emblem: Three Houses", "Luigi's Mansion 3", "Hades", "Mario Kart 8 Deluxe", "Slay the Spire", "Hollow Knight", "Celeste", "Super Mario Maker 2", "Mario + Rabbids Kingdom Battle", "Stardew Valley", "Spiritfarer", "Xenoblade Chronicles 2", "Pokemon Sword & Shield", "Donkey Kong Country: Tropical Freeze", "Paper Mario: The Origami King", "Splatoon 2", "Monster Hunter Generations Ultimate", "SteamWorld Dig 2", "Astral Chain", "The Legend of Zelda: Link’s Awakening", "Ring Fit Adventure"],
+
+ /* Games Radar [https://www.gamesradar.com/best-switch-games/] ranked */
+ ["The Legend of Zelda: Breath of the Wild", "Super Mario Odyssey", "Animal Crossing: New Horizons", "Mario Kart 8 Deluxe", "Fire Emblem: Three Houses", "Tetris 99", "Pokémon Sword and Shield", "Super Smash Bros. Ultimate", "Luigi's Mansion 3", "Legend of Zelda: Link's Awakening", "Paper Mario: The Origami King", "Mario + Rabbids: Kingdom Battle", "Splatoon 2", "Stardew Valley", "Super Mario Maker 2", "Octopath Traveler", "Minecraft", "Captain Toad: Treasure Tracker", "Hollow Knight", "Moonlighter", "Elder Scrolls 5: Skyrim", "Gris", "Bayonetta 2", "Super Mario 3D World + Bowser's Fury", "Donkey Kong Country: Tropical Freeze"],
+
+ /* BestBuy [https://www.bestbuy.com/site/nintendo-switch/nintendo-switch-games/pcmcat1484080052161.c?id=pcmcat1484080052161] ranked by sales - first page only */
+ ["Ring Fit Adventure", "Mario Party Superstars", "Mario Kart 8 Deluxe", "Pokémon Legends: Arceus", "Super Monkey Ball Banana Mania Anniversary Edition", "NBA 2K22 Standard Edition", "Just Dance 2022", "Kirby and the Forgotten Land", "Disco Elysium - Final Cut", "Puyo Puyo Tetris 2 Launch Edition", "Minecraft", "LEGO DC Super-Villains Standard Edition", "Super Mario 3D World + Bowser’s Fury", "Super Mario Odyssey", "Among Us", "No More Heroes", "Fire Emblem: Three Houses", "New Super Mario Bros. U Deluxe", "Donkey Kong Country: Tropical Freeze", "Untitled Goose Game", "Puyo Puyo Tetris", "Animal Crossing: New Horizons", "Scott Pilgrim vs. The World: The Game"]
+
+
+
+];
+
+var unranked = [
+
+ /* PCmag [https://www.pcmag.com/picks/best-nintendo-switch-games] unranked */
+ ["Animal Crossing: New Horizons", "ARMS", "Bayonetta 2", "Bloodstained: Ritual of the Night", "Bravely Default II", "Cadence of Hyrule: Crypt of the NecroDancer", "Clubhouse Games: 51 Worldwide Classics", "Donkey Kong Country: Tropical Freeze", "Game Builder Garage", "Hades", "Indivisible", "Kirby Star Allies", "Knockout City", "The Legend of Zelda: Breath of the Wild", "The Legend of Zelda: Skyward Sword", "Luigi's Mansion 3", "Lumines Remastered", "Mario + Rabbids Kingdom Battle", "Mario Gold: Super Rush", "Mario Kart 8 Deluxe", "Mario Tennis Aces", "Metroid Dread", "Miitopia", "Monster Hunter Stories 2: Wings of Ruin", "New Pokémon Snap", "Nickelodeon All-Star Brawl", "Nintendo Labo Toy-Con 01 Variety Kit", "Nintendo Labo: VR Kit", "Pac-Man 99", "Pikmin 3 Deluxe", "Pokémon: Let's Go Pikachu!", "Pokémon: Let's Go Eevee!", "Pokémon Sword and Shield", "Pokémon Unite", "Puyo Puyo Tetris", "Rebel Galaxy Outlaw", "Rocket League", "Shovel Knight: Treasure Trove", "Spellbreak", "Splatoon 2", "Street Fighter 30th Anniversary Collection", "Streets of Rage 4", "Super Bomberman R", "Super Mario 3D All-Stars", "Super Mario 3D World + Bowser's Fury", "Super Mario Maker 2", "Super Mario Odyssey", "Super Smash Bros. Ultimate", "Telling Lies", "Tokyo Mirage Sessions #FE Encore", "Void Bastards"],
+
+ /* Tom's Guide [https://www.tomsguide.com/round-up/best-nintendo-switch-games] unranked */
+ ["Pokémon Brilliant Diamond/Shining Pearl", "Mario Party Superstars", "Metroid Dread", "Subnautica: Below Zero", "The Legend of Zelda: Skyward Sword", "Knockout City", "Monster Hunter Rise", "Super Mario 3D World + Bowser's Fury", "Heaven's Vault", "Scott Pilgrim vs. The World: The Game", "Hyrule Warriors: Age of Calamity", "Animal Crossing: New Horizons", "The Legend of Zelda: Breath of the Wild", "Super Mario 3D All-Stars", "Pokémon Sword and Shield", "Hades", "Fire Emblem: Three Houses", "Super Mario Odyssey", "Untitled Goose Game", "The Witcher 3: Wild Hunt - Complete Edition", "Celeste", "Luigi's Mansion 3", "The Legend of Zelda: Link's Awakening", "Clubhouse Games: 51 Worldwide Classics", "Super Mario Maker 2", "Super Smash Bros. Ultimate", "Cuphead", "Astral Chain", "Streets of Rage 4", "Marvel Ultimate Alliance 3", "Tetris 99", "Stardew Valley", "Mortal Kombat 11", "Splatoon 2", "Mario Kart 8 Deluxe", "Mario + Rabbids Kingdom Battle", "Hollow Knight", "No More Heroes 3"],
+
+ /* iMore [https://www.imore.com/best-nintendo-switch-games] unranked */
+ ["The Legend of Zelda: Breath of the Wild", "Super Mario Odyssey", "Animal Crossing: New Horizons", "Mario Kart 8 Deluxe", "Metroid Dread", "Among Us", "Pokémon Sword and Shield", "Super Smash Bros. Ultimate", "Luigi's Mansion 3", "Mario Party Superstars", "Ring Fit Adventure"],
+
+ /* Nintendo.com [https://www.nintendo.com/games/nintendo-switch-best-sellers/] unranked */
+ ["Overcooked Special Edition", "Mario Party™ Superstars", "Among Us", "Mario Kart™ 8 Deluxe", "Overcooked! 2", "Minecraft", "Mortal Kombat 11", "Cuphead", "Animal Crossing™: New Horizons", "Saints Row IV®: Re-Elected™", "Just Dance® 2022", "Pokémon™ Brilliant Diamond", "MONOPOLY® for Nintendo Switch™", "Super Smash Bros.™ Ultimate", "UNO®", "Stardew Valley", "Hades", "Figment", "Stick Fight: The Game", "Super Mario™ 3D World + Bowser’s Fury", "OXENFREE", "Moving Out", "Assassin’s Creed®: The Rebel Collection", "Pokémon™ Shining Pearl", "Unpacking", "LEGO® Marvel Super Heroes 2", "Slime Rancher: Plortable Edition", "The Legend of Zelda™: Breath of the Wild"]
+
+];
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
