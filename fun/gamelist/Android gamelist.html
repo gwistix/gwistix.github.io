@@ -1,0 +1,410 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best Android games ever</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique Android games:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = ((1 / length) + 0.5) / 2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+ });
+
+
+
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return normalizeRomanNumerals(
+  title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/\&/g,"and")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9]/g, "")
+ )
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://play.google.com/store/search?q=" + strippedTitle.replace(/'/g,"%27") + "&c=apps' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://www.ampercent.com/30-best-paid-android-games-of-all-time/15866/ */
+ ["Monument Valley", "The Room", "Asphalt 7 Heat", "Where’s My Water", "Minecraft: Pocket Edition", "Limbo", "Blek", "Need For Speed: Most Wanted", "Temple Run: Oz", "Grand Theft Auto: San Andreas", "Monopoly", "Crazy Taxi", "The Amazing Spiderman 2", "Virtual Tennis Challenge", "The Room Two", "Max Payne Mobile", "Call Of Duty: Black Ops Zombies", "Tomb Raider 1", "Prince of Persia: Shadow and Flame", "Grand Theft Auto: Vice City", "Hitman GO", "Plants Vs. Zombies", "Where’s My Perry", "The Dark Knight Rises", "Threes!", "Five Nights At Freddy’s 3", "Fruit Ninja", "Air Control", "Unpossible", "Carmageddon"],
+
+ /* https://play.google.com/store/apps/category/GAME/collection/topselling_free */
+ ["Hello Stars", "Go Fish!", "Hole.io", "Tomb of the Mask", "Helix Jump", "Word Link", "Merge Plane - Click & Idle Tycoon", "ROBLOX", "Creative Destruction", "Kick the Buddy", "Granny", "Toon Blast", "Real Gangster Crime", "PUBG MOBILE", "Lucky Day - Win Real Money", "Subway Surfers", "PLANK!", "Bumper.io", "Color Road", "Rise Up", "Sling Drift", "Wordscapes", "Love Balls", "slither.io", "Bricks n Balls", "The Fish Master!", "Bowmasters", "Sniper 3D Gun Shooter: Free Shooting Games - FPS", "Color by Number – New Coloring Book", "Hungry Shark World", "Candy Crush Saga", "Piano Tiles 2", "Old School RuneScape (Unreleased)", "8 Ball Pool", "Looper!", "My Home - Design Dreams", "Magic Tiles 3", "Tank Stars", "The Sims Mobile", "Temple Run 2", "Baseball Boy!", "Pokémon GO", "Lords Mobile: Battle of the Empires - Strategy RPG", "Rolly Vortex", "Bricks Breaker Quest", "Run Around 웃 - Can you close the loop?", "PAC-MAN", "Episode - Choose Your Story", "Block Craft 3D: Building Simulator Games For Free", "Coin Master", "Homescapes", "Hungry Shark Evolution", "Woody Puzzle", "Street Racing 3D", "Empires & Puzzles: RPG Quest", "Infinite Word Search Puzzles", "Galaxy Attack: Alien Shooter", "Rolling Sky", "Will Hero", "Boxing Star", "Slices", "Battlelands Royale", "Flip Master", "Children's doctor: dentist.", "Extreme Car Driving Simulator", "Puzzly", "Stack Jump", "Human Evolution Clicker Game: Rise of Mankind", "Will it Crush?", "Dancing Line", "TENKYU", "Game of Sultans", "Plants vs. Zombies", "Mini Golf King - Multiplayer Game", "Bible Word Puzzle", "Idle Miner Tycoon", "Snake VS Block", "Cookie Wars", "Fishdom", "My Talking Tom", "Mafia City", "Ben 10: Alien Experience", "Run Sausage Run!", "Ultimate Car Driving Simulator", "New YAHTZEE With Buddies Dice Game", "Magic Piano Tiles 2018 - Music Game", "Era of Celestials", "Hooked Inc: Fisher Tycoon", "Fastlane: Road to Revenge", "Wheel of Fortune: Free Play", "Castle Clash: Heroes of the Empire US", "Word Cross", "Choices: Stories You Play", "Venom Angry Crashy Rush Online", "Geometry Dash World", "Madden NFL Overdrive Football", "Flip Diving", "Racing in Car 2", "Garena Free Fire", "Sonic Dash", "👨‍🎤fort🔥 android mobile - one jump", "Lost Island: Blast Adventure", "Unicorn Food - Rainbow Glitter Food & Fashion", "Word Crossy - A crossword game", "Final Fantasy XV: A New Empire", "Partymasters - Fun Idle Game", "Clash Royale", "Coin Dozer: Casino", "Cash, Inc. Money Clicker Game & Business Adventure", "Trivia Crack", "My Talking Angela", "Golf Clash", "Cooking Fever", "Drive Ahead!", "Toy Blast", "Design Home", "Draw In", "POP! Slots - Free Vegas Casino Slot Machine Games", "Paint Hit", "Alto's Odyssey", "Fishing Clash: Catching Fish Game. Bass Hunting 3D", "Pixel Gun 3D: Survival shooter & Battle Royale", "Word Connect", "House Flip with Chip and Jo", "Sonic The Hedgehog 4 Episode II", "Sudoku", "Legend of Solgard", "War Robots", "Paper.io", "Words With Friends 2 - Word Game", "Gardenscapes", "Tanks A Lot! - Realtime Multiplayer Battle Arena", "Flying Arrow", "Minion Rush: Despicable Me Official Game", "Jetpack Joyride", "The Cube", "Dune!", "Daily Themed Crossword - A Fun crossword game", "Clash of Clans", "Pop The Ice", "AdVenture Capitalist", "Best Fiends - Free Puzzle Game", "Candy Crush Soda Saga", "Guns of Boom - Online Shooter", "MARVEL Strike Force", "Music Land", "Bike Race Free - Top Motorcycle Racing Games", "Crossy Road", "MLB TAP SPORTS BASEBALL 2018", "Z Day: Hearts of Heroes", "Hill Climb Racing", "Pou", "SUP Multiplayer Racing", "Rider", "Flight Pilot Simulator 3D Free", "Flip the Gun - Simulator Game", "Gacha Studio (Anime Dress Up)", "Hip Hop Battle - Girls vs. Boys Dance Clash", "Little Panda's Dream Town", "Hill Climb Racing 2", "Dog Run - Pet Dog Simulator", "Darkness Rises", "Stone Skimming", "Pixel Art: Color by Number Game", "Dragon City", "Talking Tom Gold Run", "Dumb Ways to Die Original", "Word Town: Search, find & crush in crossword games", "Uphill Rush Racing", "Cooking Madness - A Chef's Restaurant Games", "Smashy Road: Wanted", "Waves", "Township", "NBA LIVE Mobile Basketball", "My Bakery Empire - Bake, Decorate & Serve Cakes", "Quiz: Logo game", "Super Mario Run", "Toca Kitchen 2", "Solitaire", "Zombie Hunter King", "Slotomania Slots - Vegas Casino Slot Games", "Flow Free", "Make More!", "Dancing Ballz: Magic Dance Line Tiles Game", "Pyramid Solitaire", "Smash Hit", "Power Rangers: Legacy Wars", "Banana Kong", "Coin Dozer - Free Prizes", "Can You Escape- Jail Break", "House of Fun️ Slots Casino - Free 777 Vegas Games", "Harry Potter: Hogwarts Mystery", "Disney Heroes: Battle Mode", "Home Design Makeover!", "Prize Claw", "Cover Fire: offline shooting games for free", "Gachaverse (RPG & Anime Dress Up)", "Love Nikki-Dress UP Queen", "MARVEL Contest of Champions", "Dumb Ways to Die 2: The Games", "BASEBALL 9", "Army Men Strike", "World Series of Poker – WSOP Free Texas Holdem", "Avakin Life - 3D virtual world", "Word Cookies", "Fire Emblem Heroes", "Roller Skating Girls - Dance on Wheels", "Word Cross - Word Cheese", "Tiles Hop: Forever Dancing Ball", "Rotator", "Family Feud Live!", "Fun Run 3: Arena - Multiplayer Running Game", "Temple Run", "Snipers vs Thieves", "Cut the Rope", "Major Mayhem 2 - Gun Shooting Action", "Last Day on Earth: Survival", "Be The King - Enjoy your trip to the Top", "Knife Hit", "Ball's Journey", "Talking Tom Cat", "Rollercoaster Dash - Rush and Jump the Train!", "TETRIS", "RoverCraft Race Your Space Car", "Anger of stick 5: zombie", "Geometry Dash Lite", "Balls Control", "Jackpot Party Casino: Slot Machines & Casino Games", "Board Kings️", "Shopping Mall Girl - Dress Up & Style Game", "Bid Wars - Storage Auctions & Pawn Shop Game", "Guns of Glory", "Angry Birds 2", "Super Crush Machine", "Barbie Fashion Closet", "Billionaire Casino Slots 777 - Free Vegas Games", "Cannon Man", "June's Journey - Hidden Object", "Find the Differences 500 levels", "DEER HUNTER 2018", "Brain Training", "Basketball Stars", "DRAGON BALL LEGENDS", "Hot Wheels: Race Off", "Gibbets: Bow Master", "Hustle Castle: Fantasy Kingdom", "The Sims FreePlay", "Roll the Ball - slide puzzle", "Titan Throne", "Zombie Frontier 3: Sniper FPS", "Angry Birds Classic", "Space Shooter: Galaxy Attack", "Sniper Arena: PvP Army Shooter", "Magic Jigsaw Puzzles", "Miraculous Ladybug & Cat Noir - The Official Game", "Mahjong", "DIY Fashion Star - Design Hacks Clothing Game", "Chess", "PIXEL'S UNKNOWN BATTLE GROUND", "Criminal Case", "PJ Masks: Moonlight Heroes", "Traffic Rider", "LEGO Juniors Create & Cruise", "Stack", "Caesars Slots: Free Slot Machines and Casino Games", "Pictoword: Fun Word Games, Offline Word Brain Game", "Sonic Dash 2: Sonic Boom", "Star Wars: Galaxy of Heroes", "Mr Gun", "LEGO DC Mighty Micros", "Heads Up!", "Merge Dragons!", "Bubble Shooter", "The Walking Dead: Road to Survival", "Operate Now: Hospital", "Primal Wars: Dino Age", "Live Portrait Maker: Girls", "Car Merger", "Agar.io", "Pastel Girl", "Hopeless Land: Fight for Survival", "Double Win Vegas - FREE Slots and Casino", "Huuuge Casino - Slot Machines & Free Vegas Games", "PBS KIDS Games", "Monster Fishing 2018", "Beat the Boss 4", "Dinosaur Hunt 2018", "Bloxorz: Roll the Block", "Quick Hit Casino Slots - Free Slot Machines Games", "Idle Apocalypse", "UNO  & Friends", "Jewel Crush - Jewels & Gems Match 3 Legend", "CATS: Crash Arena Turbo Stars", "Bubble Bird 2018", "Stick War: Legacy", "Plague Inc.", "Brutal Age: Horde Invasion", "Stylist Girl - Make Me Gorgeous!", "Talking Tom Candy Run", "Monster Legends - RPG", "Sonic Forces", "Munchkin Match: Magic Home Building", "Asphalt 9: Legends", "Solitaire TriPeaks", "We Are Illuminati - Conspiracy Simulator Clicker", "Space Frontier", "Bingo Blitz️ Free Bingo", "Drift Max Pro - Car Drifting Game with Racing Cars", "Respawnables - FPS Special Forces", "Earn to Die 2", "Bingo Party - Free Bingo Games", "Idle Heroes", "TerraGenesis - Space Colony", "Chuck E.'s Skate Universe", "Ball Shoot!", "CodyCross: Crossword Puzzles", "WWE Champions", "MMX Hill Dash 2 – Offroad Truck, Car & Bike Racing", "Simon's Cat - Crunch Time", "Identity V", "Bottle Flip!", "Bendy in Nightmare Run", "Rolling Balls", "LEGO NINJAGO: Ride Ninja", "Archery King", "Exploration Craft Pocket Edition", "FIFA Soccer", "Tic Tac Toe Glow", "Skillz - Logical Brain", "Twisty Road!", "Acrobat Star Show - Show 'em what you got!", "Last Shelter: Survival", "Taps to Riches", "Tap Tap Dash", "Modern Combat 5: eSports FPS", "Clumsy Climber", "Checkers", "Jigsaw Puzzle", "Rise of Civilizations", "Jurassic World: The Game", "Air Hockey Challenge", "Spades Plus", "Solitaire - Grand Harvest", "Azur Lane", "Block Balls", "Cooking Craze: Crazy, Fast Restaurant Kitchen Game", "Arena of Valor: 5v5 Arena Game", "Idle Factory Tycoon", "Chapters: Interactive Stories", "SpinToWin Slots - Casino Games & Fun Slot Machines", "Football Strike - Multiplayer Soccer", "Plants vs. Zombies 2", "Prodigy Math Game", "Color Rings Puzzle", "Cashmania Slots 2018: Free Vegas Casino Slot Game!", "Word Bound - Free Word Puzzle Games", "Cashman Casino - Free Slots Machines & Vegas Games", "Pocket Mortys", "Wild Fishing", "Jurassic World Alive", "Slendrina: The Cellar 2", "Hello Kitty Nail Salon", "Good Pizza, Great Pizza", "Vegas Downtown Slots - Slot Machines & Word Games", "BoxTuber: The Official KSI & Sidemen Boxing", "The Wolf", "Pixel Trainer", "Faily Brakes", "Real Guitar Free - Chords, Tabs & Simulator Games", "Zombie Hunter: Post Apocalypse Survival Games", "ABC Kids - Tracing & Phonics", "Twenty48 Solitaire", "HQ Trivia", "Robot Tactics: Real Time Super Robot Wars", "SpeedBall", "War Machines: Free Multiplayer Tank Shooting Games", "Jelly Jam Blast - A Match 3 Game", "Asphalt 8: Airborne", "Hero Hunters", "Scale", "Epic Battle Simulator", "Jump Ball Blast", "MARVEL Future Fight", "Bored Button", "My Talking Hank", "Mahjong Solitaire: Classic", "Where's My Water? 2", "Stick Fight: Shadow Warrior", "Mazes & More", "Forces of Freedom (Early Access)", "Modern Warplanes: Thunder Air Strike PvP warfare", "Crown Solitaire: A New Puzzle Solitaire Card Game", "Knowledge is Power", "CSR Racing 2", "Baby Panda Safety – Learn Childs Safe Tips", "Doodle Jump", "Girls X Battle：GXB_Global", "Dude Perfect 2", "DEAD TARGET: FPS Zombie Apocalypse Survival Games", "Talking Tom Jetski 2", "Evolution Galaxy - Mutant Creature Planets Game", "Piano Free - Keyboard with Magic Tiles Music Games", "Bowling King", "Truck Simulator 2018: Europe", "Left to Survive: PvP Zombie Shooter", "Hair saloon - Spa salon", "MARVEL Spider-Man Unlimited", "Pigeon Pop", "LastCraft Survival", "Sweet Candy Witch - Match 3 Puzzle Free Games", "Sonic the Hedgehog Classic", "PickCrafter - Idle Craft Game", "Heart of Vegas Slots – Free Slot Casino Games", "Swamp Attack", "Traffic Racer", "Zombie Tsunami", "Slots! CashHit Slot Machines & Casino Party", "INFINITY OPS: Sci-Fi FPS", "Hit & Knock down", "Race the Traffic Moto", "Ball Hole King", "Run", "Ocean Nomad - Survival on Raft", "Shadow Fight 2", "Panda Pop - Bubble Shooter Game. Blast, Shoot Free", "Geometry Dash SubZero", "Stickman Archer Fight", "Smashy Road: Arena", "Moto Traffic Race", "Real Cake Maker 3D - Bake, Design & Decorate", "Trade Island", "ZombsRoyale.io - 2D Battle Royale", "Color Hockey", "Candy Crush Jelly Saga", "Fancy Crush", "Boo - The World's Cutest Dog", "Cheerleader Dance Off - Squad of Champions", "Clumsy Ninja", "Gangstar Vegas - mafia game", "Block Strike", "Space Rocket - Star World", "My Story: Choose Your Own Path", "Build a Bridge!", "Slots Era: Best Online Casino Slots Machines", "Paper Toss Boss", "Baby Tiger Care - My Cute Virtual Pet Friend", "N.O.V.A. Legacy", "I'm Ping Pong King:)", "Rock of Destruction", "VR Thrills: Roller Coaster 360 (Google Cardboard)", "War and Order", "Beach Buggy Racing", "Thrill Rush", "Shooting King", "Five Nights at Freddy's 2 Demo", "Ice Crush 2018 - A new Puzzle Matching Adventure", "► MultiCraft ― Free Miner! 👍", "Wordsdom – Best Word Puzzles", "Sonic The Hedgehog 2 Classic", "Poker Heat - Free Texas Holdem Poker Games", "Twisty Arrow!", "Idle Pixel Crush - Ball Crush", "Minesweeper", "Animal Jam - Play Wild!", "WGT Golf Game by Topgolf", "Call of Duty: Heroes", "Piano Solo - Classical Magic Game White Tiles 4", "Rush", "Block Puzzle", "Dinosaur Simulator: Dino World", "Word Trip - Word Streak Puzzles", "Do Not Disturb - A Game for Real Pranksters!", "Spades", "FarmVille: Tropic Escape", "PLAYMOBIL Horse Farm", "Bubble Witch 3 Saga", "Hovercraft: Takedown", "Vector 2", "Splashy!", "Puzzle Game", "Stock Car Racing", "Golf Rival", "Covet Fashion - Dress Up Game", "Flappy Dunk", "Micro Craft 2018: Survival Free", "Pirate Kings️", "Pokémon Quest", "Troll Face Quest Video Games 2", "Food Fantasy", "Baby Panda's Supermarket-Halloween Party Shopping", "Zombie Catchers", "SimCity BuildIt", "Wild Hunt:Sport Hunting Games. Hunter & Shooter 3D", "Mobile Legends: Bang Bang", "Questland: Turn Based RPG", "Block! Triangle puzzle: Tangram", "Bike Racer 2018", "Disney Crossy Road", "Moto Rider GO: Highway Traffic", "Knives Out", "The Floor Is Lava", "Happy Racing", "Fight List - Categories Game", "World of Warships Blitz: MMO Naval War Game", "Shadow Fight 3", "Spades Royale - Play Free Spades Cards Game Online", "Alto's Adventure", "Prom Queen: Date, Love & Dance", "World Basketball King", "BlockStarPlanet", "3D Pool Ball", "Grand Jackpot Slots - Pop Vegas Casino Free Games", "Horizon", "Word Nut: Word Puzzle Games & Crosswords", "Bike Stunt Master", "Gymnastics Superstar - Spin your way to gold!", "Dominos - Classic dominoes game", "Just Dance Now", "Block Puzzle Jewel", "Counter Terrorist - Gun Shooting Game", "Scatter Slots: Free Casino Slot Machines Online", "Drive Ahead! Sports", "Dominos - Best Dominoes Game", "Bubble Shooter", "MONOPOLY Slots", "Grand StickMan Vegas Mafia Crime Fight To Survive", "Cooking Diary: Tasty Hills", "Yu-Gi-Oh! Duel Links", "Open Puzzle Box", "Fill - one-line puzzle game", "Sboy World Adventure 2018", "My Dolphin Show", "Fallout Shelter", "Bloons TD Battles", "Masha and the Bear. Educational Games "],
+
+ /* https://play.google.com/store/apps/category/GAME/collection/topselling_paid */
+ ["Minecraft: Pocket Edition", "Bloons TD 6", "The Game of Life", "Geometry Dash", "Pocket City", "Clue", "Grand Theft Auto: San Andreas", "Scribblenauts Remix", "Hitman Sniper", "Terraria.", "The Room", "RollerCoaster Tycoon Classic", "Bloons TD 5", "Neo Monsters", "Reigns", "Grand Theft Auto: Vice City", "Exploding Kittens - Official", "Farming Simulator 18", "Five Nights at Freddy's", "Assassin's Creed Identity", "The Room: Old Sins", "True Skate", "Survival Island: EVO Pro!", "The Escapists", "CHRONO TRIGGER", "Teen Titans GO Figure!", "Truck Simulator PRO 2", "Evoland", "Five Nights at Freddy's: SL", "Scribblenauts Unlimited", "Game Dev Tycoon", "Pocket Aquarium", "Dungeon Maker", "ePSXe for Android", "NBA 2K18", "Trivia Crack", "Monument Valley 2", "Monument Valley", "Star Wars: KOTOR", "Five Nights at Freddy's 2", "Papa's Freezeria To Go!", "Call of Duty:Black Ops Zombies", "Reigns: Her Majesty", "My OldBoy! - GBC Emulator", "Papa's Scooperia To Go!", "Goat Simulator", "The Amazing Spider-Man 2", "holedown", "The Room Two", "LEGO Jurassic World", "Fruit Ninja Classic", "EvoCreo", "Cytus II", "Rusted Warfare - RTS Strategy", "Bridge Constructor Portal", "Motorsport Manager Mobile 3", "Civilization Revolution 2", "Bloons Supermonkey 2", "Bully: Anniversary Edition", "Hitman GO", "The Room Three", "Peace, Death!", "60 Seconds! Atomic Adventure", "SpongeBob Moves In", "FINAL FANTASY TACTICS: WotL", "Age of Civilizations", "Don't Starve: Pocket Edition", "Grand Theft Auto III", "Infinite Flight - Flight Simulator", "Hasbro's BATTLESHIP", "Let's Create! Pottery", "Project Highrise", "JYDGE", "Vector Full", "Real Drift Car Racing", "Pocket God", "SuperRetro16 ( SNES Emulator )", "Ticket to Ride", "Teeny Titans - Teen Titans Go!", "NBA JAM by EA SPORTS", "Animus - Stand Alone", "Real Steel", "Bike Race Pro by T. F. Games", "Card Wars - Adventure Time", "Attack the Light", "Kingdom Rush Origins", "Where's My Water?", "FINAL FANTASY VII", "The House of Da Vinci", "Kingdom Rush Frontiers", "Duck Life: Battle", "Five Nights at Freddy's 4", "Rogue Hearts", "LEGO  Marvel Super Heroes", "Earn to Die", "Zombieville USA 2", "911 Operator", "Need for Speed: Most Wanted", "Survivalcraft 2", "Battleheart 2", "Catan Classic", "Rusty Lake Hotel", "Dirt Trackin", "Baldur's Gate: Enhanced Edition", "Youtubers Life", "ICEY", "Ridiculous Fishing", "Double Dragon Trilogy", "Star Traders RPG Elite", "Chess", "Lara Croft GO", "Goat Simulator Payday", "Devil's Attorney", "Max Payne Mobile", "Five Nights at Freddy's 3", "Kenshō", "Jazza's Arty Games", "Papa's Pizzeria To Go!", "Phase 10", "European War 6: 1804", "Getting Over It with Bennett Foddy", "XCOM: Enemy Within", "Crashlands", "Pocket Build", "Iron Marines", "Papa's Burgeria To Go!", "Incredibox", "The Bard's Tale", "Carcassonne: Official Board Game -Tiles & Tactics", "Warhammer 40,000: Regicide", "DRAGON QUEST", "Tamagotchi Classic - Gen1", "Pandemic: The Board Game", "Nostalgia.NES Pro (NES Emulator)", "LEGO Star Wars: TCS", "My Town: Airport", "The Sun: Origin", "GTA: Liberty City Stories", "GTA: Chinatown Wars", "Worms 3", "Dust and Salt", "Angry Neighbor", "Rusty Lake Paradise", "Portal Knights", "Ys Chronicles 1", "Raiden Legacy", "Pulling USA 2", "Doodle God", "Mini Metro", "Everybody's RPG", "WWE 2K", "Ys Chronicles II", "Castle of Illusion", "My Town: Fire station Rescue", "Rusty Lake: Roots", "F1 2016", "My Town: Beach Picnic", "Backflip Madness", "Meme Soundboard PRO 2018", "Toca Train", "Door Kickers", "Death Worm", "Teach Your Monster to Read - Phonics and Reading", "Construction Simulator 2014", "Legacy 2 - The Ancient Curse", "LEGO Harry Potter: Years 1-4", "Ben 10: Up to Speed", "Oddworld: Stranger's Wrath", "I Have No Mouth", "R-TYPE", "Farming USA 2", "My Town: ICEE Amusement Park", "FINAL FANTASY IX for Android", "Organ Trail: Director's Cut", "Sonic Runners Adventure - Fast Action Platformer", "Wonderland: Little Mermaid", "Deus Ex GO", "League of Stickman: (Dreamsky)Warriors", "Papa's Taco Mia To Go!", "Farming Simulator 16", "Ski Safari: Adventure Time", "Goat Simulator GoatZ", "Cut the Rope GOLD", "Papa's Cupcakeria To Go!", "Toca Boo", "Skip-Bo", "Papa's Hot Doggeria To Go!", "Goat Simulator Waste of Space", "Empire Warriors TD Premium", "Osmos HD", "Downwell", "Doodle God HD", "Splendor", "Guild of Dungeoneering", "First Strike: Final Hour", "Tap knife VIP", "Pocket RPG", "The Amazing Spider-Man", "Tokaido", "Uciana", "My Town: Wedding", "Toca Lab: Plants", "Gorogoa", "My Town: Street Fun", "80 Days", "My Town: Best Friends' House", "LEGO Ninjago: Shadow of Ronin", "Draw a Stickman: EPIC 2", "Toca Mystery House", "The Impossible Game", "SimplePlanes", "Horror GRANNY Baldi - Scary House", "Ultimate Wolf Simulator", "Doodle Devil HD", "One Hour One Life for Mobile", "My Child Lebensborn", "My Town: Hospital", "Through the Ages", "PPSSPP Gold - PSP emulator", "Day R Premium", "FINAL FANTASY VI", "Solitaire+", "Skater", "Demon's Rise", "Human Resource Machine", "7 Wonders", "Octodad: Dadliest Catch", "Riptide GP: Renegade", "Sanitarium", "Nimian Legends: BrightRidge", "Townsmen Premium", "Explore Daniel's Neighborhood", "My Town: Haunted House", "Galaxy of Pen & Paper", "Space RPG 3", "Drag Racing 3D", "Titan Quest", "Hexologic", "Toca Blocks", "Sonic 4 Episode I", "Delta Touch [THE Doom engine source port]", "Dirt Trackin Sprint Cars", "Pacific Rim", "Air Control 2 - Premium", "R-TYPE II", "Marvel Pinball", "My PlayHome: Play Home Doll House", "My Town: Hotel", "Warriors' Market Mayhem VIP", "Please Don't Touch Anything 3D", "R.B.I. Baseball 18", "Samorost 3", "Construction Simulator 2", "Evoland 2", "Lost Frontier", "Worms 4", "Goat Simulator MMO Simulator", "Surgeon Simulator", "Don't Starve: Shipwrecked", "Age of Pirates RPG Elite", "Please, Don't Touch Anything", "Rebuild 3: Gangs of Deadsville", "FINAL FANTASY", "LEGO  Batman: Beyond Gotham", "Train Simulator PRO 2018", "A Dark Room ", "The Walking Dead: A New Frontier", "Game Dev Story", "The Hunt for the Lost Treasure", "Muse Dash", "Daniel Tiger's Stop & Go Potty", "Crazy Craft Mod: Ultimate", "LEGO Batman: DC Super Heroes", "Learn to Read with Tommy Turtle", "Reporter", "AndroGens (No ads)", "Zombie Gunship", "LIMBO", "Modern Combat 4: Zero Hour", "Bridge Constructor", "Truck Simulator PRO Europe", "Machinarium", "realMyst", "Card Quest", "Sheltered", "Knights of Pen & Paper +1", "Jade Dynasty Mobile", "Ms. PAC-MAN", "Hero Siege: Pocket Edition", "Poly Bridge", "HARVEST MOON:Seeds Of Memories", "Fowlst", "Draw a Stickman: EPIC", "Archery Physics Objects Destruction Apple shooter", "Ganz schön clever", "SIMULACRA - Found phone horror mystery", "Pocket Universe - 3D Gravity Sandbox", "Minecraft: Story Mode - Season Two", "Passpartout: The Starving Artist", "World of Goo", "Kingdom Defense 2: Empire Warriors - Premium", "My PlayHome Hospital", "Kittens Game", "My Town: Grandparents", "Ultimate Dog Simulator", "Football Manager Mobile 2018", "Ultimate Dinosaur Simulator", "SPACEPLAN", "Beholder", "Sonic & SEGA All-Stars Racing", "The Banner Saga", "My PlayHome Stores", "Talisman", "Agent A: A puzzle in disguise", "Worms 2: Armageddon", "Peppa Pig: Holiday", "My PlayHome School", "METAL SLUG 3", "Thimbleweed Park", "Florence", "Granny Smith", "Ultimate Forest Simulator", "My Town: Shopping Mall", "Kitty Powers' Matchmaker", "Ultimate Cat Simulator", "Kingdom: New Lands", "Small World 2", "SpongeBob's Game Frenzy", "Baldur's Gate II", "PAW Patrol Pups to the Rescue", "Farming USA", "Smash Up - The Shufflebuilding Game", "Thrift Store Story", "Fieldrunners HD", "Basics Field Trip: Camping", "Zombie Avengers:(Dreamsky)Stickman War Z", "THE KING OF FIGHTERS '97", "Robot Unicorn Attack", "My Town: Farm", "Death Road to Canada", "Timing Hero VIP: Retro Fighting Action RPG", "The LEGO  Movie Video Game", "Hidden Folks", "Mupen64Plus AE (N64 Emulator)", "Home Run High", "My Town: Preschool", "Shapeuku - Shape Puzzle Game", "Second Grade Learning Games", "Adult Charades!", "Minesweeper AdFree", "LEGO Harry Potter: Years 5-7", "Ultimate Fox Simulator", "Sporcle", "Little Inferno", "Decked Builder", "Isoland 2: Ashes of Time", "Shadow Fight 2 Special Edition", "OK Golf", "FINAL FANTASY III", "Castles of Mad King Ludwig", "FINAL FANTASY IV", "I am Bread", "VALKYRIE PROFILE: LENNETH", "Pixel Soldiers: The Great War", "My Town: School", "GunCrafter Pro", "Fiz: Brewery Management Game", "Leo's Fortune", "Hole Down Pro", "Doom & Destiny Advanced", "GROW PACK Vol.1", "Battlevoid: Harbinger", "SimpleRockets", "Pool Slide Story", "Galaxy Trucker", "Alter Ego", "Ultimate Bird Simulator", "Aerofly 2 Flight Simulator", "Disc Golf Game", "Potion Explosion", "Ultimate Arctic Simulator", "Isoland", "Twilight Struggle", "OXENFREE", "Elder Sign: Omens", "The Walking Dead: Michonne", "D&D Lords of Waterdeep", "Planescape: Torment: Enhanced Edition", "Ultimate Horse Simulator", "Cook, Serve, Delicious!", "Oddworld: New 'n' Tasty", "Another World", "My Singing Monsters Composer", "Dr. Panda Restaurant 2", "Retro City Rampage DX", "PAW Patrol Air and Sea Adventures", "LEGO The Lord of the Rings", "DRAGON QUEST VIII", "Block Fortress", "MEGA MAN MOBILE", "My Town: Museum", "PewDiePie: Legend of Brofist", "The Survivor: Rusty Forest", "THE KING OF FIGHTERS-A 2012", "Star Command", "Solitaire MegaPack", "Bag It!", "Superbrothers Sword & Sworcery", "Universal Paperclips", "BLeBRiTY", "Noch mal!", "Virtual Virtual Reality", "BRIO World - Railway", "King of Dragon Pass: Text Adventure RPG", "Dungeon Defense", "You Must Build A Boat", "My Town: Pets", "Cartoon Dungeon VIP: Age of cartoon", "Sudoku Premium", "FNAF Granny mod is the scary and horror game", "JCheater: Vice City Edition", "Classic Words Plus", "Tasty Planet: Back for Seconds", "Atomic Bomber Full", "My Town: Bakery", "This War of Mine", "sugar, sugar", "Ultimate Farm Simulator", "Yandere School FULL", "Ravensword: Shadowlands 3d RPG", "To the Moon", "METAL SLUG", "Tsuro - The Game of the Path", "JCheater: GTA III Edition", "Race for the Galaxy", "THE KING OF FIGHTERS '98", "Fieldrunners 2", "Zoombinis", "Eclipse: Edge of Light", "SpongeBob: Sponge on the Run", "Dungeon Warfare", "FRAMED", "DRAGON QUEST II", "My Town: Cinema", "Planar Conquest - 4X turn based strategy", "Riven: The Sequel to Myst", "Atlantic Fleet", "Shopkins Run!", "Brink of Consciousness (Full)", "My Town: Car wash fix & drive", "Doodle Army", "Haunt the House: Terrortown", "LUMINES PUZZLE & MUSIC", "My Town: Stores", "Spider Solitaire+", "Animal Super Squad", "The Westport Independent", "VERSUS: The Lost Ones", "Battleheart Legacy", "Skee-Ball Plus", "Ghosts'n Goblins MOBILE", "Ultimate Savanna Simulator", "Riptide GP2", "Backgammon", "Minecraft: Skin Studio", "Element TD", "The Quest", "Icewind Dale: Enhanced Edition", "Wordfeud", "Duck Warfare", "Squire - Character Manager Pro", "Tasty Planet", "Draw Rider Plus", "Virtual Families", "Pathfinder Spellbook", "virtual MINIGOLF reality", "Oh...Sir! The Insult Simulator", "Mental Hospital V", "Lost Grimoires 3: The Forgotten Well (Full)", "10000000", "EPOCH", "Ricky Carmichael's Motocross", "Lost Heir: The Fall of Daria", "Flick Golf!", "Burger Shop 2 Deluxe", "Amethlion - open world RPG adventure!", "Meteorfall: Journeys", "Oddworld: Munch's Oddysee", "King's League: Odyssey", "Ultimate Jungle Simulator", "1941: World War Strategy", "Baldi is Scary Granny (Mod)", "DISTRAINT: Deluxe Edition", "Keep Talking & Nobody Explodes", "Gangstar Rio: City of Saints", "Pacific Fleet", "Survivalcraft", "Momo Granny Scary House", "Heroes and Castles 2", "Sudoku+", "I SPY Spooky Mansion", "Wedding Dash Deluxe", "Tales of Illyria:Destinies", "Out There: Ω Edition", "Dude Perfect", "Secret of Mana", "Mysterium: A Psychic Clue Game", "Super Hexagon", "FINAL FANTASY V", "Peppa Pig: Party Time", "Sand! Premium", "PJ Masks: Super City Run", "Space Hobo", "My Town: Beauty Spa Saloon", "Papa's Scooperia HD", "WitchSpring3", "Sumotori Dreams", "PC Architect Advanced (PC building simulator)", "Stack the States 2", "The Guides", "Loonley Toons Run", "Lowriders Comeback 2: Cruising", "Little Big Adventure", "Draw Something", "Sentinels of the Multiverse", "Wonder Knights VIP: Retro Shooter RPG", "bit Dungeon II", "MEGA MAN 6 MOBILE", "Rayman Jungle Run", "Bridge to Another World: Burnt Dreams (Full)", "supertype", "Wayward Souls", "My Town: Beauty Contest", "Bike Mayhem Mountain Racing", "Hotel Dash Deluxe", "DRAGON QUEST V", "My Little Princess: Castle", "The World Ends With You", "Heroes Rise: The Prodigy", "Scary Granny Is MOMO: Horror Game!"],
+
+ /* https://www.makeuseof.com/tag/most-popular-android-apps-games-all-time/ */
+ ["Candy Crush Saga", "Subway Surfers", "Temple Run 2", "Despicable Me", "Clash of Clans"],
+
+ /* https://qz.com/677890/these-are-the-most-popular-android-apps-of-all-time/ [Most-downloaded games of all time] */
+ ["Subway Surfers", "Candy Crush Saga", "Pou", "Temple Run 2", "Hill Climb Racing", "My Talking Tom", "Despicable Me", "Angry Birds", "Fruit Ninja", "Clash of Clans"],
+
+ /* https://play.google.com/store/apps/collection/promotion_300085a_most_popular_games?hl=en */
+ ["The Walking Dead: Road to Survival", "Best Fiends Forever", "Don't Starve: Pocket Edition", "Plants vs. Zombies Heroes", "Sir Match-a-Lot: Match 3 Game", "Naughty Monster Story", "FIFA Soccer", "Shuffle Cats", "Dan the Man: Action Platformer", "Beat Stomper", "Flip Diving", "Fruit Ninja", "Brain It On! - Physics Puzzles", "Wheel of Fortune: Free Play", "ROBLOX", "Pokémon GO", "Farm Heroes Super Saga", "Subway Surfers", "Piano Tiles 2", "NBA LIVE Mobile Basketball", "Talking Tom Gold Run", "Geometry Dash Lite", "My Talking Tom", "Clash of Clans", "Temple Run 2", "Hill Climb Racing", "Angry Birds 2", "My Talking Angela", "Don't Tap The White Tile", "Flow Free", "Crossy Road", "Traffic Rider"],
+
+ /* Google Play store - Top free games [https://play.google.com/store/apps/collection/cluster?clp=0g4cChoKFHRvcHNlbGxpbmdfZnJlZV9HQU1FEAcYAw%3D%3D:S:ANO1ljJ_Y5U&gsr=Ch_SDhwKGgoUdG9wc2VsbGluZ19mcmVlX0dBTUUQBxgD:S:ANO1ljL4b8c] ranked */
+ ["Slap and Run", "Pull the Pin", "Sponge Art", "Huggy Stretch Game", "Paper Fold", "Count Masters - Stickman Clash", "Poppy Horror: Chapter One", "Cut Grass", "Race Master 3D - Car Racing", "Rocket League Sideswipe", "Roblox", "Brain Story: Tricky Puzzle", "Love Fantasy: Match & Stories", "Draw Bridge", "Huggy 456 Survival Playtime", "Zen Match", "Parking Jam 3D", "Tiles Hop: EDM Rush!", "Magic Tiles 3", "Wordscapes", "Money Rush", "Text or Die", "Papers Grade Please!", "Among Us", "Streamer Rush", "Phone Case DIY", "Beatstar - Touch Your Music", "Evony: The King's Return", "Ball Run 2048", "Subway Surfers", "8 Ball Pool", "TRIVIA STAR Quiz Games Offline", "Woodoku", "My Talking Angela 2", "My Talking Tom Friends", "Bloody Bastards", "DIY Makeup", "2048 Super Winner", "My Talking Tom 2", "Wordscapes Search", "Find the Alien", "Color Match", "Makeup Artist: Makeup Games, Fashion Stylist", "FNF Music Battle: Beat Shooter", "Hair Challenge", "Merge Animals 3D - Mutant race", "Painter Master", "Giant Wanted", "T", "shoot'em all - shooting game", "Candy Crush Saga", "Sandwich Runner", "State Connect: traffic control", "DIY Keyboard", "Coin Master", "Mow My Lawn - Cutting Grass", "Ragdoll Fall: Break the Bones!", "The Superhero League", "Yes or No?! - Food Pranks", "Project Makeover", "Happy Color® – Color by Number", "Blockudoku®: block puzzle game", "Collect Em All! Clear the Dots", "K-Sniper Challenge 3D", "Call of Duty Mobile Season 11", "Cat Escape", "Galaxiga: Classic Arcade Game", "Prank Master 3D", "Animal Transform Race - Epic Race 3D", "Water Sort - Color Puzzle Game", "Word Connect", "Survival 456 But It's Impostor", "Investment Run", "Rec Room - Play with friends!", "Stone Miner", "Bloons TD Battles 2", "Poppy Stickman Fighting", "Poppy Horror: Scary Playtime", "Cat Paradise", "Cash Carnival: Real Money Slots & Spin to Win", "Ragdoll Ninja: Imposter Hero", "Healing Rush", "They Are Coming", "MONOPOLY Solitaire: Card Game", "One Liner-Line to win", "Mech Arena: Robot Showdown", "Dancing Road: Color Ball Run", "UNO!™", "Poppy Rope Game", "Truth Runner", "Solitaire", "Number Match - number games", "PK XD - Play with your Friends", "Solar Smash", "Thief Puzzle - Can you steal it ?", "Royal Match", "My Little Universe", "Lumber Empire: Idle Tycoon", "Squid Survival Challenge : 456", "PUBG MOBILE : Arcane", "FNF Beat Battle Full Mod Fight", "Monsters Lab - Freaky Running", "Traffic Run!", "Cross Logic: Smart Puzzle Game", "Paint by Number Coloring Games", "Art Puzzle - picture art games", "Genshin Impact", "Tap Away", "Park Master", "DOP 2: Delete One Part", "Sculpt people", "1945 Air Force: Airplane games", "Traffic Cop 3D", "Cube Master 3D - Match 3 & Puzzle Game", "Angry Birds 2", "aquapark.io", "Clash Royale", "Mr Bullet - Spy Puzzles", "Going Balls", "Stealth Master: Assassin Ninja", "Stack Ball - Crash Platforms", "Muscle Race 3D", "Snake.io - Fun Addicting Arcade Battle .io Games", "Dice Dreams™️", "Mario Kart Tour", "Ink Inc. - Tattoo Drawing", "Hand Strike", "Tie Dye", "Match 3D - Matching Puzzle Game", "Talking Tom Gold Run", "Count Run!", "Galaxy Attack: Alien Shooter", "Acrylic Nails!", "Differences - Find Difference", "Squid Games - 456 Survival", "Bridge Race", "Rope Savior 3D", "Destiny Run", "Merge Mansion", "Toca Kitchen 2", "Party Match: Do Not Fall", "Sushi Roll 3D - Cooking ASMR", "Makeup Master: Beauty Salon", "Stickman Escape: Choice Story", "Space shooter - Galaxy attack", "Cyber Surfer: EDM & Skateboard", "SortPuz: Water Color Sort Puzzle Games", "Balloon Crusher: Shoot’em all", "Hair Dye", "Pro Builder 3D", "Geometry Dash Lite", "Zodiac Runner!", "Gold and Goblins: Idle Merge", "Tangle Master 3D", "Braindom 2: Who is Lying? Fun Brain Teaser Riddles", "Helicopter Escape 3D", "Beat Blade: Dash Dance", "Judge 3D - Court Affairs", "Home Flip: Crazy Jump Master", "Bowmasters", "Cookie Carver: Life Challenge", "Candy Crush Soda Saga", "Fishdom", "Rise Up", "Hotties Up", "Word Trip", "Piano Fire: Edm Music & Piano", "Arrow Fest", "Coloring Book - Color by Number & Paint by Number", "Jelly Dye", "Angry Birds Journey", "Can You Spot It: Puzzle Game", "Cube Crack", "Boss Life 3D", "Talking Tom Hero Dash", "Craft Diamond Pixelart Vip", "Breaker Fun - Rescue Adventure", "Get Lucky", "Poppy Punch - Knock them out!", "Poppy Rope: Playtime Squid", "Wood Block Puzzle - Block Game", "Level Up Runner", "Cooking Craft", "Dancing Race", "BlockPuz: Wood Block Puzzle Game & Jigsaw Puzzles", "Coffee Stack", "Solitaire Card Game", "Stickman Hero Fight Battle War", "Extreme Car Driving Simulator", "Smile Rush", "Garena Free Fire - New Age", "Sniper 3D：Gun Shooting Games", "Classic Solitaire", "Sneaker Art!", "Stickman Ragdoll Fighter: Bash", "Super Knife Master", "Match Tile 3D - Original Pair Puzzle", "911 Emergency Dispatcher", "DogLife - BitLife Dog Game", "Puzzles & Survival"],
+
+ /* Google Play store - Top Paid Games [https://play.google.com/store/apps/collection/cluster?clp=0g4cChoKFHRvcHNlbGxpbmdfcGFpZF9HQU1FEAcYAw%3D%3D:S:ANO1ljLtt38&gsr=Ch_SDhwKGgoUdG9wc2VsbGluZ19wYWlkX0dBTUUQBxgD:S:ANO1ljJCqyI] ranked */
+ ["Minecraft", "Bloons TD 6", "Five Nights at Freddy's", "Ultimate Custom Night", "MONOPOLY - Classic Board Game", "Five Nights at Freddy's 2", "Geometry Dash", "Stardew Valley", "Five Nights at Freddy's 4", "FNaF 6: Pizzeria Simulator", "Terraria", "Five Nights at Freddy's 3", "Five Nights at Freddy's: SL", "Slay the Spire", "Grand Theft Auto: San Andreas", "My Boy! - GBA Emulator", "THE GAME OF LIFE 2", "Grand Theft Auto: Vice City", "Five Nights at Freddy's: HW", "Bloons TD 5", "The Room", "Bad North: Jotunn Edition", "Exploding Kittens® - Official", "DraStic DS Emulator", "Pocket City", "Mini Metro", "Hitman Sniper", "CHRONO TRIGGER (Upgrade Ver.)", "Call of Duty:Black Ops Zombies", "True Skate", "Human: Fall Flat", "Poly Bridge", "Clue: The Classic Mystery Game", "Papa's Freezeria To Go!", "FINAL FANTASY TACTICS : WotL", "Kingdom Two Crowns", "Monument Valley", "The Room Two", "Farming Simulator 20", "The Game of Life", "Grand Theft Auto III", "Papa's Sushiria To Go!", "Incredibox", "Townscaper", "Poly Bridge 2", "ePSXe for Android", "Ticket to Ride", "Dead Cells", "60 Seconds! Atomic Adventure", "Getting Over It with Bennett Foddy", "Trivia Crack Premium", "Kingdom Rush Frontiers TD", "Papa's Mocharia To Go!", "The Room Three", "Castlevania: SotN", "NBA 2K20", "DOOM", "Scribblenauts Remix", "Toca Boo", "Alien: Blackout", "Need for Speed Most Wanted", "Cytus II", "My OldBoy! - GBC Emulator", "RFS - Real Flight Simulator", "Farming Simulator 18", "The Room: Old Sins", "vDS - NDS Emulator", "A Dance of Fire and Ice", "Papa's Pizzeria To Go!", "Kingdom Rush Vengeance TD Game", "Wingspan: The Board Game", "Bendy and the Ink Machine", "Teach Your Monster to Read: Phonics & Reading Game", "Don't Starve: Pocket Edition", "RollerCoaster Tycoon® Classic", "Fruit Ninja Classic", "Battle Chasers: Nightwar", "Scribblenauts Unlimited", "Overdrive 2.6 Relaunched by Digital Dream Labs", "My Child Lebensborn", "Monster Hunter Stories", "Evertale", "Pizza Boy GBA Pro - GBA Emulator", "Papa's Donuteria To Go!", "Space RPG 4", "The House of Da Vinci", "Battleheart Legacy", "Papa's Burgeria To Go!", "Game Dev Tycoon", "Very Little Nightmares", "Dungeon Defense", "Monument Valley 2", "Vector Full", "MudRunner", "Grand Prix Story", "NBA JAM by EA SPORTS™", "Iron Marines: RTS offline Game", "EvoCreo - Pocket Monster Game", "Sonic Runners Adventure game", "Papa's Wingeria To Go!", "2112TD: Tower Defense Survival", "FINAL FANTASY VII", "Papa's Scooperia To Go!", "Youtubers Life: Gaming Channel - Go Viral!", "Baba Is You", "Papa's Cheeseria To Go!", "Root Board Game", "There Is No Game: WD", "Star Wars™: KOTOR", "Papa's Pancakeria To Go!", "Muse Dash", "Bridge Constructor Portal", "Goat Simulator", "Papa's Bakeria To Go!", "Reigns", "Max Payne Mobile", "Kingdom Rush Origins - TD", "PPSSPP Gold - PSP emulator", "Earn to Die", "Forager", "The Escapists 2: Pocket Breakout", "LEGO ® Marvel Super Heroes", "LEGO® Jurassic World™", "Dungeon Village 2", "One Night at Flumpty's 3", "LEGO ® Batman: Beyond Gotham", "XCOM 2 Collection", "GTA: Chinatown Wars", "THE GAME OF LIFE Vacations", "Rusted Warfare - RTS Strategy", "Papa's Pastaria To Go!", "Papa's Cupcakeria To Go!", "Angry Neighbor", "Papa's Hot Doggeria To Go!", "Dungeon Village", "Papa's Taco Mia To Go!", "Castle of Illusion", "TL Pro", "Teen Titans GO Figure!", "The Escapists: Prison Escape", "The House of Da Vinci 2", "One Deck Dungeon", "Fish GROW GROW", "FINAL FANTASY VIII Remastered", "Bully: Anniversary Edition", "Farming USA 2", "ROME: Total War", "Neo Monsters", "LEGO® Star Wars™: TCS", "Donut County", "Pocket Rogues: Ultimate", "Ms. PAC-MAN", "STAR WARS™: KOTOR II", "Toca Mystery House", "Crying Suns", "I'm on Observation Duty", "JYDGE", "Lowriders Comeback 2: Cruising", "Blackjack & Card Counting Trainer Pro", "FINAL FANTASY IV (3D REMAKE)", "Hidden Through Time", "Construction Simulator 3", "Star Traders: Frontiers", "John GBA", "Football Manager 2022 Mobile", "Catan Classic", "Pirates Outlaws", "Where's My Water?", "Organ Trail: Director's Cut", "Peppa Pig: Party Time", "Graveyard Keeper", "PAW Patrol: A Day in Adventure Bay", "Gorogoa", "Baldur's Gate Enhanced Edition", "Shadow Fight 2 Special Edition", "D&D Lords of Waterdeep", "Little Inferno", "Real Drift Car Racing", "Scythe: Digital Edition", "Door Kickers", "DOOM II", "Civilization Revolution 2", "My Time at Portia", "World of Goo", "Construction Simulator 2014", "Axis & Allies 1942 Online", "Cultist Simulator", "Chess Pro", "LEGO® Ninjago: Shadow of Ronin", "One Night at Flumpty's", "Company of Heroes", "DamonPS2 Pro 64bit - PS2 Emulator - PSP PPSSPP Emu", "Townsmen Premium", "One Night at Flumpty's 2", "Pascal's Wager", "GTA: Liberty City Stories", "Age of History II", "Meridian 157: Chapter 1", "Universal Paperclips", "Boris and the Dark Survival"],
+
+ /* GamesRadar [https://www.gamesradar.com/best-android-games/] ranked */
+ ["80 Days", "The Room Series", "Monument Valley 2", "Hidden Folks", "Alto’s Odyssey", "Stardew Valley", "Mini Metro", "Minecraft", "Rymdkapsel", "Oxenfree", "Her Story", "Florence", "Triple Town", "Threes!", "Gorogoa", "Alphabear: Words Across Time", "Pokémon Go", "Reigns: Her Majesty", "Animal Crossing: Pocket Camp", "Fortnite", "Super Hexagon", "Machinarium", "Thumper", "Data Wing", "Downwell", "XCOM: Enemy Within", "Sorcery!", "Lumino City", "Samorost 3", "Star Wars: Knights of the Old Republic", "Thimbleweed Park", "You Must Build a Boat", "Desert Golfing", "Ace Attorney: Dual Destinies", "Layton: Curious Village", "Lara Croft GO", "Cultist Simulator", "Pocket City", "Mushroom 11", "The House of Da Vinci", "Rush Rally 3", "Plants vs Zombies", "Hoplite", "A Good Snowman", "Raiders of the North Sea", "Hearthstone", "PUBG Mobile", "Oddmar", "Meteorfall: Journeys", "Vignettes", "Love You to Bits", "Call of Duty: Mobile", "Simon Tatham's Puzzles", "Marching Order", "Hitman Go", "Limbo", "Choice of Robots", "Final Fantasy XV: Pocket Edition", "inbento", "Holedown", "Battle Chasers: Nightwar", "UnCiv", "Rusty Lake Hotel", "Exploding Kittens", "Chrono Trigger", "Another Eden", "To The Moon", "Dota Underlords", "Pixel Dungeon", "Framed"],
+
+ /* Hardcore Droid [https://www.hardcoredroid.com/the-ten-best-android-games-of-all-time/] ranked */
+ ["Xcom: Enemy Unknown", "Xcom: Enemy Within", "Hearthstone", "Shadowrun: Dragonfall", "Illyria: Destinies", "The Banner Saga", "Final Fantasy IV", "Grand Theft Auto: San Andreas", "Kingdom Rush Origins", "The Walking Dead", "Ridiculous Fishing"]
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://getandroidstuff.com/best-android-games-of-all-time/ */
+ ["Crime City", "Heros Call HD", "Jetpack Soldier", "Minecraft: Pocket Edition", "The Dark Knight Rises", "Tank Riders", "SpeedMoto", "Renaissance Blood THD", "Spirit HD", "Modern Combat 2", "Meganoid", "Monster Shooter: Lost Levels", "Castle Master 3D", "Robotek", "Angry Birds", "Angry Birds Space", "Doodle Jump", "Can Knockdown 2", "Coin Dozer", "Bad Piggies", "Angry Birds Seasons", "Dino Run: Jurassic Escape", "Gem Miner", "50 Ways to Survive", "The Impossible Game", "Samurai vs Zombies Defense", "Canabalt HD", "Temple Run 2", "The Mystery of the Crystal Portal", "Wind Up Knight", "Pirates of the Caribbean", "Dragon & Dracula: platformer", "Tupsu-The Furry Little Monster", "Live Holdem Poker Pro", "Zynga Poker", "Phase 10", "Slot Machine Pro", "UNO & Friends", "Spider Solitaire", "Fruit Ninja", "Cut the Rope", "Amazing Alex", "Flow Free", "Bag It!", "Shoot Bubble Deluxe", "World of Goo", "Move the Box", "Jewels Star", "The Room", "Shoot the Apple", "Unblock Me FREE", "Dead Trigger", "Max Payne Mobile", "Blitz Brigade", "Sniper Action", "Deer Hunter Reloaded", "Modern Combat 3: Fallen Nation", "9mm", "N.O.V.A. 3", "Tiny Tower", "Absolute RC Heli Sim", "Fish Island – SEA", "Dogfight Planes", "Air Control", "The Sims FreePlay", "Stick Cricket", "Big Win Soccer", "Super Stickman Golf 2", "Contract Killer", "Dice With Buddies", "Crime City", "Supermarket Management", "Run In Crowd", "Scramble With Friends", "Little Big City", "Smurfs’ Village", "Pool Billiards Pro", "​Virtual Table Tennis 3D", "Carrom 3D", "Basketball Shoot", "Flick Shoot (Soccer Football)", "3D Bowling", "Real Football 2012", "Chess Live", "True Skate", "Need for Speed Hot Pursuit", "Asphalt 7: Heat", "Real Racing 3", "Hill Climb Racing", "Crazy Bikers 2 Free", "Mini Motor Racing", "Offroad Legends", "Extreme Road Trip", "Sentinel 3: Homeworld", "Anomaly Warzone Earth HD", "Defender II", "Tower Defense", "Kingdom Rush", "Guns’n’Glory"],
+
+ /* https://tweakerlinks.com/top-10-best-android-games-of-all-time/ */
+ ["PUBG Mobile", "Clash Royale", "Pokémon GO", "Rayman", "Knives Out", "Limbo", "Candy Crush Saga", "Subway Surfers", "Temple Run 2", "Leo's Fortune", "Asphalt 8: Airborne", "Fruit Ninja"],
+
+ /* https://www.techadvisor.co.uk/test-centre/game/best-android-games-of-all-time-3625745/ */
+ ["Fortnite", "Ark: Survival Evolved", "PUBG Mobile", "Final Fantasy XV: Pocket Edition", "Alto’s Adventure", "Framed 2", "Pokémon Go", "Minecraft: Pocket Edition", "Super Mario Run", "Slither.io", "Crossy Road", "Layton’s Mystery Journey", "Jetpack Joyride", "Words With Friends", "Plants vs. Zombies 2", "Dumb Ways to Die 2: The Games", "Grand Theft Auto San Andreas", "Last Day on Earth: Survival", "Asphalt 8: Airborne", "Hill Climb Racing 2", "War Wings", "Super Stickman Golf 3", "Bejeweled Blitz", "Candy Crush Saga", "Clash of Clans", "Bad Piggies"],
+
+ /* https://newatlas.com/all-time-best-android-games/25408/ */
+ ["Max Payne Mobile", "Chaos Rings", "Chaos Rings Ω", "Dead Space", "Shadowgun", "Great Big War Game", "Avengers Initiative", "Plants vs. Zombies", "World of Goo", "Rayman Jungle Run", "Cut the Rope", "Fruit Ninja", "Angry Birds", "N.O.V.A. 3", "Modern Combat 4: Zero Hour", "Tiny Tower", "Jetpack Joyride"],
+
+ /* https://www.digitaltrends.com/mobile/best-android-games/ */
+ ["Oceanhorn", "Life is Strange", "Dragon Ball Legends", "Real Racing 3", "Asphalt 9: Legends", "PUBG Mobile", "N.O.V.A. Legacy", "Into the Dead 2", "Eternium", "Pokémon Go", "R-Type", "Pac-Man", "Sonic the Hedgehog Classic", "Badland", "Minecraft: Pocket Edition", "Project Highrise", "Super Mario Run", "Vandals", "Florence", "Fallout Shelter", "Plants vs. Zombies 2", "Clash of Clans", "Pro Evolution Soccer 2018", "Hockey Nations 18"],
+
+ /* https://www.androidpit.com/best-android-games */
+ ["Golf Clash", "Table Tennis Touch", "Crashlands", "Eternium", "Rolling Snail - Drawing Puzzle", "Thimbleweed Park", "Realm Defense: Hero Legends TD", "Fieldrunners 2", "Planescape: Torment: Enhanced Edition", "CHRONO TRIGGER", "Sky Dancer", "Run sausage Run!", "Dead Trigger 2", "Implosion - Never Lose Hope", "Micro Machines", "Dirt Xtreme", "Street Fighter IV Champion Edition", "Shadow Fight 3", "The Battle of Polytopia", "Hex Commander: Fantasy Heroes"],
+
+ /* https://www.compsmag.com/top-10-best-android-games-of-all-time/ */
+ ["Brothers In Arms 3", "Call Of Duty: Heroes", "WWE Immortals", "Asphalt 8: Airborne", "Gangstar Vegas", "MARVEL Contest Of Champions", "Candy Crush Saga", "Grand Theft Auto: Vice City", "Subway Surfers", "Angry Birds"],
+
+ /* https://bestofandroids.wordpress.com/2018/04/05/top-10-best-android-games-of-all-time/ */
+ ["Clash Royale", "Pokemon Go", "Nitro Nation Drag Racing", "N.O.V.A. Legacy", "Minecraft: Pocket Edition", "World Cricket Championship 2", "Super Mario Run", "Subway Surfers", "The Sims FreePlay", "PUBG Mobile"],
+
+ /* https://wpallpress.com/best-android-games/ */
+ ["Unkilled", "Pokemon Go", "Rockstar Games Titles", "Minecraft: Pocket Edition", "Hearthstone"],
+
+ /* https://www.stuff.tv/features/40-best-games-android-right-now/racing-games */
+ ["ALONE...", "PinOut", "Super Hexagon", "Impossible Road", "Disney Crossy Road", "Forget-Me-Not", "Osmos HD", "Pac-Man CE DX", "Spaceteam", "Badland", "Dead Road to Canada", "holedown", "Galaxy On Fire 2 HD", "Towaga", "Neon Shadow", "Lara Croft GO", "Dissembler", "Linelight", "Framed 2", "Laytons Mystery Journey", "The Room: Old Sins", "Thimbleweed Park", "Samorost 3", "Oceanhorn", "Love You to Bits", "Super Cat Bros", "Mushroom 11", "Super Mario Run", "iCycle", "Suzy Cube", "Mini Metro", "Card Thief", "Freeways", "Reigns: Her Majesty", "Infinite West", "Asphalt 9: Legends", "Horizon Chase", "Motorsports Manager Mobile 3", "Pumped BMX 3", "Reckless Racing 3"],
+
+ /* https://kotaku.com/5878879/the-5-best-games-for-android-smartphones */
+ ["Hitman GO", "Super Mario Run", "The Witness", "Rymdkapsel", "Threes", "Hearthstone", "The Room: Old Sins", "80 Days", "Framed 2", "Ridiculous Fishing", "A Dark Room", "Final Fantasy Tactics"],
+
+ /* https://www.pastemagazine.com/articles/2016/05/the-20-best-android-games.html */
+ ["Lara Croft Go", "Dark Echo", "Prune", "Pac-Man 256", "Downwell", "Ridiculous Fishing", "Monument Valley", "Hundreds", "80 Days", "Love Live: School Idol Festival", "Jetpack Joyride", "Threes", "Alto’s Adventure", "Desert Golfing", "Super Hexagon", "Eliss Infinity", "Hitman Go", "Superbrothers Sword & Sworcery", "Kim Kardashian: Hollywood"],
+
+ /* https://www.hongkiat.com/blog/best-mobile-games-great-graphics/ */
+ ["Godfire: Rise of Prometheus", "Traffic Tour", "Asphalt 8: Airborne", "Brothers: A Tale of Two Sons", "Modern Combat 5: eSports FPS", "Assassins Creed Pirates", "Leos Fortune", "I, Gladiator", "Samorost 3", "Nitro Nation Drag Racing", "Shadowgun", "Wild Blood", "Monument Valley", "Gods of Rome", "The Room Three", "MTB DownHill: Multiplayer", "Mortal Kombat X", "EvilBane: ReBoot", "Eternium", "Ultimate Tennis", "Darkness Reborn", "The World 3: Rise of Demon", "Dead Trigger 2", "Bullet Force", "Dungeon Hunter 5", "Need for Speed: Most Wanted", "Castle of Illusion", "Shadowrun Dragonfall – Directors Cut", "Chaos Rings III", "Anomaly 2", "Deer Hunter", "Walking Dead: The Game", "Blood & Glory: Legend", "Deus Ex: The Fall", "N.O.V.A. 3", "République", "Bastion", "Spirit Lords", "Sky Force 2014", "Space Marshals", "Heroes and Castles", "Adventures of Poco Eco", "Occupation", "EPOCH.2", "Brothers in Arms 3"],
+
+ /* https://www.t3.com/features/best-android-games */
+ ["Jelly Jump", "Spring Ninja", "Fast and Furious: Legacy", "Stickman Rush", "Dungeon Hunter 5", "The Wolf Among Us", "CSR Racing", "Asphalt Overdrive", "Two Dots", "Bike Mayhem", "Modern Combat 4: Zero Hour", "Smash Hit", "Swordigo", "Asphalt Racing HD", "Unroll Me", "Bad Roads 2", "Threes!", "Spaceteam", "QuizUp", "Papa Pear Saga", "Kingdom Rush", "Fiz: Brewery Management Game", "Farm Heroes Saga", "Crazy Doctor", "Clash of Clans", "Basketball Kings", "Archangel", "Deus Ex: The Fall", "Call of Mini: Infinity", "The Sheepening", "Detective Grimoire", "RoboCop", "Lyne", "Badland", "Tic Tactics", "Sonic the Hedgehog 2 Classic", "Injustice: Gods Among Us", "Heroes of Steel RPG", "Assassin's Creed Pirates", "Small World 2", "Ridiculous Fishing", "Plants vs Zombies 2", "Code Warriors: Hakitzu Battles", "Football Manager Handheld 2017", "Beat the Boss 3", "Anomaly 2", "Angry Birds Go", "The Walk: Fitness Tracker Game", "Asphalt 8: Airborne", "Breach & Clear", "Tetris Blitz", "Dots", "Vector", "Real Boxing", "Epoch", "Metal Slug 3", "Cut the Rope: Time Travel", "7x7", "Pitfall!", "Temple Run 2", "Organ Trail: Director's Cut", "Mr Legs", "Oscura", "100 Rooms", "Another World", "Fragger", "Granny Smith", "Jetpack Joyride", "Major Mayhem", "Whale Trail Frenzy", "Sonic Dash", "Zombie Dash", "GameFly", "R-Type", "Shoot U!", "Tank Recon 3D", "Bubble Burst 2", "Alchemy", "Zombieville USA", "Sheep Impact", "Angry Birds", "Burn the Rope", "The Cat in the Hat", "Colorix", "Contract Killer", "Crazy Snowboard", "Cut the Rope", "Diversion", "Drag Racing", "Everlands HD", "ExZeus Arcade", "Fruit Ninja", "Galcon", "Green Eggs and Ham", "Guns 'n' Glory Premium", "Hungry Shark", "iBasket", "iRunner", "Jet Car Stunts", "Contre Jour", "Fruit Slice", "Jewellust", "Jewels", "Live Holdem Poker Pro", "Must.Eat.Birds", "N.O.V.A. Legacy", "Order & Chaos Online", "Paradise Island", "Racing Moto", "Radiant HD", "Reckless Racing", "Refraction", "Replica Island", "Samurai 2: Vengeance THD", "Shredder Chess", "Tower Raiders GOLD", "Winds of Steel", "World of Goo", "YOO Ninja", "N.O.V.A. 3", "Max Payne Mobile", "Dead Trigger", "Dead Space", "Draw Something", "Angry Birds Space", "Vector", "New Star Soccer", "Temple Run"],
+
+ /* https://www.pcmag.com/article2/0,2817,2375707,00.asp */
+ ["The Banner Saga", "The Battle of Polytopia", "Hearthstone", "Clash Royale", "Dots & Co", "Kim Kardashian Hollywood", "Miracle Merchant", "Monument Valley", "Pokemon Go", "Reigns", "Spaceteam"],
+
+ /* https://www.tomsguide.com/us/best-android-games,review-3951.html */
+ ["Madden NFL Overdrive Football", "Alto's Odyssey", "HQ Trivia", "Final Fantasy XV Pocket Edition", "Monument Valley 2", "Battle of Polytopia", "Broken Age", "Hearthstone", "Just Dance Now", "World Series of Poker", "Real Racing 3"],
+
+ /* https://drfone.wondershare.com/android-games/paid-android-games.html */
+ ["Modern Combat 5: eSports FPS", "N.O.V.A. 3", "Grand Theft Auto", "Limbo", "Machinarium", "Monument Valley", "Kingdom Rush", "Kingdom Rush Frontiers", "Kingdom Rush Origins", "HyperDevBox Studio", "Five Nights at Freddy's", "Five Nights at Freddy's 2", "Five Nights at Freddy's 3", "NBA Jam by EA Sports", "Osmos HD", "Out There", "Riptide GP2", "The Room", "The Room Two", "Shadowrun Returns", "Shadowrun Dragonfall", "Star Wars: KOTOR", "Terraria", "World of Goo", "XCOM: Enemy Within", "Baldur's Gate: Enhanced Edition", "Baldur's Gate II", "Icewind Dale", "Dungeon hunter 3 Brave Trials", "New Star Soccer", "Brothers in Arms 3", "Home Run Battle 3D", "Bike Race Free - Top Motorcycle Racing Games", "Six Guns: Gang Showdown", "Asphalt 8: Airborne", "Frontline Commando", "Gangstar Vegas", "Commando Revenge"],
+
+ /* digitaltrends [https://www.digitaltrends.com/mobile/best-android-games/] unranked */
+ ["Retro Goal", "Chrono Trigger", "Spaceteam", "League of Legends: Wild Rift", "The Procession to Calvary", "Cats in Time", "Pokémon Unite", "Oxenfree", "Ticket to Earth", "Bridge Constructor Portal", "Dead Trigger 2", "The Escapists: Prison Escape", "Critical Ops: Multiplayer FPS", "Pureya", "Evoland 2", "Sky: Children of the Light", "Grid Autosport", "Final Fantasy XV Pocket Edition", "Garena Free Fire — New Age", "Crash Bandicoot: On the Run", "CarX Drift Racing 2", "Gwent: The Witcher Card Game", "Brawl Stars", "Brawlhalla", "Among Us", "One-Punch Man: Road to Hero 2.0", "Tiny Room Stories: Town Mystery", "Bloons TD 6", "Exploding Kittens", "Call of Duty: Mobile"],
+
+ /* Android Central [https://www.androidcentral.com/best-android-games] unranked */
+ ["Beatstar", "Crash Bandicoot: On the Run!", "Cytus II", "Huntdown", "Implosion: Never Lose Hope", "My Friend Pedro: Ripe for Revenge", "Thumper: Pocket Edition", "Forgotten Anne", "Harry Potter: Wizards Unite", "Oxenfree", "Pokémon Go", "Unmaze", "Castlevania: Symphony of the Night", "Dandara", "Dead Cells", "Grimvalor", "Gris", "Human: Fall Flat", "Limbo", "Oddmar", "Swordigo", "Suzy Cube", "Bridge Constructor Portal", "Chameleon Run", "Doctor Who: The Lonely Assassins", "Donut County", "Holedown", "I Love Hue", "Monument Valley", "Monument Valley 2", "Overboard!", "Piffle", "The Room: Old Sins", "Transmission", "Unit 404", "Vectronom", "Asphalt 9: Legends", "Data Wing", "GRID Autosport", "Mario Kart Tour", "Rally Fury: Extreme Racing", "Riptide GP: Renegade", "Sonic Forces", "AnimA", "Atom", "Battle Chasers: Night War", "Death Road to Canada", "Evoland", "Evoland 2", "Genshin Impact", "Sky: Children of the Light", "SINoALICE", "Star Wars: Knights of the Old Republic", "Star Wars: Knights of the Old Republic II", "Ticket to Earth", "Titan Quest", "V4", "Vampire: The Masquerade — Night Road", "Wayward Souls", "Call of Duty Mobile", "Doom", "Doom II", "Infinity Ops", "JYDGE", "PUBG Mobile", "Tesla vs Lovecraft", "Animal Crossing Pocket Camp", "Godus", "Graveyard Keeper", "Grand Theft Auto: San Andreas", "Minecraft", "My Time at Portia", "Penguin Isle", "Stardew Valley", "Whispers of a Machine", "Australian Open Game", "eFootball PES 2020", "Madden NFL Mobile Football", "MLB Nine Innings 2020", "NBA 2K20", "Retro Bowl", "Among Us", "Bad North: Jotunn Edition", "Card Thief", "Chess by AI Factory Limited", "Exploding Kittens", "Gwent", "Hearthstone", "Legends of Runeterra", "Majesty", "Mindustry", "Mini Metro", "Reigns: Her Majesty", "XCOM: Enemy Within"],
+
+ /* One37pm [https://www.one37pm.com/gaming/consoles/best-mobile-games-ios-android-all-time] unranked */
+ ["Temple Run", "Subway Surfers", "Candy Crush", "Angry Birds", "Genshin Impact", "Sky: Children of Light", "Geometry Dash", "Call of Duty: Mobile", "Plants vs. Zombies", "Fruit Ninja", "Alto's Adventure", "Marvel Strike Force", "Clash of Clans", "Dragon Ball Legends", "Pokémon GO", "Monument Valley", "Raid: Shadow Legends", "Jetpack Joyride", "Clash Royale", "Empires & Puzzles", "Among Us", "Downwell", "Hearthstone", "PUBG MOBILE", "Asphalt 9: Legends", "League of Legends: Wild Rift"],
+
+ /* Pocket Tactics [https://www.pockettactics.com/best-android-games] unranked */
+ ["GENSHIN IMPACT", "RAID: SHADOW LEGENDS", "FINAL FANTASY IX", "CRASHLANDS", "AMONG US", "PUBG MOBILE", "PASCAL’S WAGER", "CANDY CRUSH SODA SAGA", "POKÉMON GO", "BAD NORTH: Jotunn Edition", "TERRAFORMING MARS", "MONUMENT VALLEY", "SORCERY!", "VAINGLORY", "MARIO KART TOUR", "ALTO’S ODYSSEY", "DOWNWELL", "AFK ARENA", "BLACK DESERT MOBILE", "BRAWLHALLA", "ASPHALT 9: LEGENDS", "CALL OF DUTY: MOBILE", "STARDEW VALLEY", "NEKO CRUSH"],
+
+ /* PCmag [https://www.pcmag.com/picks/the-best-android-games] unranked */
+ ["Among Us", "Arena of Valor", "Castlevania: Symphony of the Night", "Chrono Trigger", "Crossy Road", "Downwell", "Dragalia Lost", "Final Fantasy VII", "Fortnite", "Genshin Impact", "Gwent: The Witcher Arcade Game", "Hearthstone", "Hitman Go", "League of Legends: Wild Rift", "Minecraft", "Monument Valley", "Pokemon Go", "Reigns: Her Majesty", "Sky: Children of Light", "Spaceteam", "Stardew Valley", "Threes"],
+
+ /* Reddit - r/AndroidGaming user poll [https://www.reddit.com/r/AndroidGaming/comments/4gnb7u/best_android_games_of_all_time/] unranked */
+ ["Xcom: Enemy Within", "Crashlands", "Monument Valley", "World of Goo", "Shadowrun: Dragonfall Director's Cut", "The Banner Saga", "Monument Valley", "World of Goo", "Monument Valley", "Monument Valley", "World of Goo", "Superbrothers: Sword and Sworcery", "Badland", "Limbo", "Chaos Rings", "Chaos Rings Ω", "Chaos Rings II", "Chaos Rings III", "Chaos Rings", "Chaos Rings Ω", "Chaos Rings II", "Chaos Rings III", "King of Dragon Pass", "Puzzle of Jellies", "Triple Town", "True Skate", "Hoplite", "Unblock Me", "Doodle Jump", "Siralim", "DWM", "Wayward Souls", "Downwell", "Hill Climb Racing", "Punch Quest", "Terraria", "Atomas", "Dungeon Quest", "Jetpack Joyride", "Quest Keeper", "Terraria", "Hill Climb Racing", "Giant Boulders of Death", "Limbo", "Jelly Defense", "Facility 47", "Threes", "Slydris", "World of Goo", "Monument Valley", "This War of Mine", "Door Kickers", "Slydris", "Thomas Was Alone", "Limbo", "Deus Ex", "Deus Ex: The Fall", "Dead Space", "Mass Effect Infiltrator", "Star Wars: Knights of the Old Republic", "The Banner Saga", "This War of Mine", "Block Puzzle Classic Plus", "Sproggiwood", "Door Kickers", "BimaTRI", "Threes!", "Door Kickers", "World of Goo", "Subterfuge", "Vainglory", "Desert Golfing", "Matter Meltdown", "Clash of Clans", "Stack", "Wazhack", "Persist", "Deus Ex: The Fall", "9th Dawn II", "The Shadow Sun", "Evocreo", "Joe Dever's Lone Wolf", "Star Wars: Knights of the Old Republic", "Motorsport Manager", "God of Blades", "M&M Clash of Heroes", "Implosion - Never Lose Hope", "Vainglory", "Wayward Souls", "Downwell", "Space Grunts", "Elder Signs: Omens", "Crowntakers", "Deep Dungeons of Doom", "Simplerockets", "You Must Build a Boat", "Downwell", "The Abandoned", "Max Payne Mobile", "CCTAN", "Spider Secret of Bryce Maior", "Rite of the Shrouded Moon", "Galaxy on Fire 2 HD", "Monument Valley", "Wayward Souls", "Splice", "Alite", "Super Hexagon", "Waking Mars", "Downwell", "Crashlands", "Final Fantasy series", "Clash Royale", "Plants vs Zombies 2"],
+
+ /* Ultimate r/AndroidGaming list [https://docs.google.com/spreadsheets/d/1PdqDrf5HzmFZzKXTnqMYg5lvIMlhip-_46GFS8wew7w/edit#gid=0] unranked */
+ ["10000000", "80 Days", "Alto's Adventure", "BADLAND", "Civilization Revolution 2", "Clash Royale ", "Critical Ops", "FRAMED", "Galaxy on Fire 2 HD", "Hitman GO", "Horizon Chase", "Lara Croft GO", "Leo's Fortune", "Lost Within", "Monument Valley", "Odd Bot Out", "Osmos HD", "Out There: Ω Edition", "Pixel Dungeon", "Pocket Mortys", "Shattered Pixel Dungeon", "SimplePlanes", "Soda Dungeon", "Sorcery!", "Sorcery! 2", "Sorcery! 3", "Space Marshals", "Tales From Deep Space", "The Pirate: Caribbean Hunt", "The Room", "The Room 2", "The Room 3", "Til Morning's Light", "Unleashed Pixel Dungeon", "Vainglory", "Wayward Souls", "World of Tanks Blitz"],
+
+ /* techradar [https://www.techradar.com/best/best-android-games] unranked */
+ ["Retro Goal", "Tabletop Racing: World Tour", "GRID Autosport", "Repulze", "Rush Rally 3", "Horizon Chase", "Need for Speed: Most Wanted", "Riptide GP: Renegade", "Mini Motor Racing", "Need for Speed: Hot Pursuit", "Final Freeway 2R", "Motorsport Manager Mobile 3", "Overboard!", "Bird Alone", "The White Door", "Minit80 Days", "Her Story", "Oceanhorn", "Milkmaid of the Milky Way", "Samorost 3", "Love You To Bits", "Superbrothers Sword & Sworcery", "Minecraft", "The Room: Old Sins ", "Giant Dancing Plushies", "pureya", "Donut County", "Sine the Game", "Dig Dog - Treasure Hunter ", "Jumpgrid ", "Vectronom ", "Witcheye", "Solar Explorer: New Dawn ", "Power Hover", "Forget-Me-Not", "Captain Cowboy ", "Edge ", "Pumped BMX 3 ", "Holedown ", "Osmos HD ", "PAC-MAN Championship Edition DX", "Summer Catchers", "Boson X ", "ALONE... ", "Doug Dug", "FOTONICA ", "Impossible Road ", "Super Hexagon ", "Ridiculous Fishing ", "GRIS", "Drop Wizard", "Bomb Chicken", "Ordia ", "Linn: Path of Orchards", "Oddmar", "see/saw ", "Spitkiss", "Limbo ", "Leo's Fortune ", "Traps n' Gemstones ", "iCycle ", "Mushroom 11 ", "Railroad Ink Challenge", "Baba is You", "Inked", "There Is No Game: Wrong Dimension", "Path to Mnemosyne ", "Path of Giants ", "Keep Talking and Nobody Explodes", "Bring You Home ", "Suzy Cube ", "Photographs - Puzzle Stories ", "Snakebird Primer", "Where Shadows Slumber ", "Gorogoa ", "Chuchel", "Threes! ", "A Good Snowman ", "Shadowmatic ", "Hidden Folks ", "Dissembler ", "Backfire ", "Hyper Sentinel ", "Downwell ", "Death Road to Canada ", "ATOMIK: RunGunJumpGun", "Super Crossfighter", "Jydge ", "Implosion - Never Lose Hope", "Golf on Mars", "Football Manager 2020 Touch ", "Touchgrind Skate 2 ", "Table Tennis Touch ", "Desert Golfing ", "Kevin Toms Football * Manager ", "Civilization VI", "Kingdom Two Crowns", "Maze Machina ", "Bad North: Jotunn Edition ", "Tropico", "Rome: Total War - Barbarian Invasion", "Kingdom Rush: Vengeance", "Twinfold ", "Concrete Jungle ", "Mini Metro ", "Hitman GO ", "Card Thief ", "Freeways ", "Reigns: Game of Thrones ", "Wordsmyth", "Ord.", "Typoman Mobile ", "Word Forward", "Sidewords ", "Dropwords 2", "Blackbar", "Letterpress ", "Supertype", "Typeshift"]
+
+];
+
+</script>
