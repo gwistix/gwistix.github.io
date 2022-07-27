@@ -1,0 +1,342 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best Cinematic Platformer games ever</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique Cinematic Platformer games:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = 1/2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+ });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return normalizeRomanNumerals(
+  title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/&/g,"and")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9]/g, "")
+ )
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://gamerant.com/best-cinematic-platformers/ */
+
+ ["Oddworld: Abe's Exoddus", "Another World", "Prince of Persia", "Heart of Darkness", "Blackthorne"],
+
+ /* https://www.mobygames.com/game-group/genre-cinematic-platformer/offset,0/so,1a/ [ranked based on User Score] */
+
+ ["Oddworld: Abe's Oddysee (1997)", "Prince of Persia (1989)", "Oddworld: Abe's Exoddus (1998)", "Nosferatu (1994)", "Flashback: The Quest for Identity (1992)", "Prince of Persia 2: The Shadow & the Flame (1993)", "Bermuda Syndrome (1996)", "Heart of Darkness (1998)", "Another World (1991)", "Prince of Persia Classic", "Little Nightmares", "Flashback (2013)", "Limbo (2010)", "Tomb Raider Starring Laura Croft (2000)", "Blackthorne (1994)", "Heart of the Alien (1994)", "Prince of Persia: The Sands of Time (2003)", "Never Alone (Kisima Inŋitchuŋa) (2014)", "Deadlight (2012)", "Inside (2016)", "Weird Dreams (1988)", "Lara Croft: Tomb Raider - Curse of the Sword (2001)", "Deadlight: Director's Cut (2016)", "onEscapee (1997)", "The Lost World: Jurassic Park (1997)", "Zorro (1995)", "SOS (1993)"],
+
+ /* http://www.1morecastle.com/2014/08/top-10-2d-cinematic-platformers/ */
+
+ ["Oddworld: Abe's Exoddus", "Another World", "SOS", "Prince of Persia", "Heart of Darkness", "Blackthorne", "onEscapee", "Flashback: The Quest for Identity","Weird Dreams", "Beyond Dark Castle"],
+
+ /* https://store.steampowered.com/curator/42146328-Cinematic-Platformers/ */
+
+ ["Little Nightmares II", "Little Nightmares", "Night in the Woods", "Spiritfarer", "Ori and the Blind Forest", "Carrion", "Unravel Two", "Webbed", "Unbound", "Far: Lone Sails", "Oxenfree", "Inside", "Gris", "Fez", "Kentucky Route Zero", "Mark of the Ninja", "The Artful Escape", "Limbo", "Degrees of Separation", "Haak", "Child of Light", "Hidden Deep", "Never Alone (Kisima Inŋitchuŋa)", "Inmost", "The Eternal Castle", "Valiant Hearts: The Great War", "MO Astray", "Forgotten Anne", "Oddworld: New 'n' Tasty", "Batman: Arkham Origins: Blackgate"],
+
+ /* https://glitchwave.com/charts/top/game/all-time/g:cinematic-platformer/ */
+
+ ["ICO (2001)", "Rain World (2017)", "Oddworld: Abe's Exoddus (1998)", "Inside (2016)", "Oddworld: Abe's Oddysee (1997)", "Little Nightmares II (2021)", "Stray (2022)", "Little Nightmares (2017)", "Flashback: The Quest For Identity (1992)", "Limbo (2010)", "Valiant Hearts: The Great War (2014)", "Another World (1991)", "Brothers: A Tale of Two Sons (2013)", "Heart of Darkness (1998)", "Prince of Persia (1989)", "Prince of Persia 2: The Shadow and the Flame (1993)", "Inmost (2019)", "FAR: Lone Sails (2018)", "Blackthorne (1994)", "Oddworld: New 'n' Tasty (2014)", "Rain (2013)", "The Fall (2014)", "Deadlight (2012)", "Trek to Yomi (2022)", "FAR: Changing Tides (2022)", "Oddworld: Soulstorm (2021)", "The Eternal Castle (2019)", "Black the Fall (2017)", "Demolition Man (1995)", "Unto the End (2020)", "Pocahontas (1996)", "Candle (2016)", "Stela (2019)", "Tintin in Tibet (1994)", "SOS (1993)", "Dark Castle (1986)", "Lester the Unlikely (1994)", "Nanatsu Kaze no Shima Monogatari (1997)", "Lara Croft: Tomb Raider - Curse of the Sword (2001)", "Fossil Echo (2016)", "1213 (2005)", "Heart of the Alien (1994)", "Liyla and the Shadows of War (2016)", "Weird Dreams (1988)", "Dragon's Lair (1990)", "Nosferatu (1994)", "Enemy: Tempest of Violence (1997)", "Dogolrax (2017)", "Silt (2022)", "Little Orpheus (2020)", "Flashback (2013)", "White Shadows (2021)", "Zorro (1995)"]
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://www.mobygames.com/game-group/genre-cinematic-platformer [unranked list of all games] */
+
+ ["SOS (1993)", "Zorro (1995)", "The Lost World: Jurassic Park (1997)", "Another World (1991)", "onEscapee (1997)", "Deadlight: Director's Cut (2016)", "Lara Croft: Tomb Raider - Curse of the Sword (2001)", "Weird Dreams (1988)", "Inside (2016)", "Deadlight (2012)", "Never Alone (Kisima Innitchuna) (2014)", "Prince of Persia: The Sands of Time (2003)", "Heart of the Alien: Out of this World Parts I and II (1994)", "Blackthorne (1994)", "Tomb Raider Starring Lara Croft (2000)", "Limbo (2010)", "Flashback (2013)", "Out of This World (1991)", "Little Nightmares (2017)", "Prince of Persia Classic (2007)", "Another World: 20th Anniversary Edition (2011)", "Another World: 15th Anniversary Edition (2007)", "Heart of Darkness (1998)", "Bermuda Syndrome (1996)", "Prince of Persia 2: The Shadow & The Flame (1993)", "Flashback: The Quest for Identity (1992)", "Nosferatu (1994)", "Oddworld: Abe's Exoddus (1998)", "Prince of Persia (1989)", "Oddworld: Abe's Oddysee (1997)", "Trek to Yomi (2022)", "Little Nightmares II (2021)", "White Shadows (2021)", "Oddworld: Soulstorm (2021)", "Unto the End (2020)", "Little Orpheus (2020)", "Ministry of Broadcast (2020)", "Stela (2019)", "The Eternal Castle (2019)", "The Way: Remastered (2018)", "Black: The Fall (2017)", "The Way (2016)", "Woolfe: The Red Hood Diaries (2015)", "Feist (2015)", "Monochroma (2014)", "Oddworld: Abe's Oddysee - New 'n' Tasty! (2014)", "The War of the Worlds (2011)", "Cyberpunk: The Arasaka's Plot (2007)", "Between Heaven and Hell (2006)", "Prince of Persia: Harem Adventures (2002)", "Planet of the Apes (2001)", "B.I.G. (1997)", "Death by Dark Shadows (1994)", "Fiend Hunter (1993)", "Cruel World (1993)"],
+
+ /* https://www.neogaf.com/threads/the-cinematic-platformer-compendium.989633/ */
+
+ ["Prince of Persia (1989)", "Another World (1991)", "Golden Eagle (1991)", "Flashback: The Quest for Identity (1992)", "Dylan Dog: The Murderers (1992)", "Fiend Hunter (1993)", "Prince of Persia 2: The Shadow and the Flame (1993)", "Cruel World (1993)", "Dylan Dog: episodes 01-17 (1993)", "Tex episodes 01-12 (1993)", "Diabolik episodes 01-11 (1993)", "Nathan Never: The Arcade Game (1993)", "SOS (1993)", "Simulman episodes 01-11 (1993-1994)", "Time Runners episodes 01-30 (1993-1994)", "Spider-Man episodes 01-03 (1994)", "Blackthorne (1994)", "Nosferatu (1994)", "Heart of the Alien (1994)", "Death by Dark Shadows (1994)", "Father World (1994)", "Lester the Unlikely (1994)", "Bez Kompromisu (1994)", "Zorro (1995)", "Star Trek: Deep Space Nine - Crossroads of Time (1995)", "Bermuda Syndrome (1996)", "Pocahontas (1996)", "Ar'Kritz the Intruder (1996)", "onEscapee (1997)", "Oddworld: Abe's Oddysee (1997)", "B.I.G. (1997)", "Oddworld: Abe's Exoddus (1998)", "Heart of Darkness (1998)", "Tomb Raider (2000)", "Lara Croft: Tomb Raider - Curse of the Sword (2001)", "Lara Croft: Tomb Raider - The Prophecy (2002)", "Flashback Legend (2002)", "Prince of Persia: Harem Adventures (2003)", "Prince of Persia: The Sands of Time (2003)", "Splinter Cell (2003)", "Tomb Raider: The Osiris Codex (2003)", "Tomb Raider: Quest for Cinnabar (2004)", "Tomb Raider: Elixir of Life (2004)", "Splinter Cell: Pandora Tomorrow (2004)", "Prince of Persia: The Two Thrones (2005)", "Splinter Cell: Chaos Theory (2005)", "Lara Croft: Tomb Raider - Legend (2006)", "Splinter Cell: Double Agent (2006)", "1213 (2006)", "Cyberpunk: The Arasaka's Plot (2007)", "Live Free Or Die Hard: The Mobile Game (2007)", "Prince of Persia Classic (2007)", "Limbo (2010)", "Splinter Cell: Conviction (2010)", "Rocketbirds: Hardboiled Chicken (2011)", "War of the Worlds (2011)", "The Adventures of Tintin (2011)", "Doctor Who: The Eternity Clock (2012)", "Deadlight (2012)", "Prince of Persia: The Shadow and the Flame (2013)", "Flashback (2013)", "OddPlanet (2013)", "Rain (2013)", "Oddworld: New 'n' Tasty (2014)", "Residue: Final Cut (2014)", "The Fall (2014)", "Monochroma (2014)", "Never Alone (Kisima Inŋitchuŋa) (2014)", "Datswer (2015)", "Tir Na Nog (1984)", "Bob Winner (1986)", "V: The Computer Game (1986)", "Contact Sam Cruise (1986)", "RELICS (1986)", "The Last Ninja (1987)", "Last Ninja 2: Back with a Vengeance (1988)", "Last Ninja 3 (1991)", "Obliterator (1988)", "Barbarian II: Axe of Rage (1988)", "The Running Man (1989)", "Wrath of the Demon (1990)", "Colorado (1990)", "StarBlade (1990)", "Metal Mutant (1991)", "Blade Warrior (1991)", "Moon Crystal (1992)", "Alien 3 (1993)", "Terminator 2: Judgment Day (1993)", "Generations Lost (1994)", "No Escape (1994)", "Stargate (1994)", "Tintin in Tibet (1995)", "Demolition Man (1995)", "Nightmare Circus (1995)", "Phantom 2040 (1995)", "Adventures of Tintin: Prisoners of the Sun (1996)", "Spirou (1995)", "Enemy: Tempest of Violence (1997)", "Nanatsu Kaze no Shima Monogatari (1997)", "Trilby: The Art of Theft (2007)", "Iji (2008)", "Trine (2009)", "Prince of Persia: The Forgotten Sands (2010)", "Steal Bastard: Tactical Espionage Arsehole (2011)", "Trine 2 (2011)", "Mark of the Ninja (2012)", "The Swapper (2013)", "The Cave (2013)", "Stealth Inc. 2: A Game of Clones (2014)", "Fade to Black (1995)", "Tomb Raider (1996)", "Prince of Persia 3D (1999)", "Arabian Nights (2001)", "ICO (2001)", "Shadow of the Colossus (2005)", "Assassin's Creed (2007)", "Uncharted (2007)", "Mirror's Edge (2008)", "Enslaved: Odyssey to the West (2010)", "Half-Life (1998)", "Behind Nowhere", "Black the Fall", "Guild of Darksteel", "Inside", "Randall", "The Last Light", "The Way", "Somerville", "Orphan", "Project Infinitesimals", "Wander", "Hunger", "Drake: The Golden Hind Story", "Max: Curse of the Brotherhood", "Jurassic Park (1993)", "Jurassic Park: Rampage Edition (1994)", "Immortal"],
+
+ /* https://tvtropes.org/pmwiki/pmwiki.php/Main/CinematicPlatformGame */
+
+ ["Prince of Persia", "Prince of Persia 2: The Shadow and the Flame", "Prince of Persia 3D", "Prince of Persia: The Sands of Time", "ICO", "Shadow of the Colossus", "The Last Guardian", "Another World", "Heart of Darkness", "Heart of the Alien", "Flashback", "Fade to Black", "Blackthorne", "onEscapee", "Oddworld: Abe's Oddysee", "Oddworld: Abe's Exoddus", "Tomb Raider", "Mirror's Edge", "WET", "Enslaved: Odyssey to the West", "Tintin in Tibet", "Nosferatu", "Dark Castle", "The Legend of Zelda: Breath of the Wild", "Lester the Unlikely", "The Elder Scrolls Adventures: Redguard", "Deadlight", "Rain", "Valiant Hearts: The Great War", "Mark Ecko's Getting Up: Contents Under Pressure", "Cyberpunk: Arasaka's Plot", "Remember Me", "Bermuda Syndrome", "SOS", "Receiver 2", "The Missing J.J. Macfield and the Island of Memories"],
+
+ /* https://www.gonintendo.com/stories/360480-gonintendo-thought-recognizing-and-celebrating-the-cinematic-pla */
+
+ ["Another World", "Flashback: The Quest for Identity", "Limbo", "Oddworld: New 'n' Tasty", "Inside"],
+
+ /* https://adventuregamers.com/forums/viewthread/14440/ */
+
+ ["Limbo", "Inside", "Little Nightmares", "Eternal Castle", "The Way", "Oddworld: Abe's Oddysee", "Oddworld: Abe's Exoddus", "Gris", "The Last Night", "Darq", "Dark Train", "Deadlight", "FAR: Lone Sails", "The Swapper", "Capsized", "The Mooseman", "Black the Fall", "Headlander", "Old Man's Journey", "The Missing J.J. Macfield and the Island of Memories", "Ori and the Blind Forest", "Seasons After Fall", "Mark of the Ninja", "The Fall", "Spate", "Tengami", "Trine", "Trine 2", "Trine 3: The Artifacts of Power", "The Cave", "Contrast", "Renoir", "Apotheon", "Aaru's Awakening", "Gunpoint", "Lost Constellation", "Orphan", "Night in the Woods", "Astro Bot Rescue Mission", "Stela", "Moss", "Witchblood"]
+
+];
+
+</script>
