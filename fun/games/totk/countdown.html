@@ -1,0 +1,82 @@
+
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Tears of the Kingdom Countdown</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+@font-face {
+  font-family: 'MyWebFont';
+  src:  url('http://gwistix.github.io/fun/HyliaSerifBeta-Regular.otf') format('otf')
+}
+
+body {
+ background-image: url("https://cdn.mos.cms.futurecdn.net/LjotQGtaTZTDtQaXek8vbU-1200-80.jpg.webp");
+ background-size: cover;
+ background-color: #054;
+ text-align: center;
+ color: #ffd;
+ font-size: 150%;
+ text-shadow: 0px 0px 15px #054;
+ font-family: Papyrus
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+var releaseDate = new Date("May 12, 2023");
+
+function init() {
+ console.clear();
+ var now = new Date();
+ var months = releaseDate.getMonth() - now.getMonth();
+
+ var ms = releaseDate - now;
+
+ var s = Math.round(ms / 1000);
+ ms = ms % 1000;
+
+ var m = Math.floor(s / 60);
+ s = s % 60;
+
+ var h = Math.floor(m / 60);
+ m = m % 60;
+
+ var d = Math.floor(h / 24);
+ h = h % 24;
+
+ var M = Math.floor(d / (365/12));
+ var d = Math.floor(d % (365/12));
+ console.log(M, d, h, m, s);
+
+ document.body.innerHTML = /* "<p><big>The Legend of Zelda: Tears of the Kingdom</big><br>will be released in</p>" */ 
+ ""
+ + (M ? ("<h1>" + M + " month" + (M == 1 ? "" : "s") + "</h1>") : "")
+ + (d ? ("<h2>" + d + " day" + (d == 1 ? "" : "s") + "</h2>") : "")
+ + (h ? ("<h3>" + h + " hour" + (h == 1 ? "" : "s") + "</h3>") : "")
+ + (m ? ("<h4>" + m + " minute" + (m == 1 ? "" : "s") + "</h4>") : "")
+ + (s ? ("<h5>" + s + " second" + (s == 1 ? "" : "s") + "</h5>") : "")
+ 
+ var tick = setTimeout("init()", 1000)
+}
+
+
+/*
+
+Release Date: May 12, 2023
+
+*/
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+</body>
+</html>
