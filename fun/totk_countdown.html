@@ -10,7 +10,13 @@
 <style>
 
 body {
-// white-space: pre-wrap
+ background-image: url("https://cdn.mos.cms.futurecdn.net/LjotQGtaTZTDtQaXek8vbU-1200-80.jpg.webp");
+ background-color: #054;
+ text-align: center;
+ color: #ffd;
+ font-size: 150%;
+ text-shadow: 0px 0px 15px #054;
+ font-family: Papyrus
 }
 
 </style>
@@ -42,7 +48,8 @@ function init() {
  var d = Math.floor(d % (365/12));
  console.log(M, d, h, m, s);
 
- document.body.innerHTML = "<center><p><big>The Legend of Zelda: Tears of the Kingdom</big><br>will be released in</p>" 
+ document.body.innerHTML = /* "<p><big>The Legend of Zelda: Tears of the Kingdom</big><br>will be released in</p>" */ 
+ ""
  + (M ? ("<h1>" + M + " month" + (M == 1 ? "" : "s") + "</h1>") : "")
  + (d ? ("<h2>" + d + " day" + (d == 1 ? "" : "s") + "</h2>") : "")
  + (h ? ("<h3>" + h + " hour" + (h == 1 ? "" : "s") + "</h3>") : "")
