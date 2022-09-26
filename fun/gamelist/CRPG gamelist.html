@@ -23,8 +23,8 @@ th {
  color: white;
 }
 
-small {
- font-size: 1.5rem;
+.small {
+ font-size: 70%;
 }
 
 i {
@@ -268,15 +268,15 @@ function generateTable(list) {
  // Header row
  var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
 
- // Additional row for each book
- list.forEach(function(book, index){
-  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
-  var ref = book.title.lastIndexOf(" (");
-  ref = ~ref ? ref : book.title.length;
-  var titleOnly = book.title.substring(0, ref).toTitleCase();
-  var authorOnly = book.title.substring(ref);
+ // Additional row for each title
+ list.forEach(function(title, index){
+  var strippedTitle = title.title.replace(/\s?\(.*\)/,"");
+  var ref = title.title.lastIndexOf(" (");
+  ref = ~ref ? ref : title.title.length;
+  var titleOnly = title.title.substring(0, ref).toTitleCase();
+  var authorOnly = title.title.substring(ref);
   tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
-  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td class='small gray'>[" + title.score.toFixed(3) + "]</td>" 
   + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
  });
 
