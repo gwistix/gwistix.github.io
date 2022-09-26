@@ -1,0 +1,334 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best CRPGs ever</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique CRPGs:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = 1 / length;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  if (a.score > b.score) return -1;
+  if (a.score < b.score) return 1;
+  return 0
+  });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return normalizeRomanNumerals(
+  title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/&/g,"AND")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9荣耀斗罗契灵之约狂神无双模擬器]/g, "")
+ )
+ ;
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://www.thegamer.com/crpgs-best-games/ */
+
+ ["Pillars of Eternity", "Shadowrun: Hong Kong", "Divinity: Original Sin 2", "Fallout 2", "Fallout", "Arcanum: Of Steamworks and Magick Obscura", "Baldur's Gate II: Shadow of Amn", "Baldur's Gate", "Neverwinter Nights", "Tyranny", "Planescape Torment", "Disco Elysium", "Pathfinder: Kingmaker", "Wasteland 3", "Lionheart: Legacy of the Crusader", "Baldur's Gate 3", "Atom RPG", "UnderRail", "Age of Decadence", "Torment: Tides of Numenera"],
+
+ /* https://gamerant.com/best-modern-crpgs/ */
+
+ ["Divinity: Original Sin 2", "Disco Elysium", "Pillars of Eternity 2: Deadfire", "Shadowrun: Hong Kong", "Wasteland 3", "Divinity: Original Sin", "Tyranny", "Pillars of Eternity", "Tower of Time", "Dragon Age: Origins", "Wasteland 2", "Torment: Tides of Numenera", "Encased", "Pathfinder: Kingmaker", "Age of Decadence", "Masquerada: Songs and Shadows", "Path of Exile", "Star Wars: Knights of the Old Republic"],
+
+ /* https://store.steampowered.com/tags/en/CRPG?flavor=contenthub_toprated */
+
+ ["Divinity: Original Sin 2", "Baldur's Gate 3", "Farmer Against Potatoes Idle", "Death Trash", "Pathfinder: Wrath of the Righteous", "Wasteland 3", "Expeditions: Rome", "Troubleshooter: Abandoned Children", "Pillars of Eternity", "Pillars of Eternity II: Deadfire", "Baldur's Gate", "Talespire", "Baldur's Gate II", "Neverwinter Nights", "Fabled Lands", "Planscape: Torment", "Stolen Realm", "Atom RPG: Post-Apocalyptic Indie Game", "Vagrus: The Riven Realms", "Tyranny", "Underrail", "Baldur's Gate: Dark Alliance", "The Iron Oath", "Icewind Dale", "Atom RPG Trudograd", "Cultist Simulator", "Mondealy: Day One", "Geneforge 1: Mutagen", "ADOM (Ancient Domains of Mystery)", "Wizardry: The Five Ordeals", "Swords and Sandals Immortals", "Brigand: Oaxaca", "Stellar Tactics", "Vaporum", "Gamedec", "The Age of Decadence", "Raiders! Forsaken Earth", "Xuan-Yuan Sword: Dance of the Maple Leaves", "Colony Ship: A Post-Earth Role-Playing Game", "Sacred Fire: A Role-Playing Game", "Heaven Burns Red (ヘブンバーンズレッド)", "Monsters' Den: Godfall", "Monsters' Den: Book of Dread", "Clam Man 2: Open Mic", "Avernum 2: Crystal Souls", "The Use of Life", "Cossacks: Art of War", "Lakeview Valley", "Siege of Avalon: Anthology", "Drova: Teaser", "Skald: Against the Black Priory - The Prologue", "Ancient Enemy", "Tower of Time", "Avernum 3: Ruined World", "Noob: Les Sans-Factions", "荣耀斗罗", "契灵之约", "狂神无双", "Dwerve: Prologue", "Starcrawlers", "B100x: Auto Dungeon RPG", "VTuber Simulator: VTUBER模擬器", "Vampire: The Masquerade - Heartless Lullaby"],
+
+ /* https://www.slant.co/topics/2220/~best-crpgs-on-pc */
+
+ ["Star Wars: Knights of the Old Republic", "Dragon Age: Origins", "Planescape: Torment", "Tyranny", "Baldur's Gate II", "Divinity: Original Sin II", "Pillars of Eternity", "Neverwinter Nights", "Pillars of Eternity II: Deadfire", "Divinity: Origina Sin", "Baldur's Gate", "Fallout 2", "Disco Elysium", "Avernum: Escape from the Pit", "Pathfinder: Kingmaker", "Wasteland 2", "Icewind Dale", "Dragon Age: Inquisition", "Arcanum: Of Steamworks and Magick Obscura", "ELEX"],
+
+ /* https://www.youtube.com/watch?v=I-NsF4olB4I */
+
+ ["Divinity: Original Sin 2", "Disco Elysium", "Wasteland 3", "Pillars of Eternity II: Deadfire", "Torment: Tides of Numenera", "Dragon Age: Origins", "Pathfinder: Wrath of the Righteous", "Solasta: Crown of the Magister", "Baldur's Gate 3", "Tyranny (2016)", "ATOM RPG Trudograd", "Shadowrun: Hong Kong", "Neverwinter Nights", "The Age of Decadence", "Tower of Time"]
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://happymag.tv/crpg-best-crpgs/ */
+
+ ["Disco Elysium", "Divinity: Original Sin II", "Dragon Age: Origins", "Fallout 2", "Neverwinter Nights", "Pillars of Eternity", "Planescape: Torment", "Tyranny", "Wasteland 2", "Star Wars: Knights of the Old Republic", "Torment: Tides of Numenera", "Arcanum: Of Steamworks and Magick Obscura", "Icewind Dale", "Ultima VII: The Black Gate", "Pathfinder: Kingmaker"],
+
+ /* https://fextralife.com/top-10-crpgs-you-should-play-in-2021/ */
+
+ ["Dragon Age: Origins (2009)", "Pillars of Eternity (2015)", "Divinity: Original Sin (2014)", "Tyranny (2016)", "Divinity: Original Sin II (2017)", "Pillars of Eternity 2 (2018)", "Pathfinder: Kingmaker (2018)", "Disco Elysium (2019)", "Wasteland 3 (2020)", "Solasta: Crown of the Magister (2021)", "Pathfinder: Wrath of the Righteous (2021)"],
+
+ /* https://www.windowscentral.com/best-crpg-games-pc */
+
+ ["Disco Elysium", "Baldur's Gate", "Divinity: Original Sin 2", "Planescape Torment", "Neverwinter Nights", "Dragon Age: Origins", "Pillars of Eternity", "Wasteland 3", "Darkest Dungeon", "Star Wars: Knights of the Old Republic", "Torment: Tides of Numenera", "The Age of Decadence"]
+
+];
+
+</script>
+</body>
+</html>
