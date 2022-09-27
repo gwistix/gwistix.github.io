@@ -183,10 +183,19 @@ function parseLists() {
  });
 
  // Sort by score, highest to lowest
+ var sortByScore = true;
+
  books = books.sort(function(a,b){
-  if (a.score > b.score) return -1;
-  if (a.score < b.score) return 1;
-  return 0
+  if (sortByScore) {
+   if (a.score > b.score) return -1;
+   if (a.score < b.score) return 1;
+   return 0;
+  }
+  else {
+   if (a.title > b.title) return 1;
+   if (a.title < b.title) return -1;
+   return 0
+  }
   });
 }
 
@@ -385,15 +394,15 @@ var unranked = [
 
  /* https://turnbasedlovers.com/lists/the-best-isometric-turn-based-rpgs/ */
 
- ["Dark Sun: Shattered Lands", "Dark Sun: Wake of Ravager (1993)", "Fallout", "Fallout 2", "Jagged Alliance 2", "Avernum: Escape from the Pit (2012)", "Avernum 2: Crystal Souls (2015)", "Avernum 3: Ruined World (2018)", "Avernum 4 (2012)", "Avernum 5 (2012)", "Avernum 6 (2012)", "Arcanum: Of Steamworks and Magick Obscura (2001)", "Geneforge 1 (2001)", "Geneforge 1: - Mutagen (2021)", "Geneforge 2 (2003)", "Geneforge 3 (2005)", "Geneforge 4: Rebellion (2006)", "Temple of Elemental Evil (2003)", "Shadowrun Returns (2013)", "Shadowrun: Dragonfall (2014)", "Shadowrun: Hong Kong (2015)", "Wasteland 2 (2014)", "Divinity: Original Sin (2014)", "The Age of Decadence (2015)", "UnderRail (2015)", "Torment: Tides of Numenera (2016)", "Divinity: Original Sin 2", "ATOM RPG: Post-Apocalyptic Indie Game (2017)", "Pillars of Eternity II: Deadfire (2018)", "Pathfinder: Kingmaker (2018)", "Encased (2019)", "Disco Elysium (2019)", "Colony Ship: A Post-Earth Role-Playing Game (2020)", "Wasteland 3 (2020)", "Baldur's Gate III (2020)", "Solasta: Crown of the Magister (2020)", "Pathfinder: Wrath of the Righteous (2021)", "ATOM RPG Trudograd (2021)", "Gamedec (2021)"],
+ ["Dark Sun: Shattered Lands", "Dark Sun: Wake of Ravager (1993)", "Fallout", "Fallout 2", "Jagged Alliance 2", "Avernum: Escape from the Pit (2012)", "Avernum 2: Crystal Souls (2015)", "Avernum 3: Ruined World (2018)", "Avernum 4 (2012)", "Avernum 5 (2012)", "Avernum 6 (2012)", "Arcanum: Of Steamworks and Magick Obscura (2001)", "Geneforge 1 (2001)", "Geneforge 1: Mutagen (2021)", "Geneforge 2 (2003)", "Geneforge 3 (2005)", "Geneforge 4: Rebellion (2006)", "Temple of Elemental Evil (2003)", "Shadowrun Returns (2013)", "Shadowrun: Dragonfall (2014)", "Shadowrun: Hong Kong (2015)", "Wasteland 2 (2014)", "Divinity: Original Sin (2014)", "The Age of Decadence (2015)", "UnderRail (2015)", "Torment: Tides of Numenera (2016)", "Divinity: Original Sin 2", "ATOM RPG: Post-Apocalyptic Indie Game (2017)", "Pillars of Eternity II: Deadfire (2018)", "Pathfinder: Kingmaker (2018)", "Encased (2019)", "Disco Elysium (2019)", "Colony Ship: A Post-Earth Role-Playing Game (2020)", "Wasteland 3 (2020)", "Baldur's Gate III (2020)", "Solasta: Crown of the Magister (2020)", "Pathfinder: Wrath of the Righteous (2021)", "ATOM RPG Trudograd (2021)", "Gamedec (2021)"],
 
  /* https://www.youtube.com/watch?v=L2vNQRqpi4E */
 
- ["Encased", "Pillars of Eternity", "Pathfinder: Kingmaker", "Wasteland 3", "Tyranny", "Expeditions: Viking", "Shadowrun: Hong Kong", "The Age of Decadence", "Shaodws: Awakening", "Torment: Tides of Numenera"],
+ ["Encased", "Pillars of Eternity", "Pathfinder: Kingmaker", "Wasteland 3", "Tyranny", "Expeditions: Viking", "Shadowrun: Hong Kong", "The Age of Decadence", "Shadows: Awakening", "Torment: Tides of Numenera"],
 
  /* https://tableknight.com/computer-rpgs/ */
 
- ["Baldur's Gate", "Baldur's Gate 2", "Planescape: Torment", "Torment: Tides of Numenera", "Tyranny", "Pillars of Eternity", "Arcanum: Of Steamworks and Magick Obscura", "Shadowrun Returns", "Fallout", "Neverwinter Nights", "Dragon Age: Origins"],
+ ["Baldur's Gate", "Baldur's Gate 2: Shadows of Amn", "Planescape: Torment", "Torment: Tides of Numenera", "Tyranny", "Pillars of Eternity", "Arcanum: Of Steamworks and Magick Obscura", "Shadowrun Returns", "Fallout", "Neverwinter Nights", "Dragon Age: Origins"],
 
  /* https://www.dungeonmastering.com/top-10-dd-crpgs/ */
 
