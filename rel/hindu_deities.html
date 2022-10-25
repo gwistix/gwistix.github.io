@@ -1,0 +1,448 @@
+
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Most important Hindu deities</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " Hindu deities:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = (0.5 + 1/length)/2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+ });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return title
+ .toUpperCase()
+ .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+ .replace(/\s?\(.*\)/g,"")
+ .replace(/&/g,"and")
+ .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+ .replace(/[æÆœŒ]/gi,"E")
+ .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+ .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+ .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+ .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+ .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+ .replace(/ﬀ/gi,"FF")
+ .replace(/ﬁ/gi,"FI")
+ .replace(/ﬂ/gi,"FL")
+ .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+ .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+ .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+ .replace(/[ĳĲ]/gi,"IJ")
+ .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+ .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+ .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+ .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+ .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+ .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+ .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+ .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+ .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+ .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+ .replace(/[ßẞ]/gi,"SS")
+ .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+ .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+ .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+ .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+ .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+ .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+ .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+ .replace(/[^A-z0-9]/g, "")
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://en.wikipedia.org/wiki/Rigvedic_deities [ranked list] */
+ ["Indra", "Agni", "Soma", "Varuna", "Maruts", "Mitra", "Ushas", "Vayu", "Savitr", "Rbhus", "Pushan", "Brhaspati", "Surya", "Dyaus", "Prthvi", "Vishnu", "Brahmanaspati", "Rudra", "Dadhikras", "Yama", "Saraswati", "Parjanya", "Vac", "Vastospati", "Vishvakarman", "Manyu", "Kapinjala"],
+
+ /* https://www.youtube.com/watch?v=pyMhGGBUeO0&ab_channel=FTDFacts */
+ ["Shiva", "Brahma", "Vishnu", "Ganesha", "Rama", "Krishna", "Kartikeya", "Harihara", "Hanuman", "Indra"],
+
+ /* https://www.youtube.com/watch?v=V7UBg-7mfkA&list=PLrTDMO7p7cZ2OtRcrUezviqbltME0t6lk&ab_channel=FTDFacts */
+ ["Durga", "Parvati", "Lakshmi", "Saraswati", "Kali", "Sita", "Ganga", "Tulsi", "Kamadhenu", "Radha"]
+
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://www.thoughtco.com/thmb/hvn03wveqMWa6AjdUMxCiNOxCZA=/3000x2000/filters:fill(auto,1)/top-hindu-deities-1770309_color02_FINAL-5c8fac2546e0fb00017700d0.png */
+ ["Shiva", "Rama", "Ganesha", "Krishna", "Vishnu"],
+
+ /* https://historycooperative.org/hindu-gods-and-goddesses/ */
+ ["Brahma", "Saraswati", "Vishnu", "Lakshmi", "Shiva", "Sati", "Parvati", "Ganesha", "Krishna", "Hanuman", "Vayu", "Rama", "Indra"],
+
+ /* https://www.learnreligions.com/top-hindu-deities-1770309 */
+ ["Ganesha", "Shiva", "Krishna", "Rama", "Hanuman", "Vishnu", "Lakshmi", "Durga", "Kali", "Saraswati"],
+
+ /* https://www.bing.com/search?q=hindu+deities&cvid=9e58559d583b4072ab5ca4ce9193800c&aqs=edge.0.0l9.8767j0j1&pglt=41&FORM=ANNTA1&PC=U531&ntref=1 */
+ ["Vishnu", "Ganesha", "Saraswati", "Rama", "Durga", "Parvati", "Brahma", "Yama", "Vithoba", "Venkateshwara", "Kartikeya", "Dhanvantari", "Prajapati", "Daksha", "Kamadeva", "Tridevi"],
+
+ /* https://en.wikipedia.org/wiki/Hindu_deities [deities mentioned in introductory paragraph, lists, or captions] */
+ ["Vishnu", "Lakshmi", "Shiva", "Parvati", "Brahma", "Saraswati", "Brahma", "Saraswati", "Lakshmi", "Vishnu", "Shiva", "Durga", "Harihara", "Ardhanarishvara", "Rudra", "Shiva", "Indra", "Ishvara", "Shiva", "Vishnu", "Brahma", "Agni", "Vayu", "Surya", "Shiva", "Parvati", "Vishnu", "Shiva", "Brahma", "Matsya", "Kurma", "Varaha", "Vamana", "Krishna", "Kalki", "Buddha", "Parshurama", "Rama", "Narasimha", "Radha", "Krishna", "Vishnu", "Shiva", "Brahma", "Ganesha", "Kartikeya", "Parvati", "Lakshmi", "Saraswati", "Durga", "Kali", "Mariamman", "Harihara", "Ardhanarishvara", "Hanuman"],
+
+ /* https://en.wikipedia.org/wiki/Surya_Majapahit */
+ ["Vishnu", "Sambhu", "Ishvara", "Mahesora", "Brahma", "Rudra", "Mahadeva", "Shankara", "Shiva", "Indra", "Varuna", "Kubera", "Yama", "Isana", "Vayu", "Agni", "Nirrti"],
+
+ /* https://en.wikipedia.org/wiki/Hindu_denominations */
+ ["Vishnu", "Krishna", "Rama", "Lakshmi", "Shiva", "Bhairava", "Shakti", "Kali", "Parvati", "Durga", "Lakshmi", "Saraswati", "Ganesha", "Shiva", "Shakti", "Vishnu", "Surya", "Devi", "Surya", "Ganesha", "Acintya", "Kartikeya", "Dattatreya", "Brahma", "Vishnu", "Shiva"],
+
+ /* https://en.wikipedia.org/wiki/Historical_Vedic_religion */
+ ["Indra", "Airavata", "Mitra", "Varuna", "Aryaman", "Bhaga", "Amsa", "Indra", "Agni", "Soma", "Varuna"],
+
+ /* https://en.wikipedia.org/wiki/Rigvedic_deities [most important deities] */
+ ["Indra", "Agni", "Soma"],
+
+ /* https://en.wikipedia.org/wiki/Rigvedic_deities [minor deities] */
+ ["Chitragupta", "Manas", "Dakshina", "Purusha", "Arayani", "Ratri", "Aditi", "Shachi", "Bhaga", "Vasukra", "Atri", "Apam Napat", "Ksetrapati", "Ghrta", "Nirrti", "Asamati", "Urvasi", "Pururavas", "Vena", "Aranyani", "Mayabheda", "Tarksya", "Tvashtr", "Saranyu"],
+
+ /* https://en.wikipedia.org/wiki/Hindu_mythology */
+ ["Brahma", "Vishnu", "Shiva", "Tridevi", "Saraswati", "Lakshmi", "Parvati", "Krishna", "Shiva", "Vishnu", "Matsya", "Vishnu", "Vishnu", "Shiva", "Devi", "Brahma", "Vishnu", "Shiva", "Vishnu", "Lakshmi", "Krishna", "Rama", "Shiva", "Parvati", "Ganesha", "Kartikeya", "Mahadevi", "Saraswati", "Lakshmi", "Parvati", "Vishnu", "Shiva", "Indra", "Saraswati", "Lakshmi", "Parvati", "Ganesha", "Krishna", "Rukmini", "Satyabhama", "Bhudevi", "Radha", "Kartikeya", "Rama", "Kali", "Durga", "Agni", "Rudra", "Shakti", "Vayu", "Surya", "Varuna", "Lakshmana", "Hanuman", "Sita", "Sati", "Kubera", "Parshurama", "Yama", "Chandra", "Balarama", "Adishesha", "Prajapati", "Kalki", "Dashavatara", "Narada", "Sundaravalli", "Devasena", "Kamadeva", "Rati", "Mariamman", "Ayyanar", "Ayyappan"],
+
+ /* https://en.wikipedia.org/wiki/Dravidian_folk_religion */
+ ["Ayyanar", "Seyyon", "Murugan", "Shiva", "Amman", "Mariamman", "Pattini", "Vishnu", "Shiva", "Ganapati", "Angala Devi", "Madurai Veeran", "Karuppu Sami", "Muiandi", "Sudalai Madan", "Isakki", "Devi Kanya Kumari", "Periyachi"],
+
+ /* https://en.wikipedia.org/wiki/Dashavatara */
+ ["Vishnu", "Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"],
+
+ /* https://www.asiahighlights.com/india/hindu-gods */
+ ["Brahma", "Vishnu", "Shiva", "Rama", "Krishna", "Saraswati", "Lakshmi", "Parvati", "Durga", "Ganesha"],
+
+ /* https://mythnerd.com/most-important-hindu-gods-and-goddesses/ */
+ ["Ganesha", "Brahma", "Vishnu", "Shiva", "Mahadevi", "Indra", "Agni", "Hanuman", "Surya", "Saraswati"],
+
+ /* https://east-asian-cultures.com/hindu-gods/ */
+ ["Shiva", "Vishnu", "Shakti", "Shiva", "Vishnu", "Devi", "Ganesha", "Surya", "Shiva", "Ganesha", "Shiva", "Vishnu", "Ganesha", "Hanuman", "Kali", "Devi", "Lakshmi", "Durga", "Parvati", "Saraswati"],
+
+ /* https://www.ritiriwaz.com/10-of-the-most-important-hindu-gods/ */
+ ["Ganesha", "Brahma", "Vishnu", "Shiva", "Krishna", "Rama", "Hanuman", "Durga", "Lakshmi", "Saraswati"],
+
+ /* https://imp.center/i/10-of-the-most-important-hindu-gods-77797/ */
+ ["Ganesha", "Shiva", "Krishna", "Rama", "Hanuman", "Vishnu", "Lakshmi", "Durga", "Kali", "Saraswati"],
+
+ /* https://www.ancienthistorylists.com/india-history/top-10-hindu-gods-praised-hindus-around-world/ */
+ ["Indra", "Hanuman", "Harihara", "Kartikeya", "Krishna", "Rama", "Ganesha", "Vishnu", "Brahma", "Shiva"],
+
+ /* https://mythopedia.com/topics/hindu-gods */
+ ["Shiva", "Vishnu", "Ganesha", "Devi", "Shakti"],
+
+ /* https://www.youtube.com/watch?v=u6MpCZ2Q4Ng */
+ ["Brahma", "Vishnu", "Shiva", "Saraswati", "Kali", "Durga", "Lakshmi", "Krishna", "Hanuman", "Rama", "Vishnu", "Shiva", "Brahma"],
+
+ /* https://www.khanacademy.org/humanities/art-asia/south-asia/x97ec695a:500-1100-c-e-deccan-and-south/a/three-hindu-gods */
+ ["Vishnu", "Shiva", "Parvati", "Brahma"],
+
+ /* https://www.insightstate.com/spirituality/list-hindu-gods-goddesses/ */
+ ["Vishnu", "Vivasvat", "Mitra", "Sakra", "Varuna", "Pushan", "Aryaman", "Savitr", "Daksha", "Tvashtr", "Amsa", "Bhaga", "Agni", "Ardhanarishvara", "Ayyappan", "Balarama", "Brahma", "Brhaspati", "Chandi", "Durga", "Ganesha", "Hanuman", "Harihara", "Indra", "Jagannatha", "Kali", "Kalkin", "Krishna", "Kubera", "Kurma", "Lakshmi", "Matsya", "Mitra", "Narasimha", "Nataraja", "Parashurama", "Parvati", "Prajapati", "Radha", "Rama", "Saraswati", "Shashthi", "Shiva", "Kartikeya", "Surya", "Vamana", "Varaha", "Varuna", "Vasudeva", "Vayu", "Vishnu", "Vishvakarman", "Yama"],
+
+ /* https://mimeli.ngontinh24.com/article/vedic-gods-the-most-important-hindu-gods-in-the-vedic-period */
+ ["Indra", "Varuna", "Agni", "Mitra", "Vayu", "Surya", "Vishnu", "Savitr", "Pushan", "Usha", "Soma", "Maruts", "Brhaspati", "Bhaga", "Rta", "Rbhus", "Yama", "Manyu", "Prajanya", "Saraswati", "Dhara", "Apa", "Anala", "Anila", "Dhruva", "Soma", "Prabhasa"],
+
+ /* https://blog.sivanaspirit.com/vedic-gods/ */
+ ["Indra", "Agni", "Surya", "Vayu", "Varuna", "Yama", "Soma", "Kubera"],
+
+ /* https://www.awakeningstate.com/spiritual-awakening/hindu-triumvirate-trimurti/ */
+ ["Brahma", "Saraswati", "Lakshmi", "Parvati", "Vishnu", "Shiva"],
+
+ /* https://www.hdasianart.com/blogs/news/who-are-the-three-gods-of-hinduism-who-are-the-3-gods-of-hinduism */
+ ["Brahma", "Vishnu", "Shiva"],
+
+ /* https://yunahandicrafts.com/blog/top-8-most-important-hindu-deities/ */
+ ["Shiva", "Ganesha", "Krishna", "Rama", "Hanuman", "Vishnu", "Lakshmi", "Saraswati"],
+
+ /* https://mytodayshoroscope.com/list-of-main-gods-and-goddesses-of-hindu-mythology/ */
+ ["Brahma", "Krishna", "Vishnu", "Shiva", "Ganesha", "Saraswati", "Lakshmi", "Hanuman", "Durga", "Rama"],
+
+ /* https://opensea.io/collection/10-of-the-most-important-hindu-gods/activity */
+ ["Brahma", "Vishnu", "Shiva"],
+
+ /* https://www.ancienthistorylists.com/india-history/top-10-hindu-goddesses/ */
+ ["Radha", "Kamadhenu", "Tulsi", "Ganga", "Sita", "Kali", "Saraswati", "Lakshmi", "Parvati", "Durga"],
+
+ /* https://en.wikipedia.org/wiki/List_of_Hindu_deities */
+ ["Brahma", "Vedanatha", "Chaturmukha", "Prajapati", "Hiranyagarbha", "Vedagarbha", "Kaushala", "Vishnu", "Narayana", "Perumal", "Jagannatha", "Hayagriva", "Acyuta", "Madhava", "Venkateshwara", "Guruvayurappan", "Vaikuntha Chaturmurti", "Vaikuntha Kamalaja", "Lakshmi Narayana", "Vishvarupa", "Ranganatha", "Dashavatara", "Madhusudana", "Padmanabha", "Hari", "Upulvan", "Purushottama", "Vasudeva", "Govinda", "Caturvyuha", "Keshava", "Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki", "Balarama", "Prithu", "Mohini", "Dhanvantari", "Kapila", "Yajna", "Dattatreya", "Shiva", "Hara", "Rudra", "Virupaksha", "Manjunatha", "Bholenath", "Maheshwara", "Veerabhadra", "Lingam", "Jyotirlinga", "Dakshinamurthy", "Bhairava", "Pashupati", "Khandoba", "Durvasa", "Nataraja", "Ardhanarishvara", "Tripurantaka", "Mahakala", "Sharabha", "Ravananugraha", "Vaidheeswara", "Lingodbhava", "Somaskanda", "Bhikshatana", "Dattatreya", "Tridevi", "Saraswati", "Savitri", "Vani", "Brahmani", "Gayatri", "Vac", "Shatarupa", "Medha", "Sharada", "Bharati", "Aditi", "Lakshmi", "Bhumi", "Vedavati", "Sita", "Radha", "Rukmini", "Ashtabharya", "Revati", "Padmavathi", "Niladevi", "Tulasi", "Rahi", "Andal", "Narasimhi", "Varahi", "Parvati", "Kali", "Devi", "Shakti", "Ushas", "Durga", "Kali", "Annapurna", "Yogamaya", "Vindhyavasini", "Shakambhari", "Meenakshi", "Sati", "Radha", "Gayatri", "Ganga", "Yami", "Bhramari", "Kaushiki", "Narmada", "Shashthi", "Devasena", "Svaha", "Manasa", "Mariamman", "Mhalsa", "Mohini", "Renuka", "Shitala", "Rahi", "Vithoba", "Bhavani", "Akilandeshwari", "Devi Kanya Kumari", "Shailaputri", "Brahmacharini", "Chandraghanta", "Kushmanda", "Skandamata", "Katyayani", "Kalaratri", "Mahagauri", "Siddhidhatri", "Mahadevi", "Kali", "Tara", "Shodashi", "Bhuvaneswari", "Chinnamasta", "Bhairavi", "Dhumavati", "Bagalamukhi", "Matangi", "Kamalatmika", "Brahmani", "Maheshwari", "Kaumari", "Vaishnavi", "Varahi", "Narasimhi", "Indrani", "Chamunda", "Vinayaki", "Shivaduti", "Ganesha", "Kartikeya", "Ayyappan", "Manikanta", "Hanuman", "Kamadeva", "Manmatha", "Rati", "Garuda", "Shesha", "Nandi", "Dyaus", "Prthvi", "Vayu", "Agni", "Nakshatra", "Varuna", "Surya", "Chandra", "Vishnu", "Aryaman", "Indra", "Tvashtr", "Varuna", "Bhaga", "Savitr", "Vivasvat", "Amsa", "Mitra", "Pushan", "Dhata", "Sakra", "Agni", "Mitra", "Varuna", "Indra", "Sakra", "Savitr", "Amsa", "Aryaman", "Bhaga", "Vivasvan", "Tvashtr", "Pushan", "Dhata", "Vamana", "Nirrti", "Shambhu", "Aparajita", "Mrigavyadha", "Kapardi", "Dahana", "Khara", "Ahirabradhya", "Kapali", "Pingala", "Senani", "Agni", "Varuna", "Vayu", "Dyaus", "Prabhasa", "Prthvi", "Dhara", "Surya", "Anshuman", "Soma", "Chandra", "Nakshatrani", "Dhruva", "Prabhasa", "Nasatya", "Dasra"],
+
+ /* https://en.wikipedia.org/wiki/Navagraha */
+ ["Surya", "Aditya", "Chandra", "Soma", "Mangala", "Budha", "Brhaspati", "Shukra", "Shani", "Rahu", "Ketu"],
+
+ /* https://en.wikipedia.org/wiki/Adityas */
+ ["Vivasvan", "Aryaman", "Tvashtr", "Savitr", "Bhaga", "Dhata", "Mitra", "Varuna", "Amsa", "Pushan", "Indra", "Vishnu", "Vamana"],
+
+ /* https://examples.yourdictionary.com/hindu-gods-goddesses-quick-guide-key-deities */
+ ["Brahma", "Prajapati", "Saraswati", "Sharada", "Vishnu", "Narayan", "Lakshmi", "Shiva", "Parvati", "Uma", "Agni", "Ganesha", "Hanuman", "Indra", "Kartikeya", "Kumara", "Krishna", "Rama", "Surya", "Bhumi", "Prthvi", "Durga", "Devi", "Shakti", "Ganga", "Gayatri", "Savitr", "Kali", "Kalika", "Shyama", "Kamadhenu", "Surabhi", "Radha", "Radhika", "Sita", "Janaki"],
+
+ /* https://symbolsage.com/hindu-gods-list/ */
+ ["Brahma", "Vishnu", "Shiva", "Saraswati", "Parvati", "Lakshmi", "Durga", "Ganesha", "Krishna", "Rama", "Hanuman", "Kali", "Indra", "Agni", "Surya", "Prajapati", "Aditi", "Balarama", "Harihara", "Kalkin", "Nataraja", "Skanda", "Varuna", "Kubera", "Yama"],
+
+ /* https://vedicfeed.com/vedic-gods-according-to-rig-veda/ */
+ ["Indra", "Agni", "Varuna", "Vayu", "Surya", "Yama", "Soma", "Vishnu", "Dyaus", "Aditi", "Ishvara", "Rudra", "Mitra", "Saraswati", "Yamuna", "Prajanya", "Manyu"],
+
+ /* https://www.history.com/topics/religion/hinduism [Hindu Gods] */
+ ["Brahma", "Vishnu", "Shiva", "Devi", "Krishna", "Lakshmi", "Saraswati"],
+
+ /* https://www.thebuddhagarden.com/hindu-gods.html */
+ ["Agni", "Brahma", "Devi", "Durga", "Ganesha", "Ganga", "Hanuman", "Kali", "Krishna", "Lakshmi", "Parvati", "Saraswati", "Shiva", "Vishnu", "Chandra", "Indra", "Kama", "Sesha", "Rahu", "Rudra", "Surya", "Varuna", "Kubera"],
+
+ /* https://quizlet.com/107496135/hindu-gods-and-goddess-flash-cards/ */
+ ["Brahma", "Vishnu", "Shiva", "Lakshmi", "Saraswati", "Parvati", "Hanuman", "Kali", "Durga", "Indra", "Ganesha", "Agni", "Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"],
+
+ /* https://www.youtube.com/watch?v=OGpxurI21c4 */
+ ["Chandra", "Varuna", "Vayu", "Brahma", "Shiva", "Vishnu", "Saraswati", "Narayan", "Bhudevi", "Lakshmi", "Devi"],
+
+ /* https://www.khanacademy.org/humanities/art-asia/beginners-guide-asian-culture/hindu-art-culture/a/principal-deities-of-hinduism */
+ ["Vishnu", "Shina", "Ganesha", "Kartikeya", "Brahma", "Vishnu", "Shiva", "Shakti"],
+
+ /* https://study.com/learn/lesson/hindu-deities.html */
+ ["Brahma", "Shiva", "Vishnu"],
+
+ /* http://www.walkthroughindia.com/divinity/15-most-worshipped-hindu-gods-and-goddess-of-india/ */
+ ["Ganesha", "Shiva", "Vishnu", "Brahma", "Krishna", "Hanuman", "Kartikeya", "Durga", "Kali", "Parvati", "Lakshmi", "Saraswati", "Surya", "Sai Baba", "Gayatri", "Indra", "Agni", "Vayu", "Varuna", "Yama", "Kubera", "Kamadeva", "Chandra", "Shani", "Dhanvantari", "Narada", "Harihara", "Ayyappan", "Vishwakarma"],
+
+ /* https://www.lotussculpture.com/hindu-gods-indian-gods-brahman-how-many.html */
+ ["Shiva", "Ganesha", "Vishnu", "Nataraja", "Krishna", "Parvati", "Hanuman", "Lakshmi", "Saraswati", "Durga", "Brahma", "Kali", "Murugan", "Shakti", "Patanjali"],
+
+ /* https://www.youtube.com/watch?v=ZQz-OxTqlTc&ab_channel=SeeUinHistory%2FMythology */
+ ["Shiva", "Rudra", "Danga", "Parvati", "Kali", "Brahma", "Saraswati", "Gayatri", "Indra", "Agni", "Shachi", "Mitra", "Vishnu", "Lakshmi", "Matsya", "Rama", "Krishna", "Devi", "Sati", "Kamadeva", "Ganesha", "Skanda", "Durga", "Hanuman", "Vayu", "Indra"],
+
+ /* https://www.youtube.com/watch?v=INv2gdpfXPQ&ab_channel=KhanAcademy */
+ ["Shiva", "Vishnu", "Brahma", "Parvati", "Durga", "Devi", "Shakti", "Lakshmi", "Saraswati", "Ganesha", "Kartikeya", "Murugan", "Rama", "Krishna"]
+
+
+];
+
+</script>
+</body>
+</html>
