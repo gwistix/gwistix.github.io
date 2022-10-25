@@ -1,0 +1,7358 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>The Bhagavad Gita, literal translation</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ white-space: pre-wrap
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ translateText();
+
+} // End of init() function
+
+
+function getWordFrequency() {
+ var words = [];
+ var wordlist = [];
+ var tokens = 0;
+
+ /* Normalize accented characters
+  * Use precomposed unicode characters consistently
+  * instead of sometimes using combining diacritics
+  * and sometimes precomposed characters
+  * Otherwise, they'll be seen separately by the program
+  */
+ document.body.innerHTML = document.body.innerHTML
+ .replace(/ā/g, "ā")
+ .replace(/ī/g, "ī")
+ .replace(/ū/g, "ū")
+ .replace(/ḍ/g, "ḍ")
+ .replace(/ṣ/g, "ṣ")
+ .replace(/ṭ/g, "ṭ")
+ .replace(/ḥ/g, "ḥ")
+ .replace(/ṁ/g, "ṁ")
+ .replace(/ṃ/g, "ṃ")
+ .replace(/ṇ/g, "ṇ")
+ .replace(/ṅ/g, "ṅ")
+ .replace(/ṛ/g, "ṛ")
+ .replace(/ḷ/g, "ḷ")
+ .replace(/ñ/g, "ñ")
+ .replace(/ś/g, "ś")
+ ;
+
+ // split body text by individual words
+ document.body.innerHTML
+ .replace(/\s/g, " ")
+ .replace(/-/g, " ")
+ .split(" ")
+ .forEach(function(word) {
+  var word = word.replace(/[0-9\.]/g, "");
+  var ref = wordlist.indexOf(word);	/* create a reference index */
+  tokens++;
+  if (word) {
+   if (!~ref) {				/* if the word is not in the list */
+    wordlist.push(word);
+    words.push({
+     word: word,
+     freq: 1,
+     toString: function() {
+      return this.word + "\t" + this.freq;
+     }
+    });
+   }
+   else {				/* if the word is already in the list */
+    words[ref].freq++;
+   }
+  }
+ }); 
+
+ document.body.innerHTML = tokens.toLocaleString()
+ + " individual tokens of "
+ + words.length.toLocaleString()
+ + " unique words:<br>" +
+ words.sort(function(a, b) {
+  return b.freq - a.freq
+ })
+ .join("<br>")
+ ;
+}
+
+
+
+function translateText() {
+ var text = document.body.innerHTML
+ .toUpperCase()
+ ;
+
+ var lexemeCount = 0;
+ var tokenCount = 0;
+
+ wordpairs
+ .split("\n")
+ .sort(function(a, b) {
+
+  // target the source lexeme only
+  var aSanskrit = a.split("\t")[0];
+  var bSanskrit = b.split("\t")[0];
+
+  // sort from longest to shortest to avoid multilayered translation bleeding
+  if (aSanskrit.length < bSanskrit.length) return 1;
+  if (aSanskrit.length > bSanskrit.length) return -1;
+  return 0;
+
+ })
+ .forEach(function(pair) {
+  console.log(pair);	// display each word pair
+  var arr = pair.split("\t");
+  var rx = new RegExp(arr[0].toUpperCase(), "g");
+
+  /* Only check pairs that have both a source- and target-language lexeme, 
+   * and that aren't commented out with XX in the target-language gloss
+   */
+  if (arr[0] && arr[1] && !arr[1].match(/XX/)) {
+
+   lexemeCount++;	// iterate the number of lexemes translated
+
+   text = text.replace(rx, function(str) {
+    tokenCount++;
+    return "{" + arr[1].replace(/ /g, "-") + "}"
+   });
+
+  }
+ });
+
+ document.body.innerHTML = "<i>"
+ + text
+ .replace(/\}\{/g, "-")
+ .replace(/\}/g, "<i>")
+ .replace(/\{/g, "</i>")
+ + "</i>"
+ ;
+
+ console.log(
+  lexemeCount.toLocaleString()
+ + " of 4,104 lexemes translated "
+ + "(" + (lexemeCount/4104*100).toFixed(2) + "%)\n"
+ + tokenCount.toLocaleString()
+ + " of 11,747 tokens translated "
+ + "(" + (tokenCount/11747*100).toFixed(2) + "%)"
+ );
+}
+
+
+/* These word pairs are used for translation
+ * They are formatted as a tab-separated list
+ * The first column is the source word in transliterated Sanskrit
+ * The second column is the primary English translation
+ * Subsequent columns may be comments or alternate translations,
+ * and are ignored by the translation engine.
+ *
+ * The first column can be a regular expression rather than just plain text.
+ *
+ * If you need to manually type a tab character, in Windows, use Alt+09
+ */
+var wordpairs = `
+dhṛtarāṣṭra	Dhritarashtra
+uvāca	said
+dharma	dharma
+kṣetraḥ	field
+kṣetre	field	in the field
+kuru	Kuru
+samavetā(ḥ|n)	assembled
+yuyutsavaḥ	eager for battle
+eva	indeed
+evĀ	indeed
+kim	what
+māmakāḥ	my people
+pāṇḍav((a|ā)ḥ)?	Pandav
+ca	alsoXX
+akurvata	did they do
+sa(ñ|Ṅ)jaya	Sanjaya
+dṛṣṭvā 	seeing	observing
+tu	thoughXX
+ānīkam	soldiers
+vyūḍh(a|ā)ṃ	in military formation
+duryodhan(AḤ)?	Duryodhana	a king
+tadā	then
+ācāryam	to teacher
+ācārya	teacher
+upasaṅgamya	approached
+rājā	king
+vacanam	words
+abravīt	he spoke
+paśya	behold
+etāṃ	this
+PĀṆḌU	Pandu
+putrāṇām	sons
+mahatīṃ	mighty
+camūm	army
+drupada(ḥ)?	Drupada
+putreṇa	sons
+tava	by your
+śiṣyeṇa	disciple
+dhīmatā	intelligent
+atra	here
+śūrāḥ	powerful
+maheṣvāsāḥ	warriors	mahā-iṣu-āsāḥ "great bowmen"
+bhīma	Bheema
+arjunaḤ?	Arjuna
+samāḥ	equal
+yudhi	in battle
+yuyudhāno	Yuyudhana
+virāṭaḥ 	Virata
+mahā	great
+rath(a|ā)ḥ	chariot warriors
+dhṛṣṭaketuḥ	Dhrishtaketu
+cekitānaḥ	Chekitana
+kāśi	Kashee
+rājaḥ	king
+vīryavān	heroic	gallant	powerful
+purujit	Purujit
+kuntibhojaḥ	Kuntibhoja
+śaibyaḥ	Shaibya
+narapungavaḥ	best of men
+yudhāmanyuḥ	Yudhamanyu
+vikrāntaḥ	valiant	courageous
+uttamaujāḥ	Uttamauja
+saubhadraḥ	son of Subhadra
+draupadeyāḥ	sons of Drupada
+sarve	all	sarve, sarva, sarveṣu, sarvaśaḥ
+sarva	all	sarve, sarva, sarveṣu, sarvaśaḥ
+sarvaŚAḤ	all	sarve, sarva, sarveṣu, sarvaśaḥ
+sarveṢU	all	sarve, sarva, sarveṣu, sarvaśaḥ
+sarveṢĀṀ	all	sarve, sarva, sarveṣu, sarvaśaḥ
+asmākam	ours
+viśiṣṭā	special	distinguished
+ye	whoXX
+tān	them
+nibodha	be informed	know
+dvijottama	best among the Brahmanas	this seems to be an interpretation rather than a translation
+nāyakāḥ	generals	leaders
+mama	my	our
+sainyasya	soldiers	army
+saṁjñā-artham	for information
+bravīmi	I recount
+te	to youXX
+BHAVĀN	yourself
+BHĪṢMA(Ḥ|M)?	Bheeshma
+KARṆAḤ	Karna
+KṚPAḤ	Kripa
+SAMITIṀJAYAḤ	victorious in battle
+AŚVATTHĀMĀ	Ashvatthama
+VIKARṆAḤ	Vikarna
+SAUMADATTIḤ	son of Saumadatta
+TATHĀ	thus	as well
+ANYE	others
+BAHAVAḤ	many
+ŚŪRĀḤ	warriors	heroes
+MAD-ARTHE	for my sake
+TYAKTA-JĪVITĀḤ	prepared to sacrifice their lives
+NĀNĀ ŚASTRA PRAHARAṆĀḤ	equipped with many weapons
+YUDDHA VIŚĀRADĀḤ	skilled in warfare
+YUDDHA	warfare
+VIŚĀRADĀḤ	skilled
+APARYĀPTAM	unlimited
+TAT	thatXX
+BALAM	strength
+ABHIRAKṢITAM	protected
+PARYĀPTAṂ	limited
+IDAM	this
+ETEṢĀM	their
+AYANEṢU	at strategic fronts
+YATHĀ-BHĀGAM	in respective position
+AVASTHITĀḤ	situated
+ABHIRAKṢANTU	defend	support
+BHAVANTAḤ	you
+HI	soXX
+TASYA	his
+SAÑJANAYAN	causing	to raise
+HARṢAṂ	joy	cheer	celebration
+VṚDDHAḤ	elder
+PITĀMAHAḤ	grandfather	< pitār + mahā
+SIṂHA	lion
+NĀDAṂ	roar	sound
+VINADYA	sounding	reverbrating
+UCCHAIḤ	loudly
+ŚAṄKH(A(Ṃ|M)|Ā(Ḥ|N))	conch shell
+DADHM(AU|UḤ)	blew
+PRATĀPAVĀN	valiant	glorious
+TATAḤ	thereafter
+BHERYAḤ	bugles
+PAṆAVA-ANAKA	drums and kettledrums
+GO	cow
+MUKHĀḤ	horns
+SAHASĀ	suddenly
+ABHYAHANYANTA	blared forth	sounded
+SAḤ	thatXX
+SAH	thatXX
+ŚABDAḤ	sound
+TUMULAḤ	tumultuous
+ABHAVAT	was
+ŚVETAIḤ	white
+HAYAIḤ	horses
+YUKTE	yoked
+MAHATI	glorious	great
+SYANDANE	chariot
+sthitau	seated
+MĀDHAVAḤ	Madhava	*refers to Krishna implicitly
+DIVYAU	divine
+ŚAṄKHAU	conch shells
+PRADAGHMATUḤ	sounded
+PĀÑCAJANYAM	[the conch] Panchajanya	a conch shell
+HṚṢĪKEŚAḤ	Hrisheekesha	< hṛiṣīka-īśaḥ; refers to Krishna implicitly
+DEVADATTAM	[the conch] Devadatta	a conch shell
+DHANAÑJAYAḤ	Dhananjaya [Arjuna]	refers to Arjuna implicitly
+PAUṆḌRAM	[the conch] Paundra	a conch shell
+KARMĀ	deeds	tasks	karma
+bhīma-karmā	incredible deeds
+VṚKODARAḤ	Vrikodara	< vṛka “wolf” + udaraḥ; refers implicitly to Bheema
+ANANTAVIJAYAM	[the conch] Anantavijaya	a conch shell
+KUNTĪ-PUTRAḤ	son of Kunti
+yudhiṣṭhiraḥ	Yudhishthira	name of the son of Kunti; also related to the word yudha “battle”
+NAKULAḤ	Nakula
+SAHADEVAḤ	Sahadeva
+SUGHOṢA	[the conch] Sughosha	a conch shell
+MAṆIPUṢPAKAU	[the conch] Manipushpaka	a conch shell
+KĀŚYAḤ	[King of] Kashee
+PARAMEṢVĀSAḤ	great archer	< parama+iṣu-āsaḥ
+ŚIKHAṆḌĪ	Shikhandee
+DHṚṢṬADYUMNAḤ	Dhrishtadyumna
+SĀTYAKIḤ	Satyaki
+APARĀJITAḤ	invincible
+PṚTHIVĪ-PATE	ruler-of-Earth	< PṚTHIVĪ “earth” + Pate
+PṚTHIVĪM?	earth
+MAHĀ-BĀHUḤ	mighty-armed
+BĀHUḤ	arm
+PṚTHAK-PṚTHAK	one by one
+PṚTHAK	separate
+GHOṢAḤ	sound
+DHĀRTARĀṢṬRĀṆĀM	Dhristarashtra's sons
+HṚDAYĀNI	hearts
+VYADĀRAYAT	shattered	split	broke to pieces
+NABHAḤ	the sky
+VYANUNĀDAYAN	reverbrating	thundering
+ATHA	thereupon
+vyavasthitān	in position
+DHĀRTARĀṢṬRĀN	Dhritarashtra's sons
+KAPIDHVAJAḤ	monkey banner	the banner of Hanuman
+DHVAJAḤ	banner
+PRAVṚTTE	about to begin
+ŚASTRASAṀPĀTE	to use the weapons
+ŚASTRA	weapons
+DHANUḤ	bow
+UDYAMYA	lifting up
+TADĀ	then
+VĀKYAM	words
+ĀHA	said
+MAHĪ-PATE	great ruler
+PATE	ruler
+HṚṢĪKEŚAM	[to] Hrisheekesha	< hṛiṣhīka-īśhaḥ; refers to Krishna implicitly
+SENAYOḤ	armies
+UBHAYOḤ	both
+MADHYE	between	in the middle
+RATHAM	chariot	related to rathaḥ “warriors”?
+STHĀPAYA	stand	place
+ME	to me	my
+ACYUTA	Achyuta	refers to Krishna as the infallible one
+YĀVAT	until	as many as
+etān	these
+NIRIKṢE	look
+AHAM	I
+YODDHU-KĀMĀN	for the battle
+YODDHU	battle
+avasthitān	arrayed
+KAIḤ	with whom	and
+MAYĀ	by me
+SAHA	together
+YODDHAVYAM	must battle
+ASMIN	in this
+RAṆA SAMUDYAME	battle effort
+SAMUDYAME	endeavor
+YOTSYAMĀNĀN	those who have come to fight
+AVEKṢE	wish to see
+ETE	those
+SAMĀGATĀḤ	assembled
+DHĀRTARĀṢṬRASYA	Dhritarashtra's son
+DURBUDDHEḤ	evil-minded
+YUDDHE	in battle
+PRIYACIKĪRṢAVAḤ	wishing to find favor
+evam	thus
+UKTAḤ	addressed
+GUḌĀKEŚENA	Gudakeshena [Arjuna]	*“he who has conquered sleep”; refers implicitly to Arjuna
+BHĀRATA	[son of] Bharata	Bharata is the mythical namesake of India in Sanskrit
+STHĀPAYITVĀ	having placed
+RATHOTTAMAM	the excellent chariot	< ratha “chariot” + uttamam “excellent”
+DROṆAM?	Drona
+PRAMUKHATAḤ	facing	in the presence
+MAHĪKṢITĀM	great chiefs
+PĀRTHA	[Arjuna] son of Pritha	refers implicitly to Arjuna; Pritha = Kunti, mother of Arjuna
+KURŪN	sons of Kuru
+ITI	thus
+TATRĀ	there
+apaśyat	beheld
+STHITĀN	stationed
+PITṚN	fathers
+PITĀMAHĀN	grandfathers
+ĀCĀRYĀN	teachers
+MĀTULĀN	(maternal) uncles
+BHRĀTṚN	brothers
+PUTRĀN	sons
+PAUTRĀN	grandsons	lit., sons of sons
+SAKHĪN	friends
+ŚVAŚURĀN	fathers-in-law
+SUHṚDAḤ	well-wishers
+API	even	also
+SAMĪKṢYA	seeing
+KAUNTEYAḤ	[Arjuna] son of Kunti	refers implicitly to Arjuna
+SARVĀN	all
+BANDHŪN	relatives
+KṚPAYĀ	with compassion	with pity
+PARAYĀ	supreme
+ĀVIṢṬA(Ḥ|M)	overwhelmed
+VIṢĪDAN	sorrow
+DṚṢṬVE	in seeing
+IMAṂ	these
+SVAJANAṂ	kinsmen	< sva “self” + janam “people”
+KṚṢṆA	Krishna
+YUYUTSUṂ	eager to fight
+SAMUPASTHITAM	come	present
+SĪDANTI	afflicted	trembling
+GĀTRĀṆI	limbs
+MUKHAṂ	mouth
+PARIŚUṢYATI	becomes dry	is parched
+VEPATHUḤ	shuddering
+ŚARĪRE	on the body
+ROMA-HARṢAḤ	hair standing on end	horripilation
+JĀYATE	resulting	happening
+GĀṆḌĪVAM	[the bow] Gandiva	Arjuna's bow
+SRAṂSATE	slipping
+HASTĀT	from hands
+HAST	hand
+TVAK	skin
+PARIDAHYATE	burning
+NA	notXX
+ŚAKNOMI	able to
+AVASTHĀTUM	stand firm
+BHRAMATI	reeling	whirling
+IVA	as	like
+MANAḤ	mind
+NIMITTĀNI	omens
+PAŚYĀMI	I see
+VIPARĪTĀNI	opposing	adverse
+KEŚAVA	Keshava [Krishna]	*“he of the unshorn hair”, an epithet of Vishnu used to avert ill omens, also applied to Krishna; cf. KEŚA “hair”
+ŚREYAḤ	good	cf. ŚRĪ “holy”, “Lord”
+ANUPAŚYĀMI	I foresee
+HATVĀ	by slaying
+SVAJANAM	kinsmen
+ĀHAVE	in battle
+KĀṄKṢE	I desire	I wish for
+VIJAYAM	victory
+RĀJYAM	kingdom
+SUKHĀNI	happiness
+KIṂ	what
+NAḤ	[to] usXX
+RĀJYENA	[by] dominion	kingdom
+GOVINDA	Govinda [Krishna]	*“he who is fond of cows”; refers to Krishna
+BHOGAIḤ	pleasures	enjoyment
+JĪVITENA	[by] life
+VĀ	orXX	either
+YEṢĀM	for whose
+ARTHE	sake	cause	purpose
+KĀṄKṢITAM	desired
+BHOGĀḤ	pleasures	enjoyment
+IME	these
+PRĀṆĀN	lives
+TYAKTVĀ	relinquish	surrender	give up	sacrifice
+DHANĀNI	wealth	riches
+ĀCĀRYĀḤ	teachers
+PITARAḤ	fathers
+PUTRĀḤ	sons
+TATHA	as well
+PITĀMAHĀḤ	grandfathers
+MĀTULĀḤ	(maternal) uncles
+ŚVAŚURĀḤ	fathers-in-law
+PAUTRĀḤ	grandsons
+ŚYĀLĀḤ	brothers-in-law
+SAMBANDHINAḤ	relatives
+HANTUM	to slay
+ICCHHĀMI	I wish
+GHNATAḤ	killed
+MADHUSŪDANAḤ?	Madhusudana [Krishna]	“killer of Madhu”, an epithet of Vishnu, which refers here to Krishna
+TRAILOKYARĀJYASYA	dominion over three worlds	< trai “of three” + lokya “world” + rājyasya “dominion”
+HETOḤ	for the sake
+NU	to say moreXX	to elaborate
+MAHĪ-KṚTE	for the whole Earth
+MAHĪ	great
+KṚTE	Earth
+NIHATYA	by killing
+KĀ	whatXX
+PRĪTIḤ	pleasure	happiness
+SYĀT	will there be
+JANĀRDANA	Janardana [Krishna]	“he who protects all living beings”, an epithet of Vishnu, which refers here to Krishna
+PĀPAM	sin	vice
+AŚRAYET	comes upon
+ASMĀN	us
+HATVA	[by] killing
+ĀTATĀYINAḤ	aggressors	attackers
+TASMĀT	therefore	hence
+ARHĀḤ	behoove	deserving of
+VAYAṂ	we
+SVABĀNDHAVĀN	relatives
+KATHAM	how
+SUKHINAḤ	happy
+SYĀMA	we become
+MĀDHAVA	Madhava [Krishna]	“consort of the mother”, an epithet of Vishnu, applied here to Krishna
+YADI	if
+PAŚYANTI	(they) behold
+LOBHA	greed
+UPAHATA	overcome
+CETASAḤ	of the mind	thoughts
+KULA-KṢAYA	destruction of family
+KṢAYA	decay	destruction
+KULA	family
+KṚTAM	done
+DOṢAM	fault	vice
+MITRA	fellow	mate	friend
+DROHE	betrayal	treachery
+PĀTAKAM	evildoing	sin
+JÑEYAM	should be known
+ASMĀBHIḤ	by us
+PĀPĀT	from sins
+ASMĀT	these
+NIVARTITUM	to turn away
+PRAPAŚYADBHIḤ	who see
+KULA-KṢAYE	in destruction of family
+PRAṆAŚYANTI	are vanquished
+DHARMĀḤ	traditions	values
+SANĀTANĀḤ	eternal
+DHARME	religion	dharma
+NAṢṬE	ruined
+KULAṂ	[to] family
+KṚTSNAM	entire
+ADHARMAḤ?	unrighteousness	< a- “not” + dharma “religion, righteousness”
+ABHIBHAVATI	overcome
+UTA	indeed
+ABHIBHAVĀT	overcomes	rises up
+PRADUṢYANT	[they] become corrupt
+STRIYAḤ	women
+STRĪṢU	women
+DUṢṬĀSU	[they] become immoral
+VĀRṢṆEYA	[Krishna] son of Vrishni	Krishna's father Vasudeva was a descendent of Vrishni
+VARṆA-SA(Ṁ|Ṅ)KARAḤ?	caste mixture	miscegenation	lit. “mixed color”
+SAṀKARAḤ	mixture	hybrid
+VARṆA	color
+SAṄKARAḤ?	mixture
+NARAKĀYA	hellish
+GHNĀNĀṂ	destroyers
+KULASYA	of family
+PATANTI	[they] fall
+EṢĀM	their
+LUPTA	being deprived of
+PIṆḌA	rice
+UDAKA	water
+KRIYĀḤ	actions	offerings
+PIṆḌA UDAKA KRIYĀḤ	sacrificial offerings of rice and water
+DOṢAIḤ	by evil deeds
+ETAIḤ	these
+GHNĀNĀM	destroyers
+KĀRAKAIḤ	causing
+UTSĀDYANTE	are abolished
+JĀTI	caste	breed
+ŚĀŚVATĀḤ	eternal
+UTSANNA	abolished
+DHARMĀṆĀM	traditions	duties
+MANUṢYĀṆĀM	of such people
+NARAKE	in hell
+NIYATAM	unending
+BHAVATĪ	becomes
+ANUŚUŚRUMA	I have heard said
+AHAḤ	alas
+BATA	how
+MAHAT	great
+KARTUM	to perform	to do
+VYAVASITĀ	resolved	decided
+VAYAM	we
+YAT	in order to
+RĀJYA	dominion
+SUKHAM?	happiness
+LOBHENA	desiring
+UDYATĀḤ	intending
+MĀM	to me
+APRATĪKĀRAM	unresisting
+AŚASTRAM	without weapons	a- “not” + ŚASTRA weapon
+ŚASTRAPĀṆAYAḤ	weapon-ready
+DHĀRTARĀṢṬRĀḤ?	sons of Dhritarashtra
+RAṆE	on battlefield
+HANYUḤ	kill
+KṢEMATARAM	better
+BHAVET	would be
+UKTVĀ	speaking
+SAṄKHYE	in battlefield
+RATHOPASTHA	in chariot	< ratha “chariot” + upasthe
+UPĀVIŚAT	sitting
+VISṚJYA	casting aside	laying aside
+SA-ŚARAM	along with arrows
+ŚARAM	arrows
+CĀPAM	bow
+ŚOKA	grief	sorrow
+SAṀVIGNA	distressed	agitating
+MĀNASAḤ	mind
+TAM	to himXX
+AŚRUPŪRṆA	tearful
+AŚRU	tears
+PŪRṆA	full
+ĀKULA	distressed	confused
+IKṢAṆAM	eyes
+VIṢĪDANTAM	grief-stricken
+ŚRĪBHAGAVĀN	the Lord God	used and often translated as “the Supreme Being” in reference to Krishna
+ŚRĪ	Lord
+BHAGAVĀN	God	related to Russian Бог Bog
+KUTAḤ	wherefrom
+TVĀ	to you
+KAŚMALAM	impurity	delusion
+VIṢAME	at this hour of crisis	in this hour of peril
+ANĀRYAJUṢṬAM	un-Aryan practice
+ANĀRYA	un-Aryan
+JUṢṬAM	practice
+ASVARGYAM	does not lead to heaven
+AKĪRTI	disgrace	infamy
+KARAM	leads to	confers
+KLAIBYAM	unmanliness
+MĀ SMA	do not
+GAMAḤ	yield to	give in
+ETAT	this
+TVAYI	unto you
+UPAPADYATE	befitting	becoming
+KṢUDRAM	petty	base
+HṚDAYA	heart
+DAURBALYAM	weakness
+UTTIṢṬHA	arise
+PARANTAPA	conqueror of enemies
+SĀṀKHYE	in combat	in battle
+IṢUBHIḤ	with arrows
+PRATIYOTSYĀMI	I counterattack
+PŪJĀ	worship
+ARHĀU	worthy
+ARISŪDANA	destroyer of enemies
+GURŪN	gurus	elders
+AHATVĀ	not killing
+ANUBHĀVĀN	elders	souls
+BHOKTUM	to live	to thrive
+BHAIKṢYAM	[by] begging
+IHA LOKE	in this world
+IHA	this
+LOKE	in the world
+ARTHA	gain
+KĀMAN	desiring
+GURUN	gurus
+BHUÑJĪYA	enjoy
+BHOGĀN	pleasures	enjoyable things
+RUDHIRA	blood
+PRADIGDHĀN	tainted	stained
+VIDMAḤ	we know
+KATARAT	which
+GARĪYAḤ	is preferable
+JAYEMA	we conquer	subjunctive
+JAYEYUḤ	they conquer	subjunctive
+YĀN	whom
+JIJĪVIṢĀMAḤ	we want to live
+PRAMUKHE	before us
+KĀRPAṆYA	cowardice	carnality
+DOṢA	flawed	faulty
+SVABHĀVAḤ	nature	state of being	temperament	character
+PṚCCHĀMI	I ask
+SAṀMŪḌHA	confused	stupefied
+CETĀḤ	mind	innermost parts
+NIŚCITAM	certainly	decisively
+BRŪHI	tell
+ŚIṢYAḤ	disciple
+ŚĀDHI	instruct	imperative
+PRAPANNAM	surrender
+PRAPAŚyĀMI	I see
+APANUDYĀT	expel	drive away	cast out
+UCCHOṢAṆAM	dries up	dessicates
+INDRIYĀṆĀM	senses
+AVĀPYA	having achieved	having obtained
+BHŪMĀV	on earth
+ASAPATNAM	unrivalled
+ṚDDHAM	prosperity	richness
+SURĀṆĀM	of the gods
+CĀ	alsoXX
+ADHIPATYAM	sovereignty
+GUḌĀKEŚAḤ	Gudakesha [Arjuna]	conqueror of sleep
+PARAṀTAPAḤ	Paramtapa [Arjuna]	chastener of foes
+YOTSYA	I fight
+TŪṢṆĪM	silent
+BABHŪVA	he became
+HA	indeedXX
+PRAHASANN	smilingly	smirking
+VACAḤ	words
+AŚOCYĀN	not worthy of grief
+ANVAŚOCAḤ	grieving
+TVAM	you
+PRAJÑĀVĀDĀN	words of wisdom
+PRAJÑĀ	wisdom
+VĀDĀN	arguments
+BHĀṢASE	you speak
+GATA ASŪN	the dead	the departed
+AGATA ASŪN	the living
+ASŪN	life
+GATA	gone
+AGATA	not gone
+ANUŚOCANTI	lament	grieve for	cf. AŚOCYĀN, ANVAŚOCAḤ
+PAṆḌITĀḤ	wise one	> cf. En. pundit
+JĀTU	at any time
+ĀSAM	I exist
+JANĀDHIPĀḤ	rulers of the people
+JANA	people	men
+DHIPĀḤ	rulers
+NA BHAVIṢYĀMAḤ	shall cease to exist
+BHAVIṢYĀMAḤ	shall exist
+ATAḤ	from now
+PARAM	after
+ATAḤ PARAM	after this
+DEHINAḤ	embodied	corporeal	refers to individuals with a physical body
+yathā	as
+DEHE	in the body
+KAUMĀRAM	childhood	boyhood
+YAUVANAM	youth	cf. Lat. juvenem “youth”
+JARĀ	old age
+DEHĀNTARA	another body
+DEHA	body
+ANTARA	another
+PRĀPTIḤ	achieves
+DHĪRAḤ	wise	intellectual
+tatra	thereupon	in that case
+MUHYATI	deluded	bewildered
+MĀTRĀ-SPARŚĀḤ	contact of the bodily organs
+MĀTRĀ	bodily organs
+SPARŚĀḤ	contact	touching
+KAUNTEYA	[Arjuna] son of Kunti
+ŚĪTA	cold	winter
+USṆA	warm	summer
+DUḤKHA	sorrow	distress	suffering
+DĀḤ	give
+ĀGAMA	come
+APĀYINAḤ	go
+ANITYĀḤ	inconstant
+NITYĀḤ	constant	eternal
+TITIKṢASVA	tolerate	endure
+VYATHAYANTI	distressed
+PURUṢAM	person	man
+PURUṢARṢABHA	best of men
+SAMA	poised
+DHĪRAM	steady	intelligent
+AMṚTATVĀYA	for immortality	< a- “not” + mṛtatvāya “mortality”
+KALPATE	eligible
+ASATAḤ	temporary	< a- “not” + sataḥ “eternal, real”
+VIDYATE	there is
+BHĀVAḤ	being
+ABHĀVAḤ	nonbeing	cessation
+SATAḤ	eternal
+DṚṢṬAḤ	observed
+ANTAḤ	inner
+ANAYOḤ	this
+TATTVA	truth	conclusion
+DARŚIBHIḤ	by the seers
+AVINĀŚI	indestructible
+VIDDHI	know
+YENA	by whom
+TATAM	pervaded
+VINĀŚAM	destruction
+AVYAYASYA	of imperishable	of immutable
+ASYA	of it
+NA KAŚCIT	no one
+ARHATI	is able
+ANTAVANTAḤ	having an end
+DEHĀḤ	physical bodies
+NITYASYA	eternally
+UKTĀḤ	are said
+ŚARĪRIṆAḤ	of the embodied soul
+ANĀŚINAḤ	indestructible
+APRAMEYASYA	immeasurable	unexplainable	indeterminate
+YUDHYASVA	fight	engage in battle
+
+`;
+
+/*
+
+11,747 individual tokens of 4,104 unique words:
+ca	387
+na	256
+eva	168
+aham	103
+api	98
+tat	87
+mām	84
+karma	81
+yat	79
+sarva	68
+hi	67
+saḥ	66
+tu	65
+yaḥ	65
+te	64
+me	61
+iti	61
+uvāca	59
+arjuna	41
+tathā	41
+asmi	39
+idam	38
+pārtha	37
+brahma	37
+tvam	31
+jñānam	30
+evam	28
+ucyate	28
+ye	27
+manaḥ	27
+śrībhagavān	26
+tasmāt	25
+param	25
+jñāna	25
+mama	24
+tataḥ	24
+etat	24
+kaunteya	24
+viddhi	24
+ayam	24
+buddhiḥ	24
+ātma	24
+ātmā	24
+bhārata	22
+vā	22
+mayā	21
+tam	21
+yoga	21
+kim	20
+tasya	20
+iha	20
+tvām	20
+bhūtāni	20
+karmāṇi	20
+mayi	20
+punaḥ	20
+yathā	18
+sukham	18
+enam	18
+yogam	18
+ātmānam	18
+tava	17
+iva	17
+asya	17
+yuktaḥ	17
+asti	17
+indriya	17
+kāma	17
+bhūta	17
+phalam	16
+bhavati	16
+ātmanaḥ	16
+yogī	16
+tapaḥ	16
+sarvam	15
+avyayam	15
+mat	15
+rūpam	15
+asi	15
+mahābāho	14
+bhūtānām	14
+yānti	14
+tyaktvā	13
+śṛṇu	13
+kuru	12
+tadā	12
+tān	12
+sarve	12
+atha	12
+tatra	12
+bhūyaḥ	12
+janma	12
+paśyati	12
+imam	12
+yadā	12
+guṇa	12
+jñātvā	12
+jagat	12
+sattvam	12
+loke	11
+duḥkha	11
+vetti	11
+puruṣaḥ	11
+phala	11
+gatim	11
+ātmani	11
+indriyāṇi	11
+yajña	11
+bhūteṣu	11
+tamaḥ	11
+parām	11
+teṣām	11
+priyaḥ	11
+paramam	11
+dṛṣṭvā	10
+sa	10
+dehe	10
+nityam	10
+arhasi	10
+karmaṇi	10
+buddhi	10
+ātmanā	10
+yogena	10
+prakṛtim	10
+viduḥ	10
+yata	10
+deva	10
+pṛthak	9
+ete	9
+kṛṣṇa	9
+śreyaḥ	9
+katham	9
+parantapa	9
+sama	9
+vidyate	9
+antaḥ	9
+yena	9
+kaścit	9
+bhūtvā	9
+nitya	9
+anyaḥ	9
+veda	9
+sarvāṇi	9
+yogaḥ	9
+sā	9
+siddhim	9
+sthitaḥ	9
+bhava	9
+dānam	9
+sañjaya	8
+atra	8
+sarveṣu	8
+sarvaśaḥ	8
+etān	8
+kṛtsnam	8
+sukha	8
+mā	8
+sarvasya	8
+kṛtvā	8
+sarvatra	8
+prāpya	8
+ekam	8
+karmaṇām	8
+kṛt	8
+loka	8
+tena	8
+apare	8
+yukta	8
+aneka	8
+yāti	8
+akṣaram	8
+sat	8
+draṣṭum	8
+dharma	7
+paśya	7
+artham	7
+anye	7
+sah	7
+asmin	7
+sarvān	7
+paśyāmi	7
+syāt	7
+pāpam	7
+kula	7
+kṛtam	7
+kartum	7
+yam	7
+puruṣam	7
+naraḥ	7
+bahu	7
+sarvataḥ	7
+dhanañjaya	7
+samaḥ	7
+rāga	7
+paraḥ	7
+yasya	7
+teṣu	7
+śāntim	7
+kāle	7
+karmaṇaḥ	7
+yajñāḥ	7
+yajñaḥ	7
+satatam	7
+kartā	7
+agniḥ	7
+duḥkham	7
+yatra	7
+lokān	7
+tejaḥ	7
+janāḥ	7
+bhaktyā	7
+viśanti	7
+dhṛtiḥ	7
+namaḥ	7
+rājasam	7
+ubhayoḥ	6
+yeṣām	6
+janārdana	6
+jñeyam	6
+yadi	6
+uktvā	6
+gata	6
+bhāvaḥ	6
+tattva	6
+anyat	6
+cet	6
+mataḥ	6
+yayā	6
+vigata	6
+bhaya	6
+krodhaḥ	6
+adhigacchati	6
+āpnoti	6
+prakṛti	6
+guṇaiḥ	6
+lokaḥ	6
+eṣaḥ	6
+kāryam	6
+vit	6
+āhuḥ	6
+tattvataḥ	6
+yajante	6
+yoginaḥ	6
+upāsate	6
+brahmaṇaḥ	6
+sadā	6
+bhāvam	6
+śraddhayā	6
+asat	6
+uktam	6
+udāhṛtam	6
+guṇān	6
+sāttvikam	6
+tāmasam	6
+balam	5
+mahā	5
+madhye	5
+kāmān	5
+saha	5
+jāyate	5
+keśava	5
+hatvā	5
+naḥ	5
+tatha	5
+paśyanti	5
+kriyāḥ	5
+niyatam	5
+ahaḥ	5
+artha	5
+ataḥ	5
+tatam	5
+avyakta	5
+astu	5
+saṅgam	5
+karmasu	5
+dveṣṭi	5
+tāni	5
+viṣayān	5
+aśnute	5
+manasā	5
+viśiṣyate	5
+devān	5
+vidaḥ	5
+cetasā	5
+matam	5
+bharatarṣabha	5
+uttamam	5
+īśvaraḥ	5
+divyam	5
+eti	5
+kurvan	5
+vratāḥ	5
+pāṇḍava	5
+labhate	5
+ajñānam	5
+ātmānaḥ	5
+samam	5
+prāhuḥ	5
+māna	5
+ati	5
+paramām	5
+yataḥ	5
+tvayā	5
+tvat	5
+mattaḥ	5
+deha	5
+anvitāḥ	5
+satyam	5
+sattva	5
+ananta	5
+kṣetram	5
+śaucam	5
+rajaḥ	5
+etāni	5
+trividham	5
+arthe	4
+nānā	4
+avasthitāḥ	4
+senayoḥ	4
+rājyam	4
+ime	4
+madhusūdana	4
+kā	4
+cetasaḥ	4
+varṇa	4
+mahat	4
+mānasaḥ	4
+kutaḥ	4
+upapadyate	4
+uttiṣṭha	4
+vacaḥ	4
+jarā	4
+manyate	4
+ajam	4
+dehī	4
+sanātanaḥ	4
+avāpsyasi	4
+buddhyā	4
+dharmasya	4
+cetasām	4
+śaraṇam	4
+sthita	4
+muniḥ	4
+prajñā	4
+pratiṣṭhitā	4
+saṁyamya	4
+kāmaḥ	4
+vāyuḥ	4
+yā	4
+nirmamaḥ	4
+anta	4
+nirvāṇam	4
+niyamya	4
+asaktaḥ	4
+śarīra	4
+anena	4
+devāḥ	4
+taiḥ	4
+kaścana	4
+lokāḥ	4
+prakṛteḥ	4
+sva	4
+proktaḥ	4
+bhaktaḥ	4
+prapadyante	4
+abhijānāti	4
+pravakṣyāmi	4
+karoti	4
+citta	4
+yajñam	4
+prāṇa	4
+pavitram	4
+svayam	4
+vindati	4
+stham	4
+kāṅkṣati	4
+āsthitaḥ	4
+sthānam	4
+lipyate	4
+sthitam	4
+ādi	4
+diśaḥ	4
+aśeṣataḥ	4
+matiḥ	4
+puṇya	4
+vakṣyāmi	4
+prakṛtiḥ	4
+jagataḥ	4
+eka	4
+avyaktam	4
+proktam	4
+saṁśayaḥ	4
+bhāva	4
+tamasaḥ	4
+padam	4
+āgame	4
+dhāma	4
+ādyam	4
+guhyam	4
+mṛtyu	4
+aiśvaram	4
+cara	4
+acaram	4
+amṛtam	4
+paryupāsate	4
+madbhaktaḥ	4
+ādiḥ	4
+ahiṁsā	4
+adhyātma	4
+icchāmi	4
+netram	4
+adbhutam	4
+pravṛttim	4
+saṅga	4
+tyāgam	4
+tyāgaḥ	4
+kṣetra	4
+ārjavam	4
+adhaḥ	4
+mohāt	4
+śraddhā	4
+trividhaḥ	4
+kriyate	4
+dāna	4
+svabhāvajam	4
+prasādāt	4
+saṁsmṛtya	4
+vacanam	3
+abravīt	3
+bhīma	3
+nibodha	3
+bhavān	3
+bahavaḥ	3
+mad	3
+bhīṣmam	3
+evā	3
+śabdaḥ	3
+pāṇḍavaḥ	3
+hṛṣīkeśaḥ	3
+pate	3
+dhārtarāṣṭrān	3
+vākyam	3
+acyuta	3
+yuddhe	3
+uktaḥ	3
+parayā	3
+śarīre	3
+svajanam	3
+hantum	3
+kṣaya	3
+mitra	3
+uta	3
+etaiḥ	3
+śoka	3
+bhogān	3
+svabhāvaḥ	3
+indriyāṇām	3
+paṇḍitāḥ	3
+jātu	3
+śīta	3
+kalpate	3
+yudhyasva	3
+hanti	3
+vihāya	3
+pāvakaḥ	3
+āpaḥ	3
+manyase	3
+śocitum	3
+mṛtyuḥ	3
+āścaryavat	3
+śrutvā	3
+labhante	3
+dharmyam	3
+bhayāt	3
+kṛta	3
+eṣā	3
+buddhayaḥ	3
+yām	3
+ratāḥ	3
+bhoga	3
+sthaḥ	3
+vedeṣu	3
+hetuḥ	3
+saṅgaḥ	3
+yogāt	3
+yuktāḥ	3
+gacchhanti	3
+moha	3
+śruti	3
+āsīta	3
+duḥkheṣu	3
+vīta	3
+śubha	3
+upajāyate	3
+sañjāyate	3
+abhijāyate	3
+praṇaśyati	3
+indriyaiḥ	3
+śāntiḥ	3
+kāmāḥ	3
+niṣṭhā	3
+purā	3
+anagha	3
+yoginām	3
+tiṣṭhati	3
+akarma	3
+avaśaḥ	3
+smaran	3
+arthān	3
+vimūḍha	3
+ācāraḥ	3
+akarmaṇaḥ	3
+prajāḥ	3
+vaḥ	3
+bhavanti	3
+udbhavam	3
+gatam	3
+santuṣṭaḥ	3
+saṁsiddhim	3
+kurute	3
+bhedam	3
+guṇāḥ	3
+matvā	3
+nirāśīḥ	3
+acetasaḥ	3
+śreyān	3
+para	3
+āvṛtam	3
+jñāninaḥ	3
+āvṛtya	3
+dehinam	3
+vijñāna	3
+buddheḥ	3
+adya	3
+san	3
+māyayā	3
+deham	3
+madbhāvam	3
+kartāram	3
+mokṣyase	3
+boddhavyam	3
+gatiḥ	3
+dvandva	3
+atītaḥ	3
+nibadhyate	3
+samagram	3
+agnau	3
+hutam	3
+yajñena	3
+juhvati	3
+juvhati	3
+prāṇam	3
+parāyaṇāḥ	3
+niyata	3
+āhārāḥ	3
+kalmaṣāḥ	3
+amṛta	3
+akhilam	3
+śraddhāvān	3
+indriyaḥ	3
+saṁśayam	3
+nibadhnanti	3
+ajñāna	3
+sannyāsam	3
+sannyāsī	3
+samyak	3
+jita	3
+kiñcit	3
+brahmaṇi	3
+sannyasya	3
+prabhuḥ	3
+prakāśayati	3
+gacchanti	3
+krodha	3
+sukhaḥ	3
+jyotiḥ	3
+bhūtaḥ	3
+chinna	3
+vartate	3
+cakṣuḥ	3
+muktaḥ	3
+maheśvaram	3
+kāraṇam	3
+śamaḥ	3
+deśe	3
+kāya	3
+yuñjan	3
+cittam	3
+grāmam	3
+upaiti	3
+aprāpya	3
+adhikaḥ	3
+jīva	3
+prabhavaḥ	3
+bījam	3
+bharata	3
+rājasāḥ	3
+tāmasāḥ	3
+tribhiḥ	3
+etām	3
+mūḍhāḥ	3
+jñānāḥ	3
+bhajante	3
+jñānī	3
+vāsudevaḥ	3
+su	3
+anya	3
+ajānantaḥ	3
+dṛḍha	3
+āśritya	3
+adhyātmam	3
+puruṣottama	3
+kaḥ	3
+kṣaraḥ	3
+eṣyasi	3
+hṛdi	3
+ananya	3
+sahasra	3
+sarvāḥ	3
+nivartante	3
+bhṛt	3
+āsurīm	3
+daivīm	3
+yatantaḥ	3
+pṛthaktvena	3
+mukham	3
+pitā	3
+nidhānam	3
+divi	3
+dharmam	3
+bhaktāḥ	3
+pūrvakam	3
+vimuktaḥ	3
+kṣamā	3
+damaḥ	3
+śāśvatam	3
+devam	3
+aśeṣeṇa	3
+madhyam	3
+yakṣa	3
+kālaḥ	3
+vāk	3
+smṛtiḥ	3
+mohaḥ	3
+ekastham	3
+icchasi	3
+rājan	3
+vaktra	3
+divya	3
+praṇamya	3
+dīpta	3
+avyayaḥ	3
+viśvam	3
+trayam	3
+amī	3
+kecit	3
+siddha	3
+saṅghāḥ	3
+prasīda	3
+deveśa	3
+jagannivāsa	3
+vaktrāṇi	3
+vegāḥ	3
+pūrvam	3
+he	3
+parityāgī	3
+tulya	3
+abhidhīyate	3
+samāsena	3
+pañca	3
+kārya	3
+yoniṣu	3
+pramāda	3
+pravṛttiḥ	3
+trīn	3
+priya	3
+avāpnoti	3
+sampadam	3
+kāmam	3
+ahaṅkāram	3
+tyajet	3
+śāstra	3
+sāttvikī	3
+rājasī	3
+tāmasī	3
+aphala	3
+dīyate	3
+smṛtam	3
+tyājyam	3
+dhṛtyā	3
+agre	3
+saṁvādam	3
+rājā	2
+ācārya	2
+śūrāḥ	2
+samāḥ	2
+virāṭaḥ	2
+drupadaḥ	2
+mahārathaḥ	2
+vīryavān	2
+saubhadraḥ	2
+draupadeyāḥ	2
+mahārathāḥ	2
+asmākam	2
+bhīṣmaḥ	2
+tyakta	2
+śastra	2
+bhīṣma	2
+abhirakṣitam	2
+pitāmahaḥ	2
+dadhmau	2
+tumulaḥ	2
+dhanañjayaḥ	2
+putraḥ	2
+nabhaḥ	2
+dhanuḥ	2
+hṛṣīkeśam	2
+āha	2
+mahī	2
+yāvat	2
+avasthitān	2
+kaiḥ	2
+apaśyat	2
+pārthaḥ	2
+pitṛn	2
+kṛpayā	2
+āviṣṭaḥ	2
+samupasthitam	2
+roma	2
+sukhāni	2
+prāṇān	2
+pitaraḥ	2
+putrāḥ	2
+nu	2
+sukhinaḥ	2
+lobha	2
+upahata	2
+doṣam	2
+dharmāḥ	2
+dharme	2
+striyaḥ	2
+vārṣṇeya	2
+patanti	2
+manuṣyāṇām	2
+narake	2
+vayam	2
+raṇe	2
+bhavet	2
+arjunaḥ	2
+viṣīdantam	2
+sāṁkhye	2
+droṇam	2
+doṣa	2
+cetāḥ	2
+niścitam	2
+brūhi	2
+śokam	2
+asūn	2
+dehinaḥ	2
+dhīraḥ	2
+muhyati	2
+abhāvaḥ	2
+dṛṣṭaḥ	2
+avyayasya	2
+uktāḥ	2
+ubhau	2
+tau	2
+hanyate	2
+bhavitā	2
+ajaḥ	2
+nityaḥ	2
+purāṇaḥ	2
+kam	2
+jīrṇāni	2
+navāni	2
+saṁyāti	2
+gataḥ	2
+avyaktaḥ	2
+dhruvam	2
+svadharmam	2
+dvāram	2
+īdṛśam	2
+kariṣyasi	2
+yāsyasi	2
+ahitāḥ	2
+hataḥ	2
+prāpsyasi	2
+jitvā	2
+yuddhāya	2
+niścayaḥ	2
+yujyasva	2
+imām	2
+bandham	2
+vyavasāyātmikā	2
+pravadanti	2
+viśeṣa	2
+aiśvarya	2
+tayā	2
+apahṛta	2
+viṣayāḥ	2
+vedāḥ	2
+nirdvandvaḥ	2
+ātmavān	2
+yāvān	2
+arthaḥ	2
+kadācana	2
+akarmaṇi	2
+siddhi	2
+asiddhyoḥ	2
+hetavaḥ	2
+manīṣiṇaḥ	2
+anāmayam	2
+dhīḥ	2
+spṛhaḥ	2
+arthebhyaḥ	2
+rasaḥ	2
+nivartate	2
+prasabham	2
+saṁmohaḥ	2
+smṛti	2
+dveṣa	2
+duḥkhānām	2
+prasanna	2
+pari	2
+avatiṣṭhate	2
+ayuktasya	2
+niśā	2
+muneḥ	2
+samudram	2
+praviśanti	2
+carati	2
+niḥspṛhaḥ	2
+adhigacchhati	2
+sthitiḥ	2
+ṛcchati	2
+matā	2
+buddhim	2
+sarvaḥ	2
+jaiḥ	2
+āste	2
+samācara	2
+prajāpatiḥ	2
+iṣṭa	2
+parasparam	2
+ebhyaḥ	2
+bhuṅkte	2
+śiṣṭa	2
+mucyante	2
+yajñāt	2
+samudbhavaḥ	2
+akṣara	2
+samudbhavam	2
+yajñe	2
+ārāmaḥ	2
+tṛptaḥ	2
+mānavaḥ	2
+pūruṣaḥ	2
+karmaṇā	2
+ācarati	2
+pramāṇam	2
+vartma	2
+anuvartante	2
+manuṣyāḥ	2
+syām	2
+imāḥ	2
+kurvanti	2
+vidvān	2
+kriyamāṇāni	2
+vartante	2
+kṛtsna	2
+anutiṣṭhanti	2
+karmabhiḥ	2
+sadṛśam	2
+jñānavān	2
+indriyasya	2
+dveṣau	2
+vyavasthitau	2
+tayoḥ	2
+vaśam	2
+svadharmaḥ	2
+viguṇaḥ	2
+dhūmena	2
+etena	2
+adhiṣṭhānam	2
+ādau	2
+nāśanam	2
+manasaḥ	2
+parā	2
+buddhvā	2
+jahi	2
+proktavān	2
+rājarṣayaḥ	2
+kālena	2
+naṣṭaḥ	2
+aparam	2
+bhavataḥ	2
+bahūni	2
+vettha	2
+svām	2
+adhiṣṭhāya	2
+saṁbhavāmi	2
+yuge	2
+upāśritāḥ	2
+tapasā	2
+āgatāḥ	2
+devatāḥ	2
+kṣipram	2
+akartāram	2
+phale	2
+spṛhā	2
+pūrvaiḥ	2
+kavayaḥ	2
+aśubhāt	2
+buddhimān	2
+manuṣyeṣu	2
+karmāṇam	2
+budhāḥ	2
+kiṁcit	2
+śārīram	2
+kevalam	2
+kilbiṣam	2
+arpaṇam	2
+daivam	2
+saṁyama	2
+agniṣu	2
+svādhyāya	2
+yatayaḥ	2
+gatī	2
+sanātanam	2
+sattama	2
+vidhāḥ	2
+sevayā	2
+moham	2
+pāpebhyaḥ	2
+pāpa	2
+yatha	2
+bhasmasāt	2
+jñānena	2
+saṁsiddhaḥ	2
+labdhvā	2
+saṁśaya	2
+vinaśyati	2
+hṛt	2
+chittvā	2
+sannyāsaḥ	2
+karmayogaḥ	2
+jñeyaḥ	2
+pramucyate	2
+āptum	2
+vijita	2
+dhārayan	2
+ādhāya	2
+patram	2
+ayuktaḥ	2
+lokasya	2
+saṁyogam	2
+pravartate	2
+āvṛttim	2
+jitaḥ	2
+priyam	2
+sthira	2
+asammūḍhaḥ	2
+asakta	2
+yonayaḥ	2
+ramate	2
+soḍhum	2
+sukhī	2
+ṛṣayaḥ	2
+hite	2
+bahiḥ	2
+bhruvoḥ	2
+mokṣa	2
+parāyaṇaḥ	2
+icchā	2
+anuṣajjate	2
+saṅkalpa	2
+bandhuḥ	2
+parama	2
+uṣṇa	2
+apamānayoḥ	2
+kūṭasthaḥ	2
+kāñcanaḥ	2
+suhṛt	2
+ari	2
+sthiram	2
+śiraḥ	2
+acalam	2
+praśānta	2
+bhīḥ	2
+cittaḥ	2
+svapna	2
+iṅgate	2
+paśyan	2
+yasmin	2
+vicālyate	2
+vidyāt	2
+śanaiḥ	2
+cañcalam	2
+bhūtam	2
+īkṣate	2
+bhajati	2
+sarvathā	2
+vartamānaḥ	2
+paramaḥ	2
+dṛḍham	2
+manye	2
+calam	2
+abhyāsena	2
+śakyaḥ	2
+gacchati	2
+athavā	2
+nandana	2
+jijñāsuḥ	2
+ativartate	2
+bhajate	2
+vijñānam	2
+siddhaye	2
+siddhānām	2
+ahaṅkāraḥ	2
+iyam	2
+itaḥ	2
+upadhāraya	2
+pralayaḥ	2
+śaśi	2
+pauruṣam	2
+pṛthivyām	2
+tejasvinām	2
+vivarjitam	2
+rṣabha	2
+bhāvāḥ	2
+ebhiḥ	2
+daivī	2
+māyā	2
+nara	2
+āsuram	2
+āśritāḥ	2
+bhaktiḥ	2
+ante	2
+mahātmā	2
+tanum	2
+tām	2
+alpa	2
+iccha	2
+sarge	2
+adhidaivam	2
+prayāṇa	2
+adhibhūtam	2
+adhiyajñaḥ	2
+bhṛtām	2
+vara	2
+kalevaram	2
+prayāti	2
+kāleṣu	2
+arpita	2
+asaṁśayaḥ	2
+abhyāsa	2
+āveśya	2
+brahmacaryam	2
+om	2
+upetya	2
+gatāḥ	2
+yuga	2
+avyaktāt	2
+prabhavanti	2
+rātri	2
+akṣaraḥ	2
+ananyayā	2
+anāvṛttim	2
+prayātāḥ	2
+ṣaṇmāsā	2
+kṛṣṇaḥ	2
+guhyatamam	2
+rāja	2
+vidyā	2
+saṁsāra	2
+matsthāni	2
+avasthitaḥ	2
+mahān	2
+visṛjāmi	2
+avaṣṭabhya	2
+udāsīnavat	2
+asaktam	2
+mogha	2
+bhajanti	2
+bahudhā	2
+viśvataḥ	2
+dhātā	2
+vedyam	2
+sāma	2
+bhartā	2
+yajñaiḥ	2
+puṇyam	2
+divyān	2
+avidhi	2
+yajñānām	2
+bhoktā	2
+tattvena	2
+bhakti	2
+aśubha	2
+nigacchhati	2
+brāhmaṇāḥ	2
+lokam	2
+manmanā	2
+madyājī	2
+namaskuru	2
+maharṣayaḥ	2
+devānām	2
+maharṣīṇām	2
+bhayam	2
+abhayam	2
+yaśaḥ	2
+vibhūtim	2
+yujyate	2
+satata	2
+prīti	2
+dadāmi	2
+ajñānajam	2
+nāradaḥ	2
+vyāsaḥ	2
+bhagavan	2
+divyā	2
+vibhūtayaḥ	2
+imān	2
+keṣu	2
+guḍākeśa	2
+jyotiṣām	2
+raviḥ	2
+cetanā	2
+varuṇaḥ	2
+yamaḥ	2
+śrīḥ	2
+vyavasāyaḥ	2
+nītiḥ	2
+maunam	2
+vistaraśaḥ	2
+kamala	2
+śakyam	2
+prabho	2
+darśaya	2
+aśvinau	2
+marutaḥ	2
+adṛṣṭa	2
+cakṣuṣā	2
+darśayāmāsa	2
+darśanam	2
+anantam	2
+sūrya	2
+bhāsaḥ	2
+mahātmanaḥ	2
+añjaliḥ	2
+īśam	2
+āsana	2
+bāhu	2
+antam	2
+viśva	2
+kirīṭinam	2
+gadinam	2
+samantāt	2
+anala	2
+aprameyam	2
+viśvasya	2
+anādi	2
+antaram	2
+pravyathitam	2
+mahātman	2
+pādam	2
+viṣṇo	2
+karālāni	2
+asau	2
+dravanti	2
+nāśāya	2
+samṛddha	2
+hṛṣīkeśa	2
+rakṣāṁsi	2
+śaśāṅkaḥ	2
+anyena	2
+śakya	2
+ghoram	2
+idānīm	2
+vedaiḥ	2
+tamāḥ	2
+matparaḥ	2
+ūrdhvam	2
+āśritaḥ	2
+abhyāsāt	2
+yasmāt	2
+udvijate	2
+harṣa	2
+ārambha	2
+śocati	2
+bhaktimān	2
+nindā	2
+priyāḥ	2
+śarīram	2
+kṣetrajña	2
+kṣāntiḥ	2
+vinigrahaḥ	2
+vairāgyam	2
+vivikta	2
+avibhaktam	2
+sad	2
+asad	2
+saṁyogāt	2
+anupaśyati	2
+upalipyate	2
+mokṣam	2
+upāśritya	2
+yoniḥ	2
+saṅgena	2
+asaṅga	2
+nibadhnāti	2
+mohanam	2
+dehinām	2
+ālasya	2
+sañjayati	2
+lobhaḥ	2
+rajasi	2
+jāyante	2
+vivṛddhe	2
+tamasi	2
+pralayam	2
+gatvā	2
+mūḍha	2
+rajasaḥ	2
+guṇebhyaḥ	2
+tulyaḥ	2
+bhūyāya	2
+mūlam	2
+aśvattham	2
+viṣaya	2
+bhāsayate	2
+akṛta	2
+āviśya	2
+annam	2
+uttamaḥ	2
+bhāvena	2
+śāstram	2
+saṁśuddhiḥ	2
+abhijātasya	2
+śucaḥ	2
+nivṛttim	2
+dambha	2
+mada	2
+pravartante	2
+dambhena	2
+darpam	2
+krodham	2
+janmani	2
+vidhim	2
+utsṛjya	2
+vidhāna	2
+trividhā	2
+bala	2
+sāttvika	2
+tāmasa	2
+vidhi	2
+ijyate	2
+sāttvikaḥ	2
+hīnam	2
+paricakṣate	2
+tapa	2
+hitam	2
+taptam	2
+vividhāḥ	2
+bhāve	2
+pretya	2
+parikīrtitaḥ	2
+tyāgī	2
+karaṇam	2
+adharmam	2
+dhārayate	2
+viṣam	2
+pariṇāme	2
+svabhāva	2
+sve	2
+iṣṭaḥ	2
+kaccit	2
+hṛṣyāmi	2
+muhuḥ	2
+dhṛtarāṣṭra	1
+kṣetraḥ	1
+kṣetre	1
+samavetāḥ	1
+yuyutsavaḥ	1
+māmakāḥ	1
+pāṇḍavāḥ	1
+akurvata	1
+pāṇḍav	1
+ānīkam	1
+vyūḍhaṃ	1
+duryodhanaḥ	1
+ācāryam	1
+upasaṅgamya	1
+etāṃ	1
+pāṇḍu	1
+putrāṇām	1
+mahatīṃ	1
+camūm	1
+vyūḍhāṃ	1
+drupada	1
+putreṇa	1
+śiṣyeṇa	1
+dhīmatā	1
+maheṣvāsāḥ	1
+yudhi	1
+yuyudhāno	1
+dhṛṣṭaketuḥ	1
+cekitānaḥ	1
+kāśi	1
+rājaḥ	1
+purujit	1
+kuntibhojaḥ	1
+śaibyaḥ	1
+narapungavaḥ	1
+yudhāmanyuḥ	1
+vikrāntaḥ	1
+uttamaujāḥ	1
+viśiṣṭā	1
+dvijottama	1
+nāyakāḥ	1
+sainyasya	1
+saṁjñā	1
+bravīmi	1
+karṇaḥ	1
+kṛpaḥ	1
+samitiṁjayaḥ	1
+aśvatthāmā	1
+vikarṇaḥ	1
+saumadattiḥ	1
+jīvitāḥ	1
+praharaṇāḥ	1
+yuddha	1
+viśāradāḥ	1
+aparyāptam	1
+paryāptaṃ	1
+eteṣām	1
+ayaneṣu	1
+bhāgam	1
+abhirakṣantu	1
+bhavantaḥ	1
+sañjanayan	1
+harṣaṃ	1
+vṛddhaḥ	1
+siṃha	1
+nādaṃ	1
+vinadya	1
+ucchaiḥ	1
+śaṅkhaṃ	1
+pratāpavān	1
+śaṅkhāḥ	1
+bheryaḥ	1
+paṇava	1
+anaka	1
+go	1
+mukhāḥ	1
+sahasā	1
+abhyahanyanta	1
+abhavat	1
+śvetaiḥ	1
+hayaiḥ	1
+yukte	1
+mahati	1
+syandane	1
+sthitau	1
+mādhavaḥ	1
+divyau	1
+śaṅkhau	1
+pradaghmatuḥ	1
+pāñcajanyam	1
+devadattam	1
+pauṇḍram	1
+śaṅkham	1
+karmā	1
+vṛkodaraḥ	1
+anantavijayam	1
+kuntī	1
+yudhiṣṭhiraḥ	1
+nakulaḥ	1
+sahadevaḥ	1
+sughoṣa	1
+maṇipuṣpakau	1
+kāśyaḥ	1
+parameṣvāsaḥ	1
+śikhaṇḍī	1
+dhṛṣṭadyumnaḥ	1
+sātyakiḥ	1
+aparājitaḥ	1
+pṛthivī	1
+bāhuḥ	1
+śaṅkhān	1
+dadhmuḥ	1
+ghoṣaḥ	1
+dhārtarāṣṭrāṇām	1
+hṛdayāni	1
+vyadārayat	1
+pṛthivīm	1
+vyanunādayan	1
+vyavasthitān	1
+kapidhvajaḥ	1
+pravṛtte	1
+śastrasaṁpāte	1
+udyamya	1
+ratham	1
+sthāpaya	1
+nirikṣe	1
+yoddhu	1
+yoddhavyam	1
+raṇa	1
+samudyame	1
+yotsyamānān	1
+avekṣe	1
+samāgatāḥ	1
+dhārtarāṣṭrasya	1
+durbuddheḥ	1
+priyacikīrṣavaḥ	1
+añjaya	1
+vāca:	1
+guḍākeśena	1
+sthāpayitvā	1
+rathottamam	1
+droṇa	1
+pramukhataḥ	1
+sarveṣāṁ	1
+mahīkṣitām	1
+paśyai	1
+samavetān	1
+kurūn	1
+tatrā	1
+sthitān	1
+pitāmahān	1
+ācāryān	1
+mātulān	1
+bhrātṛn	1
+putrān	1
+pautrān	1
+sakhīn	1
+śvaśurān	1
+suhṛdaḥ	1
+samīkṣya	1
+kaunteyaḥ	1
+bandhūn	1
+viṣīdan	1
+dṛṣṭve	1
+imaṃ	1
+svajanaṃ	1
+yuyutsuṃ	1
+sīdanti	1
+gātrāṇi	1
+mukhaṃ	1
+pariśuṣyati	1
+vepathuḥ	1
+harṣaḥ	1
+gāṇḍīvam	1
+sraṃsate	1
+hastāt	1
+tvak	1
+paridahyate	1
+śaknomi	1
+avasthātum	1
+bhramati	1
+nimittāni	1
+viparītāni	1
+anupaśyāmi	1
+āhave	1
+kāṅkṣe	1
+vijayam	1
+kiṃ	1
+rājyena	1
+govinda	1
+bhogaiḥ	1
+jīvitena	1
+kāṅkṣitam	1
+bhogāḥ	1
+dhanāni	1
+ācāryāḥ	1
+pitāmahāḥ	1
+mātulāḥ	1
+śvaśurāḥ	1
+pautrāḥ	1
+śyālāḥ	1
+sambandhinaḥ	1
+icchhāmi	1
+ghnataḥ	1
+trailokyarājyasya	1
+hetoḥ	1
+kṛte	1
+nihatya	1
+prītiḥ	1
+aśrayet	1
+asmān	1
+hatva	1
+ātatāyinaḥ	1
+arhāḥ	1
+vayaṃ	1
+svabāndhavān	1
+syāma	1
+mādhava	1
+yadiapi	1
+drohe	1
+pātakam	1
+asmābhiḥ	1
+pāpāt	1
+asmāt	1
+nivartitum	1
+prapaśyadbhiḥ	1
+kulak	1
+ṣaye	1
+praṇaśyanti	1
+sanātanāḥ	1
+naṣṭe	1
+kulaṃ	1
+adharmaḥ	1
+abhibhavati	1
+adharma	1
+abhibhavāt	1
+praduṣyant	1
+strīṣu	1
+duṣṭāsu	1
+saṁkaraḥ	1
+saṅkaraḥ	1
+narakāya	1
+ghnānāṃ	1
+kulasya	1
+eṣām	1
+lupta	1
+piṇḍa	1
+udaka	1
+doṣaiḥ	1
+ghnānām	1
+saṅkara	1
+kārakaiḥ	1
+utsādyante	1
+jāti	1
+kuladharmāḥ	1
+śāśvatāḥ	1
+utsanna	1
+dharmāṇām	1
+vāsaḥ	1
+bhavatī	1
+anuśuśruma	1
+bata	1
+vyavasitā	1
+rājya	1
+lobhena	1
+udyatāḥ	1
+apratīkāram	1
+aśastram	1
+śastrapāṇayaḥ	1
+dhārtarāṣṭrā	1
+hanyuḥ	1
+kṣemataram	1
+aṅjaya	1
+saṅkhye	1
+rathopastha	1
+upāviśat	1
+visṛjya	1
+śaram	1
+cāpam	1
+saṁvigna	1
+āviṣṭam	1
+aśrupūrṇa	1
+ākula	1
+ikṣaṇam	1
+madhusūdanaḥ	1
+tvā	1
+kaśmalam	1
+viṣame	1
+anāryajuṣṭam	1
+asvargyam	1
+akīrti	1
+karam	1
+klaibyam	1
+sma	1
+gamaḥ	1
+tvayi	1
+kṣudram	1
+hṛdayadaurbalyam	1
+iṣubhiḥ	1
+pratiyotsyāmi	1
+pūjā	1
+arhāu	1
+arisūdana	1
+gurūn	1
+ahatvā	1
+anubhāvān	1
+bhoktum	1
+bhaikṣyam	1
+kāman	1
+gurun	1
+bhuñjīya	1
+rudhira	1
+pradigdhān	1
+vidmaḥ	1
+katarat	1
+garīyaḥ	1
+jayema	1
+jayeyuḥ	1
+yān	1
+jijīviṣāmaḥ	1
+pramukhe	1
+dhārtarāṣṭrāḥ	1
+kārpaṇya	1
+pṛcchāmi	1
+saṁmūḍha	1
+śiṣyaḥ	1
+śādhi	1
+prapannam	1
+prapaśyāmi	1
+apanudyāt	1
+ucchoṣaṇam	1
+avāpya	1
+bhūmāv	1
+asapatnam	1
+ṛddham	1
+surāṇām	1
+cā	1
+adhipatyam	1
+guḍākeśaḥ	1
+paraṁtapaḥ	1
+yotsya	1
+govindam	1
+tūṣṇīm	1
+babhūva	1
+ha	1
+prahasann	1
+aśocyān	1
+anvaśocaḥ	1
+prajñāvādān	1
+bhāṣase	1
+agata	1
+anuśocanti	1
+āsam	1
+janādhipāḥ	1
+bhaviṣyāmaḥ	1
+kaumāram	1
+yauvanam	1
+dehāntara	1
+prāptiḥ	1
+mātrā	1
+sparśāḥ	1
+usṇa	1
+dāḥ	1
+āgama	1
+apāyinaḥ	1
+anityāḥ	1
+titikṣasva	1
+vyathayanti	1
+puruṣarṣabha	1
+dhīram	1
+amṛtatvāya	1
+asataḥ	1
+sataḥ	1
+anayoḥ	1
+darśibhiḥ	1
+avināśi	1
+vināśam	1
+arhati	1
+antavantaḥ	1
+dehāḥ	1
+nityasya	1
+śarīriṇaḥ	1
+anāśinaḥ	1
+aprameyasya	1
+hantāram	1
+hatam	1
+vijānītaḥ	1
+mriyate	1
+kadācit	1
+śāśvatḥ	1
+hanyamāne	1
+vedā	1
+avināśinam	1
+ghātayati	1
+vāsāṁsi	1
+gṛhṇāti	1
+aparāṇi	1
+śarīrāṇi	1
+anyāni	1
+chindanti	1
+śastrāṇi	1
+dahati	1
+kledayanti	1
+śoṣayati	1
+mārutaḥ	1
+acchedyaḥ	1
+adāhyaḥ	1
+akledyaḥ	1
+aśoṣyaḥ	1
+sthāṇuḥ	1
+acalaḥ	1
+acintyaḥ	1
+avikaryaḥ	1
+viditva	1
+enaṁ	1
+anuśocitum	1
+jātam	1
+mṛtam	1
+tathāpi	1
+jātasya	1
+dhruvaḥ	1
+mṛtasya	1
+aparihārye	1
+avyaktādīni	1
+vyakta	1
+madhyāni	1
+nidhanāni	1
+paridevanā	1
+vadati	1
+śṛṇoti	1
+avadhyaḥ	1
+avekṣya	1
+vikampitum	1
+dharmyāt	1
+yuddhāt	1
+kṣatriyasya	1
+yadṛcchayā	1
+upapannam	1
+svarga	1
+apāvṛtam	1
+kṣatriyāḥ	1
+yuddham	1
+saṅgrāmam	1
+kīrtim	1
+hitvā	1
+akīrtim	1
+kathayiṣyanti	1
+avyayām	1
+saṁbhāvitasya	1
+akīrtiḥ	1
+maraṇāt	1
+atiricyate	1
+raṇāt	1
+uparatam	1
+maṁsyante	1
+lāghavam	1
+avācya	1
+vādān	1
+bahūn	1
+vadiṣyanti	1
+nindantaḥ	1
+sāmarthyam	1
+duḥkhataram	1
+svargam	1
+bhokṣyase	1
+mahīm	1
+duḥkhe	1
+same	1
+lābhālābhau	1
+jayājayau	1
+abhihitā	1
+sāṅkhye	1
+yoge	1
+prahāsyasi	1
+ihā	1
+abhikrama	1
+nāśaḥ	1
+pratyavāyaḥ	1
+svalpam	1
+trāyate	1
+mahataḥ	1
+ekā	1
+kurunandana	1
+śākhā	1
+anantāḥ	1
+avyavasāyinām	1
+puṣpitām	1
+vācam	1
+avipaścitaḥ	1
+vāda	1
+astī	1
+vādinaḥ	1
+kāmātmānaḥ	1
+svargaparāḥ	1
+pradām	1
+kriyā	1
+bahulām	1
+prati	1
+prasaktānām	1
+samādhau	1
+vidhīyate	1
+traiguṇya	1
+nistraiguṇyaḥ	1
+bhavā	1
+satva	1
+niryoga	1
+kṣemaḥ	1
+udapāne	1
+sampluta	1
+udake	1
+tāvān	1
+brāhmaṇasya	1
+vijānataḥ	1
+adhikāraḥ	1
+phaleṣu	1
+bhūḥ	1
+yogasthaḥ	1
+samatvam	1
+dūreṇa	1
+avaram	1
+buddhau	1
+anviccha	1
+kṛpaṇāḥ	1
+jahāti	1
+ubhe	1
+sukṛta	1
+duṣkṛte	1
+yogāya	1
+kauśalam	1
+jam	1
+bandha	1
+vinirmuktāḥ	1
+kalilam	1
+vyatitariṣyati	1
+gantāsi	1
+nirvedam	1
+śrotavyasya	1
+śrutasya	1
+vipratipannā	1
+sthāsyati	1
+niścalā	1
+samādhāu	1
+acalā	1
+prajñasya	1
+bhāṣā	1
+samādhi	1
+sthasya	1
+prabhāṣeta	1
+vrajeta	1
+prajahāti	1
+gatān	1
+tuṣṭaḥ	1
+prajñaḥ	1
+anudvigna	1
+manāḥ	1
+sukheṣu	1
+anabhi	1
+snehaḥ	1
+aśubham	1
+abhinandati	1
+saṁharate	1
+kūrmaḥ	1
+aṅgānī	1
+indriyāṇī	1
+vinivartante	1
+nirāhārasya	1
+rasa	1
+varjam	1
+yatataḥ	1
+puruṣasya	1
+vipaścitaḥ	1
+pramāthīni	1
+haranti	1
+vaśe	1
+dhyāyataḥ	1
+puṁsaḥ	1
+saṅgāt	1
+kāmāt	1
+krodhāt	1
+saṁmohāt	1
+vibhramaḥ	1
+bhraṁśāt	1
+buddhināśaḥ	1
+nāśāt	1
+vimuktaiḥ	1
+caran	1
+vaśyaiḥ	1
+vidheyātmā	1
+prasādam	1
+prasāde	1
+hāniḥ	1
+āśu	1
+bhāvanā	1
+abhāvayataḥ	1
+aśāntasya	1
+caratām	1
+anuvidhīyate	1
+harati	1
+prajñām	1
+nāvam	1
+ambhasi	1
+nigṛhītāni	1
+tasyām	1
+jāgarti	1
+saṁyamī	1
+yasyām	1
+jāgrati	1
+paśyataḥ	1
+āpūryamāṇam	1
+acala	1
+pratiṣṭham	1
+yadvat	1
+tadvat	1
+kāmakāmī	1
+pumān	1
+nirahañkāraḥ	1
+brāhmī	1
+enām	1
+vimuhyati	1
+sthitvā	1
+asyām	1
+jyāyasī	1
+ghore	1
+niyojayasi	1
+vyāmiśreṇa	1
+vākyena	1
+mohayasi	1
+vada	1
+niścitya	1
+āpnuyām	1
+dvi	1
+vidhā	1
+proktā	1
+sāṅkhyānām	1
+anārambhāt	1
+naiṣkarmyam	1
+sannyasanāt	1
+samadhigacchati	1
+kṣaṇam	1
+kāryate	1
+mithyā	1
+ārabhate	1
+jyāyaḥ	1
+yātrā	1
+prasiddhyet	1
+yajñaarthāt	1
+anyatra	1
+bandhanaḥ	1
+mukta	1
+sṛṣṭvā	1
+prasaviṣyadhvam	1
+dhuk	1
+bhāvayata	1
+bhāvayantu	1
+bhāvayantaḥ	1
+avāpsyatha	1
+iṣṭān	1
+dāsyante	1
+bhāvitāḥ	1
+dattān	1
+apradāya	1
+stenaḥ	1
+aśinaḥ	1
+santaḥ	1
+kilbiṣaiḥ	1
+bhuñjate	1
+agham	1
+pāpāḥ	1
+pacanti	1
+kāraṇāt	1
+annāt	1
+parjanyāt	1
+anna	1
+saṁbhavaḥ	1
+parjanyaḥ	1
+brahmaḥ	1
+pratiṣṭhitam	1
+pravartitam	1
+cakram	1
+anuvartayati	1
+aghāyuḥ	1
+mogham	1
+jīvati	1
+ratiḥ	1
+kṛtena	1
+akṛtena	1
+vyapāśrayaḥ	1
+ācaran	1
+āsthitāḥ	1
+janakādayaḥ	1
+lokasaṅgraham	1
+sampaśyan	1
+śreṣṭhaḥ	1
+itaraḥ	1
+janaḥ	1
+anuvartate	1
+kartavyam	1
+triṣu	1
+lokeṣu	1
+kiṁcana	1
+anavāptam	1
+avāptavyam	1
+varte	1
+varteyam	1
+atandritaḥ	1
+utsīdeyuḥ	1
+kuryām	1
+saṁkarasya	1
+upahanyām	1
+saktāḥ	1
+avidvāṁsaḥ	1
+kuryāt	1
+cikīrṣuḥ	1
+saṁgraham	1
+janayet	1
+ajñānām	1
+saṁginām	1
+joṣayet	1
+samācaran	1
+ahaṁkāra	1
+vibhāgayoḥ	1
+guṇeṣu	1
+sajjate	1
+saṁmūḍhāḥ	1
+sajjante	1
+akṛtsna	1
+mandān	1
+vicālayet	1
+saṁnyasya	1
+ādhyātma	1
+jvaraḥ	1
+mānavāḥ	1
+śraddhāvantaḥ	1
+anasūyantaḥ	1
+abhyasūyantaḥ	1
+vimūḍhān	1
+naṣṭān	1
+ceṣṭate	1
+svasyāḥ	1
+nigrahaḥ	1
+kariṣyati	1
+āgacchet	1
+paripanthinau	1
+dharmāt	1
+svanuṣṭhitāt	1
+nidhanam	1
+dharmaḥ	1
+āvahaḥ	1
+kena	1
+prayuktaḥ	1
+anicchann	1
+balāt	1
+niyojitaḥ	1
+rajoguṇa	1
+aśanaḥ	1
+mahāpāpmā	1
+vairiṇam	1
+āvriyate	1
+vahniḥ	1
+ādarśaḥ	1
+malena	1
+yathaḥ	1
+ulbena	1
+āvṛtaḥ	1
+garbhaḥ	1
+nityavairiṇā	1
+rupeṇa	1
+duṣpūreṇa	1
+analena	1
+vimohayati	1
+pāpmānam	1
+prajahi	1
+parāṇi	1
+indriyebhyaḥ	1
+parataḥ	1
+saṁstabhya	1
+śatrum	1
+durāsadam	1
+vivasvate	1
+vivasvān	1
+manave	1
+prāha	1
+manuḥ	1
+ikṣvākave	1
+paramparā	1
+prāptam	1
+mahatā	1
+purātanaḥ	1
+sakhā	1
+rahasyam	1
+vivasvataḥ	1
+vijānīyām	1
+śrībhagavānuvāca	1
+vyatītāni	1
+janmāni	1
+avyaya	1
+glāniḥ	1
+abhyutthānam	1
+adharmasya	1
+sṛjāmi	1
+paritrāṇāya	1
+sādhūnām	1
+vināśāya	1
+duṣkṛtām	1
+saṁsthāpana	1
+ārthāya	1
+krodhāḥ	1
+manmayāḥ	1
+pūtāḥ	1
+bhajāmi	1
+kāṅkṣantaḥ	1
+mānuṣe	1
+siddhiḥ	1
+karmajā	1
+cātur	1
+varṇyam	1
+sṛṣṭam	1
+vibhāgaśaḥ	1
+limpanti	1
+badhyate	1
+mumukṣubhiḥ	1
+pūrvataram	1
+mohitāḥ	1
+vikarmaṇaḥ	1
+gahanā	1
+paśyet	1
+samārambhāḥ	1
+saṁkalpa	1
+varjitāḥ	1
+agni	1
+dagdha	1
+paṇḍitam	1
+āsaṅgam	1
+nirāśrayaḥ	1
+abhipravṛttaḥ	1
+parigrahaḥ	1
+yadṛcchā	1
+lābha	1
+saṁtuṣṭaḥ	1
+vimatsaraḥ	1
+siddhāu	1
+asiddhau	1
+saṅgasya	1
+muktasya	1
+avasthita	1
+yajñāya	1
+ācarataḥ	1
+pravilīyate	1
+haviḥ	1
+brahmaṇā	1
+gantavyam	1
+samādhinā	1
+agnāv	1
+upa	1
+śrotra	1
+ādīni	1
+īndriyāṇi	1
+śabda	1
+ādīn	1
+dīpite	1
+dravya	1
+tapo	1
+saṁśita	1
+apāne	1
+prāṇe	1
+apānam	1
+prāṇaapāna	1
+ruddhvā	1
+prāṇāyāma	1
+prāṇeṣu	1
+kṣapita	1
+bhujaḥ	1
+ayajñasya	1
+vitatāḥ	1
+mukhe	1
+jān	1
+vimokṣyase	1
+dravyamayāt	1
+jñāne	1
+parisamāpyate	1
+praṇipātena	1
+paripraśnena	1
+upadekṣyanti	1
+darśinaḥ	1
+aśeṣeṇi	1
+drakṣyasi	1
+sarvebhyaḥ	1
+plavena	1
+vṛjinam	1
+santariṣyasi	1
+edhāṁsi	1
+samiddhaḥ	1
+tatparaḥ	1
+saṁyata	1
+acireṇa	1
+ajñaḥ	1
+aśraddadhānaḥ	1
+sannyasta	1
+sañchinna	1
+ātmavantam	1
+sañbhūtam	1
+asina	1
+ātiṣṭha	1
+śaṁsasi	1
+sreyaḥ	1
+etayoḥ	1
+suniścitam	1
+niḥśreyasa	1
+karāv	1
+sannyāsāt	1
+bandhāt	1
+sāṅkhya	1
+yogau	1
+bālāḥ	1
+vindate	1
+sāṅkhyaiḥ	1
+prāpyate	1
+yogaiḥ	1
+gamyate	1
+sāṁkhyam	1
+ayogataḥ	1
+cireṇa	1
+viśuddha	1
+bhūtātma	1
+bhūtātmā	1
+karomī	1
+manyeta	1
+paśyañ	1
+śṛṇvan	1
+spṛśañ	1
+jighran	1
+aśnan	1
+gacchan	1
+svapañ	1
+śvasan	1
+pralapan	1
+visṛjan	1
+gṛhṇan	1
+unmiṣan	1
+nimiṣan	1
+atheṣu	1
+vartanta	1
+pāpena	1
+padma	1
+ambhasā	1
+kāyena	1
+kevalaiḥ	1
+śuddhaye	1
+naiṣṭhikīm	1
+kāreṇa	1
+saktaḥ	1
+vaśī	1
+nava	1
+dvāre	1
+pure	1
+kārayan	1
+kartṛtvam	1
+karmāṇ	1
+sṛjati	1
+ādatte	1
+kasyacit	1
+sukṛtam	1
+vibhuḥ	1
+ajñānena	1
+muhyanti	1
+jantavaḥ	1
+nāśitam	1
+ādityavat	1
+niṣṭhāḥ	1
+parāyaṇā	1
+apunaḥ	1
+nirdhūta	1
+vidya	1
+vinaya	1
+sampanne	1
+brāhmaṇe	1
+gavi	1
+hastini	1
+śuni	1
+śvapāke	1
+darśina	1
+sargaḥ	1
+sāmye	1
+nirdoṣam	1
+sthitāḥ	1
+prahṛṣyet	1
+udvijet	1
+apriyam	1
+brahmavit	1
+bāhya	1
+sparśeṣu	1
+akṣayam	1
+saṁsparśajāḥ	1
+bhogaḥ	1
+vantaḥ	1
+budhaḥ	1
+śaknoti	1
+prāk	1
+vimokṣaṇāt	1
+vegam	1
+antar	1
+kṣīṇa	1
+dvaidhā	1
+viyuktānām	1
+yatīnām	1
+abhitaḥ	1
+vidita	1
+ātmanām	1
+sparśān	1
+bāhyān	1
+antare	1
+apānau	1
+samau	1
+nāsa	1
+abhyantara	1
+cāriṇau	1
+bhoktāram	1
+tapasām	1
+suhṛdam	1
+anāśritaḥ	1
+niḥ	1
+akriyaḥ	1
+asannyasta	1
+saṁkalpaḥ	1
+ārurukṣoḥ	1
+ārūḍhasya	1
+artheṣu	1
+ārūḍhaḥ	1
+uddharet	1
+avasādayet	1
+ripuḥ	1
+anātmanaḥ	1
+śatrutve	1
+varteta	1
+śatruvat	1
+praśāntasya	1
+samāhitaḥ	1
+tṛptā	1
+loṣṭra	1
+āśma	1
+udāsīna	1
+madhyastha	1
+dveṣya	1
+bandhuṣu	1
+sādhuṣu	1
+pāpeṣu	1
+"yogī	1
+yuñjīta	1
+rahasi	1
+"	1
+ekākī	1
+aparigrahaḥ	1
+śucau	1
+pratiṣṭhāpya	1
+āsanam	1
+ucchritam	1
+nīcam	1
+caila	1
+ajina	1
+kuśa	1
+uttaram	1
+ekāgram	1
+kriyaḥ	1
+upaviśya	1
+āsane	1
+yuñjyāt	1
+viśuddhaye	1
+grīvam	1
+sthiraḥ	1
+saṁprekṣya	1
+nāsikā	1
+agram	1
+svam	1
+anavalokayan	1
+brahmacāri	1
+vrate	1
+nirvāṇa	1
+saṁsthām	1
+aśnataḥ	1
+ekāntam	1
+anaśnataḥ	1
+śīlasya	1
+jāgrataḥ	1
+āhāra	1
+vihārasya	1
+ceṣṭasya	1
+avabodhasya	1
+hā	1
+viniyatam	1
+kāmebhyaḥ	1
+dīpaḥ	1
+nivāta	1
+upamā	1
+smṛtā	1
+cittasya	1
+yuñjataḥ	1
+uparamate	1
+niruddham	1
+tuṣyati	1
+ātyantikam	1
+grāhyam	1
+atīndriyam	1
+calati	1
+lābham	1
+adhikam	1
+duḥkhena	1
+guruṇāpi	1
+saṁyoga	1
+viyogam	1
+yogasanjñitam	1
+niścayena	1
+yoktavyaḥ	1
+anirviṇṇa	1
+prabhavān	1
+manasa	1
+viniyamya	1
+samantataḥ	1
+uparamet	1
+dhṛtigṛhītayā	1
+saṁstham	1
+cintayet	1
+niścarati	1
+asthiram	1
+nayet	1
+manasam	1
+yoginam	1
+śānta	1
+rajasam	1
+akalmaṣam	1
+kalmaṣaḥ	1
+sukhena	1
+saṁsparśam	1
+atyantam	1
+darśanaḥ	1
+praṇaśyāmi	1
+ekatvam	1
+aupamyena	1
+rjuna	1
+sāmyena	1
+etasya	1
+cañcalatvāt	1
+sthitim	1
+sthirām	1
+pramāthi	1
+balavat	1
+nigraham	1
+vāyoḥ	1
+suduṣkaram	1
+asañśayam	1
+durnigraham	1
+vairāgyeṇa	1
+gṛhyate	1
+asaṁyata	1
+duṣprāpaḥ	1
+vaśya	1
+yatatā	1
+avāptum	1
+upāyataḥ	1
+ayatiḥ	1
+śraddhayaḥ	1
+upetaḥ	1
+calita	1
+yogasaṁsiddhim	1
+kām	1
+kacchit	1
+ubhaya	1
+vibhraṣṭaḥ	1
+abhram	1
+naśyati	1
+apratiṣṭhaḥ	1
+vimūḍhaḥ	1
+pathi	1
+chettum	1
+saṁśayasya	1
+chettā	1
+amutra	1
+vināśaḥ	1
+kalyāṇa	1
+durgatim	1
+tāta	1
+kṛtām	1
+uṣitvā	1
+śāśvatīḥ	1
+śucīnām	1
+śrīmatām	1
+gehe	1
+bhraṣṭaḥ	1
+kule	1
+dhīmatām	1
+durlabhataram	1
+paurva	1
+dehikam	1
+yatate	1
+saṁsiddhau	1
+pūrvā	1
+hriyate	1
+yogasya	1
+śabdabrahma	1
+prayatnāt	1
+yatamānaḥ	1
+saṁśuddha	1
+kilbiṣaḥ	1
+tapasvibhyaḥ	1
+jñānibhyaḥ	1
+karmibhyaḥ	1
+sarveṣām	1
+madgatena	1
+antarātmanā	1
+yuktatamaḥ	1
+āsaktamanāḥ	1
+madāśrayaḥ	1
+asaṁśayam	1
+jñāsyasitat	1
+jñātavyam	1
+avaśiṣyate	1
+sahasreṣu	1
+yatati	1
+yatatām	1
+bhūmiḥ	1
+analaḥ	1
+vāyu	1
+kham	1
+bhinnā	1
+aṣṭadhā	1
+aparā	1
+anyām	1
+bhūtām	1
+dhāryate	1
+yonīni	1
+īti	1
+kṛtsnasya	1
+parataram	1
+protam	1
+sūtre	1
+maṇigaṇāḥ	1
+apsu	1
+prabhā	1
+sūryayoḥ	1
+praṇavaḥ	1
+khe	1
+nṛṣu	1
+puṇyaḥ	1
+gandhaḥ	1
+vibhāvasau	1
+jīvanam	1
+tapasviṣu	1
+buddhimatām	1
+tejas	1
+balavatām	1
+aviruddhaḥ	1
+sātvikāḥ	1
+guṇamayaiḥ	1
+bhāvaiḥ	1
+mohitam	1
+mayī	1
+duratyayā	1
+māyām	1
+taranti	1
+duṣkṛtinaḥ	1
+adhamāḥ	1
+caturvidhāḥ	1
+sukṛtinaḥ	1
+ārtaḥ	1
+arthārthī	1
+atyartham	1
+udārāḥ	1
+yuktātmā	1
+anuttamām	1
+bahūnām	1
+janmanām	1
+prapadyate	1
+durlabhaḥ	1
+kāmaiḥ	1
+hṛta	1
+niyamam	1
+āsthāya	1
+prakṛtyā	1
+niyatāḥ	1
+svayā	1
+arcitum	1
+icchati	1
+acalām	1
+śraddhām	1
+vidadhāmi	1
+ārādhanam	1
+īhate	1
+vihitān	1
+antavat	1
+medhasām	1
+yajaḥ	1
+madbhaktāḥ	1
+vyaktim	1
+āpannam	1
+manyante	1
+abuddhayaḥ	1
+anuttamam	1
+prakāśaḥ	1
+samāvṛtaḥ	1
+mūḍhaḥ	1
+samatītāni	1
+vartamānāni	1
+bhaviṣyāṇi	1
+samutthena	1
+mohena	1
+sammoham	1
+antagatam	1
+janānām	1
+nirmuktāḥ	1
+maraṇa	1
+mokṣāya	1
+yatanti	1
+adhibhūta	1
+adhiyajñam	1
+tad	1
+prayāṇakāle	1
+ātmabhiḥ	1
+udbhava	1
+karaḥ	1
+visargaḥ	1
+saṁjñitaḥ	1
+adhidaivatam	1
+muktvā	1
+va	1
+tyajati	1
+bhāvitaḥ	1
+anusmara	1
+yudhya	1
+yuktena	1
+gāminā	1
+pārthā	1
+anucintayan	1
+kavim	1
+purāṇam	1
+anuśāsitāram	1
+aṇoḥ	1
+aṇīyāṁsam	1
+anusmaret	1
+dhātāram	1
+acintya	1
+parastāt	1
+acalena	1
+balena	1
+vadanti	1
+rāgāḥ	1
+icchantaḥ	1
+caranti	1
+saṅgraheṇa	1
+pravakṣye	1
+dvārāṇi	1
+nirudhya	1
+mūrdhni	1
+dhāraṇām	1
+vyāharan	1
+anusmaran	1
+tyajan	1
+smarati	1
+nityaśaḥ	1
+sulabhaḥ	1
+yuktasya	1
+ālayam	1
+aśāśvatam	1
+āpnuvanti	1
+ābrahma	1
+bhuvanāt	1
+āvartinaḥ	1
+punarjanma	1
+paryantam	1
+rātrim	1
+antām	1
+rātra	1
+vyaktayaḥ	1
+pralīyante	1
+saṁjñake	1
+bhūtagrāmaḥ	1
+pralīyate	1
+prabhavati	1
+ahar	1
+naśyatsu	1
+labhyaḥ	1
+antaḥsthāni	1
+kālam	1
+jotiḥ	1
+śuklaḥ	1
+uttarāyaṇam	1
+dhūmaḥ	1
+rātriḥ	1
+dakṣiṇāyanam	1
+cāndramasam	1
+śukla	1
+kṛṣṇe	1
+śāśvate	1
+mate	1
+ekayā	1
+anyayā	1
+āvartate	1
+sṛtī	1
+jānan	1
+yogayuktaḥ	1
+yajñeṣu	1
+tapaḥsu	1
+dāneṣu	1
+pradiṣṭam	1
+atyeti	1
+viditvā	1
+anasūyave	1
+sahitam	1
+pratyakṣa	1
+avagamam	1
+susukham	1
+aśraddadhānāḥ	1
+puruṣāḥ	1
+vartmani	1
+mūrtinā	1
+bhūtasthaḥ	1
+bhāvanaḥ	1
+ākāśa	1
+sarvatragaḥ	1
+matsthānī	1
+māmikām	1
+kalpak	1
+kṣaye	1
+kalpādau	1
+bhūtagrāmam	1
+avaśam	1
+vaśāt	1
+āsīnam	1
+adhyakṣeṇa	1
+sūyate	1
+hetunā	1
+viparivartate	1
+avajānanti	1
+mānuṣīm	1
+āśritam	1
+moghāśā	1
+karmāṇaḥ	1
+vicetasaḥ	1
+rākṣasīm	1
+mohinīm	1
+śritāḥ	1
+mahātmānaḥ	1
+bhūtādim	1
+kīrtayantaḥ	1
+namasyantaḥ	1
+yajantaḥ	1
+ekatvena	1
+kratuḥ	1
+svadhā	1
+auṣadham	1
+mantraḥ	1
+ājyam	1
+mātā	1
+oṁkāra	1
+ṛk	1
+yajuḥ	1
+sākṣī	1
+nivāsaḥ	1
+avyam	1
+tapāi	1
+varṣam	1
+nigṛṇhāmi	1
+utsṛjāmi	1
+traividyā	1
+somapāḥ	1
+pūta	1
+pāpā	1
+iṣṭvā	1
+svargatim	1
+prārthayante	1
+āsādya	1
+surendralokam	1
+aśnanti	1
+bhuktvā	1
+svargalokam	1
+viśālam	1
+kṣīṇe	1
+puṇye	1
+martyalokam	1
+trayī	1
+anuprapannāḥ	1
+gatāgatam	1
+ananyāḥ	1
+cintayantaḥ	1
+abhiyuktānām	1
+kṣemam	1
+vahāmi	1
+devatā	1
+yajanti	1
+abhijānanti	1
+cyavanti	1
+vratā	1
+pitṛ	1
+bhūtejyā	1
+yājinaḥ	1
+puṣpam	1
+toyam	1
+prayacchati	1
+upahṛtam	1
+aśnāmi	1
+prayata	1
+karoṣi	1
+aśnāsi	1
+juhoṣi	1
+dadāsi	1
+tapasyasi	1
+kuruṣva	1
+phalaiḥ	1
+bandhanaiḥ	1
+sannyāsa	1
+upaiṣyasi	1
+dveṣyaḥ	1
+durācāraḥ	1
+ananyabhāk	1
+sādhuḥ	1
+mantavyaḥ	1
+vyavasitaḥ	1
+śaśvat	1
+sāntim	1
+pratijānīhi	1
+vyapāśritya	1
+syuḥ	1
+vaiśyāḥ	1
+śūdrāḥ	1
+puṇyā	1
+bhaktā	1
+anityam	1
+asukham	1
+bhajasva	1
+yuktvā	1
+prīyamāṇāya	1
+hita	1
+kāmyayā	1
+sura	1
+gaṇāḥ	1
+prabhavam	1
+anādim	1
+asaṁmūḍhaḥ	1
+martyeṣu	1
+pāpaiḥ	1
+asaṁmohaḥ	1
+bhavaḥ	1
+samatā	1
+tuṣṭiḥ	1
+ayaśaḥ	1
+sapta	1
+pūrve	1
+catvāraḥ	1
+manavaḥ	1
+madbhāvāḥ	1
+mānasāḥ	1
+jātāḥ	1
+avikampena	1
+samanvitāḥ	1
+maccittā	1
+prāṇāḥ	1
+bodhayantaḥ	1
+kathayantaḥ	1
+tuṣyanti	1
+ramanti	1
+yuktānām	1
+bhajatām	1
+upayānti	1
+anukampā	1
+nāśayāmi	1
+dīpena	1
+bhāsvatā	1
+vibhum	1
+devarṣiḥ	1
+asitaḥ	1
+devalḥ	1
+bravīṣi	1
+ṛtam	1
+vadasi	1
+vyaktimk	1
+dānavāḥ	1
+bhāvana	1
+bhūteśa	1
+vaktum	1
+yābhiḥ	1
+vibhūtibhiḥ	1
+vyāpya	1
+tiṣṭhasi	1
+vidyām	1
+yogin	1
+paricintayan	1
+bhāveṣu	1
+cintyaḥ	1
+vistareṇa	1
+kathaya	1
+tṛptiḥ	1
+śṛṇvataḥ	1
+hanta	1
+kathayiṣyāmi	1
+prādhānyataḥ	1
+śreṣṭha	1
+vistarasya	1
+āśaya	1
+ādityānām	1
+viṣṇuḥ	1
+aṁśumān	1
+marīciḥ	1
+marutām	1
+nakṣatrāṇām	1
+śaśī	1
+vedānām	1
+sāmavedaḥ	1
+vāsavaḥ	1
+rudrāṇām	1
+śaṁkaraḥ	1
+vitteśaḥ	1
+rakṣasām	1
+vasūnām	1
+meruḥ	1
+śikhariṇām	1
+purodhasām	1
+mukhyam	1
+bṛhaspatim	1
+senānīnām	1
+skandaḥ	1
+sarasām	1
+sāgaraḥ	1
+bhṛguḥ	1
+girām	1
+japayajñaḥ	1
+sthāvarāṇām	1
+himālayaḥ	1
+aśvatthaḥ	1
+vṛkṣāṇām	1
+devarṣīṇām	1
+gandharvāṇām	1
+citrarathaḥ	1
+kapilaḥ	1
+uccaiḥśravasam	1
+aśvānām	1
+airāvatam	1
+gajendrāṇām	1
+narāṇām	1
+narādhipa	1
+āyudhānām	1
+vajram	1
+dhenūnām	1
+kāmadhuk	1
+prajanaḥ	1
+kandarpaḥ	1
+sarpāṇām	1
+vāsukiḥ	1
+anantaḥ	1
+nāgānām	1
+yādasām	1
+pitṛṇām	1
+aryamā	1
+saṁyamatām	1
+prahlādaḥ	1
+daityānām	1
+kalayatām	1
+mṛgāṇām	1
+mṛgendraḥ	1
+vainateyaḥ	1
+pakṣiṇām	1
+pavanaḥ	1
+pavatām	1
+rāmaḥ	1
+jhaṣāṇām	1
+makaraḥ	1
+strotasām	1
+jāhnavī	1
+sargāṇām	1
+vidyānām	1
+vādaḥ	1
+pravadatām	1
+akṣarāṇām	1
+akāraḥ	1
+dvandvaḥ	1
+sāmāsikasya	1
+akṣayaḥ	1
+viśvatomukhaḥ	1
+haraḥ	1
+udbhavaḥ	1
+bhaviṣyatām	1
+kīrtiḥ	1
+nārīṇām	1
+medhā	1
+bṛhat	1
+sāmnām	1
+gāyatrī	1
+chandasām	1
+māsānām	1
+mārga	1
+śirsaḥ	1
+ṛtūnām	1
+kusumākaraḥ	1
+dyutam	1
+chalayatām	1
+jayaḥ	1
+vatām	1
+vṛṣṇīnām	1
+pāṇḍavānām	1
+dhanaṁjayaḥ	1
+munīnām	1
+kavīnām	1
+uśanā	1
+kaviḥ	1
+daṇḍaḥ	1
+damayatām	1
+jigīṣatām	1
+guhyānām	1
+jñānavatām	1
+vinā	1
+divyānām	1
+vibhūtīnām	1
+uddeśataḥ	1
+vibhūteḥ	1
+vistaraḥ	1
+vibhūtimat	1
+śrīmad	1
+ūrjitam	1
+avagaccha	1
+aṁśa	1
+sambhavam	1
+bahuna	1
+jñātena	1
+viṣṭabhya	1
+aṁśena	1
+madanugrahāya	1
+saṁjñitam	1
+vigataḥ	1
+apyayau	1
+śrutau	1
+tvattaḥ	1
+patra	1
+akṣa	1
+māhātmyam	1
+āttha	1
+parameśvara	1
+yogeśvara	1
+rūpāṇi	1
+śataśaḥ	1
+sahasraśaḥ	1
+vidhāni	1
+divyāni	1
+ākṛtīni	1
+ādityān	1
+vasūn	1
+rudrān	1
+pūrvāṇi	1
+āścaryāṇi	1
+śakyase	1
+mahāyogeśvaraḥ	1
+hariḥ	1
+pārthāya	1
+nayanam	1
+adbhuta	1
+ābharaṇam	1
+udyata	1
+āyudham	1
+mālya	1
+ambara	1
+dharamdivya	1
+gandha	1
+anulepanam	1
+āścaryamayam	1
+sahasrasya	1
+yugapat	1
+utthitā	1
+bhāḥ	1
+sadṛśī	1
+pravibhaktam	1
+anekadhā	1
+devadevasya	1
+vismaya	1
+hṛṣṭa	1
+romā	1
+śirasā	1
+abhāṣata	1
+saṅghān	1
+brahmāṇam	1
+ṛṣīn	1
+uragān	1
+udara	1
+ādim	1
+viśveśvara	1
+rūpa	1
+cakriṇam	1
+tejorāśim	1
+dīptimantam	1
+durnirīkṣyam	1
+arka	1
+dyutim	1
+veditavyam	1
+śāśvata	1
+goptā	1
+madhya	1
+vīryam	1
+bāhum	1
+hutāśa	1
+vaktram	1
+tejasā	1
+tapantam	1
+dyāu	1
+āpṛthivyoḥ	1
+vyāptam	1
+ekena	1
+rupam	1
+ugram	1
+surasaṅghā	1
+bhītāḥ	1
+prāñjalayaḥ	1
+gṛṇanti	1
+svasti	1
+maharṣi	1
+stuvanti	1
+stutibhiḥ	1
+puṣkalābhiḥ	1
+rudra	1
+ādityā	1
+vasavaḥ	1
+sādhyāḥ	1
+viśve	1
+uṣmapāḥ	1
+gandharva	1
+asura	1
+vīkṣante	1
+vismitāḥ	1
+uru	1
+udaram	1
+damṣṭrā	1
+karālam	1
+pravyathitāḥ	1
+spṛśamdīptam	1
+vyātta	1
+ānanam	1
+viśāla	1
+pravyathita	1
+antarātmā	1
+dhṛtim	1
+vindāmi	1
+śamam	1
+daṁṣṭra	1
+mukhāni	1
+kāla	1
+sannibhāni	1
+jāne	1
+labhe	1
+śarma	1
+dhṛtarāṣṭrasya	1
+avanipāla	1
+saṅghaiḥ	1
+droṇaḥ	1
+sūta	1
+asmadīyaiḥ	1
+yodha	1
+mukhyaiḥ	1
+tvaramāṇāḥ	1
+daṁṣṭrā	1
+bhayānakāni	1
+vilagnāḥ	1
+daśana	1
+antareṣu	1
+sandṛśyante	1
+cūrṇitaiḥ	1
+uttama	1
+aṅgaiḥ	1
+nadīnām	1
+ambu	1
+abhimukhāḥ	1
+vīrāḥ	1
+abhivijvalanti	1
+pradīptam	1
+jvalanam	1
+pataṅgāḥ	1
+lelihyase	1
+grasamānaḥ	1
+samagrān	1
+vadanaiḥ	1
+jvaladbhiḥ	1
+tejobhiḥ	1
+āpūrya	1
+ugrāḥ	1
+pratapanti	1
+ākhyāhi	1
+ugrarūpaḥ	1
+vijñātum	1
+bhavantam	1
+prajānāmi	1
+pravṛddhaḥ	1
+samāhartum	1
+pravṛttaḥ	1
+ṛte	1
+bhaviṣyanti	1
+pratyanīkeṣu	1
+yodhāḥ	1
+labhasva	1
+śatrūn	1
+bhuṅkṣva	1
+samṛddham	1
+maya	1
+nihatāḥ	1
+nimitta	1
+mātram	1
+savyasācin	1
+jayadratham	1
+karṇam	1
+anyān	1
+yodhavīrān	1
+hatān	1
+vyathiṣṭhāḥ	1
+jetāsi	1
+sapatnān	1
+keśavasya	1
+vepamānaḥ	1
+kirīṭī	1
+namaskṛtvā	1
+kṛṣṇam	1
+gadgadam	1
+bhīta	1
+bhītaḥ	1
+sthāne	1
+prakīrtyā	1
+prahṛṣyati	1
+anurajyate	1
+bhītāni	1
+namasyanti	1
+kasmāt	1
+nameran	1
+garīyase	1
+kartre	1
+tatparam	1
+devaḥ	1
+vettā	1
+anantarūpa	1
+prapitāmahaḥ	1
+sahastra	1
+kṛtvaḥ	1
+purastāt	1
+pṛṣṭhataḥ	1
+vīrya	1
+amita	1
+vikramaḥ	1
+samāpnoṣi	1
+sakha	1
+yādava	1
+sakheti	1
+ajānatā	1
+mahimānam	1
+pramādāt	1
+praṇayena	1
+avahāsa	1
+kṛtaḥ	1
+vihāra	1
+śayyā	1
+bhojaneṣu	1
+samakṣam	1
+kṣāmaye	1
+acarasya	1
+pūjya	1
+guruḥ	1
+garīyān	1
+abhyadhikaḥ	1
+traye	1
+apratima	1
+prabhāva	1
+praṇidhāya	1
+kāyam	1
+prasādaye	1
+īḍyam	1
+pita	1
+putrasya	1
+sakheva	1
+sakhyuḥ	1
+priyāyāḥ	1
+hṛṣitaḥ	1
+bhayena	1
+cakra	1
+hastam	1
+rūpeṇa	1
+caturbhujena	1
+bāho	1
+mūrte	1
+prasannena	1
+darśitam	1
+tejomayam	1
+dṛṣṭa	1
+adhyayanaiḥ	1
+dānaiḥ	1
+kriyābhiḥ	1
+tapobhiḥ	1
+ugraiḥ	1
+rūpaḥ	1
+nṛloke	1
+pravīra	1
+vyathā	1
+īdṛk	1
+vyapeta	1
+prītamanāḥ	1
+prapaśya	1
+arjunam	1
+svakam	1
+āśvāsayāmāsa	1
+bhītam	1
+saumyavapuḥ	1
+mānuṣam	1
+saumyam	1
+saṁvṛttaḥ	1
+sacetāḥ	1
+sudurdarśam	1
+dṛṣṭvān	1
+rūpasya	1
+darśana	1
+kāṅkṣiṇaḥ	1
+dānena	1
+ijyayā	1
+vidhaḥ	1
+dṛṣṭavān	1
+evamvidhaḥ	1
+jñātum	1
+praveṣṭum	1
+matparamaḥ	1
+varjitaḥ	1
+nirvairaḥ	1
+ke	1
+yuktā	1
+upetāḥ	1
+matāḥ	1
+tv	1
+anirdeśyam	1
+sarvatragam	1
+acintyam	1
+kūṭastham	1
+saṁniyamya	1
+samabuddhayāḥ	1
+prāpnuvanti	1
+kleśaḥ	1
+adhikataraḥ	1
+āsakta	1
+avyaktā	1
+vadbhiḥ	1
+avāpyate	1
+ananyena	1
+dhyāyantaḥ	1
+samuddhartā	1
+sāgarāt	1
+bhavāmi	1
+cirāt	1
+āveśita	1
+ādhatsva	1
+niveśaya	1
+nivasiṣyasi	1
+samādhātum	1
+śaknoṣi	1
+dhananjaya	1
+abhyāse	1
+asamarthaḥ	1
+madartham	1
+aśaktaḥ	1
+madyogam	1
+jñānāt	1
+dhyānam	1
+dhyānāt	1
+tyāgāt	1
+anantaram	1
+adveṣṭā	1
+maitraḥ	1
+karuṇaḥ	1
+nirahaṅkāraḥ	1
+kṣamī	1
+lokāt	1
+amarṣa	1
+udvegaiḥ	1
+anapekṣaḥ	1
+śuciḥ	1
+dakṣaḥ	1
+udāsīnaḥ	1
+vyathaḥ	1
+hṛṣyati	1
+śatrau	1
+mitre	1
+mānā	1
+pamānayoḥ	1
+vivarjitaḥ	1
+stutiḥ	1
+maunī	1
+kenacit	1
+aniketaḥ	1
+dharmyāmṛtam	1
+śraddadhānāḥ	1
+matparamāḥ	1
+atīva	1
+tadvidaḥ	1
+kṣetrajñam	1
+kṣetreṣu	1
+jñayoḥ	1
+yādṛk	1
+vikāri	1
+prabhāvaḥ	1
+ṛṣibhiḥ	1
+gītam	1
+chandobhiḥ	1
+vividhaiḥ	1
+sūtra	1
+padaiḥ	1
+hetumadbhiḥ	1
+viniścitaiḥ	1
+mahābhūtāni	1
+daśa	1
+gocarāḥ	1
+dveṣaḥ	1
+saṅghātaḥ	1
+savikāram	1
+amānitvam	1
+adambhitvam	1
+upāsanam	1
+sthairyam	1
+indriyārtheṣu	1
+anahaṅkāra	1
+vyādhi	1
+anudarśanam	1
+asaktiḥ	1
+anabhiṣvaṅgaḥ	1
+putra	1
+dāra	1
+gṛhādiṣu	1
+cittatvam	1
+aniṣṭa	1
+upapattiṣu	1
+avyabhicāriṇī	1
+deśa	1
+sevitvam	1
+aratiḥ	1
+jana	1
+saṁsadi	1
+nityatvam	1
+anyathā	1
+anādimat	1
+pāṇi	1
+akṣi	1
+ābhāsam	1
+nirguṇam	1
+bhoktṛ	1
+caram	1
+sūkṣmatvāt	1
+avijñeyam	1
+dūrastham	1
+antike	1
+vibhaktam	1
+bhartṛ	1
+grasiṣṇu	1
+prabhaviṣṇu	1
+gamyam	1
+viṣṭhitam	1
+samāsataḥ	1
+bhakta	1
+vijñāya	1
+bhāvāya	1
+ubhāu	1
+vikārān	1
+sambhavān	1
+kāraṇa	1
+kartṛtve	1
+bhoktṛtve	1
+prakṛtisthaḥ	1
+prakṛtijān	1
+guṇasaṅgaḥ	1
+yoni	1
+janmasu	1
+upadraṣṭā	1
+anumantā	1
+maheśvaraḥ	1
+paramātma	1
+dhyānena	1
+sāṅkhyena	1
+anyebhyaḥ	1
+atitaranti	1
+mṛtyum	1
+sthāvara	1
+jaṅgamam	1
+tiṣṭhantam	1
+parameśvaram	1
+vinaśyatsu	1
+avinaśyantam	1
+samavasthitam	1
+īśvaram	1
+hinasti	1
+prakṛtya	1
+tata	1
+vistāram	1
+sampadyate	1
+anāditvāt	1
+nirguṇatvāt	1
+paramātmā	1
+śarīrasthaḥ	1
+saukṣmyāt	1
+ākāśam	1
+ekaḥ	1
+kṣetrī	1
+kṣetrajñayoḥ	1
+jñānānām	1
+munayaḥ	1
+sādharmyam	1
+upajāyante	1
+pralaye	1
+vyathanti	1
+tasmin	1
+garbham	1
+dadhāmi	1
+sambhavaḥ	1
+mūrtayaḥ	1
+sambhavanti	1
+yāḥ	1
+tāsām	1
+bīja	1
+pradaḥ	1
+rajas	1
+sambhavāḥ	1
+nirmalatvāt	1
+prakāśakam	1
+sukhasaṅgena	1
+badhnāti	1
+rāgātmakam	1
+tṛṣṇā	1
+nidrābhiḥ	1
+sukhe	1
+pramāde	1
+abhibhūya	1
+dvāreṣu	1
+prakāśa	1
+vivṛddham	1
+ārambhaḥ	1
+aśamaḥ	1
+aprakāśaḥ	1
+apravṛttiḥ	1
+pramādaḥ	1
+sattve	1
+pravṛddhe	1
+uttamavidām	1
+amalān	1
+pratipadyate	1
+saṅgiṣu	1
+pralīnaḥ	1
+sukṛtasya	1
+nirmalam	1
+sattvāt	1
+mohau	1
+sattvasthāḥ	1
+tiṣṭhanti	1
+jaghanya	1
+vṛttisthāḥ	1
+anyam	1
+draṣṭā	1
+atītya	1
+samudbhavān	1
+duḥkhaiḥ	1
+liṅgaiḥ	1
+prakāśam	1
+sampravṛttāni	1
+nivṛttāni	1
+āsīnaḥ	1
+avatiṣṭhati	1
+svasthaḥ	1
+loṣṭa	1
+aśma	1
+apriyaḥ	1
+saṁstutiḥ	1
+pakṣayoḥ	1
+guṇātītaḥ	1
+yah	1
+avyabhicāreṇa	1
+sevate	1
+samatītya	1
+pratiṣṭhā	1
+amṛtasya	1
+śāśvatasya	1
+sukhasya	1
+aikāntikasya	1
+ūrdhva	1
+śākham	1
+chandāṁsi	1
+parṇāni	1
+vedavit	1
+urdhvam	1
+prasṛtāḥ	1
+pravṛddhā	1
+pravālāḥ	1
+mūlāni	1
+anusantatāni	1
+anubandhīni	1
+manuṣya	1
+tathaḥ	1
+upalabhyate	1
+saṁpratiṣṭhā	1
+suvirūḍha	1
+śastreṇa	1
+dṛḍhena	1
+parimārgitavyam	1
+gatā	1
+nivartanti	1
+prapadye	1
+prasṛtā	1
+purāṇī	1
+nirmāna	1
+mohā	1
+doṣā	1
+nityā	1
+vinivṛtta	1
+dvandvaiḥ	1
+vimuktāḥ	1
+sañjñaiḥ	1
+amūḍhāḥ	1
+sūryaḥ	1
+aṁśaḥ	1
+ṣaṣṭhāni	1
+sthāni	1
+karṣati	1
+utkrāmati	1
+gṛhitva	1
+gandhān	1
+āśayāt	1
+śrotram	1
+sparśanam	1
+rasanam	1
+ghrāṇam	1
+upasevate	1
+utkrāmantam	1
+bhuñjānam	1
+anvitam	1
+vimūḍhā	1
+anupaśyanti	1
+cakṣuṣaḥ	1
+avasthitam	1
+āditya	1
+candramasi	1
+māmakam	1
+gām	1
+dhārayāmi	1
+ojasā	1
+puṣṇāmi	1
+auṣadhīḥ	1
+somaḥ	1
+rasātmakaḥ	1
+vaiśvānaraḥ	1
+prāṇinām	1
+apāna	1
+samāyuktaḥ	1
+pacāmi	1
+caturvidham	1
+niviṣṭaḥ	1
+apohanam	1
+sarvaiḥ	1
+vedyaḥ	1
+vedānta	1
+dvāu	1
+imau	1
+puruṣau	1
+udāhṛtaḥ	1
+bibharti	1
+kṣaram	1
+akṣarāt	1
+vede	1
+prathitaḥ	1
+puruṣottamaḥ	1
+jānāti	1
+puruṣottamam	1
+kṛtakṛtyaḥ	1
+vyavasthitiḥ	1
+svādhyāyaḥ	1
+akrodhaḥ	1
+apaiśunam	1
+dayā	1
+aloluptvam	1
+mārdavam	1
+hrīḥ	1
+acāpalam	1
+adrohaḥ	1
+atimānitā	1
+dambhaḥ	1
+darpaḥ	1
+bhimānaḥ	1
+pāruṣyam	1
+sampat	1
+vimokṣāya	1
+nibandhāya	1
+āsurī	1
+abhijātaḥ	1
+dvau	1
+sargau	1
+daiva	1
+āsuraḥ	1
+daivaḥ	1
+āsurāḥ	1
+asatyam	1
+apratiṣṭham	1
+anīśvaram	1
+aparaspara	1
+sambhūtam	1
+haitukam	1
+dṛṣṭim	1
+naṣṭa	1
+ugrakarmāṇaḥ	1
+kṣayāya	1
+duṣpūram	1
+gṛhītvā	1
+grāhān	1
+aśuci	1
+cintām	1
+aparimeyām	1
+pralayāntām	1
+upabhoga	1
+paramāḥ	1
+etāvat	1
+niścitāḥ	1
+āśā	1
+pāśa	1
+śataiḥ	1
+baddhāḥ	1
+īhante	1
+anyāyena	1
+sañcayān	1
+labdham	1
+prāpsye	1
+manoratham	1
+bhaviṣyati	1
+dhanam	1
+śatruḥ	1
+haniṣye	1
+aparān	1
+bhogī	1
+siddhaḥ	1
+balavān	1
+āḍhyaḥ	1
+abhijanavān	1
+sadṛśaḥ	1
+yakṣye	1
+dāsyāmi	1
+modiṣye	1
+vimohitāḥ	1
+vibhrāntāḥ	1
+jāla	1
+samāvṛtāḥ	1
+prasaktāḥ	1
+bhogeṣu	1
+aśucau	1
+sambhāvitāḥ	1
+stabdhā	1
+dhana	1
+nāma	1
+saṁśritāḥ	1
+deheṣu	1
+pradviṣantaḥ	1
+abhyasūyakāḥ	1
+dviṣataḥ	1
+krurān	1
+saṁsāreṣu	1
+nar	1
+adhamān	1
+kṣipāmi	1
+ajasram	1
+aśubhān	1
+āsurīṣu	1
+yonim	1
+āpannāḥ	1
+adhamām	1
+narakasya	1
+dvāraiḥ	1
+kārataḥ	1
+akārya	1
+āho	1
+raja	1
+svabhāvajā	1
+anurūpā	1
+mayaḥ	1
+śraddhaḥ	1
+sāttvikāḥ	1
+pretān	1
+gaṇāñ	1
+aśāstra	1
+vihitam	1
+tapyante	1
+ahañkāra	1
+saṁyuktāḥ	1
+karṣayantaḥ	1
+śarīrastham	1
+āsura	1
+niścayān	1
+āhāraḥ	1
+āyuḥ	1
+ārogya	1
+vivardhanāḥ	1
+rasyāḥ	1
+snigdhāḥ	1
+sthirāḥ	1
+hṛdyāḥ	1
+kaṭu	1
+amla	1
+lavaṇa	1
+atyuṣṇa	1
+tīkṣṇa	1
+rūkṣa	1
+vidāhinaḥ	1
+rājasasya	1
+iṣṭāḥ	1
+āmaya	1
+pradāḥ	1
+yāta	1
+yāmam	1
+rasam	1
+pūti	1
+paryuṣitam	1
+ucchiṣṭam	1
+amedhyam	1
+bhojanam	1
+āṅkṣibhiḥ	1
+yaṣṭavyam	1
+samādhāya	1
+abhisandhāya	1
+dambhārtham	1
+bharataśreṣṭha	1
+asṛṣṭa	1
+mantra	1
+adakṣiṇam	1
+virahitam	1
+dvija	1
+guru	1
+prājña	1
+pūjanam	1
+anudvegakaram	1
+abhyasanam	1
+mayam	1
+prasādaḥ	1
+saumyatvam	1
+mānasam	1
+naraiḥ	1
+ākāṅkṣibhiḥ	1
+yuktaiḥ	1
+satkāra	1
+pūja	1
+adhruvam	1
+grāheṇa	1
+pīḍayā	1
+parasya	1
+utsādanārtham	1
+dātavyam	1
+anupakāriṇe	1
+pātre	1
+pratti	1
+upakāra	1
+uddiśya	1
+parikliṣṭam	1
+adeśa	1
+apātrebhyaḥ	1
+avajñātam	1
+oṁ	1
+nirdeśaḥ	1
+smṛtaḥ	1
+vihitāḥ	1
+udāhṛtya	1
+vādinām	1
+anabhisandhāya	1
+kriyante	1
+kāṅkṣibhiḥ	1
+sādhu	1
+prayujyate	1
+praśaste	1
+tapasi	1
+dāne	1
+arthīyam	1
+aśraddhayā	1
+dattam	1
+sannyāsasya	1
+tattvam	1
+veditum	1
+tyāgasya	1
+keśi	1
+niṣūdana	1
+kāmyānām	1
+nyāsam	1
+vicakṣaṇāḥ	1
+doṣavat	1
+eke	1
+itica	1
+niścayam	1
+tyāge	1
+puruṣa	1
+vyāghra	1
+saṁprakīrtitaḥ	1
+pāvanāni	1
+manīṣiṇām	1
+phalāni	1
+kartavyāni	1
+niyatasya	1
+saṁnyāsaḥ	1
+parityāgaḥ	1
+tāmasaḥ	1
+kleśa	1
+tyāga	1
+labhet	1
+akuśalam	1
+kuśale	1
+samāviṣṭaḥ	1
+medhāvī	1
+bhṛtā	1
+tyaktum	1
+tyāgi	1
+aniṣṭam	1
+iṣṭam	1
+miśram	1
+atyāginām	1
+sannyāsinām	1
+kvacit	1
+kāraṇāni	1
+kṛtānte	1
+proktāni	1
+vidham	1
+ceṣṭāḥ	1
+pañcamam	1
+vāṅ	1
+manobhiḥ	1
+prārabhate	1
+nyāyyam	1
+viparītam	1
+sati	1
+buddhitvāt	1
+durmatiḥ	1
+ahaṅkṛtaḥ	1
+parijñātā	1
+codanā	1
+karta	1
+saṅgrahaḥ	1
+tridhā	1
+bhedataḥ	1
+procyate	1
+saṅkhyāne	1
+yathāvat	1
+sarvabhūteṣu	1
+vibhakteṣu	1
+bhāvān	1
+pṛthagvidhān	1
+kṛtsnavat	1
+ekasmin	1
+kārye	1
+saktam	1
+ahaitukam	1
+a	1
+vat	1
+alpam	1
+rahitam	1
+arāga	1
+dveṣataḥ	1
+prepsunā	1
+kāmepsunā	1
+ahaṅkāreṇa	1
+bahula	1
+āyāsam	1
+anubandham	1
+kṣayam	1
+hiṁsām	1
+anapekṣya	1
+ārabhyate	1
+muktasaṅgaḥ	1
+anahaṁvādī	1
+dhṛti	1
+yutsāha	1
+samanvitaḥ	1
+nirvikāraḥ	1
+rāgī	1
+prepsuḥ	1
+lubdhaḥ	1
+hiṁsa	1
+ātmakaḥ	1
+aśuciḥ	1
+anvitaḥ	1
+rājasaḥ	1
+prākṛtaḥ	1
+stabdhaḥ	1
+śaṭhaḥ	1
+naiṣkṛtikaḥ	1
+alasaḥ	1
+viṣādī	1
+dīrghasūtrī	1
+dhṛteḥ	1
+guṇataḥ	1
+procyamānam	1
+ākārye	1
+abhaye	1
+akāryam	1
+ayathāvat	1
+prajānāti	1
+tamasā	1
+āvṛtā	1
+viparītāñ	1
+avyabhicāriṇyā	1
+prasaṅgena	1
+ākāṅkṣī	1
+svapnam	1
+viṣādam	1
+madam	1
+vimuñcati	1
+durmedhā	1
+duḥkhāntam	1
+upamam	1
+prasādajam	1
+amṛtopamam	1
+anubandhe	1
+nidrā	1
+uttham	1
+deveṣu	1
+muktam	1
+brāhmaṇa	1
+kṣatriya	1
+viśām	1
+śūdrāṇām	1
+pravibhaktāni	1
+prabhavaiḥ	1
+āstikyam	1
+śauryam	1
+dākṣyam	1
+apalāyanam	1
+īśvarabhāvaḥ	1
+kṣātram	1
+kṛṣi	1
+gaurakṣya	1
+vāṇijyam	1
+vaiśya	1
+paricaryātmakam	1
+śūdrasya	1
+abhirataḥ	1
+nirataḥ	1
+svakarmaṇā	1
+abhyarcya	1
+paradharmāt	1
+anuṣṭhitāt	1
+sahajam	1
+sadoṣam	1
+ārambhāḥ	1
+doṣeṇa	1
+āvṛtāḥ	1
+jitātmā	1
+naiṣkarmya	1
+sannyāsena	1
+prāptaḥ	1
+jñānasya	1
+viśuddhayā	1
+śabdādīn	1
+vyudasya	1
+sevī	1
+laghu	1
+āśī	1
+dhyāna	1
+samupāśritaḥ	1
+parigraham	1
+vimucya	1
+śāntaḥ	1
+madbhaktim	1
+viśate	1
+tadanantaram	1
+kurvāṇaḥ	1
+madvyapāśrayaḥ	1
+maccittaḥ	1
+durgāṇi	1
+prasādat	1
+tariṣyasi	1
+ahaṅkārāt	1
+śroṣyasi	1
+vinaṅkṣyasi	1
+yotsye	1
+mithya	1
+niyokṣyati	1
+svabhāvajena	1
+nibaddhaḥ	1
+svena	1
+avaśa	1
+bhrāmayan	1
+yantra	1
+ārūḍhāni	1
+gaccha	1
+ākhyātam	1
+guhyāt	1
+guhyataram	1
+vimṛśya	1
+guhya	1
+tamam	1
+pratijāne	1
+dharmān	1
+parityajya	1
+vraja	1
+mokṣyayiṣyāmi	1
+ma	1
+atapaskāya	1
+abhaktāya	1
+aśuśrūṣave	1
+vācyam	1
+abhyasūyati	1
+madbhakteṣu	1
+abhidhāsyati	1
+bhaktim	1
+eṣyati	1
+priyataraḥ	1
+bhuvi	1
+adhyeṣyate	1
+āvayoḥ	1
+anasūyaḥ	1
+śṛṇuyāt	1
+śubhān	1
+prāpnuyāt	1
+śrutam	1
+ekāgreṇa	1
+pranaṣṭaḥ	1
+labdhā	1
+saṁdehaḥ	1
+kariṣye	1
+vāsudevasya	1
+pārthasya	1
+aśrauṣam	1
+harṣaṇam	1
+vyāsa	1
+śrutavān	1
+yogeśvarāt	1
+kṛṣṇāt	1
+sākṣāt	1
+kathayataḥ	1
+arjunayoḥ	1
+hareḥ	1
+vismayaḥ	1
+yogeśvaraḥ	1
+dharaḥ	1
+vijayaḥ	1
+bhūtiḥ	1
+dhruvā	1
+
+*/
+
+function romanize(devanagari) {
+ return devanagari .replace(/्/g, "`") .replace(/ा/g, "a") .replace(/त/g, "tə") .replace(/र/g, "rə") .replace(/न/g, "nə") .replace(/य/g, "yə") .replace(/म/g, "mə") .replace(/व/g, "və") .replace(/ि/g, "i") .replace(/स/g, "sə") .replace(/ु/g, "u") .replace(/क/g, "kə") .replace(/े/g, "e") .replace(/॥/g, "♦") .replace(/प/g, "pə") .replace(/द/g, "ḍə") .replace(/श/g, "śə") .replace(/ं/g, "ṃ") .replace(/ः/g, "ḥ") .replace(/ष/g, "ṣə") .replace(/च/g, "cə") .replace(/ो/g, "o") .replace(/१/g, "1") .replace(/ ।/g, ".") .replace(/ह/g, "hə") .replace(/ी/g, "ī") .replace(/ध/g, "dhə") .replace(/ज/g, "jə") .replace(/थ/g, "thə") .replace(/भ/g, "bhə") .replace(/ण/g, "ṇə") .replace(/ृ/g, "ṛ") .replace(/ल/g, "lə") .replace(/ै/g, "ai") .replace(/ग/g, "gə") .replace(/ब/g, "bə") .replace(/ट/g, "ṭə") .replace(/अ/g, "a") .replace(/२/g, "2") .replace(/३/g, "3") .replace(/ख/g, "khə") .replace(/ऽ/g, "'") .replace(/ङ/g, "ṅ") .replace(/४/g, "4") .replace(/उ/g, "u") .replace(/ड/g, "ḍə") .replace(/ञ/g, "ñə") .replace(/ू/g, "ū") .replace(/ए/g, "e") .replace(/५/g, "5") .replace(/६/g, "6") .replace(/७/g, "7") .replace(/घ/g, "ghə") .replace(/८/g, "8") .replace(/९/g, "9") .replace(/०/g, "0") .replace(/आ/g, "ā") .replace(/ौ/g, "au") .replace(/ॐ/g, "oṁ") .replace(/ढ/g, "ḍhə") .replace(/ॄ/g, "ṝ") .replace(/ठ/g, "ṭh") .replace(/इ/g, "i") .replace(/छ/g, "chə") .replace(/फ/g, "phə") .replace(/ँ/g, "ṁ") .replace(/ə`/g, "") .replace(/əa/g, "ā") .replace(/əi/g, "i") .replace(/əu/g, "u") .replace(/əe/g, "e") .replace(/əo/g, "o") .replace(/əṛ/g, "ṛ") .replace(/ə/g, "a") .replace(/`/g, "") ;
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();' contenteditable>dhṛtarāṣṭra uvāca
+
+dharma-kṣetraḥ kuru-kṣetre samavetāḥ yuyutsavaḥ
+māmakāḥ pāṇḍavāḥ ca eva kim akurvata sañjaya
+
+sañjaya uvāca
+
+dṛṣṭvā tu pāṇḍav-ānīkam vyūḍhaṃ duryodhanaḥ tadā
+ācāryam upasaṅgamya rājā vacanam abravīt
+
+paśya etāṃ pāṇḍu-putrāṇām ācārya mahatīṃ camūm
+vyūḍhāṃ drupada-putreṇa tava śiṣyeṇa dhīmatā
+
+atra śūrāḥ maheṣvāsāḥ bhīma-arjuna samāḥ yudhi
+yuyudhāno virāṭaḥ ca drupadaḥ ca mahārathaḥ
+
+dhṛṣṭaketuḥ cekitānaḥ kāśi-rājaḥ ca vīryavān
+purujit kuntibhojaḥ ca śaibyaḥ ca narapungavaḥ
+
+yudhāmanyuḥ ca vikrāntaḥ uttamaujāḥ ca vīryavān
+saubhadraḥ draupadeyāḥ ca sarva eva mahārathāḥ
+
+asmākam tu viśiṣṭā ye tān nibodha dvijottama
+nāyakāḥ mama  sainyasya  saṁjñā-artham  tān  bravīmi  te
+
+bhavān bhīṣmaḥ  ca karṇaḥ ca kṛpaḥ ca samitiṁjayaḥ
+aśvatthāmā vikarṇaḥ ca saumadattiḥ tathā eva ca
+
+anye ca bahavaḥ śūrāḥ mad-arthe tyakta-jīvitāḥ
+nānā śastra praharaṇāḥ sarve yuddha viśāradāḥ
+
+aparyāptam tat asmākam balam bhīṣma abhirakṣitam
+paryāptaṃ tu idam eteṣām balam bhīma abhirakṣitam
+
+ayaneṣu ca sarveṣu yathā-bhāgam avasthitāḥ
+bhīṣmam evā  abhirakṣantu bhavantaḥ sarva eva hi
+
+tasya sañjanayan harṣaṃ kuru-vṛddhaḥ pitāmahaḥ
+siṃha-nādaṃ vinadya ucchaiḥ śaṅkhaṃ dadhmau pratāpavān
+
+tataḥ śaṅkhāḥ ca bheryaḥ ca paṇava-anaka go-mukhāḥ
+sahasā  evā  abhyahanyanta saḥ śabdaḥ tumulaḥ abhavat
+
+tataḥ śvetaiḥ hayaiḥ yukte mahati syandane sthitau
+mādhavaḥ pāṇḍavaḥ ca eva divyau śaṅkhau pradaghmatuḥ
+
+pāñcajanyam hṛṣīkeśaḥ devadattam dhanañjayaḥ
+pauṇḍram dadhmau mahā-śaṅkham bhīma-karmā vṛkodaraḥ
+
+anantavijayam rājā kuntī-putraḥ yudhiṣṭhiraḥ
+nakulaḥ sahadevaḥ ca sughoṣa-maṇipuṣpakau
+
+kāśyaḥ ca parameṣvāsaḥ śikhaṇḍī ca mahārathaḥ
+dhṛṣṭadyumnaḥ virāṭaḥ ca sātyakiḥ ca aparājitaḥ
+
+drupadaḥ draupadeyāḥ ca sarvaśaḥ pṛthivī-pate
+saubhadraḥ ca mahā-bāhuḥ śaṅkhān dadhmuḥ pṛthak-pṛthak
+
+sah ghoṣaḥ dhārtarāṣṭrāṇām hṛdayāni vyadārayat
+nabhaḥ ca pṛthivīm ca  eva  tumulaḥ vyanunādayan
+
+atha vyavasthitān dṛṣṭvā dhārtarāṣṭrān  kapidhvajaḥ
+pravṛtte śastrasaṁpāte dhanuḥ udyamya pāṇḍavaḥ
+
+hṛṣīkeśam  tadā  vākyam  idam  āha  mahī-pate
+senayoḥ  ubhayoḥ  madhye  ratham  sthāpaya  me  acyuta
+
+yāvat etān nirikṣe aham yoddhu-kāmān avasthitān
+kaiḥ mayā saha yoddhavyam asmin raṇa samudyame
+
+yotsyamānān avekṣe aham ye ete atra samāgatāḥ
+dhārtarāṣṭrasya durbuddheḥ yuddhe priyacikīrṣavaḥ
+
+sañjaya uvāca:
+
+evam uktaḥ hṛṣīkeśaḥ guḍākeśena bhārata
+senayoḥ ubhayoḥ madhye  sthāpayitvā rathottamam
+
+bhīṣma droṇa pramukhataḥ sarveṣāṁ ca mahīkṣitām
+uvāca pārtha paśyai etān samavetān kurūn iti
+
+tatrā apaśyat sthitān pārthaḥ pitṛn atha pitāmahān
+ācāryān mātulān bhrātṛn putrān pautrān sakhīn tathā
+
+śvaśurān suhṛdaḥ ca eva senayoḥ ubhayoḥ api
+tān samīkṣya saḥ kaunteyaḥ sarvān bandhūn avasthitān
+
+kṛpayā parayā āviṣṭaḥ viṣīdan idam abravīt
+
+arjuna uvāca
+
+dṛṣṭve imaṃ svajanaṃ kṛṣṇa yuyutsuṃ samupasthitam
+
+sīdanti mama gātrāṇi mukhaṃ ca pariśuṣyati
+vepathuḥ ca śarīre me roma-harṣaḥ ca jāyate
+
+gāṇḍīvam sraṃsate hastāt tvak ca eva paridahyate
+na ca śaknomi avasthātum bhramati iva ca me manaḥ
+
+nimittāni ca paśyāmi viparītāni keśava
+na ca śreyaḥ anupaśyāmi hatvā svajanam āhave
+
+na kāṅkṣe vijayam kṛṣṇa na ca rājyam sukhāni ca
+kiṃ naḥ rājyena govinda kim bhogaiḥ jīvitena vā
+
+yeṣām arthe kāṅkṣitam naḥ rājyam bhogāḥ sukhāni ca
+te ime avasthitāḥ yuddhe prāṇān tyaktvā dhanāni ca
+
+ācāryāḥ  pitaraḥ  putrāḥ  tatha  eva  ca  pitāmahāḥ
+mātulāḥ  śvaśurāḥ  pautrāḥ  śyālāḥ  sambandhinaḥ  tathā
+
+etān na hantum icchhāmi ghnataḥ api madhusūdana
+api trailokyarājyasya hetoḥ kim nu mahī-kṛte
+
+nihatya dhārtarāṣṭrān naḥ kā prītiḥ syāt janārdana
+pāpam evā aśrayet asmān hatva etān ātatāyinaḥ
+
+tasmāt na arhāḥ vayaṃ hantum dhārtarāṣṭrān svabāndhavān
+svajanam hi katham hatvā sukhinaḥ syāma mādhava
+
+yadiapi ete na paśyanti lobha upahata cetasaḥ
+kula-kṣaya kṛtam doṣam mitra-drohe ca pātakam
+
+katham na jñeyam asmābhiḥ pāpāt asmāt nivartitum
+kula-kṣaya kṛtam doṣam prapaśyadbhiḥ janārdana
+
+kula-kṣaye praṇaśyanti kula-dharmāḥ sanātanāḥ
+dharme naṣṭe kulaṃ kṛtsnam adharmaḥ abhibhavati uta
+
+adharma abhibhavāt kṛṣṇa praduṣyant kula-striyaḥ
+strīṣu duṣṭāsu vārṣṇeya jāyate varṇa-saṁkaraḥ
+
+saṅkaraḥ narakāya  kula-ghnānāṃ kulasya ca
+patanti pitaraḥ hi eṣām lupta piṇḍa udaka kriyāḥ
+
+doṣaiḥ etaiḥ kula-ghnānām varṇa-saṅkara kārakaiḥ
+utsādyante jāti-dharmāḥ kuladharmāḥ ca śāśvatāḥ
+
+utsanna kula-dharmāṇām manuṣyāṇām janārdana
+narake niyatam vāsaḥ bhavatī  iti anuśuśruma
+
+ahaḥ bata mahat pāpam kartum vyavasitā vayam
+yat rājya sukha-lobhena hantum svajanam udyatāḥ
+
+yadi mām apratīkāram aśastram śastrapāṇayaḥ
+dhārtarāṣṭrā raṇe hanyuḥ tat me kṣemataram bhavet
+
+saṅjaya uvāca
+
+evam uktvā arjunaḥ saṅkhye rathopastha upāviśat
+visṛjya sa-śaram cāpam śoka saṁvigna mānasaḥ
+
+
+
+
+
+
+
+
+sañjaya uvāca
+
+tam tathā kṛpayā  āviṣṭam aśrupūrṇa ākula ikṣaṇam
+viṣīdantam idam vākyam uvāca madhusūdanaḥ
+
+śrībhagavān uvāca
+
+kutaḥ tvā kaśmalam idam viṣame samupasthitam
+anāryajuṣṭam asvargyam akīrti karam arjuna
+
+klaibyam mā sma gamaḥ pārtha na etat tvayi upapadyate
+kṣudram hṛdayadaurbalyam tyaktvā  uttiṣṭha parantapa
+
+arjunaḥ uvāca
+
+katham bhīṣmam aham sāṁkhye droṇam ca madhusūdana
+iṣubhiḥ pratiyotsyāmi pūjā-arhāu arisūdana
+
+gurūn ahatvā hi mahā-anubhāvān
+śreyaḥ bhoktum bhaikṣyam api iha loke
+hatvā artha-kāman tu gurun iha eva
+bhuñjīya bhogān rudhira pradigdhān
+
+na ca etat vidmaḥ katarat naḥ garīyaḥ
+yat vā jayema yadi  vā naḥ jayeyuḥ
+yān eva hatvā na jijīviṣāmaḥ
+te avasthitāḥ pramukhe dhārtarāṣṭrāḥ
+
+kārpaṇya doṣa upahata svabhāvaḥ
+pṛcchāmi tvām dharma saṁmūḍha cetāḥ
+yat śreyaḥ syāt niścitam brūhi tat me
+śiṣyaḥ te aham śādhi mām tvām prapannam
+
+na hi prapaśyāmi mama apanudyāt
+yat śokam ucchoṣaṇam indriyāṇām
+avāpya bhūmāv asapatnam ṛddham
+rājyam surāṇām api cā adhipatyam
+
+sañjaya uvāca
+
+evam uktvā hṛṣīkeśam guḍākeśaḥ paraṁtapaḥ
+na yotsya iti govindam uktvā tūṣṇīm babhūva ha
+
+tam uvāca hṛṣīkeśaḥ prahasann iva bhārata
+senayoḥ ubhayoḥ madhye viṣīdantam idam vacaḥ
+
+śrībhagavān uvāca
+
+aśocyān anvaśocaḥ tvam prajñāvādān ca bhāṣase
+gata asūn agata asūn ca na anuśocanti paṇḍitāḥ
+
+na tu eva aham jātu na āsam na tvam na ime janādhipāḥ
+na ca eva na bhaviṣyāmaḥ sarve vayam ataḥ param
+
+dehinaḥ asmin yathā dehe kaumāram yauvanam jarā
+tathā dehāntara prāptiḥ dhīraḥ tatra na muhyati
+
+mātrā-sparśāḥ tu kaunteya śīta-usṇa-sukha-duḥkha-dāḥ
+āgama apāyinaḥ anityāḥ tān titikṣasva bhārata
+
+yam hi na vyathayanti ete puruṣam puruṣarṣabha
+sama duḥkha sukham dhīram sah amṛtatvāya kalpate
+
+na asataḥ vidyate bhāvaḥ na abhāvaḥ vidyate sataḥ
+ubhayoḥ api dṛṣṭaḥ antaḥ tu anayoḥ tattva darśibhiḥ
+
+avināśi tu tat viddhi yena sarvam idam tatam
+vināśam avyayasya asya na kaścit kartum arhati
+
+antavantaḥ ime dehāḥ nityasya uktāḥ śarīriṇaḥ
+anāśinaḥ aprameyasya tasmāt yudhyasva bhārata
+
+yaḥ enam vetti hantāram yaḥ ca enam manyate hatam
+ubhau tau na vijānītaḥ na ayam hanti na hanyate
+
+na jāyate mriyate vā kadācit
+na ayam bhūtvā bhavitā vā na bhūyaḥ
+ajaḥ nityaḥ śāśvatḥ ayam purāṇaḥ
+na hanyate hanyamāne śarīre
+
+vedā avināśinam nityam yaḥ enam ajam avyayam
+katham saḥ puruṣaḥ pārtha kam ghātayati hanti kam
+
+vāsāṁsi jīrṇāni yathā vihāya
+navāni gṛhṇāti naraḥ aparāṇi
+tathā śarīrāṇi vihāya jīrṇāni
+anyāni saṁyāti navāni dehī
+
+na enam chindanti śastrāṇi na enam dahati pāvakaḥ
+na ca enam kledayanti āpaḥ na śoṣayati mārutaḥ
+
+acchedyaḥ ayam adāhyaḥ ayam akledyaḥ aśoṣyaḥ eva ca
+nityaḥ sarva-gataḥ sthāṇuḥ acalaḥ ayam sanātanaḥ
+
+avyaktaḥ ayam acintyaḥ ayam avikaryaḥ ayam ucyate
+tasmāt evam viditva enaṁ na anuśocitum arhasi
+
+atha ca enam nitya-jātam nityam vā manyase mṛtam
+tathāpi tvam mahābāho na evam śocitum arhasi
+
+jātasya hi dhruvaḥ mṛtyuḥ dhruvam janma mṛtasya ca
+tasmāt aparihārye arthe na tvam śocitum arhasi
+
+avyaktādīni bhūtāni vyakta madhyāni bhārata
+avyakta nidhanāni eva tatra kā paridevanā
+
+āścaryavat paśyati kaścit enam
+āścaryavat vadati tatha eva ca anyaḥ
+āścaryavat ca enam anyaḥ śṛṇoti
+śrutvā api enam veda na ca  eva kaścit
+
+dehī nityam avadhyaḥ ayam dehe sarvasya bhārata
+tasmāt sarvāṇi bhūtāni na tvam śocitum arhasi
+
+svadharmam api ca avekṣya na vikampitum arhasi
+dharmyāt hi yuddhāt śreyaḥ anyat kṣatriyasya na vidyate
+
+yadṛcchayā ca upapannam svarga-dvāram apāvṛtam
+sukhinaḥ kṣatriyāḥ pārtha labhante yuddham īdṛśam
+
+atha cet tvam imam dharmyam saṅgrāmam na kariṣyasi
+tataḥ svadharmam kīrtim ca hitvā pāpam avāpsyasi
+
+akīrtim ca api bhūtāni kathayiṣyanti te avyayām
+saṁbhāvitasya ca akīrtiḥ maraṇāt atiricyate
+
+bhayāt raṇāt uparatam maṁsyante tvām mahārathāḥ
+yeṣām ca tvam bahu-mataḥ bhūtvā yāsyasi lāghavam
+
+avācya vādān ca bahūn vadiṣyanti tava ahitāḥ
+nindantaḥ  tava sāmarthyam tataḥ duḥkhataram nu kim
+
+hataḥ vā prāpsyasi svargam jitvā vā bhokṣyase mahīm
+tasmāt uttiṣṭha kaunteya yuddhāya kṛta niścayaḥ
+
+sukha duḥkhe same kṛtvā lābhālābhau jayājayau
+tataḥ yuddhāya yujyasva na evam pāpam avāpsyasi
+
+eṣā te abhihitā sāṅkhye buddhiḥ yoge tu imām śṛṇu
+buddhyā yuktaḥ yayā pārtha karma-bandham prahāsyasi
+
+na ihā abhikrama nāśaḥ asti pratyavāyaḥ na vidyate
+svalpam api asya dharmasya trāyate mahataḥ bhayāt
+
+vyavasāyātmikā buddhiḥ ekā iha kurunandana
+bahu-śākhā hi anantāḥ ca buddhayaḥ avyavasāyinām
+
+yām imām puṣpitām vācam pravadanti avipaścitaḥ
+veda-vāda-ratāḥ pārtha na anyat astī iti vādinaḥ
+
+kāmātmānaḥ svargaparāḥ janma-karma-phala-pradām
+kriyā-viśeṣa bahulām bhoga aiśvarya gatim prati
+
+bhoga aiśvarya prasaktānām tayā apahṛta cetasām
+vyavasāyātmikā buddhiḥ samādhau na vidhīyate
+
+traiguṇya viṣayāḥ vedāḥ nistraiguṇyaḥ bhavā arjuna
+nirdvandvaḥ nitya-satva-sthaḥ niryoga-kṣemaḥ ātmavān
+
+yāvān arthaḥ udapāne sarvataḥ sampluta-udake
+tāvān sarveṣu vedeṣu brāhmaṇasya vijānataḥ
+
+karmaṇi eva adhikāraḥ te mā phaleṣu kadācana
+mā karma phala hetuḥ bhūḥ mā te saṅgaḥ astu akarmaṇi
+
+yogasthaḥ kuru karmāṇi saṅgam tyaktvā dhanañjaya
+siddhi-asiddhyoḥ samaḥ bhūtvā samatvam yogaḥ ucyate
+
+dūreṇa hi avaram karma buddhi-yogāt dhanañjaya
+buddhau śaraṇam anviccha kṛpaṇāḥ phala-hetavaḥ
+
+buddhi-yuktaḥ jahāti iha ubhe sukṛta-duṣkṛte
+tasmāt yogāya yujyasva yogaḥ karmasu kauśalam
+
+karma-jam buddhi-yuktāḥ hi phalam tyaktvā manīṣiṇaḥ
+janma-bandha vinirmuktāḥ gacchhanti anāmayam
+
+yadā te moha-kalilam buddhiḥ vyatitariṣyati
+tadā gantāsi nirvedam śrotavyasya śrutasya ca
+
+śruti-vipratipannā yadā sthāsyati niścalā
+samādhāu acalā buddhiḥ tadā yogam avāpsyasi
+
+arjuna uvāca
+
+sthita-prajñasya kā bhāṣā samādhi-sthasya keśava
+sthita-dhīḥ kim prabhāṣeta kim āsīta vrajeta kim
+
+śrībhagavān uvāca
+
+prajahāti yadā kāmān sarvān pārtha manaḥ-gatān
+ātmani eva ātmanā tuṣṭaḥ sthita-prajñaḥ tadā ucyate
+
+duḥkheṣu anudvigna-manāḥ sukheṣu vigata-spṛhaḥ
+vīta rāga bhaya krodhaḥ sthita-dhīḥ muniḥ ucyate
+
+yaḥ sarvatra anabhi-snehaḥ tat tat prāpya śubha-aśubham
+na abhinandati na dveṣṭi tasya prajñā pratiṣṭhitā
+
+yadā saṁharate ca ayam kūrmaḥ aṅgānī iva sarvaśaḥ
+indriyāṇī indriya-arthebhyaḥ tasya prajñā pratiṣṭhitā
+
+viṣayāḥ vinivartante nirāhārasya dehinaḥ
+rasa-varjam rasaḥ api asya param dṛṣṭvā nivartate
+
+yatataḥ hi api kaunteya puruṣasya vipaścitaḥ
+indriyāṇi pramāthīni haranti prasabham manaḥ
+
+tāni sarvāṇi saṁyamya yuktaḥ āsīta mat-paraḥ
+vaśe hi yasya indriyāṇi tasya prajñā pratiṣṭhitā
+
+dhyāyataḥ viṣayān puṁsaḥ saṅgaḥ teṣu upajāyate
+saṅgāt sañjāyate kāmaḥ kāmāt krodhaḥ abhijāyate
+
+krodhāt   bhavati   saṁmohaḥ   saṁmohāt   smṛti-vibhramaḥ
+smṛti-bhraṁśāt   buddhināśaḥ   buddhi-nāśāt   praṇaśyati
+
+rāga-dveṣa-vimuktaiḥ tu viṣayān indriyaiḥ caran
+ātma-vaśyaiḥ vidheyātmā prasādam adhigacchati
+
+prasāde sarva duḥkhānām hāniḥ asya upajāyate
+prasanna-cetasaḥ hi āśu buddhiḥ pari avatiṣṭhate
+
+na asti buddhiḥ ayuktasya na ca ayuktasya bhāvanā
+na ca abhāvayataḥ śāntiḥ aśāntasya kutaḥ sukham
+
+indriyāṇām hi caratām yat manaḥ anuvidhīyate
+tat asya harati prajñām vāyuḥ nāvam iva ambhasi
+
+tasmāt yasya mahābāho nigṛhītāni sarvaśaḥ
+indriyāṇi indriya-arthebhyaḥ tasya prajñā pratiṣṭhitā
+
+yā niśā sarva bhūtānām tasyām jāgarti saṁyamī
+yasyām jāgrati bhūtāni sā niśā paśyataḥ muneḥ
+
+āpūryamāṇam acala-pratiṣṭham
+samudram āpaḥ praviśanti yadvat
+tadvat kāmāḥ yam praviśanti sarve
+saḥ śāntim āpnoti na kāmakāmī
+
+vihāya kāmān yaḥ sarvān pumān carati niḥspṛhaḥ
+nirmamaḥ nirahañkāraḥ saḥ śāntim adhigacchhati
+
+eṣā brāhmī sthitiḥ pārtha na enām prāpya vimuhyati
+sthitvā asyām anta-kāle api brahma-nirvāṇam ṛcchati
+
+
+
+
+
+
+
+
+arjuna uvāca
+
+jyāyasī cet karmaṇaḥ te matā buddhiḥ janārdana
+tat kim karmaṇi ghore mām niyojayasi keśava
+
+vyāmiśreṇa iva vākyena buddhim mohayasi iva me
+tat ekam vada niścitya yena śreyaḥ aham āpnuyām
+
+śrībhagavān uvāca
+
+loke asmin dvi-vidhā niṣṭhā purā proktā mayā anagha
+jñāna-yogena sāṅkhyānām karma-yogena yoginām
+
+na karmaṇām anārambhāt naiṣkarmyam puruṣaḥ aśnute
+na ca sannyasanāt eva siddhim samadhigacchati
+
+na hi kaścit kṣaṇam api jātu tiṣṭhati akarma-kṛt
+kāryate hi avaśaḥ karma sarvaḥ prakṛti-jaiḥ guṇaiḥ
+
+karma-indriyāṇi saṁyamya yaḥ āste manasā smaran
+indriya-arthān vimūḍha ātmā mithyā-ācāraḥ saḥ ucyate
+
+yaḥ tu indriyāṇi manasā niyamya ārabhate arjuna
+karma-indriyaiḥ karma-yogam asaktaḥ saḥ viśiṣyate
+
+niyatam kuru karma tvam karma jyāyaḥ hi akarmaṇaḥ
+śarīra yātrā api ca te na prasiddhyet akarmaṇaḥ
+
+yajñaarthāt karmaṇaḥ anyatra lokaḥ ayam karma-bandhanaḥ
+tat artham karma kaunteya mukta-saṅgaḥ samācara
+
+saha yajñāḥ prajāḥ sṛṣṭvā purā uvāca prajāpatiḥ
+anena prasaviṣyadhvam eṣaḥ vaḥ astu iṣṭa-kāma-dhuk
+
+devān bhāvayata anena te devāḥ bhāvayantu vaḥ
+parasparam bhāvayantaḥ śreyaḥ param avāpsyatha
+
+iṣṭān bhogān hi vaḥ devāḥ dāsyante yajña-bhāvitāḥ
+taiḥ dattān apradāya ebhyaḥ yaḥ bhuṅkte stenaḥ eva saḥ
+
+yajña-śiṣṭa-aśinaḥ santaḥ mucyante sarva-kilbiṣaiḥ
+bhuñjate te tu agham pāpāḥ ye pacanti ātma-kāraṇāt
+
+annāt bhavanti bhūtāni parjanyāt anna-saṁbhavaḥ
+yajñāt bhavati parjanyaḥ yajñaḥ karma-samudbhavaḥ
+
+karma brahmaḥ udbhavam viddhi brahma akṣara samudbhavam
+tasmāt sarva-gatam brahma nityam yajñe pratiṣṭhitam
+
+evam pravartitam cakram na anuvartayati iha yaḥ
+aghāyuḥ indriya-ārāmaḥ mogham pārtha saḥ jīvati
+
+yaḥ tu ātma-ratiḥ eva syāt ātma-tṛptaḥ ca mānavaḥ
+ātmani eva ca santuṣṭaḥ tasya kāryam na vidyate
+
+na eva tasya kṛtena arthaḥ na akṛtena iha kaścana
+na ca asya sarva-bhūteṣu kaścit artha vyapāśrayaḥ
+
+tasmāt asaktaḥ satatam kāryam karma samācara
+asaktaḥ hi ācaran karma param āpnoti pūruṣaḥ
+
+karmaṇā eva hi saṁsiddhim āsthitāḥ janakādayaḥ
+lokasaṅgraham eva api sampaśyan kartum arhasi
+
+yat yat ācarati śreṣṭhaḥ tat tat eva itaraḥ janaḥ
+saḥ yat pramāṇam kurute lokaḥ tat anuvartate
+
+na me pārtha asti kartavyam triṣu lokeṣu kiṁcana
+na anavāptam avāptavyam varte eva ca karmaṇi
+
+yadi hi aham na varteyam jātu karmaṇi atandritaḥ
+mama vartma anuvartante manuṣyāḥ pārtha sarvaśaḥ
+
+utsīdeyuḥ ime lokāḥ na kuryām karma cet aham
+saṁkarasya ca kartā syām upahanyām imāḥ prajāḥ
+
+saktāḥ karmaṇi avidvāṁsaḥ yathā kurvanti bhārata
+kuryāt vidvān tatha asaktaḥ cikīrṣuḥ loka-saṁgraham
+
+na buddhi-bhedam janayet ajñānām karma-saṁginām
+joṣayet sarva karmāṇi vidvān yuktaḥ samācaran
+
+prakṛteḥ kriyamāṇāni guṇaiḥ karmāṇi sarvaśaḥ
+ahaṁkāra-vimūḍha-ātmā kartā aham iti manyate
+
+tattva-vit tu mahābāho guṇa-karma-vibhāgayoḥ
+guṇāḥ guṇeṣu vartante iti matvā na sajjate
+
+prakṛteḥ guṇa-saṁmūḍhāḥ sajjante guṇa-karmasu
+tān akṛtsna-vidaḥ mandān kṛtsna-vit na vicālayet
+
+mayi sarvāṇi karmāṇi saṁnyasya ādhyātma-cetasā
+nirāśīḥ nirmamaḥ bhūtvā yudhyasva vigata-jvaraḥ
+
+ye me matam idam nityam anutiṣṭhanti mānavāḥ
+śraddhāvantaḥ anasūyantaḥ mucyante te api karmabhiḥ
+
+ye tu etat abhyasūyantaḥ na anutiṣṭhanti me matam
+sarva jñāna vimūḍhān tān viddhi naṣṭān acetasaḥ
+
+sadṛśam ceṣṭate svasyāḥ prakṛteḥ jñānavān api
+prakṛtim yānti bhūtāni nigrahaḥ kim kariṣyati
+
+indriyasya indriyasya arthe rāga-dveṣau vyavasthitau
+tayoḥ na vaśam āgacchet tau hi asya paripanthinau
+
+śreyān svadharmaḥ viguṇaḥ para-dharmāt svanuṣṭhitāt
+sva-dharme nidhanam śreyaḥ para-dharmaḥ bhaya-āvahaḥ
+
+arjuna uvāca
+
+atha kena prayuktaḥ ayam pāpam carati pūruṣaḥ
+anicchann api vārṣṇeya balāt iva niyojitaḥ
+
+śrībhagavān uvāca
+
+kāmaḥ eṣaḥ krodhaḥ eṣaḥ rajoguṇa-samudbhavaḥ
+mahā-aśanaḥ mahāpāpmā viddhi enam iha vairiṇam
+
+dhūmena āvriyate vahniḥ yathā ādarśaḥ malena ca
+yathaḥ ulbena āvṛtaḥ garbhaḥ tathā tena idam āvṛtam
+
+āvṛtam jñānam etena jñāninaḥ nityavairiṇā
+kāma-rupeṇa kaunteya duṣpūreṇa analena ca
+
+indriyāṇi manaḥ buddhiḥ asya adhiṣṭhānam ucyate
+etaiḥ vimohayati eṣaḥ jñānam āvṛtya dehinam
+
+tasmāt tvam indriyāṇi ādau niyamya bharatarṣabha
+pāpmānam prajahi hi enam jñāna-vijñāna-nāśanam
+
+indriyāṇi parāṇi āhuḥ indriyebhyaḥ param manaḥ
+manasaḥ tu parā buddhiḥ yaḥ buddheḥ parataḥ tu saḥ
+
+evam buddheḥ param buddhvā saṁstabhya ātmānam ātmanā
+jahi śatrum mahābāho kāma-rūpam durāsadam
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+imam vivasvate yogam proktavān aham avyayam
+vivasvān manave prāha manuḥ ikṣvākave abravīt
+
+evam paramparā prāptam imam rājarṣayaḥ viduḥ
+saḥ kālena iha mahatā yogaḥ naṣṭaḥ parantapa
+
+saḥ eva ayam mayā te adya yogaḥ proktaḥ purātanaḥ
+bhaktaḥ asi me sakhā ca iti rahasyam hi etat uttamam
+
+arjuna uvāca
+
+aparam bhavataḥ janma param janma vivasvataḥ
+katham etat vijānīyām tvam ādau proktavān iti
+
+śrībhagavānuvāca
+
+bahūni me vyatītāni janmāni tava ca arjuna
+tāni aham veda sarvāṇi na tvam vettha parantapa
+
+ajaḥ api san avyaya ātmā bhūtānām īśvaraḥ api san
+prakṛtim svām adhiṣṭhāya saṁbhavāmi ātma-māyayā
+
+yadā yadā hi dharmasya glāniḥ bhavati bhārata
+abhyutthānam adharmasya tadā ātmānam sṛjāmi aham
+
+paritrāṇāya sādhūnām vināśāya ca duṣkṛtām
+dharma saṁsthāpana ārthāya saṁbhavāmi yuge yuge
+
+janma karma ca me divyam evam yaḥ vetti tattvataḥ
+tyaktvā deham punaḥ janma na eti mām eti saḥ arjuna
+
+vīta-rāga-bhaya-krodhāḥ manmayāḥ mām upāśritāḥ
+bahavaḥ jñāna-tapasā pūtāḥ madbhāvam āgatāḥ
+
+ye yathā mām prapadyante tān tathā eva bhajāmi aham
+mama vartma anuvartante manuṣyāḥ pārtha sarvaśaḥ
+
+kāṅkṣantaḥ karmaṇām siddhim yajante iha devatāḥ
+kṣipram hi mānuṣe-loke siddhiḥ bhavati karmajā
+
+cātur-varṇyam mayā sṛṣṭam guṇa-karma-vibhāgaśaḥ
+tasya kartāram api mām viddhi akartāram avyayam
+
+na mām karmāṇi limpanti na me karma-phale spṛhā
+iti mām yaḥ abhijānāti karmabhiḥ na saḥ badhyate
+
+evam jñātvā kṛtam karma pūrvaiḥ api mumukṣubhiḥ
+kuru karma eva tasmāt tvam pūrvaiḥ pūrvataram kṛtam
+
+kim karma kim akarma  iti kavayaḥ api atra mohitāḥ
+tat te karma pravakṣyāmi yat jñātvā mokṣyase aśubhāt
+
+karmaṇaḥ hi api boddhavyam boddhavyam ca vikarmaṇaḥ
+akarmaṇaḥ ca boddhavyam gahanā karmaṇaḥ gatiḥ
+
+karmaṇi akarma yaḥ paśyet akarmaṇi ca karma yaḥ
+sah buddhimān manuṣyeṣu sah yuktaḥ kṛtsna-karma-kṛt
+
+yasya sarve samārambhāḥ kāma saṁkalpa varjitāḥ
+jñāna agni dagdha karmāṇam tam āhuḥ paṇḍitam budhāḥ
+
+tyaktvā karma-phala-āsaṅgam nitya-tṛptaḥ nirāśrayaḥ
+karmaṇi abhipravṛttaḥ api na eva kiṁcit karoti saḥ
+
+nirāśīḥ yata citta-ātmā tyakta sarva parigrahaḥ
+śārīram kevalam karma kurvan na āpnoti kilbiṣam
+
+yadṛcchā lābha saṁtuṣṭaḥ dvandva atītaḥ vimatsaraḥ
+samaḥ siddhāu asiddhau ca kṛtvā api na nibadhyate
+
+gata-saṅgasya muktasya jñāna avasthita cetasaḥ
+yajñāya ācarataḥ karma samagram pravilīyate
+
+brahma arpaṇam brahma haviḥ brahma agnau brahmaṇā hutam
+brahma eva tena gantavyam brahma karma samādhinā
+
+daivam eva apare yajñam yoginaḥ pari-upāsate
+brahma-agnāv apare yajñam yajñena eva upa-juhvati
+
+śrotra-ādīni īndriyāṇi anye saṁyama agniṣu juhvati
+śabda ādīn viṣayān anye indriya agniṣu juhvati
+
+sarvāṇi indriya-karmāṇi prāṇa-karmāṇi ca apare
+ātma-saṁyama yoga  agnau juvhati jñāna-dīpite
+
+dravya-yajñāḥ tapo-yajñāḥ yoga-yajñāḥ tathā apare
+svādhyāya jñāna-yajñāḥ ca yatayaḥ saṁśita vratāḥ
+
+apāne juvhati prāṇam prāṇe apānam tathā apare
+prāṇaapāna gatī ruddhvā prāṇāyāma parāyaṇāḥ
+
+apare niyata  āhārāḥ prāṇān prāṇeṣu juvhati
+sarve api ete yajña-vidaḥ yajña kṣapita kalmaṣāḥ
+
+yajña-śiṣṭa-amṛta-bhujaḥ yānti brahma sanātanam
+na ayam lokaḥ asti ayajñasya kutaḥ anyaḥ kuru-sattama
+
+evam bahu-vidhāḥ yajñāḥ vitatāḥ brahmaṇaḥ mukhe
+karma-jān  viddhi  tān  sarvān  evam  jñātvā  vimokṣyase
+
+śreyān dravyamayāt yajñāt jñāna-yajñaḥ parantapa
+sarvam karma akhilam pārtha jñāne parisamāpyate
+
+tat viddhi praṇipātena paripraśnena sevayā
+upadekṣyanti te jñānam jñāninaḥ tattva-darśinaḥ
+
+yat jñātvā na punaḥ moham evam yāsyasi pāṇḍava
+yena bhūtāni aśeṣeṇi drakṣyasi ātmani atha mayi
+
+api cet asi pāpebhyaḥ sarvebhyaḥ pāpa-kṛt-tamaḥ
+sarvam jñāna-plavena eva vṛjinam santariṣyasi
+
+yatha edhāṁsi samiddhaḥ agniḥ bhasmasāt kurute arjuna
+jñāna agniḥ sarva karmāṇi bhasmasāt kurute tathā
+
+na hi jñānena sadṛśam pavitram iha vidyate
+tat svayam yoga saṁsiddhaḥ kālena ātmani vindati
+
+śraddhāvān labhate jñānam tatparaḥ saṁyata indriyaḥ
+jñānam labdhvā parām śāntim acireṇa adhigacchati
+
+ajñaḥ ca aśraddadhānaḥ ca saṁśaya ātmā vinaśyati
+na ayam lokaḥ asti na paraḥ  na sukham saṁśaya ātmanaḥ
+
+yoga sannyasta karmāṇam jñāna sañchinna saṁśayam
+ātmavantam na karmāṇi nibadhnanti dhanañjaya
+
+tasmāt ajñāna sañbhūtam hṛt-stham jñāna asina ātmanaḥ
+chittvā enam saṁśayam yogam ātiṣṭha uttiṣṭha bhārata
+
+
+
+
+
+
+
+
+arjuna uvāca
+
+sannyāsam karmaṇām kṛṣṇa punaḥ yogam ca śaṁsasi
+yat sreyaḥ etayoḥ ekam tat me brūhi suniścitam
+
+śrībhagavān uvāca
+
+sannyāsaḥ karmayogaḥ ca niḥśreyasa-karāv ubhau
+tayoḥ tu karma-sannyāsāt karmayogaḥ viśiṣyate
+
+jñeyaḥ saḥ nitya-sannyāsī yaḥ na dveṣṭi na kāṅkṣati
+nirdvandvaḥ hi mahābāho sukham bandhāt pramucyate
+
+sāṅkhya yogau pṛthak bālāḥ pravadanti na paṇḍitāḥ
+ekam api āsthitaḥ samyak ubhayoḥ vindate phalam
+
+yat  sāṅkhyaiḥ prāpyate sthānam tat yogaiḥ api gamyate
+ekam sāṁkhyam ca yogam ca yaḥ paśyati sah paśyati
+
+sannyāsaḥ tu mahābāho duḥkham āptum ayogataḥ
+yoga-yuktaḥ muniḥ brahma na cireṇa adhigacchati
+
+yoga-yuktaḥ viśuddha-ātmā vijita-ātmā jita-indriyaḥ
+sarva-bhūtātma-bhūtātmā kurvan api na lipyate
+
+na eva kiñcit karomī iti yuktaḥ manyeta tattva-vit
+paśyañ śṛṇvan spṛśañ jighran aśnan gacchan svapañ śvasan
+
+pralapan visṛjan gṛhṇan unmiṣan nimiṣan api
+indriyāṇi indriya-atheṣu vartanta iti dhārayan
+
+brahmaṇi ādhāya karmāṇi saṅgam tyaktvā karoti yaḥ
+lipyate na saḥ pāpena padma-patram iva ambhasā
+
+kāyena manasā buddhyā kevalaiḥ indriyaiḥ api
+yoginaḥ karma kurvanti saṅgam tyaktvā ātma śuddhaye
+
+yuktaḥ karma-phalam tyaktvā śāntim āpnoti naiṣṭhikīm
+ayuktaḥ kāma-kāreṇa phale saktaḥ nibadhyate
+
+sarva karmāṇi manasā sannyasya āste sukham vaśī
+nava-dvāre pure dehī na eva kurvan na kārayan
+
+na kartṛtvam na karmāṇ lokasya sṛjati prabhuḥ
+na karma-phala saṁyogam svabhāvaḥ tu pravartate
+
+na ādatte kasyacit pāpam na ca eva sukṛtam vibhuḥ
+ajñānena āvṛtam jñānam tena muhyanti jantavaḥ
+
+jñānena tu tat ajñānam yeṣām nāśitam ātmanaḥ
+teṣām ādityavat jñānam prakāśayati tat param
+
+tat-buddhayaḥ tat-ātmānaḥ tat-niṣṭhāḥ tat-parāyaṇā
+gacchanti apunaḥ-āvṛttim jñāna nirdhūta kalmaṣāḥ
+
+vidya vinaya sampanne brāhmaṇe gavi hastini
+śuni ca eva śvapāke ca paṇḍitāḥ sama-darśina
+
+iha eva taiḥ jitaḥ sargaḥ yeṣām sāmye sthitam manaḥ
+nirdoṣam hi samam brahma tasmāt brahmaṇi te sthitāḥ
+
+na prahṛṣyet priyam prāpya na udvijet prāpya ca apriyam
+sthira-buddhiḥ asammūḍhaḥ brahmavit brahmaṇi sthitaḥ
+
+bāhya-sparśeṣu asakta-ātmā vindati ātmani yat sukham
+saḥ brahma-yoga yukta-ātmā sukham akṣayam aśnute
+
+ye hi saṁsparśajāḥ bhogaḥ duḥkha yonayaḥ eva te
+ādi anta vantaḥ kaunteya na teṣu ramate budhaḥ
+
+śaknoti iha eva yaḥ soḍhum prāk śarīra vimokṣaṇāt
+kāma krodha udbhavam vegam sah yuktaḥ saḥ sukhī naraḥ
+
+yaḥ antaḥ-sukhaḥ antar-ārāmaḥ tathā antaḥ-jyotiḥ eva yaḥ
+sah yogī brahma-nirvāṇam brahma-bhūtaḥ adhigacchati
+
+labhante brahma-nirvāṇam ṛṣayaḥ kṣīṇa-kalmaṣāḥ
+chinna dvaidhā yata-ātmānaḥ sarva-bhūta hite ratāḥ
+
+kāma krodha viyuktānām yatīnām yata-cetasām
+abhitaḥ brahma-nirvāṇam vartate vidita-ātmanām
+
+sparśān kṛtvā bahiḥ bāhyān cakṣuḥ ca eva antare bhruvoḥ
+prāṇa apānau samau kṛtvā nāsa-abhyantara cāriṇau
+
+yata indriya manaḥ buddhiḥ muniḥ mokṣa parāyaṇaḥ
+vigata icchā bhaya krodhaḥ yaḥ sadā muktaḥ eva saḥ
+
+bhoktāram yajña tapasām sarva-loka maheśvaram
+suhṛdam sarva-bhūtānām jñātvā mām śāntim ṛcchati
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+anāśritaḥ karma-phalam kāryam karma karoti yaḥ
+saḥ sannyāsī ca yogī ca na niḥ agniḥ na ca akriyaḥ
+
+yam sannyāsam iti prāhuḥ yogam tam viddhi pāṇḍava
+na hi asannyasta saṁkalpaḥ yogī bhavati kaścana
+
+ārurukṣoḥ muneḥ yogam karma kāraṇam ucyate
+yoga  ārūḍhasya tasya eva śamaḥ kāraṇam ucyate
+
+yadā hi na indriya-artheṣu na karmasu anuṣajjate
+sarva saṅkalpa sannyāsī yoga ārūḍhaḥ tadā ucyate
+
+uddharet ātmanā ātmānam na ātmānam avasādayet
+ātma eva hi ātmanaḥ bandhuḥ ātma eva ripuḥ ātmanaḥ
+
+bandhuḥ ātmā ātmanaḥ tasya yena ātmā  eva ātmanā jitaḥ
+anātmanaḥ tu śatrutve varteta  ātma eva śatruvat
+
+jita-ātmanaḥ praśāntasya parama-ātmā samāhitaḥ
+śīta uṣṇa sukha duḥkheṣu tathā māna apamānayoḥ
+
+jñāna vijñāna tṛptā ātmā kūṭasthaḥ vijita indriyaḥ
+yuktaḥ iti ucyate yogī sama loṣṭra āśma kāñcanaḥ
+
+suhṛt mitra ari udāsīna madhyastha dveṣya bandhuṣu
+sādhuṣu api ca pāpeṣu sama-buddhiḥ viśiṣyate
+
+"yogī yuñjīta satatam ātmānam rahasi sthitaḥ
+"
+ekākī yata-citta-ātmā nirāśīḥ aparigrahaḥ
+
+śucau deśe pratiṣṭhāpya sthiram āsanam ātmanaḥ
+na ati ucchritam na ati nīcam caila ajina kuśa uttaram
+
+tatra ekāgram manaḥ kṛtvā yata citta indriya kriyaḥ
+upaviśya āsane yuñjyāt yogam ātma-viśuddhaye
+
+samam kāya śiraḥ grīvam dhārayan acalam sthiraḥ
+saṁprekṣya  nāsikā agram  svam diśaḥ ca anavalokayan
+
+praśānta ātmā vigata-bhīḥ brahmacāri-vrate sthitaḥ
+manaḥ saṁyamya mat-cittaḥ yuktaḥ āsīta mat-paraḥ
+
+yuñjan sadā ātmānam yogī niyata-mānasaḥ
+śāntim nirvāṇa-paramām  mat-saṁsthām adhigacchati
+
+na ati aśnataḥ tu yogaḥ asti na ca ekāntam anaśnataḥ
+na ca ati svapna-śīlasya jāgrataḥ na eva ca arjuna
+
+yukta āhāra vihārasya yukta ceṣṭasya karmasu
+yukta svapna avabodhasya yogaḥ bhavati duḥkha-hā
+
+yadā viniyatam cittam ātmani eva avatiṣṭhate
+niḥspṛhaḥ sarva kāmebhyaḥ yuktaḥ iti ucyate tadā
+
+yathā dīpaḥ nivāta-sthaḥ na iṅgate sa upamā smṛtā
+yoginaḥ yata-cittasya yuñjataḥ yogam ātmanaḥ
+
+yatra uparamate cittam niruddham yoga-sevayā
+yatra ca eva ātmanā  ātmānam paśyan ātmani  tuṣyati
+
+sukham ātyantikam yat tat buddhi-grāhyam atīndriyam
+vetti yatra na ca eva ayam sthitaḥ calati tattvataḥ
+
+yam labdhvā ca aparam lābham manyate na adhikam tataḥ
+yasmin sthitaḥ na duḥkhena guruṇāpi vicālyate
+
+tam vidyāt duḥkha saṁyoga viyogam yogasanjñitam
+sa niścayena yoktavyaḥ yogaḥ anirviṇṇa cetasā
+
+saṅkalpa prabhavān kāmān tyaktvā sarvān aśeṣataḥ
+manasa eva indriya-grāmam viniyamya samantataḥ
+
+śanaiḥ śanaiḥ uparamet buddhyā dhṛtigṛhītayā
+ātma-saṁstham manaḥ kṛtvā na kiñcit api cintayet
+
+yataḥ yataḥ niścarati manaḥ cañcalam asthiram
+tataḥ tataḥ niyamya etat ātmani eva vaśam nayet
+
+praśānta manasam hi enam yoginam sukham uttamam
+upaiti śānta-rajasam brahma-bhūtam akalmaṣam
+
+yuñjan evam sadā ātmānam yogī vigata kalmaṣaḥ
+sukhena brahma-saṁsparśam atyantam sukham aśnute
+
+sarva-bhūta-stham  ātmānam  sarva-bhūtāni  ca  ātmani
+īkṣate  yoga-yukta-ātmā  sarvatra  sama-darśanaḥ
+
+yaḥ  mām  paśyati  sarvatra  sarvam ca  mayi  paśyati
+tasya  aham  na  praṇaśyāmi  saḥ  ca  me  na  praṇaśyati
+
+sarva-bhūta-sthitam yaḥ mām bhajati ekatvam āsthitaḥ
+sarvathā vartamānaḥ api saḥ yogī mayi vartate
+
+ātma aupamyena sarvatra samam paśyati yaḥ rjuna
+sukham vā yadi vā duḥkham saḥ yogī paramaḥ mataḥ
+
+arjuna  uvāca
+
+yaḥ ayam yogaḥ tvayā proktaḥ sāmyena madhusūdana
+etasya aham na paśyāmi cañcalatvāt sthitim sthirām
+
+cañcalam hi manaḥ kṛṣṇa pramāthi balavat dṛḍham
+tasya aham nigraham manye vāyoḥ iva suduṣkaram
+
+śrībhagavān uvāca
+
+asañśayam mahābāho manaḥ durnigraham calam
+abhyāsena tu kaunteya vairāgyeṇa ca gṛhyate
+
+asaṁyata-ātmanā yogaḥ duṣprāpaḥ iti me matiḥ
+vaśya ātmanā tu yatatā śakyaḥ avāptum upāyataḥ
+
+arjuna uvāca
+
+ayatiḥ śraddhayaḥ upetaḥ yogāt calita mānasaḥ
+aprāpya yogasaṁsiddhim kām gatim kṛṣṇa gacchati
+
+kacchit na ubhaya vibhraṣṭaḥ chinna abhram iva naśyati
+apratiṣṭhaḥ mahābāho vimūḍhaḥ brahmaṇaḥ pathi
+
+etat me saṁśayam  kṛṣṇa  chettum  arhasi  aśeṣataḥ
+tvat   anyaḥ   saṁśayasya   asya  chettā  na  hi  upapadyate
+
+śrībhagavān uvāca
+
+pārtha  na  eva  iha  na  amutra   vināśaḥ  tasya  vidyate
+na hi  kalyāṇa-kṛt  kaścit  durgatim  tāta  gacchati
+
+prāpya puṇya-kṛtām lokān uṣitvā śāśvatīḥ samāḥ
+śucīnām śrīmatām gehe yoga-bhraṣṭaḥ abhijāyate
+
+athavā yoginām eva kule bhavati dhīmatām
+etat hi durlabhataram loke janma yat īdṛśam
+
+tatra tam buddhi-saṁyogam labhate paurva-dehikam
+yatate ca tataḥ bhūyaḥ saṁsiddhau kuru-nandana
+
+pūrvā abhyāsena tena eva hriyate hi avaśaḥ api saḥ
+jijñāsuḥ api yogasya śabdabrahma ativartate
+
+prayatnāt yatamānaḥ tu yogī saṁśuddha kilbiṣaḥ
+aneka  janma saṁsiddhaḥ tataḥ yāti parām gatim
+
+tapasvibhyaḥ adhikaḥ yogī jñānibhyaḥ api mataḥ adhikaḥ
+karmibhyaḥ ca adhikaḥ yogī tasmāt yogī bhava arjuna
+
+yoginām api sarveṣām madgatena antarātmanā
+śraddhāvān bhajate yaḥ mām saḥ me yuktatamaḥ mataḥ
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+mayi āsaktamanāḥ pārtha yogam yuñjan madāśrayaḥ
+asaṁśayam samagram mām yathā jñāsyasitat śṛṇu
+
+jñānam te aham sa vijñānam idam vakṣyāmi aśeṣataḥ
+yat jñātvā na iha  bhūyaḥ anyat  jñātavyam avaśiṣyate
+
+manuṣyāṇām sahasreṣu kaścit yatati siddhaye
+yatatām api siddhānām kaścit mām vetti tattvataḥ
+
+bhūmiḥ āpaḥ analaḥ vāyu kham manaḥ buddhiḥ eva ca
+ahaṅkāraḥ iti iyam me bhinnā prakṛtiḥ aṣṭadhā
+
+aparā  iyam  itaḥ  tu  anyām  prakṛtim  viddhi  me  parām
+jīva-bhūtām  mahābāho  yayā   idam  dhāryate  jagat
+
+etat  yonīni  bhūtāni  sarvāṇi   īti  upadhāraya
+aham  kṛtsnasya  jagataḥ  prabhavaḥ  pralayaḥ   tathā
+
+mattaḥ  parataram na anyat  kiṁcit asti dhanañjaya
+mayi sarvam idam protam sūtre maṇigaṇāḥ iva
+
+rasaḥ aham apsu kaunteya prabhā asmi śaśi-sūryayoḥ
+praṇavaḥ sarva vedeṣu śabdaḥ khe pauruṣam nṛṣu
+
+puṇyaḥ gandhaḥ pṛthivyām ca tejaḥ ca asmi vibhāvasau
+jīvanam sarva bhūteṣu tapaḥ ca asmi tapasviṣu
+
+bījam mām sarva-bhūtānām viddhi pārtha sanātanam
+buddhiḥ buddhimatām asmi tejas tejasvinām aham
+
+balam  balavatām ca aham  kāma rāga vivarjitam
+dharma-aviruddhaḥ bhūteṣu kāmaḥ asmi bharata-rṣabha
+
+ye ca  eva sātvikāḥ  bhāvāḥ  rājasāḥ   tāmasāḥ  ca ye
+mattaḥ  eva iti tān viddhi na tu aham teṣu te mayi
+
+tribhiḥ guṇamayaiḥ bhāvaiḥ ebhiḥ sarvam idam jagat
+mohitam na abhijānāti mām ebhyaḥ param avyayam
+
+daivī hi eṣā guṇa-mayī mama māyā duratyayā
+mām eva ye prapadyante māyām etām taranti te
+
+na mām duṣkṛtinaḥ mūḍhāḥ prapadyante nara-adhamāḥ
+māyayā apahṛta  jñānāḥ āsuram bhāvam āśritāḥ
+
+caturvidhāḥ bhajante mām janāḥ sukṛtinaḥ arjuna
+ārtaḥ jijñāsuḥ arthārthī  jñānī ca bharatarṣabha
+
+teṣām jñānī nitya-yuktaḥ eka-bhaktiḥ  viśiṣyate
+priyaḥ  hi  jñāninaḥ atyartham  aham  saḥ  ca  mama  priyaḥ
+
+udārāḥ sarve  eva ete jñānī tu ātma eva me matam
+āsthitaḥ saḥ hi yuktātmā mām eva anuttamām gatim
+
+bahūnām janmanām ante jñānavān mām prapadyate
+vāsudevaḥ sarvam iti saḥ mahātmā su-durlabhaḥ
+
+kāmaiḥ taiḥ taiḥ hṛta-jñānāḥ prapadyante anya devatāḥ
+tam tam niyamam āsthāya prakṛtyā niyatāḥ svayā
+
+yaḥ yaḥ yām yām tanum bhaktaḥ śraddhayā arcitum icchati
+tasya tasya acalām śraddhām tām eva vidadhāmi aham
+
+saḥ tayā śraddhayā yuktaḥ tasya ārādhanam īhate
+labhate ca tataḥ kāmān mayā eva vihitān hi tān
+
+antavat tu phalam teṣām tat bhavati alpa-medhasām
+devān deva-yajaḥ yānti madbhaktāḥ yānti mām api
+
+avyaktam vyaktim āpannam manyante mām abuddhayaḥ
+param bhāvam ajānantaḥ mama avyayam anuttamam
+
+na aham prakāśaḥ sarvasya yoga-māyā samāvṛtaḥ
+mūḍhaḥ ayam na abhijānāti lokaḥ mām ajam avyayam
+
+veda aham samatītāni vartamānāni ca arjuna
+bhaviṣyāṇi ca bhūtāni mām tu veda na kaścana
+
+iccha dveṣa samutthena dvandva mohena bhārata
+sarva bhūtāni sammoham sarge yānti parantapa
+
+yeṣām  tu  antagatam  pāpam  janānām  puṇya karmaṇām
+te dvandva moha nirmuktāḥ bhajante mām dṛḍha-vratāḥ
+
+jarā  maraṇa  mokṣāya  mām  āśritya  yatanti  ye
+te  brahma  tat  viduḥ  kṛtsnam  adhyātmam  karma   ca  akhilam
+
+sa-adhibhūta adhidaivam mām sa-adhiyajñam ca ye viduḥ
+prayāṇa kāle api ca mām te viduḥ yukta-cetasaḥ
+
+
+
+
+
+
+
+
+arjuna uvāca
+
+kim tad brahma kim adhyātmam kim karma puruṣottama
+adhibhūtam ca kim proktam adhidaivam kim ucyate
+
+adhiyajñaḥ  katham  kaḥ  atra  dehe  asmin  madhusūdana
+prayāṇakāle  ca  katham  jñeyaḥ  asi  niyata-ātmabhiḥ
+
+śrībhagavān uvāca
+
+akṣaram  brahma paramam  svabhāvaḥ adhyātmam ucyate
+bhūta bhāvaḥ udbhava karaḥ visargaḥ karma saṁjñitaḥ
+
+adhibhūtam kṣaraḥ  bhāvaḥ  puruṣaḥ  ca  adhidaivatam
+adhiyajñaḥ  aham  eva  atra  dehe  deha-bhṛtām vara
+
+anta-kāle  ca  mām  eva  smaran  muktvā  kalevaram
+yaḥ  prayāti  saḥ  madbhāvam  yāti  na   asti  atra saṁśayaḥ
+
+yam yam  va api smaran bhāvam  tyajati ante  kalevaram
+tam tam  eva  eti  kaunteya sadā  tat  bhāva  bhāvitaḥ
+
+tasmāt  sarveṣu  kāleṣu  mām  anusmara  yudhya  ca
+mayi  arpita   manaḥ  buddhiḥ  mām  eva  eṣyasi  asaṁśayaḥ
+
+abhyāsa yoga-yuktena cetasā na anya-gāminā
+paramam puruṣam divyam yāti  pārthā  anucintayan
+
+kavim purāṇam anuśāsitāram
+aṇoḥ aṇīyāṁsam anusmaret yaḥ
+sarvasya dhātāram acintya rūpam
+tamasaḥ parastāt
+
+prayāṇa-kāle manasā acalena
+bhaktyā yuktaḥ yoga-balena ca  eva
+bhruvoḥ madhye prāṇam āveśya samyak
+saḥ tam param puruṣam upaiti divyam
+
+yat akṣaram veda-vidaḥ vadanti
+viśanti  yat  yatayaḥ  vīta-rāgāḥ
+yat  icchantaḥ brahmacaryam caranti
+tat te padam saṅgraheṇa pravakṣye
+
+sarva-dvārāṇi saṁyamya manaḥ hṛdi nirudhya ca
+mūrdhni ādhāya ātmanaḥ prāṇam āsthitaḥ yoga dhāraṇām
+
+om iti  eka-akṣaram  brahma  vyāharan  mām  anusmaran
+yaḥ  prayāti  tyajan  deham  saḥ  yāti  paramām  gatim
+
+ananya-cetāḥ  satatam  yaḥ  mām  smarati  nityaśaḥ
+tasya  aham  sulabhaḥ  pārtha  nitya-yuktasya  yoginaḥ
+
+mām  upetya  punaḥ   janma  duḥkha-ālayam  aśāśvatam
+na  āpnuvanti  mahā-ātmānaḥ  saṁsiddhim  paramām  gatāḥ
+
+ābrahma-bhuvanāt  lokāḥ punaḥ āvartinaḥ arjuna
+mām upetya tu kaunteya punarjanma  na  vidyate
+
+sahasra yuga  paryantam  ahaḥ  yat  brahmaṇaḥ  viduḥ
+rātrim yuga  sahasra-antām te ahaḥ-rātra vidaḥ janāḥ
+
+avyaktāt  vyaktayaḥ  sarvāḥ  prabhavanti  ahaḥ-āgame
+rātri-āgame  pralīyante  tatra  eva  avyakta  saṁjñake
+
+bhūtagrāmaḥ saḥ eva ayam bhūtvā bhūtvā pralīyate
+rātri-āgame avaśaḥ pārtha prabhavati ahar-āgame
+
+paraḥ  tasmāt  tu  bhāvaḥ  anyaḥ  avyakta  avyaktāt  sanātanaḥ
+yaḥ saḥ  sarveṣu  bhūteṣu naśyatsu na vinaśyati
+
+avyaktaḥ  akṣaraḥ  iti  uktaḥ tam  āhuḥ  paramām gatim
+yam prāpya na nivartante tat dhāma paramam mama
+
+puruṣaḥ  saḥ  paraḥ  pārtha  bhaktyā  labhyaḥ  tu  ananyayā
+yasya  antaḥsthāni  bhūtāni yena  sarvam  idam  tatam
+
+yatra kāle  tu  anāvṛttim  āvṛttim  ca eva  yoginaḥ
+prayātāḥ  yānti  tam  kālam  vakṣyāmi  bharatarṣabha
+
+agniḥ  jotiḥ  ahaḥ  śuklaḥ  ṣaṇmāsā  uttarāyaṇam
+tatra  prayātāḥ  gacchanti  brahma  brahma-vidaḥ  janāḥ
+
+dhūmaḥ  rātriḥ  tathā  kṛṣṇaḥ  ṣaṇmāsā  dakṣiṇāyanam
+tatra  cāndramasam   jyotiḥ  yogī  prāpya  nivartate
+
+śukla  kṛṣṇe  gatī  hi  ete  jagataḥ  śāśvate  mate
+ekayā  yāti  anāvṛttim  anyayā   āvartate  punaḥ
+
+na  ete  sṛtī  pārtha  jānan  yogī  muhyati  kaścana
+tasmāt  sarveṣu  kāleṣu  yogayuktaḥ  bhava  arjuna
+
+vedeṣu  yajñeṣu  tapaḥsu  ca  eva
+dāneṣu yat puṇya-phalam pradiṣṭam
+atyeti  tat  sarvam  idam  viditvā
+yogī  param  sthānam  upaiti  ca ādyam
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+idam tu te guhyatamam pravakṣyāmi anasūyave
+jñānam vijñāna sahitam yat jñātvā mokṣyase aśubhāt
+
+rāja-vidyā rāja-guhyam pavitram idam uttamam
+pratyakṣa avagamam dharmyam susukham kartum avyayam
+
+aśraddadhānāḥ puruṣāḥ dharmasya asya parantapa
+aprāpya mām nivartante mṛtyu saṁsāra vartmani
+
+mayā tatam idam sarvam jagat avyakta-mūrtinā
+matsthāni sarva-bhūtāni na ca aham teṣu avasthitaḥ
+
+na ca matsthāni bhūtāni paśya me yogam aiśvaram
+bhūta-bhṛt na ca bhūtasthaḥ mama ātmā bhūta-bhāvanaḥ
+
+yathā  ākāśa-sthitaḥ  nityam  vāyuḥ  sarvatragaḥ  mahān
+tathā  sarvāṇi  bhūtāni  matsthānī iti upadhāraya
+
+sarva-bhūtāni kaunteya prakṛtim yānti māmikām
+kalpak-kṣaye punaḥ tāni kalpādau visṛjāmi aham
+
+prakṛtim svām avaṣṭabhya visṛjāmi punaḥ punaḥ
+bhūtagrāmam imam kṛtsnam avaśam prakṛteḥ vaśāt
+
+na ca mām tāni karmāṇi nibadhnanti dhanañjaya
+udāsīnavat āsīnam asaktam teṣu karmasu
+
+mayā adhyakṣeṇa prakṛtiḥ sūyate sa cara-acaram
+hetunā anena kaunteya jagat viparivartate
+
+avajānanti mām mūḍhāḥ mānuṣīm tanum āśritam
+param bhāvam ajānantaḥ mama  bhūta-maheśvaram
+
+moghāśā mogha-karmāṇaḥ mogha-jñānāḥ vicetasaḥ
+rākṣasīm āsurīm ca eva prakṛtim mohinīm śritāḥ
+
+mahātmānaḥ tu mām pārtha daivīm prakṛtim āśritāḥ
+bhajanti ananya-manasaḥ jñātvā bhūtādim avyayam
+
+satatam kīrtayantaḥ mām yatantaḥ ca dṛḍha-vratāḥ
+namasyantaḥ ca mām bhaktyā nitya-yuktāḥ upāsate
+
+jñāna-yajñena ca api anye yajantaḥ mām upāsate
+ekatvena pṛthaktvena bahudhā viśvataḥ-mukham
+
+aham kratuḥ aham yajñaḥ svadhā aham aham auṣadham
+mantraḥ aham aham eva ājyam aham agniḥ aham hutam
+
+pitā aham asya jagataḥ mātā dhātā pitāmahaḥ
+vedyam pavitram oṁkāra ṛk sāma yajuḥ eva ca
+
+gatiḥ bhartā prabhuḥ sākṣī nivāsaḥ śaraṇam suhṛt
+prabhavaḥ pralayaḥ sthānam nidhānam bījam avyam
+
+tapāi aham aham varṣam nigṛṇhāmi utsṛjāmi ca
+amṛtam ca eva mṛtyuḥ ca sat asat ca aham arjuna
+
+traividyā mām somapāḥ pūta-pāpā
+yajñaiḥ iṣṭvā svargatim prārthayante
+te puṇyam āsādya surendralokam
+aśnanti divyān divi deva-bhogān
+
+te tam bhuktvā svargalokam viśālam
+kṣīṇe puṇye martyalokam viśanti
+evam trayī-dharmam anuprapannāḥ
+gatāgatam kāma-kāmāḥ labhante
+
+ananyāḥ cintayantaḥ mām ye janāḥ paryupāsate
+teṣām nitya  abhiyuktānām yoga-kṣemam vahāmi aham
+
+ye api anya devatā bhaktāḥ yajante śraddhayā anvitāḥ
+te api mām eva kaunteya yajanti avidhi-pūrvakam
+
+aham hi sarva-yajñānām bhoktā ca prabhuḥ eva ca
+na tu mām abhijānanti tattvena ataḥ cyavanti te
+
+yānti deva-vratā devān pitṛn yānti pitṛ-vratāḥ
+bhūtāni yānti bhūtejyā yānti mat yājinaḥ api mām
+
+patram puṣpam phalam toyam yaḥ me bhaktyā prayacchati
+tat aham bhakti-upahṛtam aśnāmi prayata-ātmanaḥ
+
+yat karoṣi yat aśnāsi yat juhoṣi dadāsi yat
+yat tapasyasi kaunteya tat kuruṣva mat arpaṇam
+
+śubha-aśubha-phalaiḥ evam mokṣyase karma-bandhanaiḥ
+sannyāsa-yoga-yukta-ātmā vimuktaḥ mām upaiṣyasi
+
+samaḥ aham sarva-bhūteṣu na me dveṣyaḥ asti na priyaḥ
+ye bhajanti tu mām bhaktyā mayi te teṣu ca api aham
+
+api cet su-durācāraḥ bhajate mām ananyabhāk
+sādhuḥ eva saḥ mantavyaḥ samyak vyavasitaḥ hi saḥ
+
+kṣipram bhavati dharma-ātmā śaśvat sāntim nigacchhati
+kaunteya pratijānīhi na me  bhaktaḥ praṇaśyati
+
+mām hi pārtha vyapāśritya ye api syuḥ pāpa-yonayaḥ
+striyaḥ vaiśyāḥ tathā śūdrāḥ te api yānti parām gatim
+
+kim punaḥ brāhmaṇāḥ puṇyā bhaktā rājarṣayaḥ tathā
+anityam asukham lokam imam prāpya bhajasva mām
+
+manmanā bhava madbhaktaḥ madyājī mām namaskuru
+mām eva eṣyasi yuktvā evam ātmānam mat-parāyaṇaḥ
+
+
+
+
+
+
+
+
+
+
+bhūyaḥ eva mahābāho śṛṇu me paramam vacaḥ
+yat te aham prīyamāṇāya vakṣyāmi hita-kāmyayā
+
+na me viduḥ sura-gaṇāḥ prabhavam na maharṣayaḥ
+aham ādiḥ hi devānām maharṣīṇām ca sarvaśaḥ
+
+yaḥ mām ajam anādim ca vetti loka-maheśvaram
+asaṁmūḍhaḥ saḥ martyeṣu sarva-pāpaiḥ pramucyate
+
+buddhiḥ jñānam asaṁmohaḥ kṣamā satyam damaḥ śamaḥ
+sukham duḥkham bhavaḥ  abhāvaḥ bhayam ca abhayam eva ca
+
+ahiṁsā samatā tuṣṭiḥ tapaḥ dānam yaśaḥ-ayaśaḥ
+bhavanti bhāvāḥ bhūtānām mattaḥ eva pṛthak-vidhāḥ
+
+maharṣayaḥ sapta pūrve catvāraḥ manavaḥ tathā
+madbhāvāḥ mānasāḥ jātāḥ yeṣām loke imāḥ prajāḥ
+
+etām vibhūtim yogam ca mama yaḥ vetti tattvataḥ
+saḥ avikampena yogena yujyate na atra saṁśayaḥ
+
+aham sarvasya prabhavaḥ mattaḥ sarvam pravartate
+iti matvā bhajante mām budhāḥ bhāva-samanvitāḥ
+
+maccittā mad-gata-prāṇāḥ bodhayantaḥ parasparam
+kathayantaḥ ca mām nityam tuṣyanti ca ramanti ca
+
+teṣām satata-yuktānām bhajatām prīti-pūrvakam
+dadāmi buddhi-yogam tam yena mām upayānti te
+
+teṣām eva anukampā-artham aham ajñānajam tamaḥ
+nāśayāmi ātma-bhāva-sthaḥ jñāna-dīpena bhāsvatā
+
+arjuna uvāca
+
+param brahma param dhāma pavitram paramam bhavān
+puruṣam śāśvatam divyam ādi-devam ajam vibhum
+
+āhuḥ tvām ṛṣayaḥ sarve devarṣiḥ nāradaḥ tathā
+asitaḥ devalḥ vyāsaḥ svayam ca eva bravīṣi me
+
+sarvam etat ṛtam manye yat mām vadasi keśava
+na hi te bhagavan vyaktimk viduḥ devāḥ na dānavāḥ
+
+svayam eva ātmanā  ātmānam vettha tvam puruṣottama
+bhūta-bhāvana bhūteśa deva-deva jagat-pate
+
+vaktum arhasi aśeṣeṇa  divyā  hi  ātma  vibhūtayaḥ
+yābhiḥ  vibhūtibhiḥ  lokān  imān  tvam vyāpya  tiṣṭhasi
+
+katham vidyām aham yogin tvām sadā paricintayan
+keṣu keṣu ca bhāveṣu cintyaḥ asi bhagavan mayā
+
+vistareṇa ātmanaḥ yogam vibhūtim ca janārdana
+bhūyaḥ kathaya tṛptiḥ hi  śṛṇvataḥ na asti me amṛtam
+
+śrībhagavān uvāca
+
+hanta te kathayiṣyāmi divyā hi ātma-vibhūtayaḥ
+prādhānyataḥ kuru-śreṣṭha na asti antaḥ vistarasya me
+
+aham ātmā guḍākeśa sarva-bhūta āśaya-sthitaḥ
+aham ādiḥ ca madhyam ca bhūtānām anta eva ca
+
+ādityānām aham viṣṇuḥ jyotiṣām raviḥ aṁśumān
+marīciḥ marutām asmi nakṣatrāṇām aham śaśī
+
+vedānām sāmavedaḥ asmi devānām asmi vāsavaḥ
+indriyāṇām manaḥ ca asmi bhūtānām asmi cetanā
+
+rudrāṇām śaṁkaraḥ ca asmi vitteśaḥ yakṣa-rakṣasām
+vasūnām pāvakaḥ ca asmi meruḥ śikhariṇām aham
+
+purodhasām ca mukhyam mām viddhi pārtha bṛhaspatim
+senānīnām aham skandaḥ sarasām asmi sāgaraḥ
+
+maharṣīṇām bhṛguḥ aham girām asmi ekam akṣaram
+yajñānām japayajñaḥ asmi sthāvarāṇām himālayaḥ
+
+aśvatthaḥ sarva-vṛkṣāṇām devarṣīṇām ca nāradaḥ
+gandharvāṇām citrarathaḥ siddhānām kapilaḥ muniḥ
+
+uccaiḥśravasam aśvānām viddhi mām amṛta-udbhavam
+airāvatam gajendrāṇām narāṇām ca narādhipa
+
+āyudhānām aham vajram dhenūnām asmi kāmadhuk
+prajanaḥ ca asmi kandarpaḥ sarpāṇām asmi vāsukiḥ
+
+anantaḥ ca asmi nāgānām varuṇaḥ yādasām aham
+pitṛṇām aryamā ca asmi yamaḥ saṁyamatām aham
+
+prahlādaḥ ca asmi daityānām kālaḥ kalayatām aham
+mṛgāṇām ca mṛgendraḥ aham vainateyaḥ ca pakṣiṇām
+
+pavanaḥ pavatām asmi rāmaḥ śastra-bhṛtām aham
+jhaṣāṇām makaraḥ ca asmi strotasām asmi jāhnavī
+
+sargāṇām ādiḥ antaḥ ca madhyam ca eva aham arjuna
+adhyātma-vidyā vidyānām vādaḥ pravadatām aham
+
+akṣarāṇām akāraḥ asmi dvandvaḥ sāmāsikasya ca
+aham eva akṣayaḥ kālaḥ dhātā aham viśvatomukhaḥ
+
+mṛtyuḥ sarva-haraḥ ca aham udbhavaḥ ca bhaviṣyatām
+kīrtiḥ śrīḥ vāk ca nārīṇām smṛtiḥ medhā dhṛtiḥ kṣamā
+
+bṛhat-sāma tathā sāmnām gāyatrī chandasām aham
+māsānām mārga-śirsaḥ  aham ṛtūnām kusumākaraḥ
+
+dyutam chalayatām asmi tejaḥ tejasvinām aham
+jayaḥ asmi vyavasāyaḥ asmi sattvam sattva-vatām aham
+
+vṛṣṇīnām vāsudevaḥ asmi pāṇḍavānām dhanaṁjayaḥ
+munīnām api aham vyāsaḥ kavīnām uśanā kaviḥ
+
+daṇḍaḥ damayatām asmi nītiḥ asmi jigīṣatām
+maunam ca eva asmi guhyānām jñānam jñānavatām aham
+
+yat ca api sarva-bhūtānām bījam tat aham arjuna
+na tat asti vinā yat syāt mayā bhūtam cara-acaram
+
+na antaḥ asti mama divyānām vibhūtīnām parantapa
+eṣaḥ tu uddeśataḥ proktaḥ vibhūteḥ vistaraḥ mayā
+
+yat yat vibhūtimat sattvam śrīmad ūrjitam eva vā
+tat tat eva avagaccha  tvam mama tejaḥ aṁśa sambhavam
+
+athavā bahuna etena kim jñātena tava arjuna
+viṣṭabhya aham idam kṛtsnam eka aṁśena sthitaḥ jagat
+
+
+
+
+
+
+
+
+arjuna uvāca
+
+madanugrahāya paramam guhyam adhyātma-saṁjñitam
+yat tvayā uktam vacaḥ tena mohaḥ ayam vigataḥ mama
+
+bhava-apyayau hi bhūtānām śrutau vistaraśaḥ mayā
+tvattaḥ kamala-patra-akṣa māhātmyam api ca avyayam
+
+evam etat yathā āttha tvam ātmānam parameśvara
+draṣṭum icchāmi te rūpam aiśvaram puruṣottama
+
+manyase yadi tat śakyam mayā draṣṭum iti prabho
+yogeśvara tataḥ me tvam darśaya ātmānam avyayam
+
+śrībhagavān uvāca
+
+paśya me pārtha rūpāṇi śataśaḥ atha sahasraśaḥ
+nānā-vidhāni divyāni nānā varṇa ākṛtīni ca
+
+paśya ādityān vasūn rudrān aśvinau marutaḥ tathā
+bahūni adṛṣṭa-pūrvāṇi paśya āścaryāṇi bhārata
+
+iha ekastham jagat kṛtsnam paśya adya sa cara acaram
+mama dehe guḍākeśa yat ca anyat draṣṭum icchasi
+
+na tu mām śakyase draṣṭum anena eva sva-cakṣuṣā
+divyam dadāmi te cakṣuḥ paśya me yogam aiśvaram
+
+sañjaya uvāca
+
+evam uktvā tataḥ rājan mahāyogeśvaraḥ hariḥ
+darśayāmāsa pārthāya paramam rūpam aiśvaram
+
+aneka-vaktra-nayanam aneka-adbhuta-darśanam
+aneka-divya-ābharaṇam divya-aneka-udyata-āyudham
+
+divya-mālya-ambara-dharamdivya-gandha-anulepanam
+sarva-āścaryamayam devam anantam viśvataḥ-mukham
+
+divi sūrya sahasrasya bhavet yugapat utthitā
+yadi bhāḥ sadṛśī sā syāt bhāsaḥ tasya mahātmanaḥ
+
+tatra ekastham jagat kṛtsnam pravibhaktam anekadhā
+apaśyat devadevasya śarīre pāṇḍavaḥ tadā
+
+tataḥ saḥ vismaya-āviṣṭaḥ hṛṣṭa-romā dhanañjayaḥ
+praṇamya śirasā devam kṛta-añjaliḥ  abhāṣata
+
+arjuna uvāca
+
+paśyāmi devān tava deva dehe
+sarvān tathā bhūta-viśeṣa-saṅghān
+brahmāṇam īśam kamala-āsana-stham
+ṛṣīn ca sarvān uragān ca divyān
+
+aneka-bāhu-udara-vaktra-netram
+paśyāmi tvām sarvataḥ ananta-rūpam
+na antam na madhyam na punaḥ tava ādim
+paśyāmi viśveśvara viśva-rūpa
+
+kirīṭinam gadinam cakriṇam ca
+tejorāśim sarvataḥ dīptimantam
+paśyāmi tvām durnirīkṣyam samantāt
+dīpta-anala-arka-dyutim aprameyam
+
+tvam akṣaram paramam veditavyam
+tvam asya viśvasya param nidhānam
+tvam avyayaḥ śāśvata-dharma-goptā
+sanātanaḥ tvam puruṣaḥ mataḥ me
+
+anādi-madhya-antam ananta-vīryam
+ananta-bāhum śaśi-sūrya-netram
+paśyāmi tvām dīpta-hutāśa-vaktram
+sva-tejasā viśvam idam  tapantam
+
+dyāu āpṛthivyoḥ idam antaram hi
+vyāptam tvayā ekena diśaḥ ca sarvāḥ
+dṛṣṭvā adbhutam rupam ugram tava idam
+loka-trayam pravyathitam mahātman
+
+amī hi tvām surasaṅghā viśanti
+kecit bhītāḥ prāñjalayaḥ gṛṇanti
+svasti iti uktvā maharṣi-siddha-saṅghāḥ
+stuvanti tvām stutibhiḥ puṣkalābhiḥ
+
+rudra ādityā vasavaḥ ye ca sādhyāḥ
+viśve aśvinau marutaḥ ca uṣmapāḥ ca
+gandharva yakṣa asura siddha saṅghāḥ
+vīkṣante tvām vismitāḥ ca  eva sarve
+
+rūpam mahat te bahu-vaktra-netram
+mahābāho bahu-bāhu-uru-pādam
+bahu-udaram bahu-damṣṭrā-karālam
+dṛṣṭvā lokāḥ pravyathitāḥ tathā aham
+
+nabhaḥ-spṛśamdīptam aneka-varṇa
+vyātta-ānanam dīpta-viśāla-netram
+dṛṣṭvā hi tvām pravyathita antarātmā
+dhṛtim na vindāmi śamam ca viṣṇo
+
+daṁṣṭra-karālāni ca te mukhāni
+dṛṣṭvā eva kāla-anala sannibhāni
+diśaḥ na jāne na labhe ca śarma
+prasīda deveśa jagannivāsa
+
+amī ca tvām dhṛtarāṣṭrasya putrāḥ
+sarve saha eva avanipāla-saṅghaiḥ
+bhīṣmaḥ droṇaḥ sūta-putraḥ tathā asau
+saha asmadīyaiḥ api yodha-mukhyaiḥ
+
+vaktrāṇi te tvaramāṇāḥ viśanti
+daṁṣṭrā karālāni bhayānakāni
+kecit vilagnāḥ daśana-antareṣu
+sandṛśyante cūrṇitaiḥ uttama-aṅgaiḥ
+
+yathā nadīnām bahavaḥ ambu-vegāḥ
+samudram eva abhimukhāḥ dravanti
+tathā tava amī nara-loka-vīrāḥ
+viśanti vaktrāṇi abhivijvalanti
+
+yathā pradīptam jvalanam pataṅgāḥ
+viśanti nāśāya samṛddha vegāḥ
+tatha eva nāśāya viśanti lokāḥ
+tava api vaktrāṇi samṛddha-vegāḥ
+
+lelihyase grasamānaḥ samantāt
+lokān samagrān vadanaiḥ jvaladbhiḥ
+tejobhiḥ āpūrya jagat samagram
+bhāsaḥ tava ugrāḥ pratapanti viṣṇo
+
+ākhyāhi me kaḥ bhavān ugrarūpaḥ
+namaḥ astu te deva-vara prasīda
+vijñātum icchāmi bhavantam ādyam
+na hi prajānāmi tava pravṛttim
+
+śrībhagavān uvāca
+
+kālaḥ asmi loka-kṣaya-kṛt pravṛddhaḥ
+lokān samāhartum iha pravṛttaḥ
+ṛte api tvām na bhaviṣyanti sarve
+ye avasthitāḥ pratyanīkeṣu yodhāḥ
+
+tasmāt tvam uttiṣṭha yaśaḥ labhasva
+jitvā śatrūn bhuṅkṣva rājyam samṛddham
+maya eva ete nihatāḥ pūrvam eva
+nimitta-mātram bhava savyasācin
+
+droṇam ca bhīṣmam ca jayadratham ca
+karṇam tathā anyān api yodhavīrān
+mayā hatān tvam jahi mā vyathiṣṭhāḥ
+yudhyasva jetāsi raṇe sapatnān
+
+sañjaya uvāca
+
+etat śrutvā vacanam keśavasya
+kṛta-añjaliḥ vepamānaḥ kirīṭī
+namaskṛtvā bhūyaḥ eva āha kṛṣṇam
+sa-gadgadam bhīta-bhītaḥ praṇamya
+
+arjuna uvāca
+
+sthāne hṛṣīkeśa tava prakīrtyā
+jagat prahṛṣyati anurajyate ca
+rakṣāṁsi bhītāni diśaḥ dravanti
+sarve namasyanti ca siddha-saṅghāḥ
+
+kasmāt ca te na nameran mahātman
+garīyase brahmaṇaḥ api ādi-kartre
+ananta deveśa jagannivāsa
+tvam akṣaram sat-asat tatparam yat
+
+tvam ādi-devaḥ puruṣaḥ purāṇaḥ
+tvam asya viśvasya param nidhānam
+vettā asi vedyam ca param ca dhāma
+tvayā tatam viśvam anantarūpa
+
+vāyuḥ yamaḥ agniḥ varuṇaḥ śaśāṅkaḥ
+prajāpatiḥ tvam prapitāmahaḥ ca
+namaḥ namaḥ te astu sahastra-kṛtvaḥ
+punaḥ ca bhūyaḥ api namaḥ namaḥ te
+
+namaḥ purastāt atha pṛṣṭhataḥ te
+namaḥ astu te sarvataḥ eva sarva
+ananta-vīrya amita-vikramaḥ tvam
+sarvam samāpnoṣi tataḥ asi sarvaḥ
+
+sakha iti matvā prasabham yat uktam
+he kṛṣṇa he yādava he sakheti
+ajānatā mahimānam tava idam
+mayā pramādāt praṇayena vā api
+
+yat ca avahāsa-artham asat-kṛtaḥ asi
+vihāra śayyā āsana bhojaneṣu
+eka atha vā  api acyuta tat-samakṣam
+tat kṣāmaye tvām aham aprameyam
+
+pitā asi lokasya cara-acarasya
+tvam asya pūjya ca guruḥ garīyān
+na tvat-samaḥ asti abhyadhikaḥ kutaḥ anyaḥ
+loka-traye api apratima-prabhāva
+
+tasmāt praṇamya praṇidhāya kāyam
+prasādaye tvām aham īśam īḍyam
+pita iva putrasya sakheva sakhyuḥ
+priyaḥ priyāyāḥ arhasi deva soḍhum
+
+adṛṣṭa-pūrvam hṛṣitaḥ asmi dṛṣṭvā
+bhayena ca pravyathitam manaḥ me
+tat eva me darśaya deva rūpam
+prasīda deveśa jagannivāsa
+
+kirīṭinam gadinam cakra-hastam
+icchāmi tvām draṣṭum aham tatha eva
+tena eva rūpeṇa caturbhujena
+sahasra-bāho bhava viśva-mūrte
+
+śrībhagavān uvāca
+
+mayā prasannena tava arjuna idam
+rūpam param darśitam ātma-yogāt
+tejomayam viśvam anantam ādyam
+yat me tvat-anyena na dṛṣṭa-pūrvam
+
+na veda yajña adhyayanaiḥ na dānaiḥ
+na ca kriyābhiḥ na tapobhiḥ ugraiḥ
+evam-rūpaḥ śakya aham nṛloke
+draṣṭum tvat anyena kuru-pravīra
+
+mā te vyathā mā ca vimūḍha-bhāvaḥ
+dṛṣṭvā rūpam ghoram īdṛk mama idam
+vyapeta-bhīḥ prītamanāḥ punaḥ tvam
+tat eva me rūpam idam prapaśya
+
+sañjaya uvāca
+
+iti arjunam vāsudevaḥ tathā uktvā
+svakam rūpam darśayāmāsa bhūyaḥ
+āśvāsayāmāsa ca bhītam enam
+bhūtvā punaḥ saumyavapuḥ mahātmā
+
+arjuna uvāca
+
+dṛṣṭvā idam mānuṣam rūpam tava saumyam janārdana
+idānīm asmi saṁvṛttaḥ sacetāḥ prakṛtim gataḥ
+
+śrībhagavān uvāca
+
+sudurdarśam idam rūpam dṛṣṭvān asi yat mama
+devāḥ api asya rūpasya nityam darśana-kāṅkṣiṇaḥ
+
+na aham vedaiḥ na tapasā na dānena na ca ijyayā
+śakyaḥ evam-vidhaḥ draṣṭum dṛṣṭavān asi mām yathā
+
+bhaktyā tu ananyayā śakya aham evamvidhaḥ arjuna
+jñātum draṣṭum ca tattvena praveṣṭum ca parantapa
+
+mat-karma-kṛt matparamaḥ madbhaktaḥ saṅga-varjitaḥ
+nirvairaḥ sarva-bhūteṣu yaḥ saḥ mām eti pāṇḍava
+
+
+
+
+
+
+
+
+arjuna uvāca
+
+evam satata-yuktāḥ ye bhaktāḥ tvām paryupāsate
+ye ca api akṣaram avyaktam teṣām ke yoga-vit-tamāḥ
+
+śrībhagavān uvāca
+
+mayi āveśya manaḥ ye mām nitya-yuktā upāsate
+śraddhayā parayā upetāḥ te me yukta-tamāḥ matāḥ
+
+ye tv akṣaram anirdeśyam avyaktam paryupāsate
+sarvatragam acintyam ca kūṭastham acalam dhruvam
+
+saṁniyamya indriya-grāmam sarvatra samabuddhayāḥ
+te prāpnuvanti mām eva sarva-bhūta-hite ratāḥ
+
+kleśaḥ adhikataraḥ teṣām avyakta āsakta cetasām
+avyaktā hi gatiḥ duḥkham deha-vadbhiḥ avāpyate
+
+ye tu sarvāṇi karmāṇi mayi sannyasya matparaḥ
+ananyena eva yogena mām dhyāyantaḥ upāsate
+
+teṣām aham samuddhartā mṛtyu saṁsāra sāgarāt
+bhavāmi na cirāt pārtha mayi āveśita cetasām
+
+mayi eva manaḥ  ādhatsva mayi buddhim niveśaya
+nivasiṣyasi mayi eva ataḥ ūrdhvam na saṁśayaḥ
+
+atha cittam samādhātum na śaknoṣi mayi sthiram
+abhyāsa-yogena tataḥ mām iccha āptum dhananjaya
+
+abhyāse api asamarthaḥ asi mat-karma-paramaḥ bhava
+madartham api karmāṇi kurvan siddhim avāpsyasi
+
+atha etat api aśaktaḥ asi kartum madyogam āśritaḥ
+sarva-karma-phala-tyāgam tataḥ kuru yata-ātmavān
+
+śreyaḥ hi jñānam abhyāsāt jñānāt dhyānam viśiṣyate
+dhyānāt karma-phala-tyāgaḥ tyāgāt śāntiḥ anantaram
+
+adveṣṭā sarva-bhūtānām maitraḥ karuṇaḥ eva ca
+nirmamaḥ nirahaṅkāraḥ sama-duḥkha-sukhaḥ kṣamī
+
+santuṣṭaḥ satatam yogī yata-ātmā dṛḍha-niścayaḥ
+mayi arpita-manaḥ-buddhiḥ yaḥ madbhaktaḥ saḥ me priyaḥ
+
+yasmāt na udvijate lokaḥ lokāt na udvijate ca yaḥ
+harṣa amarṣa bhaya udvegaiḥ muktaḥ yaḥ saḥ ca me priyaḥ
+
+anapekṣaḥ śuciḥ dakṣaḥ udāsīnaḥ gata-vyathaḥ
+sarva-ārambha-parityāgī yaḥ madbhaktaḥ saḥ me priyaḥ
+
+yaḥ na hṛṣyati na dveṣṭi na śocati na kāṅkṣati
+śubha aśubha parityāgī bhaktimān yaḥ saḥ me priyaḥ
+
+samaḥ śatrau ca mitre ca tathā mānā-pamānayoḥ
+śīta-uṣṇa-sukha-duḥkheṣu-samaḥ saṅga-vivarjitaḥ
+
+tulya-nindā-stutiḥ maunī santuṣṭaḥ yena-kenacit
+aniketaḥ sthira-matiḥ bhaktimān me priyaḥ naraḥ
+
+ye tu dharmyāmṛtam idam yathā uktam paryupāsate
+śraddadhānāḥ matparamāḥ bhaktāḥ te atīva me priyāḥ
+
+
+
+
+
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+idam śarīram kaunteya kṣetram iti abhidhīyate
+etat yaḥ vetti tam prāhuḥ kṣetrajña iti tadvidaḥ
+
+kṣetrajñam ca api mām viddhi sarva-kṣetreṣu bhārata
+kṣetra kṣetra-jñayoḥ jñānam yat tat jñānam matam mama
+
+tat kṣetram yat ca yādṛk ca yat-vikāri yataḥ ca yat
+saḥ ca yaḥ yat-prabhāvaḥ ca tat samāsena me śṛṇu
+
+ṛṣibhiḥ bahudhā gītam chandobhiḥ vividhaiḥ pṛthak
+brahma-sūtra-padaiḥ ca eva hetumadbhiḥ viniścitaiḥ
+
+mahābhūtāni ahaṅkāraḥ buddhiḥ avyaktam eva ca
+indriyāṇi daśa ekam ca pañca ca indriya-gocarāḥ
+
+icchā dveṣaḥ sukham duḥkham saṅghātaḥ cetanā dhṛtiḥ
+etat kṣetram samāsena savikāram udāhṛtam
+
+amānitvam adambhitvam ahiṁsā kṣāntiḥ ārjavam
+ācārya-upāsanam śaucam sthairyam ātma-vinigrahaḥ
+
+indriyārtheṣu vairāgyam anahaṅkāra eva ca
+janma-mṛtyu-jarā-vyādhi-duḥkha-doṣa-anudarśanam
+
+asaktiḥ anabhiṣvaṅgaḥ putra-dāra-gṛhādiṣu
+nityam ca sama-cittatvam iṣṭa-aniṣṭa-upapattiṣu
+
+mayi ca ananya-yogena bhaktiḥ avyabhicāriṇī
+vivikta-deśa-sevitvam aratiḥ-jana-saṁsadi
+
+adhyātma-jñāna-nityatvam tattva-jñāna-artha-darśanam
+etat jñānam iti proktam ajñānam yat ataḥ anyathā
+
+jñeyam yat tat pravakṣyāmi yat jñātvā amṛtam aśnute
+anādimat param brahma na sat tat na asat ucyate
+
+sarvataḥ pāṇi-pādam tat sarvataḥ akṣi-śiraḥ-mukham
+sarvataḥ śruti-mat loke sarvam āvṛtya tiṣṭhati
+
+sarva-indriya-guṇa-ābhāsam sarva-indriya-vivarjitam
+asaktam sarva-bhṛt ca eva nirguṇam guṇa-bhoktṛ ca
+
+bahiḥ antaḥ ca bhūtānām acaram caram eva ca
+sūkṣmatvāt tat avijñeyam dūrastham ca antike ca tat
+
+avibhaktam ca bhūteṣu vibhaktam iva ca sthitam
+bhūta-bhartṛ ca tat  jñeyam grasiṣṇu prabhaviṣṇu ca
+
+jyotiṣām api tat jyotiḥ tamasaḥ param ucyate
+jñānam jñeyam jñāna-gamyam hṛdi sarvasya viṣṭhitam
+
+iti kṣetram tathā jñānam jñeyam ca uktam samāsataḥ
+mat-bhakta etat vijñāya mat-bhāvāya upapadyate
+
+prakṛtim puruṣam ca eva viddhi anādi ubhāu api
+vikārān ca guṇān ca eva viddhi prakṛti-sambhavān
+
+kārya-kāraṇa-kartṛtve hetuḥ prakṛtiḥ ucyate
+puruṣaḥ sukha-duḥkhānām bhoktṛtve hetuḥ ucyate
+
+puruṣaḥ prakṛtisthaḥ hi bhuṅkte prakṛtijān guṇān
+kāraṇam guṇasaṅgaḥ asya sad-asad-yoni-janmasu
+
+upadraṣṭā anumantā ca bhartā bhoktā maheśvaraḥ
+paramātma iti ca api uktaḥ dehe asmin puruṣaḥ paraḥ
+
+yaḥ evam vetti puruṣam prakṛtim ca guṇaiḥ saha
+sarvathā vartamānaḥ api na saḥ bhūyaḥ abhijāyate
+
+dhyānena ātmani paśyanti kecit ātmānam ātmanā
+anye sāṅkhyena yogena karma-yogena ca apare
+
+anye tu evam ajānantaḥ śrutvā anyebhyaḥ upāsate
+te api ca atitaranti eva mṛtyum śruti-parāyaṇāḥ
+
+yāvat sañjāyate kiñcit sattvam sthāvara jaṅgamam
+kṣetra-kṣetrajña-saṁyogāt tat viddhi bharatarṣabha
+
+samam sarveṣu bhūteṣu tiṣṭhantam parameśvaram
+vinaśyatsu avinaśyantam yaḥ paśyati saḥ paśyati
+
+samam  paśyan hi sarvatra samavasthitam  īśvaram
+na hinasti ātmanā ātmānam tataḥ yāti parām gatim
+
+prakṛtya eva ca karmāṇi kriyamāṇāni sarvaśaḥ
+yaḥ paśyati tathā ātmānam akartāram saḥ paśyati
+
+yadā bhūta-pṛthak-bhāvam ekastham anupaśyati
+tata eva ca vistāram brahma sampadyate tadā
+
+anāditvāt nirguṇatvāt paramātmā ayam avyayaḥ
+śarīrasthaḥ api kaunteya na karoti na lipyate
+
+yathā sarva-gatam saukṣmyāt ākāśam na upalipyate
+sarvatra avasthitaḥ dehe tathā ātmā na upalipyate
+
+yathā prakāśayati ekaḥ kṛtsnam lokam imam raviḥ
+kṣetram kṣetrī tathā kṛtsnam prakāśayati bhārata
+
+kṣetra-kṣetrajñayoḥ evam antaram jñāna-cakṣuṣā
+bhūta-prakṛti-mokṣam ca ye viduḥ yānti te param
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+param bhūyaḥ pravakṣyāmi jñānānām jñānam uttamam
+yat jñātvā munayaḥ sarve parām siddhim itaḥ gatāḥ
+
+idam jñānam upāśritya mama sādharmyam āgatāḥ
+sarge api na upajāyante pralaye na vyathanti ca
+
+mama yoniḥ mahat brahma tasmin garbham dadhāmi aham
+sambhavaḥ sarva-bhūtānām tataḥ bhavati bhārata
+
+sarva-yoniṣu kaunteya mūrtayaḥ sambhavanti yāḥ
+tāsām brahma mahat yoniḥ aham bīja-pradaḥ pitā
+
+sattvam rajas tamaḥ iti guṇāḥ prakṛti-sambhavāḥ
+nibadhnanti mahābāho dehe dehinam avyayam
+
+tatra sattvam nirmalatvāt prakāśakam anāmayam
+sukhasaṅgena badhnāti jñāna-saṅgena ca anagha
+
+rajaḥ rāgātmakam viddhi tṛṣṇā-asaṅga-samudbhavam
+tat nibadhnāti kaunteya karma-saṅgena dehinam
+
+tamaḥ tu ajñānajam viddhi mohanam sarva-dehinām
+pramāda-ālasya-nidrābhiḥ tat nibadhnāti bhārata
+
+sattvam sukhe sañjayati rajaḥ karmaṇi bhārata
+jñānam āvṛtya tu tamaḥ pramāde sañjayati uta
+
+rajaḥ tamaḥ ca abhibhūya sattvam bhavati bhārata
+rajaḥ sattvam tamaḥ ca eva tamaḥ sattvam rajaḥ tathā
+
+sarva-dvāreṣu dehe asmin prakāśa upajāyate
+jñānam yadā tadā vidyāt vivṛddham sattvam iti uta
+
+lobhaḥ pravṛttiḥ ārambhaḥ karmaṇām aśamaḥ spṛhā
+rajasi etāni jāyante vivṛddhe bharata-rṣabha
+
+aprakāśaḥ apravṛttiḥ ca pramādaḥ mohaḥ eva ca
+tamasi etāni jāyante vivṛddhe kuru-nandana
+
+yadā sattve pravṛddhe tu pralayam yāti deha-bhṛt
+tadā uttamavidām lokān amalān pratipadyate
+
+rajasi pralayam gatvā karma-saṅgiṣu jāyate
+tathā pralīnaḥ tamasi mūḍha-yoniṣu jāyate
+
+karmaṇaḥ sukṛtasya āhuḥ sāttvikam nirmalam phalam
+rajasaḥ tu phalam duḥkham ajñānam tamasaḥ phalam
+
+sattvāt sañjāyate jñānam rajasaḥ lobha eva ca
+pramāda-mohau tamasaḥ bhavataḥ ajñānam eva ca
+
+ūrdhvam gacchanti sattvasthāḥ madhye tiṣṭhanti rājasāḥ
+jaghanya-guṇa-vṛttisthāḥ adhaḥ gacchhanti tāmasāḥ
+
+na anyam guṇebhyaḥ kartāram yadā draṣṭā anupaśyati
+guṇebhyaḥ ca param vetti madbhāvam saḥ adhigacchhati
+
+guṇān etān atītya trīn dehī deha-samudbhavān
+janma-mṛtyu-jarā-duḥkhaiḥ vimuktaḥ amṛtam aśnute
+
+arjuna uvāca
+
+kaiḥ liṅgaiḥ trīn guṇān etān atītaḥ bhavati prabho
+kim ācāraḥ katham ca etān trīn guṇān ativartate
+
+śrībhagavān uvāca
+
+prakāśam ca pravṛttim ca moham eva ca pāṇḍava
+na dveṣṭi sampravṛttāni na nivṛttāni kāṅkṣati
+
+udāsīnavat āsīnaḥ guṇaiḥ yaḥ na vicālyate
+guṇāḥ vartante iti eva yaḥ avatiṣṭhati na iṅgate
+
+sama-duḥkha-sukhaḥ svasthaḥ sama-loṣṭa-aśma-kāñcanaḥ
+tulya-priya-apriyaḥ dhīraḥ tulya-nindā-ātma-saṁstutiḥ
+
+māna-apamānayoḥ tulyaḥ tulyaḥ mitra-ari-pakṣayoḥ
+sarva-ārambha-parityāgī guṇātītaḥ saḥ ucyate
+
+mām ca yah avyabhicāreṇa bhakti-yogena sevate
+saḥ guṇān samatītya etān brahma-bhūyāya kalpate
+
+brahmaṇaḥ hi pratiṣṭhā aham amṛtasya avyayasya ca
+śāśvatasya ca dharmasya sukhasya aikāntikasya ca
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+ūrdhva-mūlam adhaḥ-śākham aśvattham prāhuḥ avyayam
+chandāṁsi yasya parṇāni yaḥ tam veda saḥ vedavit
+
+adhaḥ ca urdhvam prasṛtāḥ guṇa pravṛddhā viṣaya pravālāḥ
+
+adhaḥ ca mūlāni anusantatāni karma-anubandhīni manuṣya-loke
+
+
+na rūpam asya iha tathaḥ upalabhyate na antaḥ na ca ādiḥ na ca saṁpratiṣṭhā
+
+aśvattham enam suvirūḍha-mūlam asaṅga-śastreṇa dṛḍhena chittvā
+
+
+tataḥ padam tat parimārgitavyam yasmin gatā na nivartanti bhūyaḥ
+
+tam eva ca ādyam puruṣam prapadye yataḥ pravṛttiḥ prasṛtā purāṇī
+
+
+nirmāna-mohā jita-saṅga-doṣā adhyātma-nityā vinivṛtta-kāmāḥ
+
+dvandvaiḥ vimuktāḥ sukha-duḥkha-sañjñaiḥ gacchhanti amūḍhāḥ padam avyayam tat
+
+
+na tat bhāsayate sūryaḥ na śaśāṅkaḥ na pāvakaḥ
+yat gatvā na nivartante tat dhāma paramam mama
+
+mama eva aṁśaḥ jīva-loke jīva-bhūtaḥ sanātanaḥ
+manaḥ-ṣaṣṭhāni indriyāṇi prakṛti-sthāni karṣati
+
+śarīram yat avāpnoti yat ca api utkrāmati īśvaraḥ
+gṛhitva etāni saṁyāti vāyuḥ gandhān iva āśayāt
+
+śrotram cakṣuḥ sparśanam ca rasanam ghrāṇam eva ca
+adhiṣṭhāya manaḥ ca ayam viṣayān upasevate
+
+utkrāmantam sthitam vā api bhuñjānam vā guṇa-anvitam
+vimūḍhā na anupaśyanti paśyanti jñāna-cakṣuṣaḥ
+
+yatantaḥ yoginaḥ ca enam paśyanti ātmani avasthitam
+yatantaḥ api akṛta-ātmānaḥ na enam paśyanti acetasaḥ
+
+yat āditya-gatam tejaḥ jagat bhāsayate akhilam
+yat candramasi yat ca agnau tat tejaḥ viddhi māmakam
+
+gām āviśya ca bhūtāni dhārayāmi aham ojasā
+puṣṇāmi ca auṣadhīḥ sarvāḥ somaḥ bhūtvā rasātmakaḥ
+
+aham vaiśvānaraḥ bhūtvā prāṇinām deham āśritaḥ
+prāṇa-apāna-samāyuktaḥ pacāmi annam caturvidham
+
+sarvasya ca aham hṛdi san-niviṣṭaḥ mattaḥ smṛtiḥ jñānam apohanam ca
+
+vedaiḥ ca sarvaiḥ aham eva vedyaḥ vedānta-kṛt veda-vit eva ca aham
+
+
+dvāu imau puruṣau loke kṣaraḥ ca akṣaraḥ eva ca
+kṣaraḥ sarvāṇi bhūtāni kūṭasthaḥ akṣara ucyate
+
+uttamaḥ puruṣaḥ tu anyaḥ parama ātmā eti udāhṛtaḥ
+yaḥ loka-trayam āviśya bibharti avyayaḥ  īśvaraḥ
+
+yasmāt kṣaram atītaḥ  aham akṣarāt api ca uttamaḥ
+ataḥ asmi loke vede ca prathitaḥ puruṣottamaḥ
+
+yaḥ mām evam asammūḍhaḥ jānāti puruṣottamam
+saḥ sarva-vit bhajati mām sarva-bhāvena bhārata
+
+iti guhyatamam śāstram idam uktam mayā anagha
+etat buddhvā buddhimān syāt kṛtakṛtyaḥ ca bhārata
+
+
+
+
+
+
+
+
+śrībhagavān uvāca
+
+abhayam sattva-saṁśuddhiḥ jñāna-yoga-vyavasthitiḥ
+dānam damaḥ ca yajñaḥ ca svādhyāyaḥ tapaḥ ārjavam
+
+ahiṁsā satyam akrodhaḥ tyāgaḥ śāntiḥ apaiśunam
+dayā bhūteṣu aloluptvam mārdavam hrīḥ acāpalam
+
+tejaḥ kṣamā dhṛtiḥ śaucam adrohaḥ na atimānitā
+bhavanti sampadam daivīm abhijātasya bhārata
+
+dambhaḥ darpaḥ bhimānaḥ ca krodhaḥ pāruṣyam eva ca
+ajñānam ca abhijātasya pārtha sampadam āsurīm
+
+daivī sampat vimokṣāya nibandhāya āsurī matā
+mā śucaḥ sampadam daivīm abhijātaḥ asi pāṇḍava
+
+dvau bhūta-sargau loke asmin daiva āsuraḥ eva ca
+daivaḥ vistaraśaḥ proktaḥ āsuram pārtha me śṛṇu
+
+pravṛttim ca nivṛttim ca janāḥ na viduḥ āsurāḥ
+na śaucam na api ca ācāraḥ na satyam teṣu vidyate
+
+asatyam apratiṣṭham te jagat āhuḥ anīśvaram
+aparaspara  sambhūtam kim anyat kāma-haitukam
+
+etām dṛṣṭim avaṣṭabhya naṣṭa-ātmānaḥ alpa-buddhayaḥ
+prabhavanti ugrakarmāṇaḥ kṣayāya jagataḥ ahitāḥ
+
+kāmam āśritya duṣpūram dambha-māna-mada-anvitāḥ
+mohāt gṛhītvā asad-grāhān pravartante aśuci-vratāḥ
+
+cintām aparimeyām ca pralayāntām upāśritāḥ
+kāma-upabhoga-paramāḥ etāvat iti niścitāḥ
+
+āśā-pāśa-śataiḥ baddhāḥ kāma-krodha-parāyaṇāḥ
+īhante kāma-bhoga-artham anyāyena artha-sañcayān
+
+idam adya mayā labdham imam prāpsye manoratham
+idam asti idam api me bhaviṣyati punaḥ dhanam
+
+asau mayā hataḥ śatruḥ haniṣye ca aparān api
+īśvaraḥ aham aham bhogī siddhaḥ aham balavān sukhī
+
+āḍhyaḥ abhijanavān asmi kaḥ anyaḥ asti sadṛśaḥ mayā
+yakṣye dāsyāmi modiṣye iti ajñāna-vimohitāḥ
+
+aneka-citta-vibhrāntāḥ moha-jāla-samāvṛtāḥ
+prasaktāḥ kāma-bhogeṣu patanti narake aśucau
+
+ātma-sambhāvitāḥ stabdhā dhana-māna-mada-anvitāḥ
+yajante nāma-yajñaiḥ te dambhena avidhi-pūrvakam
+
+ahaṅkāram balam darpam kāmam krodham ca saṁśritāḥ
+mām ātma-para-deheṣu pradviṣantaḥ abhyasūyakāḥ
+
+tān aham dviṣataḥ krurān saṁsāreṣu nar-adhamān
+kṣipāmi ajasram aśubhān āsurīṣu eva yoniṣu
+
+āsurīm yonim āpannāḥ mūḍhāḥ janmani-janmani
+mām aprāpya eva kaunteya tataḥ yānti adhamām gatim
+
+trividham narakasya idam dvāram nāśanam ātmanaḥ
+kāmaḥ krodhaḥ tathā lobhaḥ tasmāt etat trayam tyajet
+
+etaiḥ vimuktaḥ kaunteya tamaḥ-dvāraiḥ tribhiḥ naraḥ
+ācarati ātmanaḥ śreyaḥ tataḥ yāti parām gatim
+
+yaḥ śāstra-vidhim utsṛjya vartate kāma-kārataḥ
+na saḥ siddhim avāpnoti na sukham na parām gatim
+
+tasmāt śāstram pramāṇam te kārya-akārya-vyavasthitau
+jñātvā śāstra-vidhāna-uktam karma kartum iha arhasi
+
+
+
+
+
+
+
+
+arjuna uvāca
+
+ye śāstra-vidhim utsṛjya yajante śraddhayā anvitāḥ
+teṣām niṣṭhā tu kā kṛṣṇa sattvam āho raja tamaḥ 
+
+śrībhagavān uvāca
+
+trividhā bhavati śraddhā dehinām sā svabhāvajā
+sāttvikī rājasī ca eva tāmasī ca iti tām śṛṇu 
+
+sattva-anurūpā sarvasya śraddhā bhavati bhārata
+śraddhā mayaḥ ayam puruṣaḥ yaḥ yat śraddhaḥ saḥ eva saḥ 
+
+yajante sāttvikāḥ devān yakṣa-rakṣāṁsi rājasāḥ
+pretān bhūta-gaṇāñ ca anye yajante tāmasāḥ janāḥ 
+
+aśāstra-vihitam ghoram tapyante ye tapaḥ janāḥ
+dambha-ahañkāra-saṁyuktāḥ kāma-rāga-bala-anvitāḥ 
+
+karṣayantaḥ śarīrastham bhūta-grāmam acetasaḥ
+mām ca eva antaḥ-śarīra-stham tān viddhi āsura-niścayān 
+
+āhāraḥ tu api sarvasya trividhaḥ bhavati priyaḥ
+yajñaḥ tapaḥ tathā dānam teṣām bhedam imam śṛṇu 
+
+āyuḥ-sattva-bala-ārogya-sukha-prīti vivardhanāḥ
+rasyāḥ snigdhāḥ sthirāḥ hṛdyāḥ āhārāḥ sāttvika-priyāḥ 
+
+kaṭu-amla-lavaṇa-atyuṣṇa-tīkṣṇa-rūkṣa-vidāhinaḥ
+āhārāḥ rājasasya iṣṭāḥ duḥkha-śoka-āmaya pradāḥ 
+
+yāta-yāmam gata-rasam pūti paryuṣitam ca yat
+ucchiṣṭam api ca amedhyam bhojanam tāmasa priyam 
+
+aphala-āṅkṣibhiḥ yajñaḥ vidhi-dṛṣṭaḥ yaḥ ijyate
+yaṣṭavyam eva iti manaḥ samādhāya saḥ sāttvikaḥ 
+
+abhisandhāya tu phalam dambhārtham api ca eva yat
+ijyate bharataśreṣṭha tam yajñam viddhi rājasam 
+
+vidhi-hīnam asṛṣṭa-annam mantra-hīnam adakṣiṇam
+śraddhā-virahitam yajñam tāmasam paricakṣate 
+
+deva-dvija-guru-prājña-pūjanam śaucam-ārjavam-
+brahmacaryam ahiṁsā ca śārīram tapa ucyate 
+
+anudvegakaram vākyam satyam priya-hitam ca yat
+svādhyāya-abhyasanam ca eva vāk-mayam tapa ucyate 
+
+manaḥ-prasādaḥ saumyatvam maunam ātma-vinigrahaḥ
+bhāva-saṁśuddhiḥ iti etat tapaḥ mānasam ucyate 
+
+śraddhayā parayā taptam tapaḥ tat trividham naraiḥ
+aphala-ākāṅkṣibhiḥ yuktaiḥ sāttvikam paricakṣate 
+
+satkāra-māna-pūja-artham tapaḥ dambhena ca eva yat
+kriyate tat iha proktam rājasam calam adhruvam 
+
+mūḍha-grāheṇa ātmanaḥ yat pīḍayā kriyate tapaḥ
+parasya utsādanārtham vā tat tāmasam udāhṛtam 
+
+dātavyam iti yat dānam dīyate anupakāriṇe
+deśe kāle ca pātre ca tat dānam sāttvikam smṛtam 
+
+yat tu pratti-upakāra-artham phalam uddiśya vā punaḥ
+dīyate ca parikliṣṭam tat dānam rājasam smṛtam 
+
+adeśa-kāle yat dānam apātrebhyaḥ ca dīyate
+asat-kṛtam avajñātam tat tāmasam udāhṛtam 
+
+oṁ tat sat iti nirdeśaḥ brahmaṇaḥ trividhaḥ smṛtaḥ
+brāhmaṇāḥ tena vedāḥ ca yajñāḥ ca vihitāḥ purā 
+
+tasmāt om iti udāhṛtya yajña-dāna-tapaḥ-kriyāḥ
+pravartante vidhāna-uktāḥ satatam brahma-vādinām 
+
+tat iti anabhisandhāya phalam yajña-tapaḥ-kriyāḥ
+dāna-kriyāḥ ca vividhāḥ kriyante mokṣa-kāṅkṣibhiḥ 
+
+sad-bhāve sādhu-bhāve ca sat iti etat prayujyate
+praśaste karmaṇi tathā sat-śabdaḥ pārtha yujyate 
+
+yajñe tapasi dāne ca sthitiḥ sat iti ca ucyate
+karma ca eva tat arthīyam sat iti eva abhidhīyate 
+
+aśraddhayā hutam dattam tapaḥ taptam kṛtam ca yat
+asat iti ucyate pārtha na ca tat pretya na iha 
+
+
+
+
+
+
+
+
+arjuna uvāca
+
+sannyāsasya mahābāho tattvam icchāmi veditum
+tyāgasya ca hṛṣīkeśa pṛthak keśi-niṣūdana 
+
+śrībhagavān uvāca
+
+kāmyānām karmaṇām nyāsam sannyāsam kavayaḥ viduḥ
+sarva-karma-phala-tyāgam prāhuḥ tyāgam vicakṣaṇāḥ 
+
+tyājyam doṣavat iti eke karma prāhuḥ manīṣiṇaḥ
+yajña-dāna-tapaḥ-karma na tyājyam itica apare 
+
+niścayam śṛṇu me tatra tyāge bharata-sattama
+tyāgaḥ hi puruṣa-vyāghra trividhaḥ saṁprakīrtitaḥ 
+
+yajña dāna tapaḥ karma na tyājyam kāryam eva tat
+yajñaḥ dānam tapaḥ ca eva pāvanāni manīṣiṇām 
+
+etāni api tu karmāṇi saṅgam tyaktvā phalāni ca
+kartavyāni  iti me pārtha niścitam matam uttamam 
+
+niyatasya tu saṁnyāsaḥ karmaṇaḥ na upapadyate
+mohāt tasya parityāgaḥ tāmasaḥ parikīrtitaḥ 
+
+duḥkham iti eva yat karma kāya-kleśa-bhayāt tyajet
+saḥ kṛtvā rājasam tyāgam na eva tyāga-phalam labhet 
+
+kāryam iti eva yat karma niyatam kriyate arjuna
+saṅgam tyaktvā phalam ca eva saḥ tyāgaḥ sāttvikaḥ mataḥ 
+
+na dveṣṭi akuśalam karma kuśale na anuṣajjate
+tyāgī sattva samāviṣṭaḥ medhāvī chinna saṁśayaḥ 
+
+na hi deha-bhṛtā śakyam tyaktum karmāṇi aśeṣataḥ
+yaḥ tu karma-phala-tyāgī saḥ tyāgi iti abhidhīyate 
+
+aniṣṭam iṣṭam miśram ca trividham karmaṇaḥ phalam
+bhavati atyāginām pretya na tu sannyāsinām kvacit 
+
+pañca etāni mahābāho kāraṇāni nibodha me
+sāṁkhye kṛtānte proktāni siddhaye sarva-karmaṇām 
+
+adhiṣṭhānam tathā kartā karaṇam ca pṛthak vidham
+vividhāḥ ca pṛthak ceṣṭāḥ daivam ca eva atra pañcamam 
+
+śarīra-vāṅ-manobhiḥ yat karma prārabhate naraḥ
+nyāyyam vā viparītam vā pañca ete tasya hetavaḥ 
+
+tatra evam sati kartāram ātmānam kevalam tu yaḥ
+paśyati akṛta-buddhitvāt na saḥ paśyati durmatiḥ 
+
+yasya na ahaṅkṛtaḥ  bhāvaḥ buddhiḥ yasya na lipyate
+hatvā api saḥ imān lokān na hanti na nibadhyate 
+
+jñānam jñeyam parijñātā trividhā karma-codanā
+karaṇam karma karta iti trividhaḥ karma-saṅgrahaḥ 
+
+jñānam karma ca kartā ca tridhā eva guṇa-bhedataḥ
+procyate guṇa-saṅkhyāne yathāvat śṛṇu tāni api 
+
+sarvabhūteṣu yena ekam bhāvam avyayam īkṣate
+avibhaktam vibhakteṣu tat jñānam viddhi sāttvikam 
+
+pṛthaktvena tu yat jñānam nānā-bhāvān pṛthagvidhān
+vetti sarveṣu bhūteṣu tat jñānam viddhi rājasam 
+
+yat tu kṛtsnavat ekasmin kārye saktam ahaitukam
+a-tattva-artha-vat alpam ca tat tāmasam udāhṛtam 
+
+niyatam saṅga-rahitam arāga-dveṣataḥ kṛtam
+aphala-prepsunā karma yat tat sāttvikam ucyate 
+
+yat tu kāmepsunā karma sa-ahaṅkāreṇa vā punaḥ
+kriyate bahula-āyāsam tat rājasam udāhṛtam 
+
+anubandham kṣayam hiṁsām anapekṣya ca pauruṣam
+mohāt ārabhyate karma yat tat tāmasam ucyate 
+
+muktasaṅgaḥ anahaṁvādī dhṛti-yutsāha-samanvitaḥ
+siddhi-asiddhyoḥ nirvikāraḥ kartā sāttvika ucyate 
+
+rāgī karma-phala-prepsuḥ lubdhaḥ hiṁsa-ātmakaḥ aśuciḥ
+harṣa-śoka-anvitaḥ kartā rājasaḥ parikīrtitaḥ 
+
+ayuktaḥ prākṛtaḥ stabdhaḥ śaṭhaḥ naiṣkṛtikaḥ alasaḥ
+viṣādī dīrghasūtrī ca kartā tāmasa ucyate 
+
+buddheḥ bhedam dhṛteḥ ca eva guṇataḥ trividham śṛṇu
+procyamānam aśeṣeṇa pṛthaktvena dhanañjaya 
+
+pravṛttim ca nivṛttim ca kārya-ākārye bhaya-abhaye
+bandham mokṣam ca yā vetti buddhiḥ sā pārtha sāttvikī 
+
+yayā dharmam adharmam ca kāryam ca akāryam eva ca
+ayathāvat prajānāti buddhiḥ sā pārtha rājasī 
+
+adharmam dharmam iti yā manyate tamasā āvṛtā
+sarva-arthān viparītāñ ca buddhiḥ sā pārtha tāmasī 
+
+dhṛtyā yayā dhārayate manaḥ prāṇa indriya kriyāḥ
+yogena avyabhicāriṇyā dhṛtiḥ sā pārtha sāttvikī 
+
+yayā tu dharma-kāma-arthān dhṛtyā dhārayate arjuna
+prasaṅgena phala-ākāṅkṣī dhṛtiḥ sā pārtha rājasī 
+
+yayā svapnam bhayam śokam viṣādam madam eva ca
+na vimuñcati durmedhā dhṛtiḥ sā pārtha tāmasī 
+
+sukham tu idānīm trividham śṛṇu me bharatarṣabha
+abhyāsāt ramate yatra duḥkhāntam ca nigacchhati 
+
+yat tat agre viṣam iva pariṇāme amṛta upamam
+tat sukham sāttvikam proktam ātma-buddhi-prasādajam 
+
+viṣaya indriya saṁyogāt yat tat agre amṛtopamam
+pariṇāme viṣam iva tat sukham rājasam smṛtam 
+
+yat agre ca anubandhe ca sukham mohanam ātmanaḥ
+nidrā  ālasya pramāda uttham tat tāmasam udāhṛtam 
+
+na tat asti pṛthivyām vā divi deveṣu vā punaḥ
+sattvam prakṛti-jaiḥ muktam yat ebhiḥ syāt tribhiḥ guṇaiḥ 
+
+brāhmaṇa-kṣatriya-viśām-śūdrāṇām-ca parantapa-
+karmāṇi pravibhaktāni svabhāva-prabhavaiḥ guṇaiḥ 
+
+śamaḥ damaḥ tapaḥ śaucam kṣāntiḥ ārjavam eva ca
+jñānam vijñānam āstikyam brahma-karma svabhāvajam 
+
+śauryam tejaḥ dhṛtiḥ dākṣyam yuddhe ca api apalāyanam
+dānam īśvarabhāvaḥ ca kṣātram karma svabhāvajam 
+
+kṛṣi-gaurakṣya-vāṇijyam vaiśya-karma svabhāvajam
+paricaryātmakam karma śūdrasya api svabhāvajam 
+
+sve sve karmaṇi abhirataḥ saṁsiddhim labhate naraḥ
+sva-karma-nirataḥ siddhim yathā vindati tat śṛṇu 
+
+yataḥ pravṛttiḥ bhūtānām yena sarvam idam tatam
+svakarmaṇā tam abhyarcya siddhim vindati mānavaḥ 
+
+śreyān svadharmaḥ viguṇaḥ paradharmāt su-anuṣṭhitāt
+svabhāva-niyatam karma kurvan na āpnoti kilbiṣam 
+
+sahajam karma kaunteya sadoṣam api na tyajet
+sarva-ārambhāḥ hi doṣeṇa dhūmena agniḥ iva āvṛtāḥ 
+
+asakta-buddhiḥ sarvatra jitātmā vigata-spṛhaḥ
+naiṣkarmya-siddhim paramām sannyāsena adhigacchati 
+
+siddhim prāptaḥ yathā brahma tathā āpnoti nibodha me
+samāsena eva kaunteya niṣṭhā jñānasya yā parā 
+
+buddhyā viśuddhayā yuktaḥ dhṛtyā ātmānam niyamya ca
+śabdādīn viṣayān tyaktvā rāga-dveṣau vyudasya ca 
+
+vivikta-sevī laghu-āśī yata vāk-kāya-mānasaḥ
+dhyāna-yoga-paraḥ nityam vairāgyam samupāśritaḥ 
+
+ahaṅkāram balam darpam kāmam krodham
+parigraham vimucya nirmamaḥ śāntaḥ brahma-bhūyāya kalpate 
+
+brahma-bhūtaḥ prasanna-ātmā na śocati na kāṅkṣati
+samaḥ sarveṣu bhūteṣu madbhaktim labhate parām 
+
+bhaktyā mām abhijānāti yāvān yaḥ ca asmi tattvataḥ
+tataḥ mām tattvataḥ jñātvā viśate tadanantaram 
+
+sarva karmāṇi api sadā kurvāṇaḥ madvyapāśrayaḥ
+mat-prasādāt avāpnoti śāśvatam padam avyayam 
+
+cetasā sarva-karmāṇi mayi sannyasya matparaḥ
+buddhi-yogam upāśritya mat-cittaḥ satatam bhava 
+
+maccittaḥ sarva-durgāṇi mat-prasādat tariṣyasi
+atha cet tvam ahaṅkārāt na śroṣyasi vinaṅkṣyasi 
+
+yat ahaṅkāram āśritya na yotsye iti manyase
+mithya eṣaḥ vyavasāyaḥ te prakṛtiḥ tvām niyokṣyati 
+
+svabhāvajena kaunteya nibaddhaḥ svena karmaṇā
+kartum na icchasi yat mohāt kariṣyasi avaśa api tat 
+
+īśvaraḥ sarva-bhūtānām hṛt-deśe arjuna tiṣṭhati
+bhrāmayan sarva-bhūtāni yantra ārūḍhāni māyayā 
+
+tam eva śaraṇam gaccha sarva-bhāvena bhārata
+tat-prasādāt parām śāntim sthānam prāpsyasi śāśvatam 
+
+iti te jñānam ākhyātam guhyāt guhyataram mayā
+vimṛśya etat aśeṣeṇa yatha icchasi tathā kuru 
+
+sarva-guhya-tamam bhūyaḥ śṛṇu me paramam vacaḥ
+iṣṭaḥ asi me dṛḍham iti tataḥ vakṣyāmi te hitam 
+
+manmanā bhava mad-bhaktaḥ madyājī mām namaskuru
+mām eva eṣyasi satyam te pratijāne priyaḥ asi me 
+
+sarva-dharmān parityajya mām ekam śaraṇam vraja
+aham tvām sarva-pāpebhyaḥ mokṣyayiṣyāmi ma śucaḥ 
+
+idam te na atapaskāya na abhaktāya kadācana
+na ca aśuśrūṣave vācyam na ca mām yaḥ abhyasūyati 
+
+yaḥ imam paramam guhyam madbhakteṣu abhidhāsyati
+bhaktim mayi parām kṛtvā mām eva eṣyati asaṁśayaḥ 
+
+na ca tasmāt manuṣyeṣu kaścit me priya-kṛt-tamaḥ
+bhavitā na ca me tasmāt anyaḥ priyataraḥ bhuvi 
+
+adhyeṣyate ca yaḥ  imam dharmyam saṁvādam āvayoḥ
+jñāna-yajñena tena aham iṣṭaḥ syām iti me matiḥ 
+
+śraddhāvān anasūyaḥ  ca śṛṇuyāt api yaḥ  naraḥ
+saḥ api muktaḥ śubhān  lokān prāpnuyāt puṇya-karmaṇām 
+
+kaccit etat śrutam pārtha tvayā ekāgreṇa cetasā
+kaccit ajñāna saṁmohaḥ pranaṣṭaḥ te dhanañjaya 
+
+arjuna uvāca
+
+naṣṭaḥ mohaḥ smṛtiḥ labdhā tvat-prasādāt mayā acyuta
+sthitaḥ asmi gata saṁdehaḥ kariṣye vacanam tava 
+
+sañjaya uvāca
+
+iti aham vāsudevasya pārthasya ca mahātmanaḥ
+saṁvādam imam aśrauṣam adbhutam roma-harṣaṇam 
+
+vyāsa-prasādāt śrutavān etat guhyam aham param
+yogam yogeśvarāt kṛṣṇāt sākṣāt kathayataḥ svayam 
+
+rājan saṁsmṛtya saṁsmṛtya saṁvādam imam
+adbhutam keśava arjunayoḥ puṇyam hṛṣyāmi ca muhuḥ muhuḥ 
+
+tat ca saṁsmṛtya saṁsmṛtya rūpam ati adbhutam hareḥ
+vismayaḥ me mahān rājan hṛṣyāmi ca punaḥ punaḥ 
+
+yatra yogeśvaraḥ kṛṣṇaḥ yatra pārthaḥ dhanuḥ-dharaḥ
+tatra śrīḥ vijayaḥ bhūtiḥ dhruvā nītiḥ matiḥ mama 
