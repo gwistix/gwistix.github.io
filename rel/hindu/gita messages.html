@@ -1,0 +1,176 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+  font-family: helvetica;
+  display: flex ;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chat {
+  width: 400px;
+  border: solid 1px #EEE;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.messages {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  border-radius: 20px;
+  padding: 8px 15px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+.left {
+  align-items: flex-start;
+}
+
+.left .message {
+  margin-right: 25%;
+  background-color: #eee;
+  position: relative;
+}
+
+.left .message.last:before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  left: -7px;
+  height: 20px;
+  width: 20px;
+  background: #eee;
+  border-bottom-right-radius: 15px;
+}
+.left .message.last:after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: -10px;
+  width: 10px;
+  height: 20px;
+  background: white;
+  border-bottom-right-radius: 10px;
+}
+
+.right {
+  align-items: flex-end;
+}
+
+.right .message {
+  color: white;
+  margin-left: 25%;
+  background: linear-gradient(to bottom, #00D0EA 0%, #0085D1 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+.right .message.last:before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  right: -8px;
+  height: 20px;
+  width: 20px;
+  background: linear-gradient(to bottom, #00D0EA 0%, #0085D1 100%);
+  background-attachment: fixed;
+  border-bottom-left-radius: 15px;
+}
+
+.right .message.last:after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  right: -10px;
+  width: 10px;
+  height: 20px;
+  background: white;
+  border-bottom-left-radius: 10px;
+}
+
+.label {
+ color: gray;
+}
+
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<div class="chat">
+
+ <div class="left messages">
+  <span class='label'>Dhritarashtra</span>
+  <div class="message">On the field of Dharma, in the field of Kuru, arrayed and ready for battle&hellip;</div>
+  <div class="message last">my people and also the Pandavs, what indeed did they do, Sanjaya?</div>
+ </div>
+
+ <div class="right messages">
+  <span class='label'>Sanjaya</span>
+  <div class="message">Seeing the Pandav soldiers in their ranks, Duryodhana then</div>
+  <div class="message last">approached his advisor, and the king spoke these words</div>
+ </div>
+
+ <div class='left messages'>
+  <span class='label'>Duryodhana</span>
+  <div class='message'>Behold this mighty army of the sons of Pandu, teacher</div>
+  <div class='message'>arrayed for battle by the son of Drupada, your capable disciple</div>
+  <br>
+  <div class='message'>Here are powerful warriors, equal to Bheema and Arjuna in battle:</div>
+  <div class='message'>&hellip;</div>
+  <br>
+  <div class='message'>Our strength is unlimited, protected by Bheeshma</div>
+  <div class='last message'>But their strenth is limited, protected by Bheema</div>
+ </div>
+
+ <div class='right messages'>
+  <span class='label'>Arjuna</span>
+  <div class='message'>Place my chariot between the two armies, Achyuta</div>
+  <br>
+  <div class='message'>As I behold these men arrayed for battle</div>
+  <div class='message'>With whom should I fight in this war effort</div>
+  <br>
+  <div class='message'>Desiring to see those who have come together to fight</div>
+  <div class='last message'>The wicked son of Dhritarashtra, they wish to please</div>
+ </div>
+
+ <div class='left messages'>
+  <span class='label'>Sanjaya</span>
+  <div class='message'>Thus spoke Hrisheekesha (Krishna) to Gudakeshena (Arjuna), son of Bharata,</div>
+  <div class='message'>having placed the best of the chariots between both armies</div>
+  <br>
+  <div class='message'>Bheeshma and Drona before all the great rulers</div>
+  <div class='message'>Then he said
+</div>
