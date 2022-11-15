@@ -1,0 +1,438 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ white-space: pre-wrap
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+/* To-do
+
+ ✓ Use proportional scoring instead of simple coocurrence frequency
+
+ Automatic sentence separation (. ! ? :)
+
+ … Bilateral comparison (i.e., calculate probabilities for the target language's closest matches, compare them to the probabilities for the source language's closest matches, and recalculate scores accordingly)
+
+*/
+
+
+var sourceWords = [];
+var sourceList = [];
+var sourceTokenCount = 0;
+
+var targetWords = [];
+var targetList = [];
+
+function init() {
+ console.clear();
+
+ document.body.innerHTML = document.body.innerHTML
+ .replace(/['’′]s/g, " 's")
+ .replace(/[\.,\?!:¡¿“"”‘’′…]/g, "")
+ .replace(/[—–-]/g, " ")
+ .replace(/ +/g, " ")
+ .toLowerCase()
+ ;
+
+ document.body.innerHTML.split("\n").forEach(function(line) {
+  var arr = line.split("\t");
+  var sourceText = arr[0];
+  var targetText = arr[1];
+
+  if (arr[0]?.length > 1 && arr[1]?.length > 1) {
+
+   // Find coocurrences for each source word
+   sourceText.split(" ").forEach(function(word) {
+    sourceTokenCount++;
+    var ref = sourceList.indexOf(word);
+    if (!~ref) {
+     sourceList.push(word);
+     sourceWords.push({
+      sourceWord: word,
+      targetWords: [targetText.split(" ")],
+      freq: 1,
+      toString: function() {
+       return this.sourceWord + " : " + this.translation
+/*       + " {" + this.freq + "}"*/
+       + "<br><small>("
+       + this.targetWords.length + ") [" 
+       + this.targetWords.slice(0,20).join(", ") + "]</small>";
+      }
+     });
+    }
+    else {
+     sourceWords[ref].freq++;
+     sourceWords[ref].targetWords.push(targetText.split(" "));
+    }
+   });
+
+   // Find coocurrences for each target word
+   targetText.split(" ").forEach(function(word) {
+    var ref = targetList.indexOf(word);
+    if (!~ref) {
+     targetList.push(word);
+     targetWords.push({
+      targetWord: word,
+      sourceWords: [sourceText.split(" ")],
+      freq: 1,
+      toString: function() {
+       return this.targetWord + " : " + this.translation
+/*       + " {" + this.freq + "}"*/
+       + "<br><small>("
+       + this.sourceWords.length + ") [" 
+       + this.sourceWords.slice(0,20).join(", ") + "]</small>";
+      }
+     });
+    }
+    else {
+     targetWords[ref].freq++;
+     targetWords[ref].sourceWords.push(sourceText.split(" "));
+    }
+   });  
+
+
+  }
+ });
+
+ // Prepare body text for translation
+ var bodyText = document.body.innerHTML.toUpperCase();
+
+ // Sort source words from longest to shortest to avoid translation bleeding
+ sourceWords.sort(function(a, b) {
+  if (a.sourceWord.length < b.sourceWord.length) return 1;
+  if (a.sourceWord.length > b.sourceWord.length) return -1;
+  return 0;
+ });
+
+ // Score each target word for each source word
+ sourceWords.forEach(function(sourceWord) {
+  sourceWord.targetWords = scoreByCoocurrence(sourceWord.targetWords);
+  sourceWord.translation = sourceWord.targetWords[0];
+//  var rx = new RegExp(sourceWord.sourceWord.toUpperCase(), 'g');
+//  bodyText = bodyText.replace(rx, sourceWord.translation)
+ });
+
+ // Score each source word for each target word
+ targetWords.forEach(function(targetWord) {
+  targetWord.sourceWords = scoreByCoocurrence(targetWord.sourceWords);
+  targetWord.translation = targetWord.sourceWords[0];
+ });
+
+ document.body.innerHTML = bodyText;
+
+ pseudos();
+
+ // Create combined, bilateral scores for each coocurrence
+
+  // For each source word
+  sourceWords.forEach(function(sourceWord) {
+
+   //console.log(sourceWord.sourceWord, sourceWord.targetWords.length);
+
+   // Look at each of the top 10 coocurrences
+   var stopAfter = 10;
+   if (sourceWord.targetWords.length < 10) stopAfter = sourceWord.targetWords.length;
+
+   for (var i = 0; i < stopAfter; i++) {
+
+    //console.log(sourceWord.targetWords[i].word);
+
+    var ref = targetList.indexOf(sourceWord.targetWords[i].word);
+
+    if (~ref) {
+
+    // If the source word is also in the top 10 occurrences of the target word, augment the target word's score by the source word's score in the target word's coocurrences
+     
+    }
+
+   }
+  });
+
+ document.body.innerHTML = "Parsed " + sourceTokenCount.toLocaleString() + " tokens to identify " + sourceWords.length + " unique words in the source language:<br><br>"
+ + sourceWords
+ .sort(function (a, b) {
+  return b.freq - a.freq
+ })
+ .join("<br><br>")
+ ;
+
+
+}
+
+function scoreByCoocurrence(arr) {
+
+ var words = [];
+ var wordlist = [];
+
+ arr.forEach(function(subarray) {
+
+  var len = subarray.length;
+
+  subarray.forEach(function(word) {
+
+   var ref = wordlist.indexOf(word);
+   var ref2 = targetList.indexOf(word);
+
+   var scoreAdjustment = 0;
+   if (~ref2) {
+    scoreAdjustment = targetWords[ref2].freq*20 / targetWords.length;
+   }
+
+   if (!~ref) {
+    wordlist.push(word);
+    words.push({
+     word: word,
+     freq: 1,
+     score: 1/len - scoreAdjustment,
+     toString: function() {
+      return this.word + " " + (this.score).toFixed(2) + "%"
+     }
+    });
+   }
+   else {
+    words[ref].freq++;
+    words[ref].score += 1/len;
+   }
+  });
+ });
+
+ words.sort(function(a, b) {
+  return b.score - a.score;
+ });
+
+ return words
+}
+
+/*
+
+Sample text from 
+
+http://onlinespanishclub.com/spanish-english-parallel-text-la-sorpresa-capitulo-1/
+http://torocitydesigns.com/~garci/cibertextos/bilingues/GARCIA-MARQUEZ-G/CORONEL-NO-TIENE-ESCRIBA/CORONEL-NO-TIENE-ESCRIBA.HTM
+
+*/
+
+</script>
+
+</head>
+
+<body onLoad='init();' class='pseudo-table'>Español	English
+Pilar tiene 25 años.	Pilar is 25 years old.
+Estudia medicina en Tarragona y tiene muchos amigos.	She is studying medicine in Tarragona and has lots of friends.
+Pilar es muy simpática y agradable.	Pilar is very likable and kind.
+Ella sale con un chico que se llama Javier.	She is going out with a young man called Javier.
+Tiene 30 años y trabaja en Barcelona.	He is 30 years old and works in Barcelona.
+Javier es ingeniero.	Javier is an engineer.
+A Javier le gusta salir por la noche, ir al cine y quedar con sus amigos.	Javier likes going out in the evenings, going to the cinema and meeting friends.
+Pilar y Javier están comprometidos desde hace tres años.	Pilar and Javier have been engaged for three years.
+Viven en ciudades distintas, pero afortunadamente Barcelona y Tarragona no están muy lejos.	They live in different cities but luckily Barcelona and Tarragona are not very far apart.
+Pilar tiene la llave del piso de Javier, y Javier tiene la llave del apartamento de Pilar: no tienen ningún secreto.	Pilar has the keys to Javier’s flat and Javier has the keys to Pilar’s apartment: they don’t have any secrets.
+Hoy es miércoles y Pilar no tiene clase en la universidad. Le quiere dar una sorpresa porque hoy es un día muy especial. Para Pilar, de hecho, es un día muy importante.	Today is Wednesday and Pilar has no lessons at the university. She wants to surprise Javier because today is a very special day. For Pilar, in fact, it is a very important day.
+Hoy es 15 de mayo.	Today is May 15th.
+El aniversario de Javier y Pilar.	The anniversary of Pilar and Javier’s engagement.
+Pilar le quiere dar una sorpresa: irá a casa de Javier a Barcelona para celebrar juntos este día tan especial.	Pilar wants to give Javier a surprise: she is going to go to Javier’s place in Barcelona so they can celebrate this special day together.
+Sabe que Javier trabaja hasta las 17:00h, así que va a la estación de tren de Tarragona para coger el tren de las 16:18h.	She knows Javier works until 5 o’clock, so she goes to the train station in Tarragona to catch the 4.18pm train.
+¡Los horarios son perfectos!	The train times are perfect!
+En la taquilla de la estación compra el billete.	At the ticket office in the station she buys her ticket.
+Es una de las líneas de tren más utilizadas de Cataluña y la estación está llena de gente.	It is one of the busiest train lines in Catalonia and the station is very crowded.
+El tren de Pilar sale del andén número 4.	Pilar’s train leaves from platform 4.
+Por desgracia, el tren sale con diez minutos de retraso, pero Pilar llega a Barcelona a las 17:00h.	Unfortunately the train leaves ten minutes late, but Pilar arrives in Barcelona at 5 o’clock.
+¡Justo a tiempo!	Just in time!
+Pilar llega a casa de Javier a las 17:30h.	Pilar arrives at Javier’s house at 5.30.
+“Seguramente Javier estará en casa” piensa Pilar.	“Javier is sure to be home,” thinks Pilar.
+Toca el timbre y espera, pero nadie abre la puerta.	She rings the bell and waits, but no one opens the door.
+Javier no está en casa.	Javier is not at home.
+“No hay problema, tengo la llave” piensa Pilar.	“No problem, I have the keys,” thinks Pilar.
+Abre su bolso y busca las llaves.	She opens her bag and searches for the keys.
+Pero las llaves no están allí.	But the keys are not there.
+¿Dónde estarán?	Where can they be?
+Ahora se acuerda, se olvidó las llaves de Javier sobre la mesa en su casa en Tarragona.	Then she remembers, she left the keys on the table at home in Tarragona.
+Pilar no puede entrar y no quiere perder el tiempo esperando.	Pilar can’t get in and she doesn’t want to waste time waiting.
+Así que decide ir a buscar a Javier al trabajo.	So she decides to go and find Javier at work.
+La oficina está muy cerca.	The office is very close.
+Es un edificio grande y moderno.	It is a large and modern building.
+Cuando llega pregunta a la secretaria por Javier, pero ella le responde:	When she arrives she asks the secretary where Javier is, but the secretary replies:
+“Lo siento, pero Javier no está.”	“I’m sorry but Javier is not here.”
+Afortunadamente se encuentra con los compañeros de trabajo de Javier que salen de trabajar, pero ellos tampoco saben dónde está su novio.	Fortunately, she meets Javier’s colleagues coming out of the office, but they don’t know where her boyfriend is either.
+Pilar empieza a estar preocupada.	Pilar begins to worry.
+Pilar y Javier	Pilar And Javier
+El aniversario	The Anniversary
+Buscando a Javier	Looking For Javier
+El aperitivo	The Aperitif
+A veces, Javier, después del trabajo, va al bar para tomar una copa con sus amigos.	Sometimes, after work, Javier goes to a bar with his friends for a drink.
+El bar está a cinco minutos de la oficina.	The bar is five minutes’ walk from the office.
+Pilar corre al bar y espera encontrarse con su novio.	Pilar runs to the bar, hoping to find her boyfriend.
+El bar es grande y elegante.	The bar is big and stylish.
+Hay mucha gente.	There are lots of people.
+Todos hablan y parecen muy relajados.	Everybody is chatting and looking very relaxed.
+Pilar observa a los clientes del bar.	Pilar looks around at the bar’s clientele.
+Fuera hay personas mayores sentadas en las mesas de la terraza tomando café y leyendo el periódico.	Outside, older people are sitting at the tables on the terrace drinking coffee and reading newspapers.
+En el interior hay algunos grupos de jóvenes que hablan, beben cerveza y comen patatas fritas.	Inside are groups of young people, talking, drinking beer and eating crisps.
+En uno de los grupos están algunos amigos de Javier.	Among them are some of Javier’s friends.
+“¡Qué suerte!” Piensa Pilar.	“What luck!” thinks Pilar.
+“Seguro que Javier estará aquí con ellos.”	“Javier is sure to be here with them.”
+Pero a Pilar le espera una sorpresa desagradable.	But an unpleasant surprise awaits her.
+¿Dónde está?	Where Is He?
+Pilar se acerca a los amigos de Javier, Carlos y Luis.	Pilar approaches two of Javier’s friends, Carlos and Luis.
+“¡Hola!	“Hi!
+¿Cómo estáis?	How are you both?
+Me alegro de veros!”	How nice to see you!”
+“¡Hola Pilar!	“Hi, Pilar!
+¡Qué sorpresa!	What a surprise!
+¿Qué haces en Barcelona?	What are you doing here in Barcelona?
+Nosotros estamos bien, ¿y tú?”	We’re fine, and you?”
+“Estoy bien, gracias.	“I’m fine, thanks.
+He venido a Barcelona para dar una sorpresa a Javier.	I’ve come to Barcelona to surprise Javier.
+¿Sabéis dónde está?”	Do you know where he is?”
+“Lo siento, no lo sabemos.	“Sorry, we don’t know.
+Hace un par de días que no vemos a Javier.	We haven’t seen Javier for a couple of days.
+¿Por qué no te tomas una copa de vino con nosotros?”	Why don’t you have a glass of wine with us?”
+Pero Pilar no quiere beber vino con Carlos y Luis.	But Pilar doesn’t want to drink wine with Carlos and Luis.
+Quiere encontrar a su novio y celebrar su aniversario.	She wants to find her boyfriend and celebrate their anniversary.
+Ahora Pilar está cansada y confusa.	Now Pilar is tired and confused.
+No sabe dónde ir.	She doesn’t know where to go.
+Javier no está ni en casa, ni el despacho ni en el bar.	Javier is not at home, nor at the office, nor in the bar.
+¿Dónde puede estar?	Where can he be?
+Una idea estúpida	A Stupid Idea
+Pilar sale del bar.	Pilar leaves the bar.
+Tiene que encontrar una solución.	She must find a solution.
+Normalmente, cuando camina tiene buenas ideas por lo que decide caminar por la ciudad sin un destino.	Usually, when she’s walking, good ideas come to her, so she decides to walk around the city without any destination in mind.
+Gira a la derecha, después a la izquierda, cruza una plaza, espera a que se ponga en verde el semáforo y vuelve a comenzar.	She turns right, then left, crosses a square, waits for a green light, then turns back.
+Al final, piensa “Vuelvo a casa de Javier y si no está lo llamo por teléfono”.	In the end she thinks, “I’ll go back to Javier’s place and if he’s not there I’ll call him.”
+Son las nueve menos veinte.	It’s twenty to nine.
+Es tarde y se tiene que dar prisa.	It’s late and she must hurry.
+Javier no está en casa.	Javier is not home.
+La única posibilidad que le queda a Pilar es renunciar a la sorpresa y llamar a Javier por teléfono.	All Pilar can do now is give up on the surprise and phone Javier.
+Pilar llama dos veces, tres, cuatro, pero Javier no responde.	Pilar calls him a second, a third and then a fourth time, but Javier doesn’t answer.
+Ahora Pilar está desesperada.	Now Pilar is desperate.
+“¡Qué idea más tonta he tenido!	“What a stupid idea I had!
+¡Qué idea más estúpida es tener secretos con Javier!	How stupid to have secrets from Javier!
+He desperdiciado el día entero!”	The entire day has been wasted!”
+De vuelta a Tarragona	Back To Tarragona
+
+Pilar no se quiere quedar en Barcelona y no puede esperar más.	Pilar doesn’t want to stay in Barcelona and can’t wait any longer.
+El último tren para Tarragona sale dentro de poco, a las 21:11h.	The last train to Tarragona leaves soon, at 9.11pm.
+Así que, aunque triste y decepcionada, renuncia a la sorpresa y vuelve a casa.	So, sad and disappointed, she gives up on the surprise and goes home.
+
+Antes de coger el tren, deja una nota debajo de la puerta de Javier.	Before taking the train she slips a note under Javier’s door.
+En la nota, escribe:	On the note she writes:
+“¡Hola Amor!	“Hi darling!
+¡Feliz aniversario!	Happy Anniversary!
+Te echo de menos… Pilar.”	I miss you… Pilar.”
+
+Mientras camina hacia la estación, Pilar piensa lo inútil que ha sido su viaje.	As she walks to the station, Pilar thinks about how useless her journey has been.
+De rabia tienes ganas de llorar!	She is so angry she could cry!
+
+Afortunadamente el viaje en tren es muy interesante.	Fortunately, the train journey is very interesting.
+Junto a ella hay otras personas: un elegante caballero que duerme, una madre con un niño pequeño muy tranquilo, y dos estudiantes que hablan de filosofía.	Around her are various other people: a stylish gentleman who is asleep, a mother with a small, quiet child and two students discussing philosophy.
+
+Pilar se pasa todo el viaje observando a los viajeros.	Pilar spends the whole journey observing the passengers.
+
+El aniversario	The Anniversary
+
+El tren llega a Tarragona a su hora.	The train arrives at Tarragona on time.
+Pilar va directamente a casa, pero en las escaleras, ve algunas cosas extrañas: globos de colores, cartulinas rojas en forma de corazón, rosas rojas.	Pilar goes straight home but, as she climbs the stairs she sees some strange things: coloured balloons, red heart-shaped cards, red roses.
+
+“¡Qué raro!”	“How strange”
+Piensa	she thinks
+“Tal vez hay una fiesta de cumpleaños.	“maybe there’s a birthday party.
+No lo entiendo.”	I don’t understand.”
+
+Cuando Pilar llega a su apartamento, abre la puerta y… ¡Sorpresa!	When Pilar reaches her apartment, she opens the door and …..surprise!
+
+Javier está en su casa.	Javier is inside.
+Está sentado en el sofá leyendo un libro.	He’s sitting on the sofa reading a book.
+En la mesa está la cena preparada, un pastel y un regalo para Pilar, y también las llaves de la casa de Javier que se había olvidado!	On the table, dinner is ready and there’s a cake and a present for Pilar. Also, there are the keys to Javier’s place that she forgot earlier!
+
+Pilar está muy contenta.	Pilar is very happy.
+Besa y abraza a Javier y le explica su horrible día en Barcelona.	She hugs and kisses Javier, and tells him about her terrible day in Barcelona.
+Al final cenan y celebran su aniversario…	Finally they eat and celebrate their anniversary…
+en el fondo ha sido un día muy especial.	in the end it has been a very special day.
+
+La casa de John	John's house
+la casa de un perro	a dog's house
+el novio de Pilar	Pilar's boyfriend
+de	of
+de	's
+
+El coronel no tiene quien le escriba	No One Writes to the Colonel
+EL CORONEL DESTAPÓ el tarro de café y comprobó que no había más de una cucharadita.	The colonel took the top off the coffee can and saw that there was only one little spoonful left.
+Retiró la olla del fogón, vertió la mitad del agua en el piso de tierra, y con un cuchillo raspó el interior del tarro sobre la olla hasta cuando se desprendieron las últimas raspaduras del polvo de café revueltas con óxido de lata.	He removed the pot from the fire, poured half the water onto the earthen floor, and scraped the inside of the can with a knife until the last scrapings of the ground coffee, mixed with bits of rust, fell into the pot.
+Mientras esperaba a que hirviera la infusión, sentado junto a la hornilla de barro cocido en una actitud confiada e inocente expectativa, el coronel experimentó la sensación de nacían hongos y lirios venenosos en sus tripas.	While he was waiting for it to boil, sitting next to the stone fireplace with an attitude of confident and innocent expectation, the colonel experienced the feeling that fungus and poisonous lilies were taking root in his gut.
+Era octubre.	It was October.
+Una mañana difícil de sortear, aún para un hombre como él que había sobrevivido a tantas mañanas como esa	A difficult morning to get through, even for a man like himself, who had survived so many mornings like this one.
+durante cincuenta y seis años desde cuando terminó la última guerra civil el coronel no había hecho nada distinto de esperar.	For nearly sixty years since the end of the last civil war the colonel had done nothing else but wait.
+Octubre era una de las pocas cosas que llegaban.	October was one of the few things which arrived.
+Su esposa levantó el mosquitero cuando lo vio entrar al dormitorio con el café.	His wife raised the mosquito netting when she saw him come into the bedroom with the coffee.
+Esa noche había sufrido una crisis de asma y ahora atravesaba por un estado de sopor.	The night before she had suffered an asthma attack, and now she was in a drowsy state.
+Pero se incorporóa para recibir la taza.	But she sat up to take the cup.
+Y tú dijo.	′And you?′ she said.
+—Ya tomé —mintió el coronel—.	′l′ve had mine,′ the colonel lied.
+Todavía quedaba una cucharada grande.	There was still a big spoonful left.′
+En ese momento empezaron los dobles.	The bells began ringing at that moment.
+El coronel se había olvidado del entierro.	The colonel had forgotten the funeral.
+Mientras su esposa tomaba el café, descolgó la hamaca en un extremo y la enrolló en el otro, detrás de la puerta.	While his wife was drinking her coffee, he unhooked the hammock at one end, and rolled it up on the other, behind the door.
+La mujer pensó en el muerto.	The woman thought about the dead man.
+—Nació en 1922 —dijo—.	′ He was born in 1922,′ she said.
+Exactamente un mes después de nuestro hijo.	′Exactly a month after our son.
+El siete de abril.	April 7th.′
+Siguió sorbiendo el café en las pausas de su respiración pedregosa.	She continued sipping her coffee in the pauses of her gravelly breathing.
+Era una mujer construida apenas en cartílagos blancos sobre una espina dorsal arqueada e inflexible.	She was scarcely more than a bit of white on an arched, rigid spine.
+Los trastornos respiratorios la obligaban a preguntar afirmando.	Her disturbed breathing made her put her questions as assertions.
+Cuando terminó el cafñe todavía estaba pensando en el muerto.	When she finished her coffee, she was still thinking about the dead man.
+“Debe ser horrible estar enterrado en octubre”, dijo.	′It must be horrible to be buried in October,′ she said.
+Pero su marido no le puso atención.	But her husband paid no attention.
+Abrió la ventana.	He opened the window.
+Octubre se había instalado en el patio.	October had moved in on the patio.
+Contemplando la vegetación que reventaba en verdes intensos, las minúsculas tiendas de las lombríces en el barro, el coronel volvió a sentir el mes aciago en los intestinos.	Contemplating the vegetation, which was bursting out in intense greens, and the tiny mounds the worms made in the mud, the colonel felt the sinister month again in his intestines.
+—Tengo los huesos húmedos —dijo.	′I′m wet through to the bones,′ he said.
+—Es el invierno replicó la mujer—.	′lt′s winter,′ the woman replied.
+Desde que empezó a lloverte estoy diciendo que duermas con las medias puestas.	′Since it began raining I′ve been telling you to sleep with your socks on.′
+—Hace una semana que estoy durmiendo con ellas.	′I′ve been sleeping with them for a week.′
+Llovía despacio pero sin pausas.	It rained gently but ceaselessly.
+El coronel habría preferido envolverse en una manta de lana y meterse otra vez en la hamaca	The colonel would have preferred to wrap himself in a wool blanket and get back into the hammock.
+Pero la insistencia de los bronces rotos le recordó el entierro	But the insistence of the cracked bells reminded him about the funeral.
+ “Es octubre”, murmuró, y caminó hacia el centro del cuarto.	It′s October,′ he whispered, and walked toward the center of the room.
+Sólo entonces se acordó del gallo amarrado a la pata de la cama	Only then did he remember the rooster tied to the leg of the bed.
+Era un gallo de pelea.	It was a fighting cock.
+Después de llevar la taza a la cocina dio cuerda en la sala a un reloj de péndulo montado en un marco de macera labrada.	After taking the cup into the kitchen, he wound the pendulum clock in its carved wooden case in the living room.
+A diferencia del dormitorio demasiado estrecho para la respiración de una asmática, la sala era limpia con cuatro mecedoras de fibra en torno a una mesita con un tapete y un gato de yeso.	Unlike the bedroom, which was too narrow for an asthmatic′s breathing, the living room was large, with four sturdy rockers around a little table with a cover and a plaster cat.
+En la pared opuesta a la del reloj, el cuadro de una mujer entre tules rodeada de amorines en una barca cargada de rosas.	On the wall opposite the clock, there was a picture of a woman dressed in tulle, surrounded by cupids in a boat laden with roses.
+Eran las siete y veinte cuando acabó de dar cuerda al reloj.	It was seven-twenty when he finished winding the clock.
+Luego llevó el gallo a la cocina, lo amarró a un soporte de la hornilla, cambió el agua al tarro y puso al lado un puñado de maíz.	Then he took the rooster into the kitchen, tied it to a leg of the stove, changed the water in the can, and put a handful of corn next to it.
+Un grupo de niños penetró por la cerca desportillado.	A group of children came in through a hole in the fence.
+Se sentaron en torno al gallo, a contemplarlo en silencio.	They sat around the rooster, to watch it in silence.
+—No miren más a ese animal —dijo el coronel—.	′Stop looking at that animal,′ said the colonel.
+Los gallos se gastan de tanto mirarlos.	Roosters wear out if you look at them so much.′
+Los niños no se alteraron.	The children didn′t move.
+Uno de ellos inició en la armónica los acordes de una canción de moda.	One of them began playing the chords of a popular song on his harmonica.
+“No toques hoy, le dijo el coronel.	Don′t play that today,′ the colonel told him.
+“Hay muerto en el pueblo.	′There′s been a death in town.′
+El niño guardó el instrumento en el bolsillo del pantalón y el coronel fue al cuarto a vestirse para el entierro.	The child put the instrument in his pants pocket, and the colonel went into the bedroom to dress for the funeral.
+La ropa blanca estaba sin planchar a causa del asma de la mujer.	Because of his wife′s asthma, his white suit was not pressed.
+De manera que el coronel tuvo que decidirse por el viejo traje de paño negro que después de su matrimonio sólo usaba en ocasiones especiales.	So he had to wear the old black suit which since his marriage he used only on special occasions.
+Le costó trabajo encontrarlo en el fondo del baúl, envuelto en periódico y preservado contra las polillas con bolitas de naftalina.	It took some effort to find it in the bottom of the trunk, wrapped in newspapers and protected against moths with little balls of naphthalene.
+Estirada en la cama la mujer seguía pensando en el muerto.	Stretched out in bed, the woman was still thinking about the dead man.
+—Ya debe haberse encontrado con Agustín —dijo—.	′He must have met Agustin already,′ she said.
+Pueda ser que no le cuente la situación en que quedamos después de su muerte.	Maybe he won′t tell him about the situation we′ve been left in - since his death.′
+—A esta hora estarán discutiendo de gallos —dijo el coronel.	At this moment they′re probably talking roosters,′ said the colonel.
+Encontró en el baúl un paraguas enorme y antiguo.	He found an enormous old umbrella in the trunk.
+Lo había ganado la mujer en una tómbola política destinada a recolectar fondos para el partido del coronel.	His wife had won it in a raffle held to collect funds for the colonel′s party.
+Esa misma noche asistieron a un espectáculo al aire libre que no fue interrumpido a pesar de la lluvia.	That same night they had attended an outdoor show which was not interrupted despite the rain.
+El coronel, su esposa y su hijo Agustín —que entonces tenía ocho años— presenciaron el espectáculo hasta el final, sentados bajo el paraguas.	The colonel, his wife, and their son, Agustin  who was then eight - watched the show until the end, seated under the umbrella.
+Ahora Agustín estaba muerto y el forro de raso brillante había sido destruido por las polillas.	Now Agustin was dead, and the bright satin material had been eaten away by the moths.
+—Mira en lo que ha quedado nuestro paraguas de payaso de circo	′Look what′s left of our circus clown′s umbrella,′
+dijo el coronel con una antigua frase suya.	said the colonel with one of his old phrases.
+Abrió sobre su cabeza un misterioso sistema de varillas metálicas—.	Above his head a mysterious system of little metal rods opened.
+Ahora sólo sirve para contar las estrellas.	′The only thing it′s good for now is to count the stars.′
