@@ -2,7 +2,7 @@
 <head>
 <link rel='shortcut icon' href='/favicon.png'>
 <link rel='icon' sizes='192x192' href='/appicon.png'>
-<title></title>
+<title>Translation Engine | Gwistix</title>
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <meta name='apple-mobile-web-app-capable' content='yes'>
 <meta name='mobile-web-app-capable' content='yes'>
@@ -17,13 +17,9 @@ body {
 <script src='https://gwistix.github.io/code/lib.js'></script>
 <script>
 /* To-do
-
  ✓ Use proportional scoring instead of simple coocurrence frequency
-
  Automatic sentence separation (. ! ? :)
-
  … Bilateral comparison (i.e., calculate probabilities for the target language's closest matches, compare them to the probabilities for the source language's closest matches, and recalculate scores accordingly)
-
 */
 
 
@@ -159,7 +155,7 @@ function init() {
    }
   });
 
- document.body.innerHTML = "Parsed " + sourceTokenCount.toLocaleString() + " tokens to identify " + sourceWords.length + " unique words in the source language:<br><br>"
+ document.body.innerHTML = "Parsed " + sourceTokenCount.toLocaleString() + " tokens to identify " + sourceWords.length.toLocaleString() + " unique words in the source language:<br><br>"
  + sourceWords
  .sort(function (a, b) {
   return b.freq - a.freq
@@ -215,19 +211,16 @@ function scoreByCoocurrence(arr) {
 }
 
 /*
-
 Sample text from 
-
 http://onlinespanishclub.com/spanish-english-parallel-text-la-sorpresa-capitulo-1/
 http://torocitydesigns.com/~garci/cibertextos/bilingues/GARCIA-MARQUEZ-G/CORONEL-NO-TIENE-ESCRIBA/CORONEL-NO-TIENE-ESCRIBA.HTM
-
 */
 
 </script>
 
 </head>
 
-<body onLoad='init();' class='pseudo-table'>Español	English
+<body onLoad='init();' class='pseudo-table' contenteditable>Español	English
 Pilar tiene 25 años.	Pilar is 25 years old.
 Estudia medicina en Tarragona y tiene muchos amigos.	She is studying medicine in Tarragona and has lots of friends.
 Pilar es muy simpática y agradable.	Pilar is very likable and kind.
@@ -436,3 +429,109 @@ Ahora Agustín estaba muerto y el forro de raso brillante había sido destruido 
 dijo el coronel con una antigua frase suya.	said the colonel with one of his old phrases.
 Abrió sobre su cabeza un misterioso sistema de varillas metálicas—.	Above his head a mysterious system of little metal rods opened.
 Ahora sólo sirve para contar las estrellas.	′The only thing it′s good for now is to count the stars.′
+EN el principio crió Dios los cielos y la tierra.	In the beginning God created the heaven and the earth.
+Y la tierra estaba desordenada y vacía, y las tinieblas estaban sobre la haz del abismo, y el Espíritu de Dios se movía sobre la haz de las aguas.	And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.
+Y dijo Dios: Sea la luz: y fué la luz.	And God said, Let there be light: and there was light.
+Y vió Dios que la luz era buena: y apartó Dios la luz de las tinieblas.	And God saw the light, that it was good: and God divided the light from the darkness.
+Y llamó Dios á la luz Día, y á las tinieblas llamó Noche: y fué la tarde y la mañana un día.	And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.
+Y dijo Dios: Haya expansión en medio de las aguas, y separe las aguas de las aguas.	And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters.
+E hizo Dios la expansión, y apartó las aguas que estaban debajo de la expansión, de las aguas que estaban sobre la expansión: y fué así.	And God made the firmament, and divided the waters which were under the firmament from the waters which were above the firmament: and it was so.
+Y llamó Dios á la expansión Cielos: y fué la tarde y la mañana el día segundo.	And God called the firmament Heaven. And the evening and the morning were the second day.
+Y dijo Dios: Júntense las aguas que están debajo de los cielos en un lugar, y descúbrase la seca: y fué así.	And God said, Let the waters under the heaven be gathered together unto one place, and let the dry land appear: and it was so.
+Y llamó Dios á la seca Tierra, y á la reunión de las aguas llamó Mares: y vió Dios que era bueno.	And God called the dry land Earth; and the gathering together of the waters called he Seas: and God saw that it was good.
+Y dijo Dios: Produzca la tierra hierba verde, hierba que dé simiente; árbol de fruto que dé fruto según su género, que su simiente esté en él, sobre la tierra: y fué así.	And God said, Let the earth bring forth grass, the herb yielding seed, and the fruit tree yielding fruit after his kind, whose seed is in itself, upon the earth: and it was so.
+Y produjo la tierra hierba verde, hierba que da simiente según su naturaleza, y árbol que da fruto, cuya simiente está en él, según su género: y vió Dios que era bueno.	And the earth brought forth grass, and herb yielding seed after his kind, and the tree yielding fruit, whose seed was in itself, after his kind: and God saw that it was good.
+Y fué la tarde y la mañana el día tercero.	And the evening and the morning were the third day.
+Y dijo Dios: Sean lumbreras en la expansión de los cielos para apartar el día y la noche: y sean por señales, y para las estaciones, y para días y años;	And God said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years:
+Y sean por lumbreras en la expansión de los cielos para alumbrar sobre la tierra: y fué así.	And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so.
+E hizo Dios las dos grandes lumbreras; la lumbrera mayor para que señorease en el día, y la lumbrera menor para que señorease en la noche: hizo también las estrellas.	And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.
+Y púsolas Dios en la expansión de los cielos, para alumbrar sobre la tierra,	And God set them in the firmament of the heaven to give light upon the earth,
+Y para señorear en el día y en la noche, y para apartar la luz y las tinieblas: y vió Dios que era bueno.	And to rule over the day and over the night, and to divide the light from the darkness: and God saw that it was good.
+Y fué la tarde y la mañana el día cuarto.	And the evening and the morning were the fourth day.
+Y dijo Dios: Produzcan las aguas reptil de ánima viviente, y aves que vuelen sobre la tierra, en la abierta expansión de los cielos.	And God said, Let the waters bring forth abundantly the moving creature that hath life, and fowl that may fly above the earth in the open firmament of heaven.
+Y crió Dios las grandes ballenas, y toda cosa viva que anda arrastrando, que las aguas produjeron según su género, y toda ave alada según su especie: y vió Dios que era bueno.	And God created great whales, and every living creature that moveth, which the waters brought forth abundantly, after their kind, and every winged fowl after his kind: and God saw that it was good.
+Y Dios los bendijo diciendo: Fructificad y multiplicad, y henchid las aguas en los mares, y las aves se multipliquen en la tierra.	And God blessed them, saying, Be fruitful, and multiply, and fill the waters in the seas, and let fowl multiply in the earth.
+Y fué la tarde y la mañana el día quinto.	And the evening and the morning were the fifth day.
+Y dijo Dios: Produzca la tierra seres vivientes según su género, bestias y serpientes y animales de la tierra según su especie: y fué así.	And God said, Let the earth bring forth the living creature after his kind, cattle, and creeping thing, and beast of the earth after his kind: and it was so.
+E hizo Dios animales de la tierra según su género, y ganado según su género, y todo animal que anda arrastrando sobre la tierra según su especie: y vió Dios que era bueno.	And God made the beast of the earth after his kind, and cattle after their kind, and every thing that creepeth upon the earth after his kind: and God saw that it was good.
+Y dijo Dios: Hagamos al hombre á nuestra imagen, conforme á nuestra semejanza; y señoree en los peces de la mar, y en las aves de los cielos, y en las bestias, y en toda la tierra, y en todo animal que anda arrastrando sobre la tierra.	And God said, Let us make man in our image, after our likeness: and let them have dominion over the fish of the sea, and over the fowl of the air, and over the cattle, and over all the earth, and over every creeping thing that creepeth upon the earth.
+Y crió Dios al hombre á su imagen, á imagen de Dios lo crió; varón y hembra los crió.	So God created man in his own image, in the image of God created he him; male and female created he them.
+Y los bendijo Dios; y díjoles Dios: Fructificad y multiplicad, y henchid la tierra, y sojuzgadla, y señoread en los peces de la mar, y en las aves de los cielos, y en todas las bestias que se mueven sobre la tierra.	And God blessed them, and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it: and have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moveth upon the earth.
+Y dijo Dios: He aquí que os he dado toda hierba que da simiente, que está sobre la haz de toda la tierra; y todo árbol en que hay fruto de árbol que da simiente, seros ha para comer.	And God said, Behold, I have given you every herb bearing seed, which is upon the face of all the earth, and every tree, in the which is the fruit of a tree yielding seed; to you it shall be for meat.
+Y á toda bestia de la tierra, y á todas las aves de los cielos, y á todo lo que se mueve sobre la tierra, en que hay vida, toda hierba verde les será para comer: y fué así.	And to every beast of the earth, and to every fowl of the air, and to every thing that creepeth upon the earth, wherein there is life, I have given every green herb for meat: and it was so.
+Y vió Dios todo lo que había hecho, y he aquí que era bueno en gran manera. Y fué la tarde y la mañana el día sexto.	And God saw every thing that he had made, and, behold, it was very good. And the evening and the morning were the sixth day.
+Y FUERON acabados los cielos y la tierra, y todo su ornamento.	Thus the heavens and the earth were finished, and all the host of them.
+Y acabó Dios en el día séptimo su obra que hizo, y reposó el día séptimo de toda su obra que había hecho.	And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.
+Y bendijo Dios al día séptimo, y santificólo, porque en él reposó de toda su obra que había Dios criado y hecho.	And God blessed the seventh day, and sanctified it: because that in it he had rested from all his work which God created and made.
+Estos son los orígenes de los cielos y de la tierra cuando fueron criados, el día que Jehová Dios hizo la tierra y los cielos,	These are the generations of the heavens and of the earth when they were created, in the day that the Lord God made the earth and the heavens,
+Y toda planta del campo antes que fuese en la tierra, y toda hierba del campo antes que naciese: porque aun no había Jehová Dios hecho llover sobre la tierra, ni había hombre para que labrase la tierra;	And every plant of the field before it was in the earth, and every herb of the field before it grew: for the Lord God had not caused it to rain upon the earth, and there was not a man to till the ground.
+Mas subía de la tierra un vapor, que regaba toda la faz de la tierra.	But there went up a mist from the earth, and watered the whole face of the ground.nthere…: or, a mist which went up from, etc.
+Formó, pues, Jehová Dios al hombre del polvo de la tierra, y alentó en su nariz soplo de vida; y fué el hombre en alma viviente.	And the Lord God formed man of the dust of the ground, and breathed into his nostrils the breath of life; and man became a living soul.
+Y había Jehová Dios plantado un huerto en Edén al oriente, y puso allí al hombre que había formado.	And the Lord God planted a garden eastward in Eden; and there he put the man whom he had formed.
+Y había Jehová Dios hecho nacer de la tierra todo árbol delicioso á la vista, y bueno para comer: también el árbol de vida en medio del huerto, y el árbol de ciencia del bien y del mal.	And out of the ground made the Lord God to grow every tree that is pleasant to the sight, and good for food; the tree of life also in the midst of the garden, and the tree of knowledge of good and evil.
+Y salía de Edén un río para regar el huerto, y de allí se repartía en cuatro ramales.	And a river went out of Eden to water the garden; and from thence it was parted, and became into four heads.
+El nombre del uno era Pisón: éste es el que cerca toda la tierra de Havilah, donde hay oro:	The name of the first is Pison: that is it which compasseth the whole land of Havilah, where there is gold;
+Y el oro de aquella tierra es bueno: hay allí también bdelio y piedra cornerina.	And the gold of that land is good: there is bdellium and the onyx stone.
+El nombre del segundo río es Gihón: éste es el que rodea toda la tierra de Etiopía.	And the name of the second river is Gihon: the same is it that compasseth the whole land of Ethiopia.
+Y el nombre del tercer río es Hiddekel: éste es el que va delante de Asiria. Y el cuarto río es el Eufrates.	And the name of the third river is Hiddekel: that is it which goeth toward the east of Assyria. And the fourth river is Euphrates.
+Tomó, pues, Jehová Dios al hombre, y le puso en el huerto de Edén, para que lo labrara y lo guardase.	And the Lord God took the man, and put him into the garden of Eden to dress it and to keep it.
+Y mandó Jehová Dios al hombre, diciendo: De todo árbol del huerto comerás;	And the Lord God commanded the man, saying, Of every tree of the garden thou mayest freely eat:
+Mas del árbol de ciencia del bien y del mal no comerás de él; porque el día que de él comieres, morirás.	But of the tree of the knowledge of good and evil, thou shalt not eat of it: for in the day that thou eatest thereof thou shalt surely die.
+Y dijo Jehová Dios: No es bueno que el hombre esté solo; haréle ayuda idónea para él.	And the Lord God said, It is not good that the man should be alone; I will make him an help meet for him.
+Formó, pues, Jehová Dios de la tierra toda bestia del campo, y toda ave de los cielos, y trájolas á Adam, para que viese cómo les había de llamar; y todo lo que Adam llamó á los animales vivientes, ese es su nombre.	And out of the ground the Lord God formed every beast of the field, and every fowl of the air; and brought them unto Adam to see what he would call them: and whatsoever Adam called every living creature, that was the name thereof.
+Y puso Adam nombres á toda bestia y ave de los cielos y á todo animal del campo: mas para Adam no halló ayuda que estuviese idónea para él.	And Adam gave names to all cattle, and to the fowl of the air, and to every beast of the field; but for Adam there was not found an help meet for him.
+Y Jehová Dios hizo caer sueño sobre Adam, y se quedó dormido: entonces tomó una de sus costillas, y cerró la carne en su lugar;	And the Lord God caused a deep sleep to fall upon Adam, and he slept: and he took one of his ribs, and closed up the flesh instead thereof;
+Y de la costilla que Jehová Dios tomó del hombre, hizo una mujer, y trájola al hombre.	And the rib, which the Lord God had taken from man, made he a woman, and brought her unto the man.
+Y dijo Adam: Esto es ahora hueso de mis huesos, y carne de mi carne: ésta será llamada Varona, porque del varón fué tomada.	And Adam said, This is now bone of my bones, and flesh of my flesh: she shall be called Woman, because she was taken out of Man.
+Por tanto, dejará el hombre á su padre y á su madre, y allegarse ha á su mujer, y serán una sola carne.	Therefore shall a man leave his father and his mother, and shall cleave unto his wife: and they shall be one flesh.
+Y estaban ambos desnudos, Adam y su mujer, y no se avergonzaban.	And they were both naked, the man and his wife, and were not ashamed.
+EMPERO la serpiente era astuta, más que todos los animales del campo que Jehová Dios había hecho; la cual dijo á la mujer: ¿Conque Dios os ha dicho: No comáis de todo árbol del huerto?	Now the serpent was more subtil than any beast of the field which the Lord God had made. And he said unto the woman, Yea, hath God said, Ye shall not eat of every tree of the garden?
+Y la mujer respondió á la serpiente: Del fruto de los árboles del huerto comemos;	And the woman said unto the serpent, We may eat of the fruit of the trees of the garden:
+Mas del fruto del árbol que está en medio del huerto dijo Dios: No comeréis de él, ni le tocaréis, porque no muráis.	But of the fruit of the tree which is in the midst of the garden, God hath said, Ye shall not eat of it, neither shall ye touch it, lest ye die.
+Entonces la serpiente dijo á la mujer: No moriréis;	And the serpent said unto the woman, Ye shall not surely die:
+Mas sabe Dios que el día que comiereis de él, serán abiertos vuestros ojos, y seréis como dioses sabiendo el bien y el mal.	For God doth know that in the day ye eat thereof, then your eyes shall be opened, and ye shall be as gods, knowing good and evil.
+Y vió la mujer que el árbol era bueno para comer, y que era agradable á los ojos, y árbol codiciable para alcanzar la sabiduría; y tomó de su fruto, y comió; y dió también á su marido, el cual comió así como ella.	And when the woman saw that the tree was good for food, and that it was pleasant to the eyes, and a tree to be desired to make one wise, she took of the fruit thereof, and did eat, and gave also unto her husband with her; and he did eat.
+Y fueron abiertos los ojos de entrambos, y conocieron que estaban desnudos: entonces cosieron hojas de higuera, y se hicieron delantales.	And the eyes of them both were opened, and they knew that they were naked; and they sewed fig leaves together, and made themselves aprons.
+Y oyeron la voz de Jehová Dios que se paseaba en el huerto al aire del día: y escondióse el hombre y su mujer de la presencia de Jehová Dios entre los árboles del huerto.	And they heard the voice of the Lord God walking in the garden in the cool of the day: and Adam and his wife hid themselves from the presence of the Lord God amongst the trees of the garden.
+Y llamó Jehová Dios al hombre, y le dijo: ¿Dónde estás tú?	And the Lord God called unto Adam, and said unto him, Where art thou?
+Y él respondió: Oí tu voz en el huerto, y tuve miedo, porque estaba desnudo; y escondíme.	And he said, I heard thy voice in the garden, and I was afraid, because I was naked; and I hid myself.
+Y díjole: ¿Quién te enseñó que estabas desnudo? ¿Has comido del árbol de que yo te mandé no comieses?	And he said, Who told thee that thou wast naked? Hast thou eaten of the tree, whereof I commanded thee that thou shouldest not eat?
+Y el hombre respondió: La mujer que me diste por compañera me dió del árbol, y yo comí.	And the man said, The woman whom thou gavest to be with me, she gave me of the tree, and I did eat.
+Entonces Jehová Dios dijo á la mujer: ¿Qué es lo que has hecho? Y dijo la mujer: La serpiente me engañó, y comí.	And the Lord God said unto the woman, What is this that thou hast done? And the woman said, The serpent beguiled me, and I did eat.
+Y Jehová Dios dijo á la serpiente: Por cuanto esto hiciste, maldita serás entre todas las bestias y entre todos los animales del campo; sobre tu pecho andarás, y polvo comerás todos los días de tu vida:	And the Lord God said unto the serpent, Because thou hast done this, thou art cursed above all cattle, and above every beast of the field; upon thy belly shalt thou go, and dust shalt thou eat all the days of thy life:
+Y enemistad pondré entre ti y la mujer, y entre tu simiente y la simiente suya; ésta te herirá en la cabeza, y tú le herirás en el calcañar.	And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel.
+A la mujer dijo: Multiplicaré en gran manera tus dolores y tus preñeces; con dolor parirás los hijos; y á tu marido será tu deseo, y él se enseñoreará de ti.	Unto the woman he said, I will greatly multiply thy sorrow and thy conception; in sorrow thou shalt bring forth children; and thy desire shall be to thy husband, and he shall rule over thee.
+Y al hombre dijo: Por cuanto obedeciste á la voz de tu mujer, y comiste del árbol de que te mandé diciendo, No comerás de él; maldita será la tierra por amor de ti; con dolor comerás de ella todos los días de tu vida;	And unto Adam he said, Because thou hast hearkened unto the voice of thy wife, and hast eaten of the tree, of which I commanded thee, saying, Thou shalt not eat of it: cursed is the ground for thy sake; in sorrow shalt thou eat of it all the days of thy life;
+Espinos y cardos te producirá, y comerás hierba del campo;	Thorns also and thistles shall it bring forth to thee; and thou shalt eat the herb of the field;
+En el sudor de tu rostro comerás el pan hasta que vuelvas á la tierra; porque de ella fuiste tomado: pues polvo eres, y al polvo serás tornado.	In the sweat of thy face shalt thou eat bread, till thou return unto the ground; for out of it wast thou taken: for dust thou art, and unto dust shalt thou return.
+Y llamó el hombre el nombre de su mujer, Eva; por cuanto ella era madre de todos los vivientes.	And Adam called his wife's name Eve; because she was the mother of all living.
+Y Jehová Dios hizo al hombre y á su mujer túnicas de pieles, y vistiólos.	Unto Adam also and to his wife did the Lord God make coats of skins, and clothed them.
+Y dijo Jehová Dios: He aquí el hombre es como uno de Nos sabiendo el bien y el mal: ahora, pues, porque no alargue su mano, y tome también del árbol de la vida, y coma, y viva para siempre:	And the Lord God said, Behold, the man is become as one of us, to know good and evil: and now, lest he put forth his hand, and take also of the tree of life, and eat, and live for ever:
+Y sacólo Jehová del huerto de Edén, para que labrase la tierra de que fué tomado.	Therefore the Lord God sent him forth from the garden of Eden, to till the ground from whence he was taken.
+Echó, pues, fuera al hombre, y puso al oriente del huerto de Edén querubines, y una espada encendida que se revolvía á todos lados, para guardar el camino del árbol de la vida.	So he drove out the man; and he placed at the east of the garden of Eden Cherubims, and a flaming sword which turned every way, to keep the way of the tree of life.
+Y CONOCIÓ Adam á su mujer Eva, la cual concibió y parió á Caín, y dijo: Adquirido he varón por Jehová.	And Adam knew Eve his wife; and she conceived, and bare Cain, and said, I have gotten a man from the Lord.
+Y después parió á su hermano Abel. Y fué Abel pastor de ovejas, y Caín fué labrador de la tierra.	And she again bare his brother Abel. And Abel was a keeper of sheep, but Cain was a tiller of the ground.
+Y aconteció andando el tiempo, que Caín trajo del fruto de la tierra una ofrenda á Jehová.	And in process of time it came to pass, that Cain brought of the fruit of the ground an offering unto the Lord.
+Y Abel trajo también de los primogénitos de sus ovejas, y de su grosura. Y miró Jehová con agrado á Abel y á su ofrenda;	And Abel, he also brought of the firstlings of his flock and of the fat thereof. And the Lord had respect unto Abel and to his offering:
+Mas no miró propicio á Caín y á la ofrenda suya. Y ensañóse Caín en gran manera, y decayó su semblante.	But unto Cain and to his offering he had not respect. And Cain was very wroth, and his countenance fell.
+Entonces Jehová dijo á Caín: ¿Por qué te has ensañado, y por qué se ha inmutado tu rostro?	And the Lord said unto Cain, Why art thou wroth? and why is thy countenance fallen?
+Si bien hicieres, ¿no serás ensalzado? y si no hicieres bien, el pecado está á la puerta: con todo esto, á ti será su deseo, y tú te enseñorearás de él.	If thou doest well, shalt thou not be accepted? and if thou doest not well, sin lieth at the door. And unto thee shall be his desire, and thou shalt rule over him.
+Y habló Caín á su hermano Abel: y aconteció que estando ellos en el campo, Caín se levantó contra su hermano Abel, y le mató.	And Cain talked with Abel his brother: and it came to pass, when they were in the field, that Cain rose up against Abel his brother, and slew him.
+Y Jehová dijo á Caín: ¿Dónde está Abel tu hermano? Y él respondió: No sé; ¿soy yo guarda de mi hermano?	And the Lord said unto Cain, Where is Abel thy brother? And he said, I know not: Am I my brother's keeper?
+Y él le dijo: ¿Qué has hecho? La voz de la sangre de tu hermano clama á mí desde la tierra.	And he said, What hast thou done? the voice of thy brother's blood crieth unto me from the ground.
+Ahora pues, maldito seas tú de la tierra que abrió su boca para recibir la sangre de tu hermano de tu mano:	And now art thou cursed from the earth, which hath opened her mouth to receive thy brother's blood from thy hand;
+Cuando labrares la tierra, no te volverá á dar su fuerza: errante y extranjero serás en la tierra.	When thou tillest the ground, it shall not henceforth yield unto thee her strength; a fugitive and a vagabond shalt thou be in the earth.
+Y dijo Caín á Jehová: Grande es mi iniquidad para ser perdonada.	And Cain said unto the Lord, My punishment is greater than I can bear.
+He aquí me echas hoy de la faz de la tierra, y de tu presencia me esconderé; y seré errante y extranjero en la tierra; y sucederá que cualquiera que me hallare, me matará.	Behold, thou hast driven me out this day from the face of the earth; and from thy face shall I be hid; and I shall be a fugitive and a vagabond in the earth; and it shall come to pass, that every one that findeth me shall slay me.
+Y respondióle Jehová: Cierto que cualquiera que matare á Caín, siete veces será castigado. Entonces Jehová puso señal en Caín, para que no lo hiriese cualquiera que le hallara.	And the Lord said unto him, Therefore whosoever slayeth Cain, vengeance shall be taken on him sevenfold. And the Lord set a mark upon Cain, lest any finding him should kill him.
+Y salió Caín de delante de Jehová, y habitó en tierra de Nod, al oriente de Edén.	And Cain went out from the presence of the Lord, and dwelt in the land of Nod, on the east of Eden.
+Y conoció Caín á su mujer, la cual concibió y parió á Henoch: y edificó una ciudad, y llamó el nombre de la ciudad del nombre de su hijo, Henoch.	And Cain knew his wife; and she conceived, and bare Enoch: and he builded a city, and called the name of the city, after the name of his son, Enoch.
+Y á Henoch nació Irad, é Irad engendró á Mehujael, y Mehujael engendró á Methusael, y Methusael engendró á Lamech.	And unto Enoch was born Irad: and Irad begat Mehujael: and Mehujael begat Methusael: and Methusael begat Lamech.
+Y tomó para sí Lamech dos mujeres; el nombre de la una fué Ada, y el nombre de la otra Zilla.	And Lamech took unto him two wives: the name of the one was Adah, and the name of the other Zillah.
+Y Ada parió á Jabal, el cual fué padre de los que habitan en tiendas, y crían ganados.	And Adah bare Jabal: he was the father of such as dwell in tents, and of such as have cattle.
+Y el nombre de su hermano fué Jubal, el cual fué padre de todos los que manejan arpa y órgano.	And his brother's name was Jubal: he was the father of all such as handle the harp and organ.
+Y Zilla también parió á Tubal-Caín, acicalador de toda obra de metal y de hierro: y la hermana de Tubal-Caín fué Naama.	And Zillah, she also bare Tubal–cain, an instructer of every artificer in brass and iron: and the sister of Tubal–cain was Naamah.
+Y dijo Lamech á sus mujeres: Ada y Zilla, oid mi voz; mujeres de Lamech, escuchad mi dicho: que varón mataré por mi herida, y mancebo por mi golpe:	And Lamech said unto his wives, Adah and Zillah, Hear my voice; ye wives of Lamech, hearken unto my speech: for I have slain a man to my wounding, and a young man to my hurt.
+Si siete veces será vengado Caín, Lamech en verdad setenta veces siete lo será.	If Cain shall be avenged sevenfold, truly Lamech seventy and sevenfold.
+Y conoció de nuevo Adam á su mujer, la cual parió un hijo, y llamó su nombre Seth: Porque Dios (dijo ella) me ha sustituído otra simiente en lugar de Abel, á quien mató Caín.	And Adam knew his wife again; and she bare a son, and called his name Seth: For God, said she, hath appointed me another seed instead of Abel, whom Cain slew.
+Y á Seth también le nació un hijo, y llamó su nombre Enós. Entonces los hombres comenzaron á llamarse del nombre de Jehová.	And to Seth, to him also there was born a son; and he called his name Enos: then began men to call upon the name of the Lord.
