@@ -134,7 +134,7 @@ function init() {
   // For each source word
   sourceWords.forEach(function(sourceWord) {
 
-   //console.log(sourceWord.sourceWord, sourceWord.targetWords.length);
+   console.log(sourceWord.sourceWord, sourceWord.targetWords.length);
 
    // Look at each of the top 10 coocurrences
    var stopAfter = 10;
@@ -142,13 +142,14 @@ function init() {
 
    for (var i = 0; i < stopAfter; i++) {
 
-    //console.log(sourceWord.targetWords[i].word);
+    console.log(sourceWord.targetWords[i].word, sourceWord.targetWords[i].score.toFixed(3));
 
     var ref = targetList.indexOf(sourceWord.targetWords[i].word);
 
     if (~ref) {
 
-    // If the source word is also in the top 10 occurrences of the target word, augment the target word's score by the source word's score in the target word's coocurrences
+    // If the source word is also in the top 10 co-occurrences of the target word, augment the target word's score by the source word's score in the target word's coocurrences
+    /* *** */
      
     }
 
@@ -171,20 +172,26 @@ function scoreByCoocurrence(arr) {
  var words = [];
  var wordlist = [];
 
+ // Iterate through each sub-array
  arr.forEach(function(subarray) {
 
   var len = subarray.length;
 
+  // Iterate through each word
   subarray.forEach(function(word) {
 
    var ref = wordlist.indexOf(word);
    var ref2 = targetList.indexOf(word);
 
    var scoreAdjustment = 0;
+
+   // If the word is in the targetList
    if (~ref2) {
+    // ??? Not sure why I'm multiplying by 20 here
     scoreAdjustment = targetWords[ref2].freq*20 / targetWords.length;
    }
 
+   // If the word is NOT in the wordList
    if (!~ref) {
     wordlist.push(word);
     words.push({
