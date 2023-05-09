@@ -21,7 +21,7 @@ var editboxHTML =
 "html,body { overflow: hidden; }" +
 "<\/style>" +
 "<script>" +
-"function stopTab( e ) {" +
+"function stopTab(e) {" +
 "    var evt = e || window.event;" +
 "    if (evt.keyCode == 9) {" +
 "        if (e.preventDefault) e.preventDefault();" +
@@ -33,7 +33,7 @@ var editboxHTML =
 "<\/head>" +
 "<body class='expand close' onload='document.f.ta.focus(); document.f.ta.select();'>" +
 "<form class='expand close' name='f'>" +
-"<textarea id='myField1' class='expand close' style='font-family:monospace; font-size:12px; background-color:#efefef; width:100%; overflow-X:scroll;' name='ta' wrap='hard' spellcheck='false' onKeyDown='stopTab(event)'>" +
+"<textarea id='myField1' class='expand close' style='font-family:monospace; font-size:12px; background-color:#efefef; width:100%; overflow-X:scroll; margin:5px' name='ta' wrap='hard' spellcheck='false' onKeyDown='stopTab(event)'>" +
 "<\/textarea>" +
 "<\/form>" +
 "<\/body>" +
