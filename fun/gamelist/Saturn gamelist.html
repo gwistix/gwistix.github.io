@@ -1,0 +1,443 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best Sega Saturn games</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+tr:hover {
+ background-color: yellow;
+}
+
+td {
+ vertical-align: top;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+.scoreTD {
+ line-height:2em;
+ font-size:70%;
+ color:gray;
+ padding:0 0.5em
+}
+
+
+</style>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+/* TO-DO
+
+   Normalize roman numerals
+   Check for duplicates (e.g., Skyrim vs. The Elder Scrolls V: Skyrim)
+
+*/
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+var played = [];
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique Sega Saturn games:</h1>"
+ + generateTable(books)
+ + "<div id='gamesPlayed' style='background: #efefef; padding:10px; position:fixed; right:0px; bottom:0px; text-align:right'></div>";
+ ;
+}
+
+function addPlayed(title) {
+ played.push(title);
+ updatePlayed();
+}
+
+function removePlayed(title) {
+ played.splice(played.indexOf(title));
+ updatePlayed();
+}
+
+function updatePlayed() {
+ var playedCount = played.length;
+ var titlesCount = books.length;
+ var percentPlayed = (100 * playedCount / titlesCount).toFixed(1);
+ document.querySelector("#gamesPlayed").innerHTML = `${playedCount.toLocaleString()} of ${titlesCount.toLocaleString()} games played<br>(${percentPlayed}%)`;
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+
+   book = book.replace(/:? [^\s]* edition/i, function(str){
+    return "";
+   })
+   ;
+   
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  list.forEach(function(book, index) {
+   var rank = 0.5;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;  
+
+ });
+
+
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return title
+ .toUpperCase()
+ .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+ .replace(/\s?\(.*\)/g,"")
+ .replace(/&/g,"and")
+ .replace(/: /g,"--")
+ .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+ .replace(/[æÆœŒ]/gi,"E")
+ .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+ .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+ .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+ .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+ .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+ .replace(/ﬀ/gi,"FF")
+ .replace(/ﬁ/gi,"FI")
+ .replace(/ﬂ/gi,"FL")
+ .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+ .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+ .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+ .replace(/[ĳĲ]/gi,"IJ")
+ .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+ .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+ .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+ .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+ .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+ .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+ .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+ .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+ .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+ .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+ .replace(/[ßẞ]/gi,"SS")
+ .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+ .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+ .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+ .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+ .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+ .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+ .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+ .replace(/[^A-z0-9]/g, "")
+ .replace(/ \d+/g, function(str) {
+  var roman = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+  var num = parseInt(str.replace(/ /,""));
+  return " " + roman[num];
+ })
+ ;
+
+ /* This also eliminates accented characters,
+  * substitutes the "&" character for "and",
+  * and normalizes Roman versus Arabic numerals
+  */
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td style='vertical-align:middle;'><input type='checkbox' onClick='if (this.checked) {addPlayed(\"" + titleOnly + "\")} else {removePlayed(\"" + titleOnly + "\")}' title='Click boxes for games you have played'></td>"
+  + "<td style='text-align:right'>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='scoreTD'>" + book.score.toFixed(3) + "</td>" 
+  + "<td><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>"; 
+ return tableHtml;
+}
+
+
+var ranked = [
+
+/* https://www.gamesradar.com/best-saturn-games-all-time/ */
+
+ ["NiGHTS into Dreams", "Sega Rally Championship", "Virtua Fighter 2", "Panzer Dragoon Saga", "Guardian Heroes", "Panzer Dragoon II Zwei", "Radiant Silvergun", "Street Fighter Alpha 3", "Sega Ages Vol. 1", "Virtua Cop II", "Saturn Bomberman", "Resident Evil", "Dark Savior", "Tomb Raider", "Galactic Attack/Layer Section", "Duke Nukem 3D", "Exhumed", "Shining Force 3", "Street Fighter Alpha 2", "Croc", "Steep Slope Sliders", "Grandia", "Virtua Cop", "WipEout 2097", "Die Hard Arcade"],
+
+/* https://www.ign.com/articles/2008/07/29/top-10-sega-saturn-games */
+
+ ["Panzer Dragoon Saga", "Virtua Fighter 2", "Guardian Heroes", "NiGHTS into Dreams", "Panzer Dragoon II Zwei", "SEGA Rally Championship", "Virtua Cop", "Saturn Bomberman", "Astal", "Dragon Force"],
+
+/* https://www.giantbomb.com/profile/stealthrush/lists/stealthrushs-top-100-favorite-saturn-games/355828/ */
+
+ ["Bulk Slash", "Guardian Heroes", "Burning Rangers", "Saturn Bomberman", "X-Men vs. Street Fighter", "Super Tempo", "Keio Flying Squadron 2", "Magic Knight Rayearth", "Silhouette Mirage", "Super Puzzle Fighter II Turbo", "Virtua Fighter 2", "Magical Night Dreams: Cotton Boomerang", "NiGHTS into Dreams...", "Groove on Fight: Gouketsuji Ichizoku 3", "Die Hard Arcade", "Panzer Dragoon Saga", "Prikura Daisakusen", "Panzer Dragoon II: Zwei", "Virtual-On: Cyber Troopers", "Marvel Super Heroes Vs. Street Fighter", "Radiant Silvergun", "Astra Superstars", "Galactic Attack", "Sengoku Blade: Sengoku Ace Episode II", "Castlevania: Symphony of the Night", "Soukyugurentai", "Rohga: Armor Force", "Asuka 120% Limited Burning Fest.", "Bubble Symphony", "DoDonPachi", "Elevator Action Returns", "Metal Slug: Super Vehicle - 001", "Winter Heat", "Fighters Megamix", "Gungriffon II", "Darkstalkers 3", "Hyper Duel", "Real Bout Fatal Fury Special", "Mega Man X4", "Blast Wind", "Twinkle Star Sprites", "Sonic Jam", "Street Fighter Alpha 3", "Sexy Parodius", "The King of Fighters '97", "Darius Gaiden", "Magical Drop III", "Magical Night Dreams: Cotton 2", "Fighting Vipers", "Crows: The Battle Action for Sega Saturn", "X-Men: Children of the Atom", "Cyberbots: Fullmetal Madness", "Nekketsu Oyako", "Astal", "Tryrush Deppy", "Virtua Cop 2", "Choro Q Park", "Gunbird", "Dungeons & Dragons Collection", "Marvel Super Heroes", "G-Vector", "Dragon Force", "Saturn Bomberman Fight!!", "Daytona USA: Championship Circuit Edition", "Detana!! TwinBee Yahho! Deluxe Pack", "Kingdom Grandprix", "Princess Crown", "Shining Force III", "Last Bronx", "Keriotosse!", "Dead or Alive", "SteamGear Mash", "Mega Man 8: Anniversary Edition", "Noon", "Shining Wisdom", "Vatlva", "DonPachi", "Elan Doree", "Albert Odyssey: Legend of Eldean", "Assault Suit Leynos 2", "The Legend of Oasis", "Shinrei Jusatsushi Taroumaru", "Sonic R", "Goiken Muyou: Anarchy in the Nippon", "Hanagumi Taisen Columns", "Rabbit", "Pocket Fighter", "Gussun Oyoyo", "Virtua Fighter Kids", "Suiko Enbu Fuunsaiki", "Shining the Holy Ark", "Game Tengoku", "Virtua Cop", "D-Xhird", "Dragon Ball Z: Shin Butoden", "Zero Divide: The Final Conflict", "Battle Arena Toshinden Ultimate Revenge Attack", "Cube Battler: Debugger Shou-hen", "Mystaria: The Realms of Lore", "Motteke Tamago Ganbare Kamonohashi"],
+
+/* https://metro.co.uk/2019/07/20/10-top-games-that-must-be-on-a-sega-saturn-mini-readers-feature-10429677/ */
+
+ ["Panzer Dragoon Saga", "Sega Rally Championship", "Shining Force III", "Shinrei Jusatsushi Taromaru", "Fighters Megamix", "Magic Knight Rayearth", "Guardian Heroes", "Saturn Bomberman", "Radiant Silvergun", "NiGHTS Into Dreams"],
+
+/* http://www.segasaturn.co.uk/beta/news/top-20-sega-saturn-games/ */
+
+ ["SEGA RALLY CHAMPIONSHIP", "PANZER DRAGOON SAGA ", "NIGHTS INTO DREAMS", "VIRTUA FIGHTER 2", "PANZER DRAGOON II ZWEI", "SATURN BOMBERMAN", "SHINING FORCE III", "BURNING RANGERS", "FIGHTERS MEGAMIX", "STREET FIGHTER ZERO 3", "RADIANT SILVERGUN", "VIRTUA COP 2", "PANZER DRAGOON", "SONIC R", "GUARDIAN HEROES", "DAYTONA USA", "X-MEN VS STREET FIGHTER", "RESIDENT EVIL", "BATTLE GAREGGA", "QUAKE", "DODONPACHI"],
+
+/* https://www.funstockretro.co.uk/news/the-top-10-sega-saturn-games/ */
+
+ ["Panzer Dragoon Saga", "Virtua Fighter II", "Guardian Heroes", "NiGHTS Into Dreams", "Panzer Dragoon II Zwei", "SEGA Rally Championship", "Astal", "Virtua Cop", "Saturn Bomberman", "Dragon Force"],
+
+/* https://www.gamestop.com/video-games/retro-gaming/sega-saturn/games [top selling] */
+
+ ["Tomb Raider", "NiGHTS into dreams", "Virtua Cop 2", "Virtua Fighter Remix", "Bug!", "Clockwork Knight", "Die Hard Trilogy", "Fighters Megamix", "The Need for Speed", "Croc: Legend of the Gobbos", "Virtua Fighter", "Rayman", "Shining Force III", "Street Fighter Alpha 2", "Sonic R", "Earthworm Jim 2", "Fighting Vipers", "Hexen", "Dark Savior", "Loaded", "Romance of the Three Kingdoms IV: Wall of Fire", "GunGriffon", "Panzer Dragoon", "Ultimate Mortal Kombat 3", "Golden Axe: The Duel", "Street Fighter: The Movie", "The Lost World: Jurassic Park", "Panzer Dragoon II Zwei", "Primal Rage", "Warcraft II: The Dark Saga", "Pandemonium", "Virtua Racing", "Mortal Kombat Trilogy", "D", "Mr. Bones", "Die Hard Arcade", "Dark Legend", "Street Fighter Alpha: Warriors' Dreas", "Brain Dead 13", "Scud: The Disposable Assassin", "Sonic Jam", "Bust-A-Move 2: Arcade Edition", "Doom", "Gex", "Herc's Adventure", "Mega Man X4", "The Legend of Oasis", "Bubble Bobble Also Featuring Rainbow Islands", "Worms", "Night Warriors: Darkstalkers' Revenge", "Shining Wisdom", "Iron Man / X-O Manowar in Heavy Metal", "Lunacy", "X-Men: Children of the Atom", "Albert Odyssey: Legend of Eldean", "Darius Gaiden", "The Mansion of Hidden Souls", "Shinobi Legends", "Blazing Dragons", "Guardian Heroes", "Saturn Bomberman", "Duke Nukem 3D", "Minnesota Fats: Pool Legend", "Three Dirty Dwarves", "Shining the Holy Ark", "Mega Man 8: Anniversary Collector's Edition", "Dragon Force", "Astal"],
+	
+/* http://www.blockfort.com/game-lists/saturn/ */
+
+ ["Sreet Fighter Zero 3 (1999)", "Panzer Dragoon Saga (1998)", "Grandia (1997)", "Vampire Savior (1998)", "Guardian Heroes (1996)", "X-Men vs. Street Fighter (1997)", "Virtua Fighter 2 (1995)", "Saturn Bomberman (1997)", "Panzer Dragoon II Zwei (1996)", "NiGHTS into Dreams (1996)"],
+	
+/* https://www.lukiegames.com/sega-saturn */
+	
+ ["Virtua Fighter 2", "Ghen War", "Panzer Dragoon II Zwei", "Bug", "Valora Valley Golf", "Pandemonium", "Gex", "WipEout", "Star Fighter", "Sega Rally Championship", "NBA Jam Tournament Edition", "Alien Trilogy", "Solar Eclipse", "World Series Baseball", "NFL Quarterback Club 97", "Die Hard Trilogy", "Hi Octane", "NiGHTS into Dreams", "Tomb Raider", "Darius Gaiden", "Madden 97", "Guardian Heroes", "Duke Nukem 3d", "Virtua Cop", "Sonic Jam", "Manx TT Super Bike", "Clockwork Knight", "Panzer Dragoon", "Sonic 3D Blast", "Myst", "3D Baseball", "Daytona USA", "Resident Evil", "Galactic Attack", "Scud: The Disposable Assassin", "Cyber Speedway", "Shining Wisdom", "Herc's Adventures", "NHL 97", "The Lost World: Jurassic Park", "Fighters MegaMix", "Virtua Fighter Kids", "Baku Baku", "Virtua Racing", "Soviet Strike", "NFL 97", "Mega Man X4", "Magic Carpet", "Independence Day", "Battle Monsters", "NBA Action", "Iron Man / X-O Manowar in Heavy Metal", "X-Men Children of the Atom", "Virtua Cop 2", "Worms", "Sky Target", "Quake", "Area 51", "Virtua Fighter", "Street Fighter Alpha 2", "Robo Pit", "Shanghai Triple Threat", "Romance of the Three Kingdoms IV: Wall of Fire", "NHL All-Star Hockey 98", "NHL All-Star Hockey", "NBA Jam Extreme", "Minnesota Fats Pool Legend", "Grid Runner", "Dragonheart Fire and Steel", "Command and Conquer", "Last Gladiators Digital Pinball", "Wing Arms", "Iron Storm", "Creature Shock Special Edition", "Black Fire", "Daytona USA Championship", "Worldwide Soccer", "Virtual Casino", "Pebble Beach Golf Links", "Criticom", "Frank Thomas Big Hurt Baseball", "Madden 98", "Rayman", "Marvel Super Heroes", "World Series Baseball II", "Virtual-On Cyber Troopers", "Thunderstrike 2", "Ultimate Mortal Kombat 3", "Street Fighter Collection", "Street Fighter Alpha: Warriors' Dreams", "Space Hulk: Vengeance of the Blood Angels", "Robotica", "PTO II", "Need for Speed", "Nascar 98", "Virtua Fighter Remix", "Pro Pinballs", "Off-World Interceptor Extreme", "Fighting Vipers", "Congo the Movie", "Arcade's Greatest Hits: Atari Collection", "World Series Baseball 98", "Revolution X", "Quarterback Attack with Mike Ditka", "PGA Tour 97", "NFL Quarterback Club 96", "Last Bronx", "Heir of Zendor: The Legend and the Land", "Double Switch", "Decathlete", "Dark Legend", "Amok", "World Cup Golf Professional Edition", "VR Soccer", "Cyberia", "Bottom of the 9th", "Bust-a-Move 2 Arcade Edition", "MechWarrior 2", "Croc", "Mass Destruction", "Magic Knight Rayearth", "The House of the Dead", "Battle Arena Toshinden Remix", "TNN Motorsports Hardcore 4x4", "Winning Post", "Saturn Bomberman", "NHL 98", "NBA Live 97", "Enemy Zero", "Crypt Killer", "Battlestations", "Andretti Racing", "Three Dirty Dwarves", "SimCity 2000", "Shinobi Legends", "Primal Rage", "F1 Challenge", "Dark Savior", "Blazing Dragons", "Battle Arena Toshinden URA", "Bases Loaded Double Header", "Darklight Conflict", "VR Golf 97", "Tetris Plus", "Shockwave Assault", "Sega Ages", "Rise 2 Resurrection", "Mr. Bones", "Mortal Kombat Trilogy", "Mortal Kombat II", "Mega Man 8", "Johnny Bazookatone", "Impact Racing", "Hang-On GP", "DEFCON 5", "Alone in the Dark", "WWF In Your House", "True Pinball", "Super Puzzle Fighter II Turbo", "Street Fighter the Movie", "Spot Goes to Hollywood", "Sega Touring Car Championship", "NBA Action 98", "In the Hunt", "Hyper 3D Pinball", "High Velocity Mountain Racing Challenge", "Golden Axe the Duel", "FIFA: Road to World Cup 98", "Earthworm Jim 2", "Dragon Force", "The Crow: City of Angels", "Center Ring Boxing", "Casper: A Haunting 3D Challenge", "Bubble Bobble Featuring Rainbow Islands", "Blazing Heroes", "Albert Odyssey: Legend of Eldean", "WWF WrestleMania the Arcade Game", "Winter Heat", "Williams Arcade's Greatest Hits", "Virtual Open Tennis", "Tunnel B-1", "Theme Park", "Tempest 2000", "Striker 96", "Space Jam", "Slam n Jam 96", "Skeleton Warriors", "Rampage World Tour", "Olympic Soccer", "NHL Powerplay 96", "NBA Live 98", "Mystaria: The Realms of Lore", "Maximum Force", "Machine Head", "The Horde", "Highway 2000", "FIFA Soccer 96", "Crime Wave", "Courier Crisis", "Bust-a-Move 3", "Braindead-13", "Black Dawn", "Worldwide Soccer 97", "Shellshock", "Norse by Norse West: The Return of the Lost Vikings", "Lunacy", "The Incredible Hulk", "Contra: Legacy of War", "Break Point Tennis", "Blast Chamber", "All-Star Baseball '97", "Astal", "Shark", "Shining: The Holy Ark", "Crusader No Remorse", "Warcraft II: The Dark Saga", "Shining Force III", "Clockwork Knight 2", "Batman Forever", "Powerslave", "Doom", "Night Warriors: Darkstalkers' Revenge", "Die Hard Arcade", "Sonic R", "D", "Bug Too", "Loaded", "Worldwide Soccer 98", "Scorcher", "Hexen", "Gun Griffon", "College Slam", "Corpse Killer Graveyard Edition", "Virtual Hydlide", "Ten Pin Alley", "Steep Slope Sliders", "Road Rash", "Mansion of Hidden Souls", "Legend of Oasis", "Panzer Dragoon Saga", "NiGHTS into Dreams", "Grand Slam", "Galaxy Fight", "FIFA 97", "Destruction Derby", "Burning Rangers", "Battlesport"],
+
+/* http://retro-sanctuary.com/Top-100-Saturn-Games-Page-10.html */
+
+ ["Panzer Dragoon Saga", "Virtua Fighter 2", "Sega Rally", "Panzer Dragoon Zwei", "Nights", "Street Fighter Alpha 3", "Resident Evil", "Radiant Silvergun", "Powerslave/Exhumed", "Tomb Raider", "Shining Force III", "Wipeout XL", "Fighters Megamix", "Duke Nukem 3D", "Saturn Bomberman", "Dragon Force", "Virtua Cop 2", "Soukyugurentai", "Marvel Vs Street Fighter", "Hyper Duel", "Quake", "Burning Rangers", "Shining the Holy Ark", "Command and Conquer", "Mega Man X4", "Batsugun", "Virtual On", "Vampire Savior", "Guardian Heroes", "Worms", "Metal Slug", "Kings of Fighters 97'", "Daytona CE", "Battle Garegga", "Dead or Alive", "Twinkle Star Sprites", "Thunder Force V", "Legend of Oasis/Story of Thor 2", "Deep Fear", "Dark Savior", "DoDonPachi", "Super Puzzle Fighter II", "Death Tank Zwei", "Samurai Shodown 4", "Theme Park", "Sexy Parodius", "Magical Drop 3", "Albert Odyssey: Legend of Eldean", "House of the Dead", "Croc", "Layer Section/Galactic Attack", "Warcraft 2", "Real Bout Special", "Space Hulk", "Puzzle Bobble 3", "Silhouette Mirage", "Dungeons and Dragons Collection", "Baku Baku Animal", "Magic Knight Rayearth", "Magic Carpet", "Virtua Cop", "Iron Storm", "Puyo Puyo Sun", "Sega Worldwide Soccer 98'", "Herc's Adventures", "Elevator Action Returns", "Need For Speed", "Mech Warrior 2", "Mega Man 8", "Last Bronx", "Gungriffon", "Enemy Zero", "Sim City 2000", "Bubble Symphony", "Guardian Force", "Die Hard Arcade/Dynamite Deka", "Decathlete/Athlete Kings", "Manx TT Superbike", "Rayman", "Soviet Strike", "Shining Wisdom", "Steep Slope Sliders", "World Series Baseball", "Tempest 2000", "Alien Trilogy", "Mass Destruction", "Astra Superstars", "Amok", "Crusader: No Remorse", "Grid Runner", "Blazing Heroes/Mystaria", "Madden 98'", "Pandemonium", "High Velocity", "The Horde", "Hexen", "Gex", "Street Racer", "NBA Action", "Bug"],
+
+/* https://gamefaqs.gamespot.com/boards/916393-sega-saturn/73072824 */
+
+ ["NIGHTS Into Dreams", "Panzer Dragoon Saga", "Guardian Heroes", "Shining Force III", "Panzer Dragoon Zwei", "Radiant Silvergun", "Dragon Force", "Sega Rally Championship", "Virtua Fighter 2", "Saturn Bomberman", "Fighters Megamix", "Panzer Dragoon", "X-Men vs. Street Fighter", "Burning Rangers", "Shining The Holy Ark", "Sonic Jam", "Magic Knight Rayearth", "Street Fighter Alpha 3", "Virtual On", "Grandia", "Street Fighter Alpha 2", "Albert Odyssey: Legend Of Eldean", "Daytona USA", "Virtua Cop", "Resident Evil", "Soukyugurentai", "Virtua Cop 2", "Metal Slug", "Battle Garegga", "Sonic R", "Street Fighter Collection", "Marvel vs. Street Fighter", "Dracula X", "Legend Of Oasis", "Duke Nukem 3D", "Vampire Savior", "Tomb Raider", "Dark Savior", "Super Puzzle Fighter 2 Turbo", "Christmas NIGHTS", "Thunder Force V", "Astal", "Blazing Heroes", "Darius Gaiden", "Enemy Zero", "Tengai Makyo IV: The Apocalypse", "Deep Fear", "DoDonpachi", "Quake", "Sakura Wars", "Galactic Attack", "Princess Crown", "Sonic 3D Blast", "Die Hard Arcade", "Dungeons & Dragons Collection", "Langrisser IV", "Policenauts", "House of the Dead", "Clockwork Knight", "Batsugun", "Exhumed (Powerslave)", "Mega Man X4", "Mr. Bones", "Clockwork Knight 2", "Fighting Vipers", "Lunar: Eternal Blue", "Sega Ages", "Three Dirty Dwarves", "King Of Fighters '96", "Night Warriors: Darkstalker's Revenge", "Sengoku Blade", "Bug!", "Fire Pro Wrestling S: 6 Man Scramble", "Salamander", "Wipeout", "Baku Baku Animal", "Daytona CCE", "Langrisser V", "Keio Squadron 2", "World Series Baseball", "Shinobi Legions", "Decathlete", "DonPachi", "Jikkyou Osyaberri Parodius", "Real Bout Special", "Bust A Move 2", "King of Fighters '95", "Samurai Showdown IV", "Capcom Generations 5", "Gungriffon", "Lunar: Silver Star Story", "World Series Baseball '98", "Fantasy Zone", "Marvel Super Heroes", "Mega Man 8", "Rayman", "Silhouette Mirage", "Solar Eclipse", "Game Tengoku", "Langrisser Dramatic", "Road Rash", "Wachenroder"],
+	
+/* https://www.emuparadise.me/Sega_Saturn_ISOs/List-All-Titles-By-Rating-1/3 [User Rating] */
+	
+ ["Virtua Fighter CG Portrait Series Volume 1 Sarah Bryant", "Advanced World War: Last of the Millennium", "Burning Rangers", "Langrisser Dramatic Edition", "Saturn Bomberman", "Nanatsu Kaze: No Shima Monogatari", "Saturn Bomberman", "Devil Summoner: Soul Hackers", "Shining Force 3 3rd Scenario", "Princess Crown", "Shining Force 3 1st Scenario", "Last Bronx", "Astal", "Super Real Mahjong P V", "Snatcher", "Saturn Bomberman", "Resident Evil", "Silhouette Mirage", "EVE Burst Error", "Langrisser 5 The End of Legend", "Cotton 2", "Panzer Dragoon", "Mega Man 8 Anniversary Collectors Edition", "Megaman X4", "Genso Suikoden", "Resident Evil", "Gradius Deluxe Pack", "Crows The Battle Action for Sega Saturn", "Megaman X3", "Bug!", "Thunder Force Gold Pack 1", "Sonic Jam", "Exhumed", "Albert Odyssey: Legend of Eldean", "Tokimeki Memorial Taisen Tokkaedama", "King of Fighters '96", "Twinkle Star Sprites", "Fighter's Megamix", "Die Hard Arcade", "Super Robot Wars F", "Nobunaganoyabou Sengokugunyuuden", "Virtua Fighter 2", "Thunder Force V", "Bio Hazard", "Jonah Lomu Rugby", "Grandia", "Deep Fear  CD2", "Sega Rally Championship", "F-1 Challenge", "Yuno", "Sailor Moon Super S: Various Emotion", "Dragon Ball Z The Legend (FRA)", "Rockman 8", "Sakura Taisen 1", "Langrisser 3", "Three Dirty Dwarves", "Vampire Saviour", "Sonic 3D Blast", "Madou Monogatari", "Shining Force III", "FIFA: Road to World Cup 98", "Guardian Heroes", "Mortal Kombat Trilogy", "Road Rash", "Sonic R", "Panzer Dragoon Saga", "Sonic Jam", "Dragon Force 2", "Shinobi-X", "Guardian Heroes", "D", "Sega Ages Volume 1", "Mr Bones", "Enemy Zero", "Lunacy", "Sega Screams Volume 1 Demo Disc", "Net Link Web Browser 1.011", "Corpse Killer: Graveyard Edition", "Arcade's Greatest Hits: Atari Collection", "Dragon Force", "Yakyuken Special Konya Ha 12 Kaisen", "Nights Into Dreams", "Panzer Dragoon 2 Zwei", "Radiant Silvergun", "Akumajou Dracula X: Gekka no Yasoukyoku", "Akumajou Dracula X: Gekka no Yasoukyoku", "House of the Dead", "Thunder Force Gold Pack 2", "Shining The Holy Ark", "Panzer Dragoon Saga", "Sengoku Blade", "Shining Force III"],
+
+/* https://www.emuparadise.me/Sega_Saturn_ISOs/List-All-Titles-By-Rating-1/3 [User Rating] */
+
+ ["Yakyuken Special Konya Ha 12 Kaisen", "Sonic R", "Guardian Heroes", "Shining Force III", "Sonic Jam", "Thunder Force Gold Pack 2", "Shinobi-X", "Panzer Dragoon 2 Zwei", "Radiant Silvergun", "Nights Into Dreams", "Saturn Bomberman", "Akumajou Dracula X: Gekka no Yasoukyoku", "Sonic 3D Blast", "Guardian Heroes", "Vampire Saviour", "Panzer Dragoon", "Dragon Force", "Albert Odyssey: Legend of Eldean", "Mortal Kombat Trilogy", "Sega Rally Championship", "Akumajou Dracula X: Gekka no Yasoukyoku", "Panzer Dragoon Saga", "Dragon Ball Z The Legend (FRA)", "Initial D", "Mega Man 8 Anniversary Collectors Edition", "Shinobi Legions", "Astal", "Magic Knight Rayearth", "Die Hard Arcade", "House of the Dead", "Super Robot Wars F", "Resident Evil", "Dragon Force 2", "Marvel Super Heroes vs Street Fighter", "Megaman X4", "Saturn Bomberman", "Bakuretsu Hunter", "Panzer Dragoon Saga", "Street Fighter Zero 3", "Princess Crown", "Thunder Force V", "Daytona USA", "Metal Slug", "Slam Dunk: I Love Basketbal", "Battle Garegga", "Burning Rangers", "Shining The Holy Ark", "Strikers 1945 2", "Sonic Jam", "Virtua Fighter", "Virtua Fighter 2  v1.001", "Resident Evil", "Gunbird 2", "Rayman", "Sexy Parodius", "Panzer Dragoon Saga", "Ultimate Mortal Kombat 3  v2.000", "Shining Force 3 1st Scenario", "Sonic Wings Special", "X-Men Vs Street Fighter", "King of Fighters '97", "Panzer Dragoon Saga", "Crows The Battle Action for Sega Saturn", "Deep Fear  CD1", "Pia Carrot e Youkoso 2", "Shining Force 3 3rd Scenario", "Virtua Cop", "Virtual On Cybertroopers", "Battle Cos-Player", "The Legend of Oasis", "Daytona USA Championship Circuit Edition", "Sonic R", "Sonic R", "DoDonPachi", "Rayman", "Shin Shinobi Den", "Virtua Cop 2", "Fighting Vipers", "Fighter's Megamix", "Guardian Heroes", "Marvel Super Heroes", "Mortal Kombat 2", "Final Fight Revenge", "Clockwork Knight", "Groove On Fight", "Soukyu Gurentai Otokuyo", "Marvel Super Heroes", "Hyper Duel", "Virtua Fighter 2", "Elevator Action Returns", "Panzer Dragoon", "Warriors of Fate 2", "Sakura Taisen 1", "Shining Force III", "Ultraman", "Deep Fear  CD2", "Langrisser 5 The End of Legend", "Nights Into Dreams...", "Langrisser Tribute: Langrisser IV", "Megaman X3"],
+	
+/* https://honeysanime.com/top-10-sega-saturn-games-best-recommendations/ */
+	
+ ["Panzer Dragoon Saga (1998)", "X-Men vs. Street Fighter (1997)", "Fighters Megamix (1996)", "NiGHTS into Dreams (1996)", "Burning Rangers (1998)", "Sakura Taisen (1996)", "Magic Knight Rayearth (1995)", "Nekketsu Oyako (1995)", "Dungeons & Dragons Collection (1999)", "Virtua Cop 2 (1996)"],
+
+/* http://www.vgchartz.com/platform/22/sega-saturn/ */
+
+ ["Virtua Fighter 2 (1995)", "Sega Rally (1995)", "Virtua Fighter (1994)", "Virtua Cop (1995)", "Fighters MEGAMiX (1996)", "Puyo Puyo Sun (1997)", "Daytona USA (1994)", "Sakura Wars (1996)", "Super Robot Wars F (1997)", "Super Robot Wars F Special Edition (1998)", "Sakura Wars 2 (1998)", "Lets Make a J-League Pro Soccer Club 2 (1997)", "Neon Genesis Evangelion (1996)", "NiGHTS (1996)", "Neon Genesis Evangelion 2nd Impression (1997)", "Grandia (1997)", "Cyber Troopers: Virtual On (1995)", "Mobile Suit Gundam (1995)", "E0: Enemy Zero (1996)", "Fighting Vipers (1995)", "Shin Megami Tensei: Devil Summoner (1995)", "Tokimeki Memorial: Forever With You (1996)", "Panzer Dragoon (1995)", "Nonomura Byoin no Hitobito (1996)", "Street Fighter Zero (1996)", "World Advanced Daisenryaku: Kotetsu no Ikusakaze (1995)", "Vampire Hunter (1995)", "Street Fighter Zero 2 (1995)", "Panzer Dragoon II: Zwei (1995)", "Devil Summoner Soul Hacker (1997)", "Virtua Cop 2 (1996)", "Blazing Heroes (1995)", "Decathlete (1994)", "Dragon Force (1996)", "Guardian Heroes (1995)", "J-League V Goal 96 (1996)", "The King of Fighters 95 (1995)", "Kakyuusei (1997)", "Sim City 2000 (1994)", "Mobile Suit Gundam Side Story I (1996)", "X-Men vs Street Fighter (1997)", "Lets Make a J-League Pro Soccer Club (1996)", "Far East of Eden: The Apocalypse IV (1997)", "Doukyuusei If (1996)", "Mobile Suit Gundam: Giren no Yabou (1998)", "Layer Section (1994)", "Lets Make a Pro Baseball Team 2 (1998)", "Sentimental Graffiti 2 (1998)", "Virtua Fighter Kids (1995)", "Lunar: Silver Star Story (1996)", "Kanzen Chuuki Pro Baseball: Greatest Nine (1995)", "Baseball Greatest Nine 97 (1997)", "Lunar: Silver Star Story Complete (1997)", "Eve: Burst Error (1997)", "The King of Fighters 96 (1996)", "X-Men: Children of the Atom (1995)", "Langrisser III Special Edition (1996)", "Mobile Suit Gundam Side Story II (1996)", "Wing Arms (1994)", "GunGriffon: The Eurasian Conflict (1995)", "Super Real Mahjong P V (1995)", "Dead or Alive (1997)", "Vampire Savior (1998)", "F1 Live Information (1994)", "The King of Fighters 97 (1998)", "Resident Evil (1997)", "Parodius Double Pack (1995)", "Eve: The Lost One (1998)", "Saturn Bomberman (1996)", "Mobile Battleship Nadesico (1997)", "All Japan Pro Wrestling (1997)", "Worldwide Soccer (1995)", "Mobile Suit Gundam Side Story III (1997)", "Dragonball Z Idainaru Dragonball Densetsu (1995)", "Desire (1997)", "Daytona USA Circuit Edition (1995)", "Shining Force II: Scenario 1 (1997)", "House of the Dead (1997)", "Last Bronx (1996)", "Momotaro Doukuchi (1997)", "Doukyuusei 2 (1997)", "Detana Twinbee Yahho! Deluxe Pack (1995)", "Sonic Jam (1997)", "Soccer RPG (1998)", "Togue: King the Spirits (1995)", "Fire Pro Wrestling S 6 Man Scramble (1996)", "Romance of the Three Kingdoms V (1996)", "Virtua Fighter CG Portrait Series: Pai Chan (1995)", "Battle Area Toshinden S (1994)", "Hanagumi Wars Columns (1997)", "Lunar 2: Eternal Blue (1998)", "King of Boxing (1994)", "Nobunaga no Yabou: Tenshoki (1995)", "Doukoku Shitai (1998)", "Neon Genesis Evangelion: Girlfriend of Steel (1998)", "Sega Touring Car Championship (1996)", "Virtua Fighter CG Portrait Series: Sarah Bryant (1995)", "Lunacy (1996)", "Street Fighter Collection (1996)", "Hanagumi Wars Tsushin (1997)", "Azel: Panzer Dragoon RPG (1997)", "Winter Heat (1996)", "Langrisser IV (1997)", "Virtual Hylide (1995)", "Darius Gaiden (1995)", "Sword and Sorcery (1996)", "Chou Jikuu Yousai Macross (1997)", "Idol Janshi Suchie-Pai Remix (1995)", "Real Bout Garou Densetsu (1996)", "Langrisser V: The End of Legend (1998)", "World Cup 98 France: Road to Win (1998)", "Virtua Fighter CG Portrait Series: Akira Yuki (1995)", "Baseball Greatest Nine 98 (1998)", "Sound Novel Machi (1998)", "Dragonball Z Shin Butouden (1995)", "Clockwork Knight (1994)", "Derby Stallion SAT (1999)", "Princess Maker 2 (1995)", "Tokimeki Memorial Taisen (1996)", "Virtua Fighter CG Portrait Series: Jacky Bryant (1995)", "Theme Park (1994)", "Black / Matrix (1998)", "Sega Ages: After Burner II (1996)", "Sentimental Graffiti: First Window (1997)", "Gotha (1995)", "Deep Fear (1998)", "Virus (1997)", "Slayers 2 (1998)", "Dragon Force 2 (1998)", "Quo Vadis (1995)", "Gale Racer (1994)", "Real Sound (1997)", "Hang On GP 95 (1995)", "Mega Man X4 (1997)", "Super Real Mahjong Graffiti (1995)", "Gun Griffon 2 (1998)", "Daedalus (1994)", "Kekkon: Marriage (1995)", "Marvel Super Hero (1997)", "Sega International Victory Golf (1994)", "Tenchi Muyou! Ryoukouki Gokuraku (1995)", "Tanjou S: Debut (1996)", "Burning Ranger (1998)", "Myst (1994)", "Gunbird (1995)", "Mega Man 8 (1997)", "Shining Force II: Scenario 2 (1998)", "Virtua Fighter CG Portrait Series: Wolf Hawkfield (1995)", "Baku Baku Animal (1995)", "Strikers 1945 (1996)", "Kekkon Zenya (1995)", "Golden Axe: The Duel (1994)", "Garou Densetsu 3 (1996)", "Virtua Fighter CG Portrait Series: Lau Chan (1995)", "Haunted Casino (1996)", "Hideo Nomo World Series Baseball (1994)", "Tokimeki Mahjong Paradise (1995)", "Galaxy Fight: Universal Warriors (1994)", "Radiant Silvergun (1998)", "Big Ichigeki! Pachi-Slot Taikouryku Universal Museum (1996)", "Madou Monogatari (1998)", "Rampo (1995)", "Pocket Fighter (1998)", "Ojyousama Express (1998)", "High School Terra Story (1998)", "Battle Area Toshinden URA (1995)", "Darius II (1995)", "Hankou Shashin (1996)", "America Oudan Ultra Quiz (1995)", "Shippuu Mahou Daisakusen (1996)", "Pebble Beach Golf Links (1994)", "The Making of Nighttruth (1996)", "Code R (1998)", "3D Baseball (1996)", "3D Lemmings (1995)", "3x3 Eyes: Kyuusei Koushu S (1996)", "VR Golf '97 (1995)", "Advanced V.G. (1997)", "After Burner II (1996)", "AI Shogi (1995)", "Ai Shogi 2 (1998)", "Air Management 96 (1996)", "Airs Adventure (1996)", "Akumajou Dracula X: Gekka no Yasoukyoku (1998)", "Albert Odyssey: Legend of Eldean (1996)", "Alien Trilogy (1995)", "All-Star Baseball '97 (1996)", "Alone in the Dark 2 / Alone in the Dark: One-Eyed Jack's Revenge (1995)", "Amok (1996)", "Andretti Racing (1995)", "Angelique Duet (1998)", "Angelique Special (1996)", "Angelique Special 2 (1997)", "Aqua World: Umibi Monogatari (1996)", "AquaZone (1996)", "AquaZone Option Disk Series: Angel Fish (1996)", "AquaZone Option Disk Series: Black Molly (1996)", "AquaZone Option Disk Series: Blue Emperor (1996)", "AquaZone Option Disk Series: Clown Loach (1996)", "AquaZone Option Disk Series: Rummy Nose (1996)", "Arcade's Greatest Hits: Atari Collection (1996)", "Arcade's Greatest Hits: Williams (1995)", "Arcana Strikes (1997)", "Area 51 (1996)", "Arthur to Astaroth: Nazo-Makia-Mura: Incredible Toons (1996)", "Assault Rigs (1997)", "Assault Suit Leynos 2 (1997)", "Astal (1995)", "Astra Superstars (1998)", "Atlantis: The Lost Tales (1996)", "Ayrton Senna Personal Talk: Message for the Future (1995)", "Backgainer: Hishou-hen “Uragiri no Senjou” (1998)", "Backgainer: Kakusei-hen “Gainer Tensei” (1998)", "Bakuretsu Hunter (1996)", "Bakuretsu Hunter R (1997)", "Bakushou!! All Yoshimoto Quiz-Ou Ketteisen DX (1995)", "Baldy Land (1998)", "Baroque (1998)", "Bases Loaded '96: Double Header (N/A)", "Batman Forever: The Arcade Game (1996)", "Batsugun (1996)", "Battle Athletess: Daiundoukai (1996)", "Battle Garegga (1998)", "Battle Monsters (1994)", "Battle Stations (1996)", "BattleSport (1996)", "Black Dawn (1996)", "Black Fire (1994)", "Blast Chamber (1996)", "Blast Wind (1997)", "Blazing Dragons (1995)", "Blue Breaker (1997)", "Bomberman Wars (1998)", "Bottom of the 9th (1996)", "Brain Dead 13 (1996)", "Break Point Tennis (1995)", "BreakThru! (1995)", "Bubble Bobble Also Featuring Rainbow Islands (1995)", "Bug Too! (1996)", "Bug! (1995)", "Bust-a-Move 2: Arcade Edition (1995)", "Bust-a-Move 3 (1996)", "Capcom Generation Volume 1 (1998)", "Capcom Generation Volume 2 (1998)", "Capcom Generation Volume 3 (1998)", "Capcom Generation Volume 4 (1998)", "Capcom Generation Volume 5 (1998)", "Casper (1995)", "Chaos Control (1995)", "Chaos Control Remix (1996)", "Chase H.Q. Special: Police S.C.I. (1996)", "Chibi Maruko-Chan no Taisen Puzzle Dama (1995)", "Cho Aniki: Kyuukyoku Muteki Ginga Saikyou Otoko (1996)", "Choro Q Park (1998)", "Christmas NiGHTS (1995)", "Cleopatra Fortune (1997)", "Clockworks (1996)", "Clockwork Knight 2 (1994)", "College Slam (1995)", "Command & Conquer (1996)", "Command & Conquer: Covert Operations (1996)", "Congo the Movie: The Lost City of Zinj (1995)", "Contra: Legacy of War (1996)", "The Conveni (1997)", "Corpse Killer: Graveyard Edition (1994)", "Cotton 2 (1997)", "Cotton Boomerang (1998)", "Courier Crisis (1996)", "Creature Shock: Special Edition (1995)", "Crime Wave (1996)", "Criticom (1996)", "Croc: Legend of the Gobbos (1996)", "Crusader: No Remorse (1996)", "Crypt Killer (1996)", "Culdcept (1997)", "Cyber Doll (1996)", "Cyber Speedway (1994)", "Cyberbots: Full Metal Madness (1997)", "Cyberia (1994)", "D (1995)", "D-Xhird (1997)", "Daitoride (1996)", "Dark Legend (1995)", "Dark Savior (1996)", "Dark Seed (1995)", "Dark Seed II (1997)", "Darklight Conflict (1996)", "Death Crimson (1996)", "DefCon 5 (1995)", "Densha de Go! EX (1998)", "Derby Analyst (1997)", "Destruction Derby (1995)", "Devil Summoner: Soul Hackers: Akuma Zensho Dainishuu (1997)", "Dezaemon 2 (1997)", "Die Hard Arcade (1996)", "Die Hard Trilogy (1996)", "Digital Dance Mix Vol. 1: Namie Amuro (1997)", "Digital Monsters Ver. S: Digimon Tamers (1998)", "Digital Pinball: Necronomicon (1996)", "Discworld (1995)", "Discworld II: Missing, presumed...! / Mortality Bites! (1996)", "DJ Wars (1997)", "DoDonPachi (1997)", "DonPachi (1996)", "Doom (1996)", "Doraemon: Nobi Futo to Fukkatsu no Hoshi (1996)", "Double Switch (1994)", "Doukoku Soshite... (1998)", "Dragon Master Silk (1997)", "DragonHeart: Fire & Steel (1995)", "Duke Nukem 3D (1996)", "DX Game of Life (1995)", "DX Game of Life 2 (1997)", "Earthworm Jim 2: Special Edition (1995)", "Eberouge (1997)", "Eberouge Special: Koi to Mahou no Gakuen Seikatsu (1998)", "Elevator Action Returns (1997)", "EMIT Vol. 1: Toki no Maigo (1995)", "EMIT Vol. 2: Meigake no Tabi (1995)", "EMIT Vol. 3: Watashi ni Sayonara o (1995)", "EMIT: Value Set (1995)", "Falcom Classics (1997)", "Falcom Classics Collection (1999)", "Falcom Classics II (1998)", "Fantastic Pinball Kyutenkai (1995)", "Farland Saga: Toki no Douhyou (1998)", "FEDA Remake: The Emblem of Justice (1996)", "FIFA Soccer '96 (1995)", "FIFA '97 (1996)", "FIFA: Road to World Cup 98 (1996)", "Fighter's History Dynamite (1997)", "Final Fight Revenge (2000)", "Find Love 2: Rhapsody (1998)", "Find Love 2: The Prologue (1998)", "Fishing Koshien (1996)", "Hokuto no Ken (1995)", "Flash Sega Saturn: Ochikazuki-hen (1995)", "Formula Karts: Special Edition (1996)", "Frank Thomas Big Hurt Baseball (1995)", "Friends: Seishun no Kagayaki (1999)", "Gaia Breeder (1997)", "Gakkou no Kaidan (1995)", "Gakkou no Kowai Uwasa: Hanako-San ga Kita!! (1995)", "Gals Panic SS (1996)", "Game Nihonishi: Kakumeiko Oda Nobunaga (1997)", "Game no Tatsujin (1995)", "Game-Ware Vol.1 (1996)", "Game-Ware Vol.2 (1996)", "Game-Ware Vol.3 (1996)", "Game-Ware Vol.4 (1997)", "Game-Ware Vol.5 (1997)", "Gegege no Kitarou: Maboroshi Fuyu Kaikitan (1996)", "Gekirindan (1997)", "Gex (1995)", "Ghen War (1995)", "Godzilla: Rettou Kaimetsu (1995)", "Goiken Muyou: Anarchy in the Nippon (1997)", "Gradius Deluxe Pack (1996)", "Grand Slam (1995)", "Grandia Digital Museum (1998)", "Grandia Prelude (1996)", "Grid Runner (1995)", "Groove on Fight (1997)", "GT 24 (1998)", "Guardian Force (1998)", "Harukaze Sentai V-Force (1997)", "Hebereke's Popoitto (1994)", "Heir of Zendor: The Legend of the Land (1996)", "Heisei Tensai Bakabon: Susume! Bakabons (1995)", "Herc's Adventure (1997)", "Hexen: Beyond Heretic (1994)", "Hi-Octane: The Track Fights Back (1994)", "Highway 2000 (N/A)", "Hyper 3D Pinball (1996)", "Hyper Duel (1996)", "Hyper Reverthion (1996)", "Hyper Securities S (1997)", "Ide Yosuke Meijin no Shinmi Sen Mahjong (1996)", "Idol Janshi Suchie-Pai Special (1995)", "Image Fight & X-Multiply (1998)", "Impact Racing (1995)", "In the Hunt (1995)", "Independence Day (1996)", "Initial D (1998)", "Irem Arcade Classics (1996)", "Iron Man/X-O Manowar in Heavy Metal (1995)", "J.B. Harold: Blue Chicago Blues (1995)", "Japan Super Bass Classic '96 (1996)", "Jikkyou Osyarberi Parodius: Forever with me (1996)", "Jikkyou Powerful Pro Yakyuu '95 Kaimakuban (1995)", "Jikkyou Powerful Pro Yakyuu S (1997)", "Jinzou Ningen Hakaider: Last Judgement (1996)", "Johnny Bazookatone (1995)", "Jonah Lomu Rugby (1996)", "Jung Rhythm (1998)", "Kakinoki Shogi (1995)", "Kamen Rider: Sakusen File 1 (1997)", "Keio Flying Squadron 2 (1996)", "Kidou Senkan Nadesico: The Blank of 3 Years (1998)", "Kiss Yori... (1999)", "Konami Antiques MSX collection (1998)", "Koutetsu Reiiki: Steeldom (1996)", "Krazy Ivan (1995)", "Kumitate Battle: Kuttu Ketto (1998)", "Kunoichi Torimonochou (1998)", "Kururin Pa! (1996)", "Langrisser Tribute (1998)", "Langrisser: Dramatic Edition (1998)", "Last Gladiators Digital Pinball (1994)", "Layer Section II (1997)", "The Legend of Heroes II: Prophecy of the Moonlight Witch (1998)", "LifeScape: Seimei 40 Okunen Haruka na Tabi (1996)", "Linkle Liver Story (1996)", "Loaded (1995)", "Norse by Norsewest: The Return of the Lost Vikings (1997)", "Lost Vikings 2 (1996)", "Lupin III: The Master File (1996)", "Lupin the 3rd Chronicles (1997)", "Lupin the 3rd The Sage of Pyramid (1998)", "Machine Head (1996)", "Madden '97 (1995)", "Madden NFL 98 (1996)", "Magic Carpet (1995)", "Magic Knight Rayearth (1995)", "Magical Drop (1995)", "Magical Drop 2 (1996)", "Magical Drop III (1997)", "Mahjong Doukyuusei Special (1996)", "Mahjong Gakuensai (1997)", "Mahjong Gakuensai DX (1998)", "Mahjong Goku Tenjiku (1994)", "Mahjong Tenshi: Angel Lips (1996)", "Mahou Gakuen Lunar (1997)", "Mainichi Kawaru Quiz Bangumi Days 365 (1996)", "Manx TT Superbike (1996)", "Marie no Atelier Ver. 1.3: Salburg no Renkinjutsushi (1997)", "Marvel Super Heroes vs. Street Fighter (1998)", "Mass Destruction (1996)", "Masters Harukanaru Augusta 3 (1995)", "Matsukata Hiroki no World Fishing (1996)", "Maximum Force (1995)", "MechWarrior 2 (1996)", "Mega Man X3 (1995)", "Melty Lancer: Ginga Shoujo Keisatsu 2086 (1996)", "Melty Lancer: Re-inforce (1998)", "Metal Black (1996)", "Metal Fighter Star Miku (1995)", "Metal Slug (1997)", "Minnesota Fats Pool Legend (1994)", "Monster Slider (1997)", "Moon Cradle (1997)", "Mortal Kombat II (1995)", "Mortal Kombat Trilogy (1996)", "Mr. Bones (1996)", "Murakoshi Masami no Nippon Rettou (1998)", "Nanatsu Kaze No Shima Monogatari (1997)", "Nanatsu no Hikan (1996)", "NASCAR '98 (1996)", "NBA Action '98 (1997)", "NBA Jam Extreme (1990)", "NBA Jam Tournament Edition (1995)", "NBA Live '97 (1996)", "NBA Live '98 (1996)", "The Need for Speed: Road & Track Presents (1995)", "Nekketsu Oyako (1995)", "Neon Genesis Evangelion Digital Card Library (1997)", "Next King: Koi no Sennen Oukoku (1997)", "NFL '97 (1996)", "NFL Quarterback Club '96 (1994)", "NFL Quarterback Club '97 (1995)", "NHL '98 (1996)", "NHL 97 (1995)", "NHL All-Star Hockey (1994)", "NHL All-Star Hockey '98 (1997)", "NHL Powerplay Hockey '96 (1995)", "Ninja JaJaMaru-kun: Onigiri Ninpouchou Gold (1997)", "Ninku (1996)", "Nippon Pro Mahjong Renmei Kounin: Doujou Yaburi (1997)", "Nobunaga no Yabou Returns (1996)", "Nobunaga no Yabou Value Set (1997)", "Nobunaga no Yabou: Sengouku Gunyuuden (1998)", "Nobunaga no Yabou: Sho Hoshi Hasumi (1998)", "Nobunaga no Yabou: Tenshoki with Power-Up Kit (1997)", "NOel 3: Mission on the Line (1998)", "NOON (1998)", "Ochan no Oekaki Logic (1995)", "Ochichige Designer Sakutte Pon! (1997)", "Off-World Interceptor Extreme (1995)", "Ogre Battle Saga Episode Five: The March of the Black Queen (1996)", "Olympic Soccer (1995)", "Olympic Summer Games: Atlanta '96 (1995)", "P.T.O. II: Pacific Theater of Operations (1996)", "Pandemonium! (1996)", "Panzer Dragoon I & II (1996)", "PD Ultraman Link (1996)", "PGA Tour '97 (1995)", "Phantasy Star Collection (1998)", "Pia Carrot e Youkoso!! (1998)", "Pia Carrot e Youkoso!! 2 (1998)", "Pinball Graffiti (1995)", "Playboy Karaoke Collection Volume 1 (1996)", "Playboy Karaoke Collection Volume 2 (1996)", "Policenauts (1996)", "Pop Breeder (1996)", "Powerslave (1996)", "Prikura Daisakusen (1996)", "Primal Rage (1994)", "Princess Crown (1997)", "Prisoner of Ice: Jashin Kourin (1997)", "Private Idol Disc Vol.10: Masaki Mai (1997)", "Private Idol Disc Vol.11: Hiroshige Mayumi (1997)", "Private Idol Disc Vol.1: Kioroshi Yu (1996)", "Private Idol Disc Vol.2: Uchiyama Miki (1996)", "Private Idol Disc Vol.3: Oshima Akemi (1996)", "Private Idol Disc Vol.4: Kuroda Miyuki (1997)", "Private Idol Disc Vol.5: Fujisaki Nanako (1997)", "Private Idol Disc Vol.6: Satomi Yoshida (1997)", "Private Idol Disc Vol.7: Asou Kaori (1997)", "Private Idol Disc Vol.8: Kokawa Emiko (1997)", "Private Idol Disc Vol.9: Nagamatsu Keiko (1997)", "Private Idol Disc: Data-Hen Race Queen F (1996)", "Private Idol Disc: Tokobetsuhen Cos-Players (1996)", "Private Idol Disc: Tokubetsu-Hen Campaign Girl '97 (1997)", "Private Idol Disc: Tokubetsu-Hen Kogyaru Daijyakka 100 (1997)", "Private Idol Disc: Tokubetsu-Hen Race Queen G (1997)", "Pro Pinball (1995)", "Pro Yakyuu Greatest Nine '98: Summer Action (1998)", "Puyo Puyo 2 (1995)", "Puzzle Bobble 2X + Space Invaders (1997)", "Quake (1996)", "Quantum Gate I: Akuma no Joshou (1995)", "Quarterback Attack with Mike Ditka (1994)", "Rampage World Tour (1996)", "Rayman (1994)", "Real Bout Garou Densetsu Best Collection (1998)", "Real Bout Garou Densetsu Special (1997)", "Return to Zork (1996)", "Revolution X (1995)", "RiglordSaga 2 (1996)", "Rise 2 Resurrection (1995)", "Riven: The Sequel to Myst (1997)", "Road Rash (1995)", "Robo-Pit (1995)", "Romance of the Three Kingdoms IV: Wall of Fire (1994)", "Ronde (1997)", "Roommate: Ryouko in Summer Vacation (1997)", "Sadamoto Yoshiyuki Illustrations (1997)", "Sailor Moon Super S Various Emotion (1996)", "Sakamoto Ryouma: Ishin Kaikoku (1998)", "Sakura Taisen Jouki Radio Show (1997)", "Sakura Taisen: Tekigeki Graph (1998)", "Sakura Tsuushin: Remaking Memories (1998)", "Salamander Deluxe Pack Plus (1997)", "Samurai Spirits Best Collection (1998)", "Samurai Spirits: Amakusa Kourin (1997)", "Samurai Spirits: Bushidou Retsuden (1997)", "Samurai Spirits: Zankuro Musouken (1996)", "Saturn Bomberman Fight!! (1997)", "Saturn Music School (1997)", "Saturn Music School 2 (1998)", "Scorcher (1996)", "Scud: The Disposable Assassin (1997)", "SD Gundam G Century (1998)", "Sega Ages (1995)", "Sega Ages Vol.2: Space Harrier (1996)", "Sega Ages: Columns Arcade Collection (1997)", "Sega Ages: Fantasy Zone (1997)", "Sega Ages: Galaxy Force II (1998)", "Sega Ages: OutRun (1996)", "Sega Ages: Power Drift (1998)", "Sega Worldwide Soccer '97 (1995)", "Sega Worldwide Soccer '98 (1997)", "Segata Sanshirou Shinken Yuugi (1998)", "Seifuku Densetsu: Pretty Fighter X (1995)", "Sen Miyako Monogatari: Sono I (1995)", "Sengoku Blade: Sengoku Ace Episode II (1996)", "Sexy Parodius (1996)", "Shanghai: Triple Threat (1994)", "Shellshock (1994)", "Shienryu (1997)", "Shin Megami Tensei: Devil Summoner: Akuma Zensho (1996)", "Shingata Kururin Pa! (1996)", "Shining Force III Scenario 3 (1998)", "Shining the Holy Ark (1996)", "Shining Wisdom (1995)", "Shinobi Legions (1995)", "Shinpi no Sekai El-Hazard The Magnificent World (1996)", "Shinrei Jusatsushi Taromaru (1997)", "Shinseiki Evangelion: Eva to Yukai na Nakamatachi (1998)", "Shockwave Assault (1995)", "Shoujo Kakumei Utena: Itsuka Kakumei Sarero Monogatari (1998)", "Side Pocket 3 (1997)", "silhouette mirage (1997)", "Simulation RPG Tsukuru (1998)", "Skeleton Warriors (1995)", "Skull Fang (1997)", "Sky Target (1996)", "Slam 'n Jam '96 (1995)", "Slam Dunk: I Love Basketball (1995)", "Snatcher (1996)", "Sol Divide (1998)", "Solar Eclipse (1994)", "Sonic 3D Blast (1995)", "Sonic R (1997)", "Sonic Wings Special (1996)", "Sotsugyou Album (1998)", "Sotsugyou Crossworld (1997)", "Sotsugyou II: Neo Generation (1995)", "Sotsugyou III: Wedding Bell (1998)", "Sotsugyou: Graduation S (1997)", "Soukyugurentai (1997)", "Soukyugurentai Otokuyo (1997)", "Soviet Strike (1995)", "Space Hulk: Vengeance of the Blood Angels (1995)", "Space Invaders (1996)", "Space Jam (1995)", "Spot Goes to Hollywood (1995)", "SS Adventure Pack: Nanatsu no Hikan & Myst (1997)", "Star Fighter (1995)", "Steam-Heart's (1998)", "Steep Slope Sliders (1996)", "Strahl: Hi no Rareshi Nanatsu no Hikari (1995)", "Street Fighter Alpha 3 (1999)", "Street Fighter: The Movie (1994)", "Street Racer (1995)", "Striker '96 (1995)", "Suiko Enbu: Fuuun Saiki (1996)", "Suikoden (1998)", "Suikoden Tendou 108 Sei (1997)", "Suikoden: Tenmei no Chikai (1996)", "Super Adventure RockMan (1998)", "Super Casino Special (1997)", "Super Puzzle Fighter II Turbo (1996)", "Super Real Mahjong P 7 (1998)", "Super Real Mahjong P VI (1996)", "Super Tempo (1998)", "Tactics Ogre: Let Us Cling Together (1996)", "Tadaima Wakusei Kaitakunaka! (1995)", "Tamagotchi Pack (1998)", "Techno Motor (1998)", "Teitoku no Ketsudan III (1997)", "Teitoku no Ketsudan III with Power-Up Kit (1998)", "Tempest 2000 (1995)", "Ten Pin Alley (1996)", "Tenchi Muyo Rensa Hitsuyou (1997)", "Tenchi Muyou! Toukou Muyou Aniraji Collection (1997)", "Tenchi Muyuo! Mimiri Onsen Yukemuri no Tabi (1996)", "Tenchi O Kurau II (1996)", "Terra Phantastica (1996)", "Tetris Plus (1995)", "Texthoth Ludo: Arcanum Senki (1997)", "The Conveni 2 (1998)", "The Crow: City of Angels (1996)", "The Game Paradise (1997)", "The Horde (1994)", "The Incredible Hulk: The Pantheon Saga (1995)", "The King of Fighters '95 + '96 (1996)", "The King of Fighters: Best Collection (1998)", "The Legend of Heroes I & II: Eiyuu Densetsu (1998)", "The Legend of Oasis (1995)", "The Lost World: Jurassic Park (1996)", "The Mansion of Hidden Souls (1993)", "The Tower (1996)", "The Yakyuken Special (1995)", "Three Dirty Dwarves (1996)", "Thunder Force Gold Pack 1 (1996)", "Thunder Force Gold Pack 2 (1996)", "Thunder Force V (1997)", "Thunder Strike 2 (1994)", "Tilk (1997)", "Time Commando (1998)", "TNN Motor Sports Hardcore 4x4 (1995)", "Tokimeki Memorial Drama Series Vol.1: Nijiiro no Seishun (1997)", "Tokimeki Memorial Drama Series Vol.2: Irodori no Love Song (1998)", "Tokimeki Memorial Drama Series Vol.3: Tabidachi no Uta (1999)", "Tokimeki Memorial Selection: Fujisaki Shiori (1997)", "tokimeki memorial taisen tokkaedama (1997)", "Tomb Raider (1995)", "Transport Tycoon (1997)", "Trash It (1996)", "True Pinball (1995)", "Tunnel B-1 (1996)", "Twinkle Star Sprites (1997)", "Ultimate Mortal Kombat 3 (1995)", "Ultraman Zukan (1996)", "Ultraman Zukan 2 (1997)", "Ultraman Zukan 3 (1998)", "Ultraman: Hikari no Kyojin Densetsu (1996)", "Umibe de Reach! (1998)", "UNO DX (1998)", "Valora Valley Golf (1995)", "Vandal Hearts (1997)", "Vatlva (1996)", "Virtua Cop 1 & 2 (1998)", "Virtua Fighter CG Portrait Series The Final: Dural (1995)", "Virtua Fighter CG Portrait Series Vol.10: Jeffry McWild (1996)", "Virtua Fighter CG Portrait Series Vol.7: Shun Di (1996)", "Virtua Fighter CG Portrait Series Vol.8: Lion Rafale (1996)", "Virtua Fighter CG Portrait Series Vol.9: Kage Maru (1996)", "Virtua Fighter Remix (1994)", "Virtual Casino (1995)", "Virtual Open Tennis (1994)", "VR Soccer (1995)", "VR Virtua Racing (1994)", "Wachenröder (1998)", "Waku Waku 7 (1997)", "Wangan Dead Heat + Real Arrange (1996)", "Wangan Trial Love (1998)", "Warcraft II: Tides of Darkness (1996)", "Warcraft II: The Dark Saga (1997)", "Winning Post (1995)", "Wipeout (1995)", "WipEout 2097 (1997)", "With You: Mitsumeteitai (1999)", "Wizard's Harmony (1995)", "Wizard's Harmony 2 (1997)", "Wizardry Nemesis (1998)", "Wizardry VI & VII Complete (1996)", "Wizardry: Llylgamyn Saga (1998)", "Wolf Fang: Koukiba 2001 SS (1997)", "World Cup Golf: Professional Edition (1994)", "World Heroes Perfect (1996)", "World Series Baseball '98 (1997)", "World Series Baseball II (1996)", "Worms (1996)", "WWF Wrestlemania: The Arcade Game (1995)", "WWF In Your House (1996)", "Yu-No (1997)", "Yumimi Mix Remix (1995)", "Yuukyuu no Kobako Official Collection (1997)", "Z (1997)", "Zero 4 Champ: DooZy-J Type-R (1997)", "Zero Divide: The Final Conflict (1997)", "Zoop (1996)", "Dungeons & Dragons: Shadow over Mystara (1995)", "Dungeons & Dragons: Tower of Doom (1998)"],
+
+/* https://www.jjgames.com/page/100-best-selling-sat-games */
+
+ ["Virtua Fighter 2", "Daytona USA", "Madden 97", "Independence Day", "Bug", "Sega Rally Championship", "NHL 97", "Criticom", "Road Rash", "Robotica", "NBA Jam Tournament Edition", "Iron Man / X-O Manowar in Heavy Metal", "Alien Trilogy", "Street Fighter The Movie", "Hang-On GP", "Battle Arena Toshinden URA", "Shanghai Triple Threat", "Sonic 3D Blast", "Revolution X", "Black Fire", "Sonic R", "Rise 2 Resurrection", "NASCAR 98", "Arcade's Greatest Hits: Atari Collection"]
+
+];
+
+var unranked = [
+
+/* https://www.redbull.com/us-en/10-saturn-games-you-need-to-play-red-bull-games */
+
+ ["Panzer Dragoon Saga", "Radiant Silvergun", "Shining Force III", "Burning Rangers", "Nights Into Dreams", "Shining the Holy Ark", "X-Men Vs. Street Fighter", "Guardian Heroes", "Princess Crown", "Sega Worldwide Soccer '97"],
+
+/* http://www.racketboy.com/retro/best-sega-saturn-games-for-today-top */
+
+ ["Nights into Dreams", "Panzer Dragoon Saga", "Radiant Silvergun", "Street Fighter Alpha 3", "Guardian Heroes", "Saturn Bomberman", "Shining Force III", "Shining the Holy Ark", "Die Hard Arcade", "Dragon Force", "Assault Suit Leynos 2", "Rayman", "Baku Baku", "Super Puzzle Fighter"],
+
+/* https://www.pcmag.com/feature/360006/7-forgotten-sega-saturn-classics */
+
+ ["Dungeon Master Nexus (1998)", "F1 Challenge (1996)", "The Legend of Oasis (1996)", "Mr. Bones (1996)", "PowerSlave (1996)", "Mass Destruction (1997)", "Princess Crown (1997)"],
+
+/* https://www.retrogamer.net/top_10/top-ten-saturn-games/ */
+
+ ["NiGHTS Into Dreams (1996)", "Saturn Bomberman (1997)", "Guardian Heroes (1996)", "Shining Force III (1997)", "Panzer Dragoon Saga (1998)", "Sega Rally Championship (1995)", "Virtua Fighter 2 (1995)", "Virtua Cop (1995)", "Radiant Silvergun (1998)", "Street Fighter Zero 3 (1995)"],
+
+/* https://theoldschoolgamevault.com/blog/articles/998-sega-saturn-defining-games */
+	
+ ["Panzer Dragoon Saga", "Metal Slug", "Virtua Cop", "Die Hard Arcade", "Sega Rally Championship", "NiGHTS into Dreams"],
+	
+/* https://draculascave.co/2015/11/16/the-sega-saturn-owners-guide-part-ii-the-20-must-have-saturn-games/ */
+
+ ["NiGHTS into Dreams", "Burning Rangers", "Sonic Jam", "Shining Force III", "Batsugun", "Daytona USA: Championship Edition", "Darkstalkers 3", "Albert Odyssey: Legend of Eldean", "DoDonPachi", "Waku Waku 7", "Guardian Heroes", "SEGA Rally", "Christmas NiGHTS", "Bulk Slash", "Battle Garegga", "Panzer Dragoon", "X-Men vs. Street Fighter", "Dragon Force", "Radiant Silvergun", "Panzer Dragoon Saga", "Princess Crown"],
+
+/* https://nerdbot.com/2019/04/30/top-3-sega-saturn-games-for-android-phones/ */
+
+ ["Panzer Dragoon Saga", "Sega Rally", "Virtua Fighter 2"],
+
+/* https://nostalgiatechs.com/sega-saturn-games-list/ */
+
+ ["3D Baseball (1997)", "3D Lemmings (1996)", "A+M+O+K (1997)", "Albert Odyssey: Legend of Eldean (1997)", "Alien Trilogy (1996)", "All Star Baseball '97 Featuring Frank Thomas (1997)", "Alone in the Dark 2 / Alone in the Dark: One-Eyed Jack's Revenge (1996)", "Andretti Racing (1996)", "Arcade's Greatest Hits: Atari Collection (1996)", "Arcade's Greatest Hits: Williams (1996)", "Area 51 (1997)", "Astal (1995)", "Atlantis: The Lost Tales (1998)", "Baku Baku (1997)", "Bases Loaded '96: Double Header (1995)", "Batman Forever: The Arcade Game (1997)", "Battle Arena Toshinden Remix (1995)", "Battle Arena Toshinden URA (1996)", "Battle Monsters (1995)", "Battle Stations (1997)", "BattleSport (1997)", "Black Dawn (1997)", "Black Fire (1995)", "Blast Chamber (1997)", "Blazing Dragons (1996)", "Blazing Heroes (1995)", "Bottom of the 9th (1996)", "Brain Dead 13 (1996)", "Break Point Tennis (1997)", "Bubble Bobble: Also featuring Rainbow Islands (1996)", "Bug Too! (1997)", "Bug! (1995)", "Burning Rangers (1998)", "Bust-A-Move 2: Arcade Edition (1998)", "Bust-A-Move 3 (1997)", "Casper (1997)", "Center Ring Boxing (1995)", "Chaos Control (1995)", "Christmas NiGHTS (1996)", "Clockwork Knight (1995)", "Clockwork Knight 2 (1995)", "College Slam (1996)", "Command & Conquer (1996)", "Congo: The Movie - The Lost City Of Zinj (1996)", "Contra: Legacy of War (1997)", "Corpse Killer: Graveyard Edition (1995)", "Courier Crisis (1998)", "Creature Shock (1996)", "Crime Wave (1997)", "Criticom: The Critical Combat (1996)", "Croc: Legend of the Gobbos (1998)", "Crow, The: City of Angels (1997)", "Crusader: No Remorse (1997)", "Crypt Killer (1997)", "Cyber Speedway (1995)", "Cyberia (1996)", "D (1996)", "Darius Gaiden (1995)", "Darius II (1996)", "Dark Legend (1995)", "Dark Savior (1996)", "Darklight Conflict (1997)", "Daytona USA (1995)", "Daytona USA: Championship Circuit Edition (1996)", "Dead or Alive (1997)", "Decathlete (1996)", "Deep Fear (1998)", "Defcon 5 (1995)", "Destruction Derby (1996)", "Die Hard Arcade (1998)", "Die Hard Trilogy (1997)", "Discworld (1996)", "Discworld II: Missing, presumed...! / Mortality Bites! (1996)", "DonPachi (1996)", "Doom (1997)", "Double Switch (1995)", "Dragon Ball Z: The Legend (1997)", "Dragon Force (1997)", "DragonHeart: Fire & Steel (1997)", "Duke Nukem 3D (1997)", "Earthworm Jim 2 (1996)", "Enemy Zero (1996)", "F1 Challenge (1995)", "FIFA: Road to World Cup 98 (1997)", "FIFA Soccer 96 (1996)", "FIFA 97 (1997)", "Fighters Megamix (1996)", "Fighting Vipers (1996)", "Formula Karts: Special Edition (1997)", "Frank Thomas Big Hurt Baseball (1996)", "Frankenstein: Through the Eyes of the Monster (1995)", "Galactic Attack (1997)", "Galaxy Fight (1995)", "Gex (1996)", "Ghen War (1996)", "Golden Axe: The Duel (1995)", "Grand Slam (1996)", "Grid Runner (1996)", "Guardian Heroes (1996)", "Gungriffon (1996)", "Hang-On GP (1995)", "Hebereke's Popoitto (1995)", "Heir of Zendor: The Legend and The Land (1996)", "Herc's Adventures (1997)", "Hexen: Beyond Heretic (1997)", "Hi-Octane: The Track Fights Back! (1996)", "High Velocity: Mountain Racing Challenge (1995)", "Highway 2000 (1995)", "Horde, The (1995)", "House of the Dead, The (1998)", "Hyper 3-D Pinball (1997)", "Impact Racing (1997)", "In the Hunt (1995)", "Incredible Hulk, The: The Pantheon Saga (1996)", "Independence Day (1996)", "Iron Man X-O Manowar in Heavy Metal (1996)", "Iron Storm (1995)", "Jewels Of The Oracle (1995)", "Johnny Bazookatone (1996)", "Jonah Lomu Rugby (1997)", "Keio Flying Squadron 2 (1997)", "King of Fighters '95, The (1996)", "Krazy Ivan (1997)", "Last Bronx (1997)", "Last Gladiators: Digital Pinball (1996)", "Legend of Oasis, The (1996)", "Loaded (1996)", "Lost World, The: Jurassic Park (1997)", "Lunacy (1997)", "Machine Head (1997)", "Madden NFL 97 (1996)", "Madden NFL 98 (1997)", "Magic Carpet (1996)", "Magic Knight Rayearth (1995)", "Mansion of Hidden Souls, The (1995)", "Manx TT SuperBike (1997)", "Marvel Super Heroes (1997)", "Mass Destruction (1997)", "Maximum Force (1996)", "MechWarrior 2: 31st Century Combat (1997)", "Mega Man 8: Anniversary Collector's Edition (1999)", "Megaman X3 (1997)", "Megaman X4 (1997)", "Mighty Hits (1996)", "Minnesota Fats: Pool Legend (1995)", "Mortal Kombat II (1996)", "Mortal Kombat Trilogy (1997)", "Mr. Bones (1996)", "Myst (1994)", "NASCAR '98 (1997)", "NBA Action (1996)", "NBA Action 98 (1998)", "NBA Jam Extreme (1997)", "NBA Jam Tournament Edition (1995)", "NBA Live 97 (1997)", "NBA Live 98 (1997)", "Need for Speed, The (1996)", "NFL '97 (1996)", "NFL Quarterback Club '96 (1996)", "NFL Quarterback Club '97 (1997)", "NHL 97 (1997)", "NHL 98 (1998)", "NHL All-Star Hockey (1997)", "NHL All-Star Hockey 98 (1998)", "NHL Powerplay '96 (1996)", "Night Warriors: Darkstalkers' Revenge (1996)", "Nights Into Dreams... (1996)", "Norse by Norsewest: The Return of The Lost Vikings (1997)", "Off-World Interceptor Extreme (1995)", "Olympic Soccer (1996)", "P.T.O. II: Pacific Theater of Operations (1996)", "Pandemonium! (1997)", "Panzer Dragoon (1995)", "Panzer Dragoon II: Zwei (1996)", "Panzer Dragoon Saga (1998)", "Parodius (1995)", "Pebble Beach Golf Links (1995)", "PGA Tour 97 (1997)", "Pinball Graffiti (1996)", "PowerSlave (1996)", "Primal Rage (1998)", "Pro Pinball (1996)", "Quake (1997)", "Quarterback Attack with Mike Ditka (1995)", "Radiant Silvergun (1998)", "Rampage: World Tour (1997)", "Rayman (1995)", "Resident Evil (1997)", "Resurrection: Rise 2 (1996)", "Return Fire (1998)", "Revolution X (1996)", "Riven: The Sequel to Myst (1998)", "Road Rash (1996)", "Robo Pit (1996)", "Robotica (1995)", "Romance of the Three Kingdoms IV: Wall Of Fire (1995)", "Saturn Bomber Man (1997)", "Scorcher (1997)", "Scud: The Disposable Assassin (1997)", "Sea Bass Fishing (1996)", "Sega Ages (1996)", "Sega Rally Championship (1997)", "Sega Touring Car Championship (1997)", "Sega Worldwide Soccer '97 (1996)", "Sega Worldwide Soccer '98 (1998)", "Shanghai: Triple Threat (1998)", "Shellshock (1996)", "Shining Force III (1997)", "Shining the Holy Ark (1996)", "Shining Wisdom (1995)", "Shinobi Legions (1995)", "Shockwave Assault (1996)", "SimCity 2000 (1995)", "Skeleton Warriors (1997)", "Sky Target (1997)", "Slam 'N Jam '96 featuring Magic & Kareem (1996)", "Solar Eclipse (1996)", "Sonic 3D Blast (1999)", "Sonic Jam (1998)", "Sonic R (1997)", "Soviet Strike (1997)", "Space Hulk: Vengeance of the Blood Angels (1996)", "Space Invaders (1996)", "Space Jam (1997)", "Spot Goes to Hollywood (1997)", "Star Fighter (1996)", "Steep Slope Sliders (1998)", "Street Fighter: The Movie (1995)", "Street Fighter Alpha: Warrior's Dreams (1996)", "Street Fighter Alpha 2 (1996)", "Street Fighter Collection (1997)", "Street Racer (1996)", "Striker '96 (1996)", "Strikers 1945 (1996)", "Super Puzzle Fighter II Turbo (1996)", "Swagman (1997)", "Tempest 2000 (1996)", "Ten Pin Alley (1997)", "Tetris Plus (1996)", "Theme Park (1995)", "Three Dirty Dwarves (1997)", "Thunder Force V (1997)", "Thunderstrike 2 (1996)", "TNN Motor Sports: Hardcore 4X4 (1996)", "Tomb Raider (1998)", "Trash It (1997)", "True Pinball (1996)", "Tunnel B1 (1997)", "UEFA Euro 96 England (1996)", "Ultimate Mortal Kombat 3 (1996)", "Valora Valley Golf (1995)", "Vampire Savior (1998)", "Virtua Cop (1995)", "Virtua Cop 2 (1997)", "Virtua Fighter (1994)", "Virtua Fighter 2 (1997)", "Virtua Fighter Kids (1996)", "Virtua Fighter Remix (1995)", "Virtual Casino (1996)", "Virtual Golf (1996)", "Virtual Hydlide (1995)", "Virtual Open Tennis (1995)", "Virtual-On: Cyber Troopers (1996)", "VR Golf '97 (1997)", "VR Soccer (1996)", "VR Virtua Racing (1995)", "WarCraft II: The Dark Saga (1997)", "Whizz (1997)", "Wing Arms (1995)", "Winning Post (1998)", "Winter Heat (1998)", "WipEout (1996)", "WipEout 2097 (1997)", "World Cup Golf: Professional Edition (1996)", "World League Soccer '98 (1998)", "World Series Baseball '98 (1997)", "World Series Baseball (1995)", "World Series Baseball II (1996)", "Worldwide Soccer: Sega International Victory Goal Edition (1995)", "Worms (1997)", "WWF In Your House (1997)", "WWF Wrestlemania: The Arcade Game (1996)", "X-Men: Children of the Atom (1995)", "Z (1998)"],
+	
+/* https://blog.cdkeys.com/10-sega-saturn-games-must-play/ */
+
+ ["Panzer Dragoon Saga", "Virtua Cop 2", "NiGHTS into Dreams", "Virtua Fighter 2", "Guardian Heroes", "Saturn Bomberman", "Sega Rally Championship", "Dragon Force", "Burning Rangers", "Panzer Dragoon II Zwei"]
+
+];
+
+</script>
