@@ -1,0 +1,419 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best GameCube games ever</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique GameCube games:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = 1 / length;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+
+ });
+
+
+
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return normalizeRomanNumerals(
+  title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/&/g,"and")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9]/g, "")
+ )
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'><small>" + book.score.toFixed(3) + "</small></td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* Google search results https://www.google.com/search?client=opera&q=best+gamecube+games+of+all+time&sourceid=opera&ie=UTF-8&oe=UTF-8 */
+ ["The Legend of Zelda: The Wind Waker (2002)", "Super Mario Sunshine (2002)", "Metroid Prime (2002)", "Eternal Darkness (2002)", "Resident Evil 4 (2005)", "Paper Mario: The Thousand-Year Door (2004)", "Super Smash Bros. Melee (2001)", "Star Wars Rogue Squadron II: Rogue Leader (2001)", "Pikmin 2 (2004)", "Mario Kart: Double Dash!! (2003)", "The Legend of Zelda: Twilight Princess (2006)", "Ikaruga (2001)", "Soulcalibur II (2002)", "Metroid Prime 2: Echoes (2004)", "Luigi's Mansion (2001)", "Metal Gear Solid: The Twin Snakes (2004)", "Killer7 (2005)", "F-Zero GX (2003)", "Fire Emblem: Path of Radiance (2005)", "Super Mario Strikers (2005)", "Beyond Good & Evil (2003)", "Tales of Symphonia (2003)", "Prince of Persia: The Sands of Time (2003)", "Chibi-Robo! (2005)", "Pikmin (2001)", "WarioWare, Inc.: Mega Party Game$! (2003)", "Animal Crossing (2001)", "Madden NFL 2004 (2003)", "Sonic Mega Collection (2002)", "Viewtiful Joe (2003)", "Pokémon XD: Gale of Darkness (2005)", "SSX Tricky (2001)", "Pokémon Colosseum (2003)", "The Legend of Zelda: Ocarina of Time Master Quest (2002)", "Tony Hawk's Pro Skater 3 (2001)", "Skies of Arcadia: Legends (2002)", "Star Fox Adventures (2002)", "Tony Hawk's Pro Skater 4 (2002)", "Super Monkey Ball (2001)", "Mario Golf: Toadstool Tour (2003)", "TimeSplitters 2 (2002)", "The Legend of Zelda: Four Swords Adventures (2004)", "Resident Evil 2 (1998)", "Viewtiful Joe 2 (2004)", "Super Monkey Ball 2 (2002)", "Mario Superstar Baseball (2005)", "Sonic Gems Collection (2005)", "SSX 3 (2003)", "Battalion Wars (2005)", "Resident Evil (2002)", "The Legend of Zelda: Collector's Edition (2003)"],
+
+ /* https://www.ign.com/articles/the-best-gamecube-games-of-all-time */
+ ["Eternal Darkness: Sanity's Requiem", "WarioWare, Inc.: Mega Party Game$!", "Luigi's Mansion", "Beyond Good & Evil", "Skies of Arcadia: Legends", "Killer7", "Resident Evil", "Metal Gear Solid: Twin Snakes", "Metroid Prime 2: Echoes", "Ikaruga", "Pikmin", "Viewtiful Joe", "Paper Mario: The Thousand-Year Door", "Fire Emblem: Path of Radiance", "Soul Calibur 2", "Mario Kart Double Dash", "Star Wars Rogue Squadron II: Rogue Leader", "Pikmin 2", "Super Mario Sunshine", "Animal Crossing", "The Legend of Zelda: Twilight Princess", "Resident Evil 4", "Super Smash Bros. Melee", "The Legend of Zelda: The Wind Waker", "Metroid Prime"].reverse(),
+
+ /* https://vgcollect.com/forum/index.php?topic=9283.0 [final ranked list] */
+ ["Super Smash Bros. Melee", "The Legend of Zelda: The Wind Waker", "Super Mario Sunshine", "Mario Kart: Double Dash!!", "Luigi's Mansion", "The Legend of Zelda: Twilight Princess", "Resident Evil 4", "Fire Emblem: Path of Radiance", "Super Mario Strikers", "Chibi Robo", "Pikmin 2", "Paper Mario: The Thousand-Year Door", "F-Zero GX", "Pokemon XD: Gale of Darkness", "Mario Golf: Toadstool Tour", "Pikmin", "Metroid Prime", "Donkey Kong: Jungle Beat", "TimeSplitters: Future Perfect", "The Legend of Zelda: Four Swords Adventures", "The Legend of Zelda: Collector's Edition", "Soul Calibur II", "TimeSplitters 2", "The Legend of Zelda: Ocarina of Time Master Quest", "Mario Party 4", "Skies of Arcadia: Legends", "Mario Party 6", "Pokemon Colosseum", "Star Fox: Assault", "Star Fox Adventures", "Sonic Mega Collection", "The Lord of the Rings: The Return of the King", "Mario Power Tennis", "Mario Superstar Baseball", "Resident Evil", "Metroid Prime 2: Echoes", "Star Wars: Rogue Squadron II: Rogue Leader", "Tony Hawk's Pro Skater 4", "The Lord of the Rings: The Third Age", "Metal Gear Solid: Twin Snakes", "Animal Crossing", "Baten Kaitos: Origins", "Tales of Symphonia", "Wario World", "Doshin the Giant", "Super Monkey Ball", "Namco Museum", "Baten Kaitos: Eternal Wings and the Lost Ocean", "Nintendo Puzzle Collection", "Donkey Konga", "Donkey Konga 2", "Evolution Worlds", "Eternal Darkness: Sanity's Requiem", "Viewtiful Joe", "Final Fantasy Crystal Chronicles", "Cubivore", "Custom Robo", "Kirby: Air Ride", "Star Wars: Rebel Strike - Rogue Squadron III", "Sonic Adventure 2: Battle", "Sonic Gems Collection", "The Simpsons: Hit & Run", "Super Monkey Ball 2", "Tony Hawk's Underground", "Sonic Adventure DX", "Gauntlet: Dark Legacy", "Sonic Heroes", "Resident Evil 2", "Resident Evil Zero", "Baldur's Gate: Dark Alliance", "Gotcha Force", "Killer7", "WarioWare, Inc.: Mega Party Game$!", "Resident Evil 3: Nemesis", "Second Sight", "Lost Kingdoms II", "Billy Hatcher and the Giant Egg", "P.N.03", "Spider-Man", "Ikaruga", "True Crime", "X-Men Legends", "Battalion Wars", "Spider-Man 2", "X-Men Legends II: Rise of Apocalypse", "Chaos Field", "Mega Man Anniversary Collection", "Godzilla: Destroy All Monsters Melee", "Harvest Moon: Magical Melody", "Call of Duty 2: Big Red One", "The Incredible Hulk: Ultimate Destruction", "Pac-Man Vs.", "Mega Man X Collection", "Pokémon Channel", "Bloody Roar: Primal Fury", "Wallace & Gromit in Project Zoo", "Odama", "WWE Wrestlemania X8", "Geist", "WWE: Day of Reckoning"],
+
+ /* www.nintendolife.com/guides/50-best-gamecube-games-of-all-time */
+ ["Paper Mario: The Thousand-Year Door ", "The Legend of Zelda: The Wind Waker ", "Metroid Prime ", "Resident Evil 4 ", "The Legend of Zelda: Collector's Edition ", "Super Smash Bros. Melee ", "The Legend of Zelda: Ocarina of Time / Master Quest ", "The Legend of Zelda: Twilight Princess ", "Eternal Darkness: Sanity's Requiem ", "Pikmin 2 ", "Fire Emblem: Path of Radiance ", "Skies of Arcadia Legends ", "F-Zero GX ", "Animal Crossing ", "Star Wars Rogue Squadron II: Rogue Leader ", "Mario Kart: Double Dash!! ", "Tales of Symphonia ", "Metroid Prime 2: Echoes ", "Resident Evil ", "Luigi's Mansion ", "The Simpsons Hit & Run ", "Metal Gear Solid: The Twin Snakes ", "SoulCalibur II ", "TimeSplitters 2 ", "Pikmin ", "Super Monkey Ball 2 ", "Super Monkey Ball ", "Baten Kaitos: Eternal Wings and the Lost Ocean ", "TimeSplitters Future Perfect ", "Prince of Persia: The Sands of Time ", "Phantasy Star Online: Episode I & II ", "Beyond Good & Evil ", "Tony Hawk's Pro Skater 3 ", "Mario Golf: Toadstool Tour ", "Burnout 2: Point of Impact ", "Spider-Man 2 ", "Viewtiful Joe ", "Mega Man X Collection ", "Baten Kaitos Origins ", "Super Mario Sunshine ", "Pokémon XD: Gale of Darkness ", "Resident Evil 2 ", "Sonic Mega Collection ", "Chibi-Robo ", "Mario Smash Football ", "SSX Tricky ", "Viewtiful Joe 2 ", "Ikaruga ", "WarioWare, Inc: Mega Party Game$! ", "Killer7"],
+
+ /* https://www.cnet.com/tech/services-and-software/use-cnet-shopping-to-seek-out-the-best-deals/ */
+ ["Metroid Prime", "The Legend of Zelda: Wind Waker", "Resident Evil 4", "Super Smash Bros. Melee", "Animal Crossing", "Pikmin", "Super Mario Sunshine", "F-Zero GX", "Metroid Prime 2: Echoes", "Soulcalibur II ", "Viewtiful Joe", "Eternal Darkness: Sanity's Requiem", "Resident Evil", "Pikmin 2", "Mario Kart: Double Dash", "Metal Gear Solid: The Twin Snakes", "Paper Mario: The Thousand-Year Door", "Rogue Squadron 2: Rogue Leader ", "Tales of Symphonia", "Legend of Zelda: Twilight Princess"],
+
+ /* https://www.metacritic.com/browse/game/gamecube/ */
+ ["Metroid Prime", "Resident Evil 4 (2005)", "The Legend of Zelda: The Wind Waker", "The Legend of Zelda: Twilight Princess", "The Legend of Zelda Collector's Edition", "Madden NFL 2004", "Viewtiful Joe", "SoulCalibur II", "Super Smash Bros. Melee", "Eternal Darkness: Sanity's Requiem", "Prince of Persia: The Sands of Time", "SSX 3", "Metroid Prime 2: Echoes", "Madden NFL 2003", "NFL 2K3", "Super Mario Sunshine", "NCAA Football 2003", "Resident Evil (2002)", "Tony Hawk's Pro Skater 3", "Tony Hawk's Pro Skater 4", "The Legend of Zelda: Ocarina of Time / Master Quest", "Tiger Woods PGA Tour 2003", "Star Wars Rogue Leader: Rogue Squadron II", "NBA 2K2", "Pikmin 2", "Madden NFL 2005", "Madden NFL 2002", "NHL 2K3", "Tom Clancy's Splinter Cell", "Burnout 2: Point of Impact", "F-Zero GX", "Tiger Woods PGA Tour 2004", "NCAA Football 2004", "Tony Hawk's Underground", "MVP Baseball 2004", "Pikmin", "NBA Street", "NBA Street Vol. 2", "TimeSplitters 2", "Tiger Woods PGA Tour 2005", "NBA Street V3", "MVP Baseball 2005", "Aggressive Inline", "NCAA Football 2005", "Beyond Good & Evil", "Super Monkey Ball 2", "Animal Crossing", "Mario Kart: Double Dash!!", "Super Monkey Ball", "SSX Tricky", "Paper Mario: The Thousand-Year Door (2004)", "Fight Night Round 2", "Tales of Symphonia", "The Legend of Zelda: Four Swords Adventures", "Madden NFL 06", "Viewtiful Joe 2", "FIFA Soccer 2003", "NASCAR Thunder 2003", "Phantasy Star Online: Blue Burst", "NASCAR: Dirt to Daytona", "Metal Gear Solid: The Twin Snakes", "Fire Emblem: Path of Radiance", "The Sims", "Ikaruga", "NHL 2004", "Skies of Arcadia", "The Lord of the Rings: The Return of the King", "NBA 2K3", "Sega Soccer Slam", "James Bond 007: Everything or Nothing", "NBA Live 2004", "Lego Star Wars II: The Original Trilogy", "The Incredible Hulk: Ultimate Destruction", "The Lord of the Rings: The Return of the King", "Hitman 2: Silent Assassin", "All-Star Baseball 2003", "Resident Evil Zero", "XGIII: Extreme G Racing", "Need for Speed: Underground", "NBA Live 2005", "Harvest Moon: Magical Melody", "Metal Arms: Glitch in the System", "Prince of Persia: Warrior Within", "FIFA Soccer 2004", "Freedom Fighters", "Gladius (2003)", "NCAA College Basketball 2K3", "X-Men Legends II: Rise of Apocalypse", "Tony Hawk's Underground 2 Remix", "TimeSplitters: Future Perfect", "Madden NFL 07", "Tiger Woods PGA Tour 06", "NBA Live 2003", "Star Fox Adventures", "The Lord of the Rings: The Two Towers", "NHL Hitz 20-03", "Mortal Kombat: Deadly Alliance", "Def Jam Vendetta", "Tom Clancy's Splinter Cell: Chaos Theory", "X-Men Legends", "Mega Man Anniversary Collection", "NHL Hitz Pro", "NFL Street", "Peter Jackson's King Kong: The Official Game of the Movie", "The Sims Bustin' Out", "FIFA 2002", "Bomberman Generation", "Mario Golf: Toadstool Tour", "Final Fantasy Crystal Chronicles", "All-Star Baseball 2004", "007: NightFire", "Kelly Slater's Pro Surfer", "Wave Race: Blue Storm", "MLB Slugfest 20-03", "Mario Power Tennis", "Spider-Man 2", "Baten Kaitos: Eternal Wings and the Lost Ocean", "Donkey Kong Jungle Beat", "Need for Speed: Most Wanted (2005)", "SSX On Tour", "FIFA 06: Road to FIFA World Cup", "SSX On Tour", "Final Fantasy Crystal Chronicles", "All-Star Baseball 2004", "Smuggler's Run: Warzones", "Sphinx and the Cursed Mummy", "WWE Day of Reckoning", "LEGO Star Wars", "The Simpsons: Hit & Run", "NHL Hitz 20-02", "Harvest Moon: A Wonderful Life", "Red Faction II", "NHL 2003", "Baldur's Gate: Dark Alliance", "Alien Hominid", "Burnout (2001)", "Luigi's Mansion", "NHL 06", "Tom Clancy's Splinter Cell: Pandora Tomorrow", "FIFA Soccer 2005", "Pac-Man vs.", "Freekstyle", "Knockout Kings 2003", "2002 FIFA World Cup", "Dave Mirra Freestyle BMX 2", "NFL Blitz 20-02", "Dead to Rights", "True Crime: Streets of LA", "Ultimate Muscle: Legends vs New Generation", "I-Ninja", "Rayman 3: Hoodlum Havoc", "Mortal Kombat: Deception", "Gun", "Second Sight", "NFL Street 2", "Harry Potter and the Chamber of Secrets", "Spider-Man: The Movie", "MX Superfly featuring Ricky Carmichael", "Beach Spikers: Virtua Beach Volleyball", "Battalion Wars", "FIFA World Cup: Germany 2006", "Mario Superstar Baseball", "Donkey Konga", "WWE Day of Reckoning 2", "Tony Hawk's American Wasteland", "WWE WrestleMania XIX", "WarioWare, Inc.: Mega Party Game$!", "Call of Duty 2: Big Red One", "WWE Day of Reckoning 2", "NBA Live 06", "Super Mario Strikers", "Disney's Extreme Skate Adventure", "MX Superfly featuring Ricky Carmichael", "Spider-Man: The Movie", "NHL 2005", "Baten Kaitos Origins", "Mega Man X Collection", "Chibi-Robo", "Buffy the Vampire Slayer: Chaos Bleeds", "Star Wars Rogue Squadron III: Rebel Strike", "Sonic Mega Collection (2002)", "Star Wars Jedi Knight II: Jedi Outcast", "Tak 2: The Staff of Dreams", "Tak: The Great Juju Challenge", "Need for Speed: Carbon", "Bloody Roar: Primal Fury", "Disney Sports: Soccer", "James Bond 007: Agent Under Fire", "The Lord of the Rings: The Third Age", "Call of Duty: Finest Hour", "Rocky (2002)", "Naruto: Clash of Ninja 2", "Midway Arcade Treasures 2", "Killer7", "Pac-Man World 2", "Robotech: Battlecry", "BloodRayne", "The Sims 2", "Spartan: Total Warrior", "The Urbz: Sims in the City", "Sonic Adventure 2", "XIII", "Pitfall: The Lost Expedition", "The SpongeBob SquarePants Movie", "Conflict: Desert Storm II - Back to Baghdad", "Pokemon Colosseum", "1080: Avalanche", "Godzilla: Destroy All Monsters Melee", "Star Wars: The Clone Wars", "F1 2002", "Naruto: Clash of Ninja", "Midway Arcade Treasures", "Sonic Heroes", "Tom Clancy's Rainbow Six: Lockdown", "Puyo Pop Fever", "Lost Kingdoms", "Swingerz Golf", "Summoner: A Goddess Reborn", "NFL Blitz 20-03", "Wario World", "NBA Courtside 2002", "RedCard 20-03", "Blood Omen 2", "Cubivore: Survival of the Fittest", "Vexx", "Hulk", "Tak and the Power of Juju", "Billy Hatcher and the Giant Egg", "NFL Blitz Pro", "SpongeBob SquarePants: Battle for Bikini Bottom", "Goblin Commander: Unleash the Horde", "Phantasy Star Online Episode III: C.A.R.D. Revolution", "Mario Party 6", "Medal of Honor: European Assault", "Disney/Pixar Cars", "The Chronicles of Narnia: The Lion, The Witch and The Wardrobe", "Spy Hunter", "ATV Quad Power Racing 2", "Batman: Vengeance", "Hunter: The Reckoning", "NCAA College Football 2K3", "From Russia With Love", "DreamWorks Madagascar", "DreamWorks Shrek SuperSlam", "Ty the Tasmanian Tiger 2: Bush Rescue", "Harvest Moon: Another Wonderful Life", "Shrek 2", "One Piece: Grand Adventure", "ATV Quad Power Racing 2", "Batman: Vengeance", "Mario Party 4", "Mat Hoffman's Pro BMX 2", "Crazy Taxi", "Outlaw Golf", "TY the Tasmanian Tiger", "DreamWorks Shark Tale", "Serious Sam: Next Encounter", "Freaky Flyers", "Worms 3D", "XGRA: Extreme G Racing Association", "Donkey Konga 2", "Disney's The Haunted Mansion", "Mario Party 5", "Scaler", "Harry Potter and the Goblet of Fire", "The Grim Adventures of Billy & Mandy", "Dance Dance Revolution: Mario Mix", "Tom Clancy's Rainbow Six 3", "Dark Summit", "Ty the Tasmanian Tiger 3: Night of the Quinkan", "Scooby-Doo! Night of 100 Frights", "Need for Speed: Hot Pursuit 2", "Lost Kingdoms II", "Medal of Honor: Rising Sun", "Terminator 3: The Redemption", "Harry Potter: Quidditch World Cup", "Capcom vs. SNK 2", "Star Fox: Assault", "Cel Damage", "Mystic Heroes", "The Simpsons: Road Rage", "Harry Potter and the Prisoner of Azkaban", "The Legend of Spyro: A New Beginning", "One Piece: Grand Battle", "R: Racing Evolution", "Go! Go! Hypergrind", "Disney/Pixar The Incredibles: Rise of the Underminer", "Mega Man X: Command Mission", "R: Racing Evolution", "Ultimate Fighting Championship: Throwdown", "Go! Go! Hypergrind", "Ice Age 2: The Meltdown", "Disney's Chicken Little", "Wallace & Gromit in Project Zoo", "Superman: Shadow of Apokolips", "Defender (2002)", "Black & Bruised", "Home Run King", "Crash Nitro Kart", "Dragon Ball Z: Budokai 2", "Batman Begins", "Geist (2005)", "Major League Baseball 2K6", "Nickelodeon Barnyard", "All-Star Baseball 2002", "Crash Tag Team Racing", "The Sims 2: Pets", "Pac-Man World 3", "Worms Blast", "Custom Robo", "Dragon's Lair 3D: Return to the Lair", "Mega Man Network Transmission", "The Adventures of Jimmy Neutron Boy Genius: Attack of the Twonkies", "Rogue Ops", "Dragon Ball Z: Budokai", "Animaniacs: The Great Edgar Hunt", "Midway Arcade Treasures 3", "Mission: Impossible: Operation Surma", "Egg Mania: Eggstreme Madness", "Pro Rally", "WWE WrestleMania X8", "Street Racing Syndicate", "Pokemon XD: Gale of Darkness", "Hello Kitty: Roller Rescue", "RoadKill (2003)", "Sonic Gems Collection", "Scooby-Doo! Unmasked", "Mario Party 7", "Tom Clancy's Splinter Cell: Double Agent", "Evolution Worlds", "P.N. 03", "Enter the Matrix", "X-Men: Next Dimension", "Teen Titans", "Batman: Rise of Sin Tzu", "FIFA Street 2", "FIFA Street 2", "P.N. 03", "Evolution Worlds", "Rally Championship", "X2: Wolverine's Revenge", "Disney/Pixar Finding Nemo", "Auto Modellista", "Namco Museum (2002)", "Tube Slider", "Conflict: Desert Storm", "Spyro: A Hero's Tail", "Viewtiful Joe: Red Hot Rumble", "Odama", "Harry Potter and the Sorcerer's Stone", "Resident Evil Code: Veronica X", "Crash Bandicoot: The Wrath of Cortex", "Resident Evil 3: Nemesis", "The Hobbit: The Prelude to the Lord of the Rings", "Whirl Tour", "Kirby Air Ride", "Fantastic 4", "Disney's Donald Duck: Goin' Quackers", "Disney's Tarzan Untamed", "Spawn: Armageddon", "DreamWorks Over the Hedge", "Darkened Skye", "Rayman Arena", "Namco Museum 50th Anniversary", "GoldenEye: Rogue Agent", "Ribbit King", "Gauntlet: Dark Legacy", "Rave Master", "Avatar: The Last Airbender", "King Arthur", "Monster House", "BMX XXX", "Disney/Pixar Ratatouille", "Starsky & Hutch", "Resident Evil 2 (1998)", "True Crime: New York City", "Speed Kings", "Samurai Jack: The Shadow of Aku", "Sonic Riders", "Tom Clancy's Ghost Recon", "Winnie the Pooh's Rumbly Tumbly Adventure", "Amazing Island", "Top Gun: Combat Zones", "Legends of Wrestling II", "Legends of Wrestling II", "Wreckless: The Yakuza Missions", "Virtua Striker 2002", "Teenage Mutant Ninja Turtles (2003)", "Sonic Adventure DX Director's Cut", "Rampage: Total Destruction", "Carmen Sandiego: The Secret of the Stolen Drums", "Pac-Man World Rally", "Teenage Mutant Ninja Turtles 3: Mutant Nightmare", "Zatch Bell! Mamodo Battles", "Kao the Kangaroo Round 2", "Street Hoops", "Army Men: Sarge's War", "4X4 EVO 2", "The Italian Job", "Big Air Freestyle", "Judge Dredd: Dredd VS Death", "Gotcha Force", "Driven", "WWE Crush Hour", "Zapper", "Virtua Quest", "Pokemon Channel", "Super Bubble Pop", "Reign of Fire", "Die Hard: Vendetta", "Scooby-Doo! Mystery Mayhem", "Marvel Nemesis: Rise of the Imperfects", "Frogger: Ancient Shadow", "Tom Clancy's Ghost Recon 2", "Pac-Man Fever", "NFL Quarterback Club 2002", "Minority Report: Everybody Runs", "18 Wheeler: American Pro Trucker", "Shadow the Hedgehog", "Super Monkey Ball Adventure", "The Ant Bully", "Legends of Wrestling", "Disney's Magical Mirror Starring Mickey Mouse", "X-Men: The Official Game", "Spirits & Spells", "The Scorpion King: Rise of the Akkadian", "One Piece: Pirates' Carnival", "Teenage Mutant Ninja Turtles 2: Battle Nexus", "Monster 4x4: Masters of Metal", "Spyro: Enter the Dragonfly", "Urban Freestyle Soccer", "Dragon Ball Z: Sagas", "Disney's Hide & Sneak", "Smashing Drive", "Catwoman (2004)", "Tetris Worlds", "Disney's PK: Out of the Shadows", "TMNT: Mutant Melee", "Yu-Gi-Oh! The Falsebound Kingdom", "MC Groovz Dance Craze", "The Polar Express", "Space Raiders (2002)", "Universal Studios Theme Parks Adventure", "Charlie and the Chocolate Factory", "Disney/Pixar Monsters, Inc. Scream Arena", "The Sum of All Fears", "Disney Sports: Skateboarding", "Jeremy McGrath Supercross World", "Bad Boys: Miami Takedown", "Batman: Dark Tomorrow", "Aquaman: Battle for Atlantis", "Charlie's Angels"],
+
+ /* https://www.facebook.com/watch/?v=209553906762280 */
+ ["Mario Kart: Double Dash!!", "Star Wars Rogue Squadron II: Rogue Leader", "Pikmin 2", "Super Mario Sunshine", "Animal Crossing", "The Legend of Zelda: Twilight Princess", "Resident Evil 4", "Super Smash Bros. Melee", "The Legend of Zelda: The Wind Waker", "Metroid Prime"].reverse(),
+
+ /* https://retrododo.com/best-gamecube-games/ */
+ ["The Legend Of Zelda: The Wind Waker (2002)", "The Legend Of Zelda: Twilight Princess (2006)", "Star Wars Bounty Hunter (2002)", "Star Fox Adventures (2002)", "Luigi’s Mansion (2001)", "Mario Kart Double Dash (2003)", "Pikmin 2 (2004)", "Super Mario Sunshine (2002)", "Mario Party 4 (2002)", "Prince Of Persia – Sands Of Time (2003)", "Super Smash Bros. Melee (2001)", "Metroid Prime (2002)", "Super Monkey Ball (2001)", "Metroid Prime: Echoes (2004)", "Pikmin (2001)", "Gauntlet: Dark Legacy (2002)", "Sonic Adventure 2 Battle (2001)", "Pokemon Colosseum (2003)", "F-Zero GX (2003)", "Star Wars Rogue Squadron II: Rogue Leader (2001)", "Viewtiful Joe (2003)", "Burnout 2: Point of Impact (2003)", "The Legend Of Zelda: Four Swords Adventures (2004)", "Mario Party 5 (2003)", "Paper Mario: The Thousand Year Door (2004)", "Harry Potter & The Chamber Of Secrets (2002)", "Sphinx And The Cursed Mummy (2003)", "Metal Gear Solid: The Twin Snakes (2004)", "SoulCalibur 2 (2003)", "The Simpsons: Road Rage (2001)", "Super Monkey Ball 2 (2002)", "Eternal Darkness: Sanity’s Requiem (2002)", "Tony Hawk’s Pro Skater 3 (2001)", "Pokémon XD: Gale of Darkness (2005)", "Super Mario Strikers (2005)", "Donkey Kong Jungle Beat (2004)", "Baten Kaitos: Eternal Wings And The Lost Ocean (2003)", "Fire Emblem: Path of Radiance (2005)", "Resident Evil 4 (2005)", "Tales Of Symphonia (2003)", "Need For Speed Underground (2003)", "Enter The Matrix (2003)", "Donkey Konga (2003)", "Beyond Good & Evil (2003)", "Resident Evil Zero (2002)", "1080 Avalanche (2003)", "Mario Superstar Baseball (2005)", "James Bond 007: Nightfire (2002)", "Madden NFL 2004 (2003)", "Mario Power Tennis (2004)", "Wave Race: Blue Storm (2001)", "Bloody Roar: Primal Fury (2002)", "Final Fantasy: Crystal Chronicles (2003)", "Mario Party 7 (2005)", "TimeSplitters 2 (2002)", "Fifa Football 2005 (2004)", "The Simpsons: Hit and Run (2003)", "Mario Golf: Toadstool Tour (2003)", "SSX Tricky (2001)", "Chibi Robo!: Plug Into Adventure (2005)", "Battalion Wars (2005)", "Shadow the Hedgehog (2005)", "Skies Of Arcadia: Legends (2003)", "Killer7 (2005)", "Crash Nitro Kart (2003)", "Sonic Mega Collection (2002)", "Harry Potter And The Philosopher’s Stone (2001)", "Wario World (2003)", "Ikaruga (2001)", "Pool Paradise (2004)"],
+
+ /* https://www.gamesradar.com/best-gamecube-games/ */
+ ["Super Mario Strikers", "Skies of Arcadia Legends", "Ikaruga", "Beyond Good and Evil", "TimeSplitters: Future Perfect", "Fire Emblem: Path of Radiance", "Luigi's Mansion", "Tales of Symphonia", "Mario Kart: Double Dash", "Super Monkey Ball", "Super Mario Sunshine", "Viewtiful Joe", "Metal Gear Solid: The Twin Snakes", "Pikmin 2", "Paper Mario: The Thousand Year Door", "F-Zero GX", "Eternal Darkness: Sanity's Requiem", "Animal Crossing", "Soulcalibur II", "Star Wars Rogue Leader", "Prince of Persia: The Sands of Time", "Super Smash Bros. Melee", "Resident Evil 4", "Metroid Prime", "The Legend of Zelda: The Wind Waker"].reverse(),
+
+ /* https://www.cbr.com/nintendo-greatest-gamecube-games-ranked/ */
+ ["Star Wars Rogue Squadron II: Rogue Leader", "Fire Emblem: Path of Radiance", "Resident Evil", "Mario Kart: Double Dash!!", "Super Smash Bros. Melee", "Paper Mario: The Thousand-Year Door", "Resident Evil 4", "The Legend of Zelda: The Wind Waker", "Metroid Prime", "The Legend of Zelda: Twilight Princess"].reverse(),
+
+ /* https://gamerant.com/nintendo-gamecube-best-games/ */
+ ["Eternal Darkness: Sanity's Requiem", "NFL 2K3", "SSX 3", "Madden NFL 2003", "Prince of Persia: The Sands of Time", "Super Mario Sunshine", "Super Smash Bros. Melee", "Viewtiful Joe", "SoulCalibur 2", "Madden NFL 2004", "The Legend of Zelda: Collector's Edition", "The Legend of Zelda: Twilight Princess", "Resident Evil 4", "The Legend of Zelda: The Wind Waker", "Metroid Prime"].reverse(),
+
+ /* https://retro-sanctuary.com/Top-100-Gamecube-Games-Page-1.html */
+ ["Metroid Prime", "Resident Evil 4", "The Wind Waker", "F-Zero GX", "Timesplitters 2", "Smash Bros Melee", "Eternal Darkness: Sanity's Requiem", "Twilight Princess", "Prince of Persia: Sands of Time", "Paper Mario: Thousand Year Door", "Pikmin 2", "Soul Calibur 2", "Ikaruga", "SSX 3", "Beyond Good and Evil", "Tomb Raider Legend", "Rogue Leader", "Kururin Squash", "Super Monkey Ball", "Donkey Kong: Jungle Beat", "Resident Evil", "Zelda: Four Swords Adventures", "Metroid Prime 2", "Burnout 2", "Viewtiful Joe", "Super Mario Sunshine", "Skies of Arcadia Legends", "Metal Gear Solid: The Twin Snakes", "Mario Kart: Double Dash", "Sonic Adventure 2", "Fire Emblem: Path of Radiance", "Harvest Moon: Its A Wonderful life", "Splinter Cell: Chaos Theory", "Killer 7", "Crazy Taxi", "Animal Crossing", "Timesplitters Future Perfect", "Chibi Robo", "Metal Arms: Glitch in the System", "Wave Race: Blue Storm", "Resident Evil: Code Veronica", "Tales of Symphonia", "Battalion Wars", "Mario Tennis", "WarioWare INC", "XIII", "Hitman 2", "Phantasy Star Online", "Gun", "Puyo Puyo Fever", "Baiten Kaitos: Eternal Wings", "1080: Avalanche", "Final Fantasy: Crystal Chronicles", "Tony Hawks Pro Skater 4", "Star Fox Adventures", "Need for Speed: Underground 2", "Billy Hatcher", "Second Sight", "Resident Evil Zero", "Rayman 3", "Mr Driller: Drill Land", "Naruto Gekitou Ninja Taisen 4", "Mario Golf: Toadstool Tour", "I-Ninja", "Luigi's Mansion", "Star Fox Assault", "Baiten Kaitos Origins", "Tak 2: The Staff of Dreams", "Red Faction II", "Pac-Man Vs", "Pro Evolution Soccer 2", "Freedom Fighters", "Medal of Honor: Frontline", "True Crime: New York", "Need For Speed: Most Wanted", "NBA Street V3", "Extreme G 3", "Castle Shikigami II", "Aggressive Inline", "Vexx", "Madden NFL 2005", "The Sims", "Lego Star Wars II", "Conflict Desert Storm 2", "Lost Kingdoms II", "Baldur's Gate: Dark Alliance", "Bloody Roar: Primal Fury", "Mario Party 5", "Phantasy Star Online Episode III", "Capcom Vs SNK II", "WarioWorld", "Donkey Konga", "Sega Soccer Slam", "NHL2K3", "ATV 2", "Dr Muto", "Smuggler's Run: Warzones", "Goblin Commander", "Hunter the Reckoning", "P.N.03"],
+
+ /* https://www.youtube.com/watch?v=VA7mBSeNXDc */
+ ["The Legend of Zelda: The Wind Waker", "Super Smash Bros. Melee", "Mario Kart: Double Dash", "Metroid Prime", "Resident Evil 4", "Paper Mario", "Animal Crossing", "Super Mario Sunshine", "Chibi-Robo", "Eternal Darkness: Sanity's Requiem", "Pikmin", "F-Zero GX", "Killer7", "The Legend of Zelda: Twilight Princess", "Beyond Good & Evil", "Prince of Persia: Sands of Time", "Baten Kaitos: Eternal Wings and the Lost Ocean", "The Incredible Hulk: Ultimate Destruction", "Metal Gear Solid: The Twin Snakes", "Viewtiful Joe"],
+
+ /* https://www.youtube.com/watch?v=gbldfR9yOiY */
+ ["TimeSplitters 2", "Billy Hatcher and the Giant Egg", "Starfox Assault", "Need For Speed Underground 2", "Beyond Good & Evil", "Tony Hawk's Pro Skater 4", "SSX Tricky", "Pikmin", "Super Smash Bros. Melee", "Mario Kart: Double Dash!!", "F-Zero GX", "Animal Crossing", "The Legend of Zelda: The Wind Waker", "Super Monkey Ball", "Sonic Adventure 2 Battle"].reverse(),
+
+ /* https://www.denofgeek.com/games/best-nintendo-gamecube-games/ */
+ ["Metroid Prime", "Metroid Prime 2: Echoes", "Resident Evil 4", "The Legend of Zelda: The Wind Waker", "Super Smash Bros. Melee", "Eternal Darkness: Sanity’s Requiem", "Skies of Arcadia Legends", "F-Zero GX", "Mario Kart Double Dash", "Resident Evil", "Pikmin 2", "Beyond Good and Evil", "Super Mario Sunshine", "Metal Gear Solid: The Twin Snakes", "Paper Mario: The Thousand Year Door", "Star Wars Rogue Squadron II: Rogue Leader", "Killer7", "Donkey Kong: Jungle Beat", "Legend of Zelda: Collector’s Edition", "TimeSplitters 2", "Luigi’s Mansion", "Ikaruga", "Battalion Wars", "Viewtiful Joe", "Baten Kaitos: Eternal Wings and the Lost Ocean", "Animal Crossing"],
+
+ /* https://en.wikipedia.org/wiki/List_of_best-selling_GameCube_video_games */
+ ["Super Smash Bros. Melee", "Mario Kart: Double Dash", "Super Mario Sunshine", "The Legend of Zelda: The Wind Waker", "Luigi's Mansion", "Metroid Prime", "Animal Crossing", "Mario Party 4", "Pokémon Colosseum", "Mario Party 5", "Mario Party 7", "Paper Mario: The Thousand-Year Door", "Star Fox Adventures", "Sonic Adventure 2: Battle", "Mario Party 6", "Pikmin", "Resident Evil 4", "Sonic Adventure DX: Director's Cut", "Super Mario Strikers", "The Legend of Zelda: Twilight Princess", "Pokémon XD: Gale of Darkness", "Sonic Mega Collection", "Resident Evil", "Kirby Air Ride", "Final Fantasy Crystal Chronicles", "Mario Golf: Toadstool Tour", "Resident Evil Zero", "Donkey Konga", "Mario Power Tennis", "Star Wars Rogue Squadron II: Rogue Leader", "Pikmin 2", "Metroid Prime 2: Echoes", "Soulcalibur II", "Star Fox: Assault", "Mario Superstar Baseball"],
+
+ /* https://www.imdb.com/list/ls098391894/ */
+ ["Star Wars: Rogue Squadron II - Rogue Leader", "Resident Evil Zero", "Luigi's Mansion", "Baten kaitos: Eternal Wings and the Lost Ocean", "Prince of Persia: The Sands of Time (I)", "Sonic Adventure 2", "Ikaruga", "Chibi-Robo!", "Pikmin", "Super Mario Sunshine", "Baten Kaitos: Origins", "Killer7", "TimeSplitters 2", "Beyond Good & Evil", "Phantasy Star Online Episode I & II", "Soulcalibur II", "Mario Kart: Double Dash!!", "F-Zero GX", "Animal Crossing", "TimeSplitters: Future Perfect", "Metroid Prime 2: Echoes", "Fire Emblem: Path of Radiance", "Eternal Darkness: Sanity's Requiem", "Pikmin 2", "Skies of Arcadia", "Metal Gear Solid: The Twin Snakes", "The Legend of Zelda: The Wind Waker", "Tales of Symphonia", "The Legend of Zelda: Twilight Princess", "Metroid Prime", "Paper Mario: The Thousand-Year Door", "Super Smash Bros. Melee", "Resident Evil", "Resident Evil 4"],
+
+ /* https://www.buzzfeed.com/anthonyorlando52/best-gamecube-games */
+ ["The Legend of Zelda: The Wind Waker", "Super Mario Sunshine", "The Legend of Zelda: Twilight Princess", "Resident Evil 4", "Super Smash Bros. Melee", "Paper Mario: The Thousand-Year Door", "Mario Kart: Double Dash", "Metroid Prime", "Luigi's Mansion", "Animal Crossing", "Sonic Adventure 2: Battle", "Spider-Man 2", "Pokémon XD: Gale of Darkness", "Sonic Adventure DX: Director's Cut", "Pokémon: Colosseum", "Fire Emblem: Path of Radiance", "Star Wars Rogue Squadron II: Rogue Leader", "SpongeBob SquarePants: Battle For Bikini Bottom", "The Legend of Zelda: Four Sword Adventures", "SoulCalibur II", "F-Zero GX", "Pikmin", "Super Mario Strikers", "Mario Superstar Baseball", "The Legend of Zelda: Ocarina of Time Master Quest"],
+
+ /* https://goombastomp.com/35-best-gamecube-games/ */
+ ["Metroid Prime", "Super Smash Bros. Melee", "The Legend of Zelda: The Wind Waker", "Legend of Zelda: The Twilight Princess ", "Tony Hawk’s Pro Skater 3", "Resident Evil 4", "Paper Mario: The Thousand-Year Door", "Luigi’s Mansion", "Mario Kart: Double Dash", "Pikmin", "Animal Crossing", "Super Mario Sunshine", "Resident Evil (2002)", "Metroid Prime 2: Echoes", "Eternal Darkness: Sanity’s Requiem", "Pikmin 2", "Viewtiful Joe", "Tales of Symphonia", "Star Fox Assault", "Soul Calibur 2", "Resident Evil: Zero", "Star Wars Rogue Squadron II: Rogue Leader", "F-Zero GX", "Super Monkey Ball 2", "Metal Gear Solid: The Twin Snakes", "Skies of Arcadia Legends", "Baten Kaitos: Eternal Wings and the Lost Ocean", "Chibi-Robo!", "The Legend of Zelda: Four Swords Adventures", "Fire Emblem: Path of Radiance", "Beyond Good & Evil", "Prince of Persia: The Sands of Time", "Super Mario Strikers", "Ikaruga", "Time Splitters 2"]
+ 
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://www.reddit.com/r/Gamecube/comments/ytv1p7/what_are_the_best_gamecube_games/ [all games listed in comments] */
+  /* Machopsdontcry */
+  ["Paper Mario: The Thousand-Year Door", "Super Smash Bros. Melee", "Pikmin", "Sonic Adventure 2: Battle", "Resident Evil 4", "Super Mario Sunshine", "Luigi's Mansion", "Metroid Prime", "Mario Kart Double Dash", "Animal Crossing"], 
+  /* Incredibly_Based */
+  ["Starfox Assault"], 
+  /* KlingonBeavis */
+  ["Eternal Darkness: Sanity's Requiem", "The Lord of the Rings: The Third Age", "Luigi's Mansion", "Metroid Prime", "Metal Gear Solid: Twin Snakes", "XIII", "Paper Mario: The Thousand-Year Door", "Skies of Arcadia", "The Legend of Zelda: The Wind Waker", "Soul Calibur II"], 
+  /* KohantoTheBigJerk */
+  ["Phantasy Star Online: Episode I & II Plus", "Animal Crossing", "Fire Emblem: Path of Radiance", "Super Mario Sunshine", "Harvest Moon: A Wonderful Life", "Baten Kaitos Origins", "Lost Kingdoms", "Lost Kingdoms II", "WarioWare, Inc.: MegaParty Game$!", "Paper Mario: The Thousand-Year Door", "The Legend of Zelda: Twilight Princess", "Custom Robo", "Double Dash", "Battalion Wars", "Odama", "The Legend of Zelda: Wind Waker", "Luigi's Mansion", "Soul Calibur 2", "Final Fantasy Crystal Chronicles"], 
+  /* vickDig62 */
+  ["Chibi Robo"], 
+  /* banestyrelsen */
+  ["F-Zero GX"], 
+  /* SpireVI */
+  ["Super Smash Bros. Melee", "Freedom Fighters", "Second Sight", "Metroid Prime", "Metal Gear Solid: Twin Snakes"], 
+  /* bakagir */
+  ["Eternal Darkness: Sanity's Requiem"], 
+  /* Burgundy724 */
+  ["Paper Mario: The Thousand-Year Door", "The Legend of Zelda: The Wind Waker", "Super Mario Sunshine"],
+  /* Cian_Boru */
+  ["Pokémon Colosseum", "Pokémon XD: Gale of Darkness"],
+  /* Ryderslow */
+  ["Smuggler's Run", "Second Sight"],
+  /* NostalgiaSeeker69 */
+  ["Super Monkey Ball", "The Simpsons: Hit & Run", "Mario Party series", "Need for Speed", "Mario Kart: Double Dash!!", "Super Smash Bros. Melee"],
+  /* Dream_Smasher19 */
+  ["Tales of Symphonia"],
+  /* Glum_Ear_7023 */
+  ["Kirby Air Ride"],
+  /* Picture-Horror */
+  ["Chibi Robo"],
+  /* New_Stranger_83 */
+  ["Super Mario Sunshine"],
+  /* doppelgengar01 */
+  ["Pokémon Colosseum", "Pokémon XD: Gale of Darkness"],
+
+ /* https://vgcollect.com/forum/index.php?topic=9283.0 [final unranked list] */
+ ["The Legend of Zelda: the Wind Waker", "Fire Emblem: Path of Radiance", "Mario Kart: Double Dash!!", "Tales of Symphonia", "Super Smash Bros Melee", "Resident Evil 4", "Gotcha Force", "Soul Caliber II", "Pikmin", "Gauntlet: Dark Legacy", "Metroid Prime", "Resident Evil", "Eternal Darkness: Sanity's Requiem", "Super Mario Strikers", "Call of Duty 2: Big Red One", "Super Mario Sunshine", "Mario Golf: Toadstool Tour", "Paper Mario: The Thousand-Year Door", "Godzilla: Destroy All Monsters Melee", "Pikmin 2", "Skies of Arcadia Legends", "Timesplitters 2", "Baten Kaitos: Eternal Wings and the Lost Ocean", "Luigi's Mansion", "Star Wars: Rogue Squadron II", "Donkey Kong Jungle Beat", "Sonic Gems Collection", "Animal Crossing", "Super Monkey Ball", "Pokemon XD: Gale of Darkness", "Spider-Man 2", "Baten Kaitos: Origins", "Chibi Robo: Plug Into Adventure!", "WarioWare, inc.", "F-Zero GX", "Metal Gear Solid: Twin Snakes", "Mario Superstar Baseball", "Baldur's Gate: Dark Alliance", "Metroid Prime 2: Echos", "The Legend of Zelda: Twilight Princess", "Viewtiful Joe", "Second Sight", "Sonic Mega Collection", "TimeSplitters: Future Perfect", "Harvest Moon: Magical Melody", "Ikaruga", "Resident Evil Zero", "Mario Party 4", "The Simpsons: Hit & Run", "Namco Museum", "Star Fox: Assault", "Super Monkey Ball 2", "Kirby: Air Ride", "The Legend of Zelda Collector's Edition", "Pokemon Channel", "Billy Hatcher and the Giant Egg", "Pac-Man Vs.", "Final Fantasy: Crystal Chronicles", "Resident Evil 2", "Mario Power Tennis", "Resident Evil 3: Nemesis", "Pokemon Colosseum", "Spider-Man", "Evolution Worlds", "Donkey Konga", "Cubivore.", "The Incredible Hulk: Ultimate Destruction", "P.N.03", "Doshin the Giant", "MegaMan Anniversary Collection", "Custom Robo", "X-Men Legends", "The Legend of Zelda: Four Swords Adventures", "Wario World", "Star Fox Adventures", "Mario Party 6", "Killer 7", "Battalion Wars", "X-Men Legends II: Rise of Apocalypse", "Bloody Roar: Primal Fury", "Star Wars: Rebel Strike - Rogue Squadron III", "Donkey Konga 2", "Tony Hawk's Underground", "Wallace & Gromit in Project Zoo", "Sonic Adventure 2: Battle", "Odama", "The Legend of Zelda: Master Quest", "Mega Man X Collection", "The Lord of the Rings: The Return of the King", "Sonic Adventure DX", "Lost Kingdoms II", "Geist", "The Lord of the Rings: The Third Age", "Nintendo Puzzle Collection", "WWE: Day of Reckoning", "Sonic Heroes", "Tony Hawk's Pro Skater 4", "True Crime", "Chaos Field", "WWE Wrestlemania X8"],
+
+ /* https://www.digitaltrends.com/gaming/best-gamecube-games/ */
+ ["Viewtiful Joe", "The Legend of Zelda: Four Swords Adventures", "Resident Evil 4", "Prince of Persia: The Sands of Time", "Ikaruga", "Tom Clancy's Splinter Cell: Chaos Theory", "Star Wars: Rogue Squadron II - Rogue Leader", "Metal Gear Solid: Twin Snakes", "Luigi's Mansion", "Metroid Prime", "Star Fox Adventures", "Metroid Prime 2: Echoes", "Eternal Darkness: Sanity's Requiem", "Beyond Good & Evil", "Super Smash Bros. Melee", "TimeSplitters 2", "Killer7", "Donkey Konga", "Super Mario Sunshine", "Donkey Kong Jungle Beat", "Super Monkey Ball 2", "Mario Kart: Double Dash!!", "F-Zero GX", "Burnout 2: Point of Impact", "The Legend of Zelda: The Wind Waker", "The Legend of Zelda: Twilight Princess", "Paper Mario: The Thousand-Year Door", "Tales of Symphonia", "The Legend of Zelda: Ocarina of Time - Master Quest", "Animal Crossing", "Madden NFL 2004", "NBA Street Vol. 2", "Mario Power Tennis", "Mario Golf: Toadstool Tour", "Mario Superstar Baseball", "Super Mario Strikers", "Tony Hawk's Pro Skater 4", "Fire Emblem: Path of Radiance", "Battalion Wars", "Pikmin 2"],
+
+ /* https://kotaku.com/the-best-gamecube-games-1739309425 */
+ ["The Legend of Zelda: The Wind Waker", "Mario Kart: Double Dash!!", "Billy Hatcher and the Giant Egg", "Skies of Arcadia", "Viewtiful Joe", "Resident Evil 4", "Star Wars: Rogue Squadron II: Rogue Leader", "Paper Mario: The Thousand-Year Door", "F-Zero GX", "Super Mario Sunshine", "Donkey Kong: Jungle Beat", "Super Monkeyball 2", "Animal Crossing", "Final Fantasy: Crystal Chronicles", "Odama", "Metroid Prime", "Pikmin"],
+
+ /* https://www.destructoid.com/the-top-5-best-gamecube-games-of-all-time/ */
+ ["F-Zero GX", "Chibi-Robo", "The Legend of Zelda: Collector's Edition", "NHL Hitz 20-03", "Eternal Darkness: Sanity's Requiem"]
+
+
+];
+
+</script>
+</body>
+</html>
