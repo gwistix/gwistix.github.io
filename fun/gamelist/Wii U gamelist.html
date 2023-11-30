@@ -1,0 +1,405 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best Wii U games ever</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique Wii U games:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = 1 / length;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+
+ });
+
+
+
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ title = title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/and/g,"&")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9]/g, "")
+  ;
+ return normalizeRomanNumerals(title)
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'><small>" + book.score.toFixed(3) + "</small></td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://gamerant.com/best-wii-u-games/ */
+ ["Xenoblade Chronicles X", "Nintendo Land", "Hyrule Warriors", "Splatoon", "Pikmin 3", "Super Mario Maker", "The Legend of Zelda: The Wind Waker HD", "Super Smash Bros. for Wii U", "Super Mario 3D World", "Mario Kart 8"].reverse(),
+
+ /* https://www.nintendolife.com/guides/50-best-wii-u-games-of-all-time */
+ ["The Legend of Zelda: Breath of the Wild", "The Legend of Zelda: The Wind Waker HD", "Mario Kart 8", "Donkey Kong Country: Tropical Freeze", "Bayonetta 2", "Super Smash Bros. for Wii U", "Splatoon", "The Legend of Zelda: Twilight Princess HD", "Pikmin 3", "Xenoblade Chronicles X", "Rayman Legends", "Batman: Arkham City Armored Edition", "Shovel Knight", "Super Mario 3D World", "Super Mario Maker", "Yoshi's Woolly World", "Bayonetta", "LEGO City: Undercover", "Captain Toad: Treasure Tracker", "Shantae And The Pirate's Curse", "Tokyo Mirage Sessions #FE", "Monster Hunter 3 Ultimate", "Sonic & All-Stars Racing Transformed", "Hyrule Warriors", "SteamWorld Dig", "SteamWorld Heist", "Child of Light", "Nintendo Land", "FAST Racing NEO", "Guacamelee! Super Turbo Championship Edition", "The Wonderful 101", "Deus Ex: Human Revolution Director's Cut", "New Super Mario Bros. U", "NES Remix 2", "New Super Luigi U", "Batman: Arkham Origins", "Axiom Verge", "DuckTales: Remastered", "Shantae: Half-Genie Hero", "Fatal Frame: Maiden of Black Water", "Tekken Tag Tournament 2: Wii U Edition", "Affordable Space Adventures", "NES Remix", "Need for Speed: Most Wanted U", "ZombiU", "Resident Evil Revelations", "Mass Effect 3: Special Edition", "Pokkén Tournament", "Runbow", "Assassin's Creed IV Black Flag"],
+
+ /* https://www.gamesradar.com/best-wii-u-games/ */
+ ["The Legend of Zelda: Breath of the Wild", "Super Mario 3D World", "Pikmin 3", "Bayonetta 2", "Mario Kart 8", "The Legend of Zelda: The Wind Waker HD", "Super Mario Maker", "Shovel Knight", "Nintendo Land", "Rayman Legends", "Super Smash Bros. for Wii U", "Captain Toad: Treasure Tracker", "Splatoon", "Affordable Space Adventures", "The Legend of Zelda: Twilight Princess HD", "NES Remix Pack", "New Super Mario Bros. U", "Monster Hunter 3 Ultimate", "Tokyo Mirage Sessions #FE", "Axiom Verge", "Donkey Kong Country: Tropical Freeze", "Deus Ex: Human Revolution Director's Cut", "ZombiU", "The Wonderful 101", "Lego City: Undercover"],
+
+ /* https://www.reddit.com/r/wiiu/comments/16x9ymt/what_are_your_top_10_best_wii_u_games_except/ [ranked lists] */
+  /* Ok_Introduction6574 */   ["Xenoblade Chronicles X", "Assassin's Creed IV: Black Flag", "Super Smash Bros. for Wii U", "Mario kart 8", "Minecraft: Wii U Edition", "Monster Hunter 3 Ultimate", "Resident Evil Revelations", "Captain Toad: Treasure Tracker", "Super Mario Maker", "Nintendo Land"],
+  /* McGloomy */ ["Mario Kart 8", "Knytt Underground", "Super Smash Bros. for Wii U", "Picto Party", "Batman: Arkham City: Armored Edition", "Solitaire", "Game & Wario", "Mr. Pumpkin Adventure", "DuckTales: Remastered", "Wii Party U"],
+  /* AcanthisittaBig8144 */ ["Freedom Planet", "Disney Planes", "Minecraft Wii U Edition", "Disney Infinity", "Assassin's Creed 3", "Driven to Win", "Cars 3: Driven to Win", "Need for Speed: Most Wanted U", "Sonic Lost World", "Lego Marvel Superheroes", "Watch Dogs"],
+  /* Mouffles */ ["Monster Hunter 3 Ultimate", "Splatoon", "Xenoblade Chronicles X", "Pikmin 3", "Bayonetta", "Bayonetta 2", "Nintendo Land"],
+  /* FillionMyMind */ ["Mass Effect 3 Special Edition", "Meme Run", "The Letter"],
+  /* Academic_Set6841 */ ["Pushmo World", "Xenoblade Chronicles X", "Donkey Kong Country: Tropical Freeze", "Yoshi's Woolly World", "Wonderful 101", "Bayonetta 2", "Kirby and the Rainbow Curse", "Pikmin 3", "Star Fox Zero", "Game & Wario"],
+  /* yourmotherinreallife */ ["Super Mario Maker", "Draw A Stickman: Epic 2", "Lego City Undercover", "Mario Party 10", "Game & Wario", "Mighty No. 9", "Yo-kai Watch Dance: Just Dance Special Version", "Nintendo Land", "Angry Birds Trilogy", "Super Meat Boy"],
+
+ /* https://www.metacritic.com/browse/game/wii-u/all/all-time/metascore/?platform=wii-u&releaseYearMin=1910&releaseYearMax=2023 */
+ ["The Legend of Zelda: Breath of the Wild", "Super Mario 3D World", "Super Smash Bros. for Wii U", "Rayman Legends", "Bayonetta 2", "The Legend of Zelda: The Wind Waker HD", "Guacamelee! Super Turbo Championship Edition", "Mario Kart 8 DLC Pack 2", "Skylanders: Swap Force", "Axiom Verge", "Mario Kart 8", "Deus Ex: Human Revolution - Director's Cut", "Super Mario Maker", "Shovel Knight", "Mario Kart 8 DLC Pack 1", "SteamWorld Heist", "Pikmin 3", "Skylanders: SuperChargers", "Gunman Clive HD Collection", "Bayonetta", "The Legend of Zelda: Twilight Princess HD", "Need for Speed: Most Wanted U", "Assassin's Creed III", "NBA 2K13", "Shantae and the Pirate's Curse", "Darksiders II", "Mass Effect 3: Special Edition", "Assassin's Creed III", "Trine 2: Director's Cut", "Bit.Trip Presents...Runner2: Future Legend of Rhythm Alien", "New Super Mario Bros. U", "Xenoblade Chronicles X", "Child of Light", "Mutant Mudds Deluxe", "Freedom Planet", "Donkey Kong Country: Tropical Freeze", "Star Wars Pinball", "SteamWorld Dig", "CastleStorm", "Tekken Tag Tournament 2: Wii U Edition", "Severed", "Mutant Mudds: Super Challenge", "LEGO Marvel Super Heroes", "Stealth Inc 2: A Game of Clones", "Art of Balance", "Runbow", "Monster Hunter 3 Ultimate", "Art Academy: Home Studio", "Monster Hunter 3 Ultimate", "Splatoon", "Stick it to the Man!", "Affordable Space Adventures", "Captain Toad: Treasure Tracker", "Call of Duty: Black Ops II", "FAST Racing NEO", "Shantae: Half-Genie Hero", "BADLAND: Game of the Year Edition", "Mighty Switch Force! Hyper Drive Edition", "Tokyo Mirage Sessions #FE", "Pushmo World", "Skylanders: Giants", "LEGO City Undercover", "Resident Evil: Revelations", "Teslagrad", "Extreme Exorcism", "Jøtun: Valhalla Edition", "Little Inferno", "Scram Kitty and his Buddy on Rails", "Noitu Love 2: Devolution", "Edge (2011)", "Swords & Soldiers", "Adventures of Pip", "Sonic & All-Stars Racing Transformed", "Swords & Soldiers", "Electronic Super Joy", "Adventures of Pip", "Dungeons & Dragons: Chronicles of Mystara", "New Super Luigi U", "LEGO Batman 2: DC Super Heroes", "ZombiU", "Nintendo Land", "RUSH (2010)", "Tetrobot and Co.", "Minecraft: Wii U Edition", "DuckTales: Remastered", "Your Shape: Fitness Evolved 2013", "Toki Tori 2", "XType Plus", "Lone Survivor: The Director's Cut", "Hyrule Warriors", "Knytt Underground", "Chariot", "Nihilumbra", "Pokken Tournament", "Paper Mario: Color Splash", "Elliot Quest", "Spin the Bottle: Bumpie's Party", "Cloudberry Kingdom", "Madden NFL 13", "Don't Starve: Giant Edition", "Swords & Soldiers II", "Paper Monsters Recut", "Star Fox Guard", "Scribblenauts Unlimited", "NES Remix 2", "Just Dance 2016", "Another World: 20th Anniversary Edition", "Kirby and the Rainbow Curse", "Cosmophony", "Ultratron", "Just Dance 2014", "Armillo", "The Cave (2013)", "Wii Fit U", "Unepic", "Human Resource Machine", "The Fall", "Scribblenauts Unmasked: A DC Comics Adventure", "Disney Infinity", "Nano Assault Neo", "NES Remix", "Mario vs. Donkey Kong: Tipping Stars", "Tengami", "Puddle", "Ninja Gaiden 3: Razor's Edge", "FIFA Soccer 13", "Star Fox Zero", "Wii Sports Club", "Q.U.B.E. Director's Cut", "Squids Odyssey", "Citizens of Earth", "Fatal Frame: Maiden of Black Water", "Underground (2015)", "Legend of Kay Anniversary", "The Amazing Spider-Man", "Just Dance 4", "One Piece: Unlimited World Red", "Mario Party 10", "Wii Party U", "Dr. Luigi", "Kung Fu Rabbit", "Mario & Sonic at the Rio 2016 Olympic Games", "Warriors Orochi 3: Hyper", "Chasing Aurora", "Cubemen 2", "Sonic: Lost World", "Watch Dogs", "Wooden Sen'SeY", "F1 Race Stars: Powered Up Edition", "Game & Wario", "Pure Chess", "SiNG Party", "The Mysterious Cities of Gold: Secret Paths", "Abyss (2012)", "Mario Tennis: Ultra Smash", "Pac-Man and the Ghostly Adventures", "Shadow Puppeteer", "Typoman", "Epic Mickey 2: The Power of Two", "Roving Rogue", "Super Toy Cars", "Transformers Prime: The Game", "Cube Life: Island Survival", "Mario & Sonic at the Sochi 2014 Olympic Winter Games", "How to Survive", "Temple of Yog", "Blok Drop U", "Ice Cream Surfer", "Rabbids Land", "Disney Planes", "Funky Barn", "Marvel Avengers: Battle for Earth", "Pokemon Rumble U", "Canvaleon", "Mighty No. 9", "Gravity Badgers", "Animal Crossing: amiibo Festival", "Rodea the Sky Soldier", "Tank! Tank! Tank!", "Devil's Third", "Ben 10: Omniverse", "Adventure Time: Explore the Dungeon Because I DON'T KNOW!", "Sonic Boom: Rise of Lyric", "ESPN Sports Connection", "Game Party Champions", "Family Party: 30 Great Games Obstacle Arcade"],
+
+ /* https://whatoplay.com/wii-u/best/ */
+ ["The Legend of Zelda: Breath of the Wild", "Super Smash Bros. for Wii U", "Super Mario 3D World", "Bayonetta 2", "Rayman Legends", "The Legend of Zelda: The Wind Waker HD", "Shovel Knight", "Bayonetta", "Mario Kart 8", "The Legend of Zelda: Twilight Princess HD", "Axiom Verge", "Xenoblade Chronicles X", "The Binding of Isaac: Rebirth", "Shantae and the Pirate's Curse", "Super Mario Maker", "Splatoon", "Guacamelee! Super Turbo Championship Edition", "Batman: Arkham City - Armored Edition", "SteamWorld Heist", "Mass Effect 3: Special Edition", "Pikmin 3", "Minecraft: Wii U Edition", "Shantae: Half-Genie Hero", "Tokyo Mirage Sessions #FE", "New Super Mario Bros. U", "Donkey Kong Country: Tropical Freeze", "Terraria", "Assassin's Creed IV: Black Flag", "Assassin's Creed III", "Monster Hunter 3 Ultimate", "Darksiders II", "Tom Clancy’s Splinter Cell Blacklist", "Yoshi's Woolly World", "Child of Light", "Mutant Mudds Super Challenge", "Need for Speed: Most Wanted U", "Affordable Space Adventures", "Art of Balance", "Captain Toad: Treasure Tracker", "Skylanders: SWAP Force", "Trine 2: Director's Cut", "BIT.TRIP Presents... Runner2: Future Legend of Rhythm Alien", "Mighty Switch Force! Hyper Drive Edition", "Skylanders: Trap Team", "LEGO Marvel Super Heroes", "Call of Duty: Black Ops II", "Runbow", "Lego City Undercover", "Pushmo World", "FAST Racing NEO", "Oddworld: Abe's Oddysee - New 'n' Tasty", "Sonic & All-Stars Racing Transformed", "Tekken Tag Tournament 2: Wii U Edition", "Injustice: Gods Among Us", "Guitar Hero Live", "Severed", "1001 Spikes", "Stealth Inc 2: A Game of Clones", "DuckTales Remastered", "Skylanders: SuperChargers", "The Wonderful 101", "Art Academy: Home Studio", "Disney Infinity 3.0", "Freedom Planet", "NBA 2K13", "Tadpole Treble", "Just Dance 2017", "Super Meat Boy", "Swords & Soldiers II", "Paper Mario: Color Splash", "Trine Enchanted Edition", "Year Walk", "Lone Survivor: The Director's Cut", "Pokkén Tournament", "OlliOlli", "Resident Evil: Revelations", "Jøtun: Valhalla Edition", "Hyrule Warriors", "The Cave", "Call of Duty: Ghosts", "Just Dance 2014", "LEGO Jurassic World", "Stick It to The Man", "Teslagrad", "Don't Starve: Giant Edition", "LEGO Batman 2: DC Super Heroes", "Kirby and the Rainbow Curse", "Skylanders: Imaginators", "Just Dance 2015", "Tumblestone", "Angry Video Game Nerd Adventures", "Just Dance 2018", "Elliot Quest", "Disney Infinity 2.0", "Disney Infinity", "Mutant Mudds Deluxe", "Shantae: Risky's Revenge - Director's Cut", "Just Dance 2016", "Badland: Game of the Year Edition", "FIFA Soccer 13", "Electronic Super Joy", "Unepic", "Lego Dimensions", "Cosmophony", "Spin the Bottle: Bumpie's Party", "Dual Core", "RACE THE SUN", "The LEGO Movie Videogame", "Octodad: Dadliest Catch", "Darksiders: Warmastered Edition", "LEGO Batman 3: Beyond Gotham", "LEGO Star Wars: The Force Awakens", "Pirate Pop Plus", "Xeodrifter", "The Bridge", "Nano Assault Neo", "One Piece: Unlimited World RED", "Lego Marvel's Avengers", "Scribblenauts Unlimited", "Extreme Exorcism", "Armillo", "Kick & Fennick", "Quest of Dungeons", "The Fall", "Mario vs. Donkey Kong: Tipping Stars", "Batman: Arkham Origins", "Noitu Love 2: Devolution", "Watch Dogs", "Star Fox Guard", "Ultratron", "Wii Fit U", "Warriors Orochi 3: Hyper", "Little Inferno", "Cloudberry Kingdom", "Nova-111", "PictoParty", "Just Dance 4", "Ninja Gaiden 3: Razor's Edge", "Fatal Frame: Maiden of Black Water", "Another World - 20th Anniversary Edition", "Costume Quest 2", "STARWHAL", "Squids Odyssey", "LEGO The Hobbit", "CastleStorm", "Rush", "Madden NFL 13", "Your Shape Fitness Evolved 2013", "Adventures of Pip", "Star Ghost", "Ittle Dew", "Chariot", "Scram Kitty and his Buddy on Rails", "Shutshimi: Seriously Swole", "Asdivine Hearts", "Nihilumbra", "ZombiU", "Toki Tori 2+", "Zombie Defense", "Mario & Sonic at the Rio 2016 Olympic Games", "Swords & Soldiers", "The Swindle", "Puddle", "Knytt Underground", "Citizens of Earth", "Buddy & Me: Dream Edition", "Master Reboot", "Toto Temple Deluxe", "Skylanders: Giants", "Star Fox Zero", "Angry Birds Star Wars", "Scribblenauts Unmasked: A DC Comics Adventure", "The Rivers of Alice : Extended Version", "Q.U.B.E: Director's Cut", "How to Survive", "Epic Dumpster Bear", "Adventure Time: Finn and Jake Investigations", "FreezeME", "Mario Party 10", "The Mysterious Cities of Gold: Secret Paths", "Typoman", "Wii Sports Club", "Dragon Fantasy: The Volumes of Westeria", "Never Alone", "Kung Fu Panda: Showdown of Legendary Legends", "Kung Fu Rabbit", "Pure Chess", "Tengami", "Wind-up Knight 2", "Pier Solar and the Great Architects", "Chasing Aurora", "Dr. Luigi", "Abyss", "The Amazing Spider-Man 2", "KickBeat: Special Edition", "High Strangeness", "Batman: Arkham Origins Blackgate - Deluxe Edition", "Monster High New Ghoul in School", "Legend of Kay Anniversary", "Kung Fu FIGHT!", "Bombing Bastards", "Color Zen Kids", "Mario & Sonic at the Sochi 2014 Olympic Winter Games", "F1 Race Stars: Powered Up Edition", "Whispering Willows", "Shadow Puppeteer", "Paranautical Activity", "Rabbids Land", "PAC-MAN and the Ghostly Adventures", "LOST REAVERS", "Momonga Pinball Adventures", "Sonic Lost World", "How to Train Your Dragon 2: The Video Game", "Transformers Prime: The Game", "VoxelMaker", "Sing Party", "Marvel Avengers: Battle For Earth", "Ascent of Kings", "TEMPLE OF YOG", "Mario Tennis: Ultra Smash", "Game & Wario", "Rise of the Guardians: The Video Game", "Soul Axiom", "Falling Skies: The Game", "Canvaleon", "Cube Life: Island Survival", "Wooden Sen'SeY", "Super Toy Cars", "Devil's Third", "Gravity Badgers", "uWordsmith", "Transformers: Rise of the Dark Spark", "B3 Game Expo For Bees", "Mighty No. 9", "Funky Barn", "Penguins of Madagascar", "Epic Mickey 2: The Power of Two", "Star Sky", "Roving Rogue", "Tank! Tank! Tank!", "Barbie and her Sisters Puppy Rescue", "COLOR BOMBS", "007 Legends", "Adventure Time: Explore the Dungeon Because I Don't Know!", "Rock 'N Racing Off Road"],
+
+ /* https://www.neogaf.com/threads/ign-top-10-wii-u-games-of-all-time.1635218/ [ranked lists] */
+  /* kunonabi */ ["The Wonderful 101", "Xenoblade Chronicles X", "Nintendo Land", "StarFox Zero", "Splatoon", "Pikmin 3", "Tokyo Mirage Sessions #Fe", "Super Mario 3D World", "Devil's Third", "ZombiU", "Fatal Frame: Maiden of the Black Water", "Donkey Kong Country: Tropical Freeze", "Hyrule Warriors", "Yoshi's Woolly World"],
+  /* Neff */ ["ZombiU", "Devil's Third", "Super Smash Bros. For Wii U", "Yoshi's Woolly World", "Bayonetta 2", "Donkey Kong Country: Tropical Freeze", "Splatoon", "Super Mario 3D World", "Mario Kart 8", "The Wonderful 101"].reverse(), 
+  /* I Love Rock 'n' Roll */ ["Xenoblade Chronicles X", "Mario Kart 8", "Donkey Kong Country: Tropical Freeze", "Bayonetta", "Bayonetta 2", "Deus Ex: Human Revolution - Director's Cut", "The Legend of Zelda: Breath of the Wild", "Super Smash Bros. for Wii U", "Splatoon!", "Need for Speed: Most Wanted U", "Tokyo Mirage Sessions #FE"], 
+  /* ProgenitorCastle */ ["The Wonderful 101", "Bayonetta 2", "Bayonetta", "ZombiU", "Nintendo Land", "Rayman Legends", "Mario Kart 8", "Splatoon", "Fatal Frame: Maiden of the Black Water", "Hyrule Warriors", "Meme Run"], 
+  /* Sojiro */ ["Monster Hunter 3 Ultimate", "Splatoon", "Xenoblade Chronicles X", "The Legend of Zelda: The Wind Waker HD", "The Wonderful 101", "The Legend of Zelda: Twilight Princess HD", "Nintendo Land", "Splinter Cell Blacklist", "Deus Ex: Human Revolution - Director's Cut", "Tekken Tag Tournament 2: Wii U Edition"],
+  /* Krappadizzle */ ["The Legend of Zelda: Breath of the Wild", "Mario Kart 8", "Super Mario 3D World", "Donkey Kong Country: Tropical Freeze", "Pikmin 3", "E-Shop", "Nintendo Land", "The Legend of Zelda: The Wind Waker HD", "The Wonderful 101"],
+
+ /* https://www.youtube.com/watch?v=7C_BahM2D4w */
+ ["The Legend of Zelda: Breath of the Wild", "Mario Kart 8", "Bayonetta 2", "Donkey Kong Country: Tropical Freeze", "Pikmin 3", "Rayman Legends", "Kirby and the Rainbow Curse", "Super Mario 3D World", "Super Smash Bros. for Wii U", "Splatoon!", "Captain Toad: Treasure Tracker", "Yoshi's Woolly World", "Xenoblade Chronicles X", "Super Mario Maker", "Shantae and the Pirate's Curse", "Need for Speed: Most Wanted U", "Shovel Knight", "Monster Hunter 3 Ultimate", "Batman: Arkham City Armored Edition"],
+
+ /* https://www.youtube.com/watch?v=hiow2TJHJlk */
+ ["The Legend of Zelda: The Wind Waker HD", "Super Mario Maker", "Nintendo Land", "The Legend of Zelda: Twilight Princess HD", "Yoshi's Woolly World", "Xenoblade Chronicles X", "NES Remix", "Splatoon!", "Kirby and the Rainbow Curse", "Affordable Space Adventures"],
+
+ /* https://retrododo.com/best-wii-u-games/ */
+ ["The Legend Of Zelda: Breath Of The Wild (2017)", "The Legend Of Zelda: Twilight Princess HD (2016)", "Super Mario 3D World (2013)", "The Legend Of Zelda: The Wind Waker HD (2013)", "Mario Kart 8 (2014)", "Super Mario Maker (2015)", "Pikmin 3 (2013)", "Need For Speed Most Wanted U (2012)", "Mario Party 10 (2015)", "New Super Mario Bros. U (2012)", "Rayman Legends (2013)", "Yoshi’s Woolly World (2015)", "Donkey Kong Country: Tropical Freeze (2014)", "Super Smash Bros For Wii U (2014)", "Pokkén Tournament (2015)", "Kirby And The Rainbow Curse (2015)", "Xenoblade Chronicles X (2015)", "Shovel Knight (2014)", "Captain Toad: Treasure Tracker (2013)", "Nintendo Land (2012)", "Batman: Arkham City – Armored Edition (2011)", "Bayonetta 2 (2014)", "Hyrule Warriors (2014)", "Splatoon (2015)", "Lego City Undercover (2013)", "Bayonetta (2014)", "Darksiders 2 (2012)", "Paper Mario: Color Splash (2016)", "ZombiU (2012)", "The Wonderful 101 (2013)"],
+
+/* https://www.one37pm.com/gaming/best-wii-u-games */ ["The Legend of Zelda: Breath of the Wild", "Super Smash Bros. for Wii U", "Pokkén Tournament", "Mario Kart 8", "Bayonetta 2", "New Super Mario Bros. U", "Super Mario 3D World", "The Legend of Zelda: Twilight Princess HD", "The Legend of Zelda: The Wind Waker HD", "Donkey Kong Country: Tropical Freeze", "Splatoon", "Paper Mario: Color Splash", "Super Mario Maker", "Captain Toad: Treasure Tracker", "Pikmin 3", "Yoshi's Woolly World", "NES Remix Pack", "Xenoblade Chronicles X", "Tokyo Mirage Sessions ♯FE", "ZombiU", "Lego City: Undercover", "The Wonderful 101", "Monster Hunter 3 Ultimate", "Rayman Legends", "Shovel Knight", "Guacamelee! Super Turbo Championship Edition", "Shantae: Half-Genie Hero", "Minecraft: Wii U Edition", "Axiom Verge", "Deus Ex: Human Revolution - Director's Cut"],
+
+ /* https://opencritic.com/browse/wii-u [scored games only] */
+ ["The Legend of Zelda: Breath of the Wild", "Super Mario 3D World", "Super Smash Bros. for Wii U", "Bayonetta 2", "Rayman Legends", "Shovel Knight", "Mario Kart 8 DLC Pack 2", "Guacamelee! Super Turbo Championship Edition", "Super Mario Maker", "Mario Kart 8", "Mario Kart 8 DLC Pack 1", "The Binding of Isaac: Rebirth", "ZEN Pinball 2: The Walking Dead", "Shovel Knight: Specter of Torment", "SteamWorld Heist", "Bayonetta", "Assassin's Creed IV: Black Flag", "The Legend of Zelda: Twilight Princess HD", "Axiom Verge", "Art Academy: Home Studio", "The Swapper", "Xenoblade Chronicles X", "Donkey Kong Country: Tropical Freeze", "Tadpole Treble", "ZEN Pinball 2", "Hyper Light Drifter", "Severed", "Tokyo Mirage Sessions #FE", "Year Walk", "Child of Light", "Assault Android Cactus", "Skylanders Swap Force", "Edge", "Lone Survivor: The Director's Cut", "SteamWorld Dig", "Captain Toad: Treasure Tracker", "FAST Racing Neo", "LEGO Marvel Super Heroes", "Splatoon", "Freedom Planet", "Tumblestone", "The Legend of Zelda: Breath of the Wild - The Champions' Ballad", "Oddworld: Abe's Oddysee - New 'n' Tasty", "Trine: Enchanted Edition", "Shantae and the Pirate's Curse", "Disney Infinity 3.0", "Shantae: Half-Genie Hero", "Lego Dimensions: Ghostbusters Story Pack", "Guitar Hero Live", "Kerbal Space Program", "Gunman Clive HD Collection", "Runbow", "Skylanders SuperChargers", "Stealth Inc 2: A Game of Clones", "RUSH", "Pushmo World", "6180 The Moon", "1001 Spikes", "Yoshi's Woolly World", "REPLAY : VHS is not dead", "Scram Kitty and His Buddy on Rails", "Stick it to the Man!", "Skylanders: Trap Team", "CastleStorm", "Noitu Love 2: Devolution", "Watch Dogs", "LEGO Dimensions", "Race The Sun", "Terraria", "Teslagrad", "Thomas Was Alone", "Affordable Space Adventures", "Hue", "Skylanders Imaginators", "Sportsball", "Ziggurat", "Darksiders: Warmastered Edition", "Xeodrifter", "Ittle Dew", "Mutant Mudds Super Challenge", "Forma.8", "Swords & Soldiers", "The Legend of Zelda: Breath of the Wild - The Master Trials", "Dragon Fantasy: The Black Tome of Ice", "LEGO Star Wars: The Force Awakens", "Pokken Tournament", "Armillo", "Don't Starve: Giant Edition", "OlliOlli", "QUBE: Director's Cut", "Paper Mario: Color Splash", "Just Dance 2018", "Hyrule Warriors", "Chariot", "Wii Fit U", "Zumba Fitness World Party", "Jøtun: Valhalla Edition", "Angry Video Game Nerd Adventures", "Shantae: Risky's Revenge - Director's Cut", "Tetrobot and Co.", "Adventures of Pip", "Minecraft: Story Mode - Episode 1 - The Order of the Stone", "MouseCraft", "Nihilumbra", "NES Remix 2", "Chronicles of Teddy: Harmony of Exidus", "Star Fox Guard", "Swords & Soldiers II", "The Fall", "Knytt Underground", "Kick & Fennick", "Just Dance 2019", "Just Dance 2015", "LEGO Batman 3: Beyond Gotham", "Shutshimi: Seriously Swole", "DuckTales Remastered", "Just Dance 2014", "Minecraft: Wii U Edition", "Octodad: Dadliest Catch", "Extreme Exorcism", "Another World: 20th Anniversary Edition", "The Book of Unwritten Tales 2", "BADLAND: Game of the Year Edition", "Tengami", "Spy Chameleon", "World to the West", "Kirby and the Rainbow Curse", "Toto Temple Deluxe", "Unepic", "Minecraft: Story Mode - Episode 5 - Order Up!", "Futuridium EP Deluxe", "Never Alone", "140", "Mario vs. Donkey Kong: Tipping Stars", "Call of Duty: Ghosts", "Just Dance 2017", "Ultratron", "Rynn's Adventure: Trouble in the Enchanted Forest", "NES Remix", "Pixel Galaxy", "Costume Quest 2", "Disney Infinity 2.0", "Resident Evil: Revelations", "Human Resource Machine", "Star Ghost", "Elliot Quest", "One Piece: Unlimited World Red", "LEGO The Hobbit", "Minecraft: Story Mode - Episode 3 - The Last Place You Look", "Chompy Chomp Chomp Party", "LEGO Jurassic World", "Nova-111", "Scribble", "LEGO Marvel's Avengers", "The LEGO Movie Videogame", "The Swindle", "Cosmophony", "Paper Monsters Recut", "Star Fox Zero", "Wind-up Knight 2", "Squids Odyssey", "Dr. Luigi", "Citizens of Earth", "Fatal Frame: Maiden of the Black Water", "Pirate Pop Plus", "Just Dance 2016", "Cars 3: Driven to Win", "Buddy & Me: Dream Edition", "Wii Sports Club", "Tallowmere", "Ghost Blade HD", "Use Your Words", "Zombie Vikings", "Shiftlings", "Lovely Planet", "Mario Party 10", "Typoman", "Adventure Time: Finn and Jake Investigations", "No Time to Explain", "The Peanuts Movie: Snoopy's Grand Adventure", "Alphadia Genesis", "Inside My Radio", "KickBeat: Special Edition", "Back to Bed", "Aperion Cyberstorm", "Kung Fu Panda: Showdown of Legendary Legends", "Mini Mario & Friends: Amiibo Challenge", "Ninja Pizza Girl", "High Strangeness", "Pier Solar and the Great Architects", "Mario & Sonic at the Rio 2016 Olympic Games", "Poncho", "Pumped BMX +", "FreezeME", "Tetraminos", "Shadow Puppeteer", "FullBlast", "Batman: Arkham Origins Blackgate - Deluxe Edition", "Radiantflux: Hyperfractal", "Teslapunk", "Bit Dungeon+", "Minecraft: Story Mode - Episode 2 - Assembly Required", "Epic Dumpster Bear", "Legend of Kay Anniversary", "Mario Tennis: Ultra Smash", "Momonga Pinball Adventures", "Mario & Sonic at the Sochi 2014 Olympic Winter Games", "Super Toy Cars", "Wooden Sen'SeY", "Armikrog", "Blasting Agent: Ultimate Edition", "Temple of Yog", "Roving Rogue", "Fire: Ungh's Quest", "Revenant Saga", "Soul Axiom", "Asdivine Hearts", "The Amazing Spider-Man 2", "Mighty No. 9", "Toby: The Secret Mine", "Infinity Runner", "Ascent of Kings", "Grumpy Reaper", "REPTILIAN REBELLION", "Angry Birds Star Wars", "3Souls", "Plantera", "Animal Crossing: Amiibo Festival", "Ice Cream Surfer", "Spheroids", "B3 Game Expo For Bees", "Twin Robots", "Rodea the Sky Soldier", "Funk of Titans", "The Girl and the Robot", "Transformers: Rise of the Dark Spark", "Devil's Third", "Cutie Pets Pick Berries", "Blue Collar Astronaut", "Gravity Badgers", "Vaccine", "Lost Reavers", "Adventure Time: Explore the Dungeon Because I DON'T KNOW!", "Slain", "Falling Skies: The Game", "Collateral Thinking", "Giana Sisters: Dream Runners", "Monster High: New Ghoul in School", "Twisted Fusion", "Sonic Boom: Rise of Lyric", "Totem Topple", "Frenchy Bird", "Rock 'N Racing Off Road DX", "Chasing Dead", "Joe's Diner", "STEEL RIVALS"],
+
+ /* https://gaminggorilla.com/best-nintendo-wii-u-games/ */
+ ["The Legend of Zelda: Breath of the Wild", "Super Mario 3D World", "The Legend of Zelda: The Wind Waker HD", "Super Mario Maker", "Pikmin 3", "Super Smash Bros For Wii U", "Bayonetta 2", "Mario Kart 8", "Donkey Kong Country: Tropical Freeze", "Rayman Legends", "Shovel Knight", "Splatoon", "The Legend of Zelda: Twilight Princess HD", "Captain Toad: Treasure Tracker", "Nintendo Land", "Batman: Arkham City Armored Edition", "Yoshi’s Woolly World", "LEGO City: Undercover", "Bayonetta", "Axiom Verge", "Monster Hunter 3 Ultimate", "Xenoblade Chronicles X", "Tokyo Mirage Sessions #FE", "Deus Ex: Human Revolution Director’s Cut", "Skylanders SuperChargers", "SteamWorld Heist", "Sonic & All-Stars Racing Transformed", "Guacamelee! Super Turbo Championship Edition", "Hyrule Warriors", "NES Remix 2", "Need for Speed: Most Wanted U", "Child of Light", "Shantae And The Pirate’s Curse", "The Wonderful 101", "FAST Racing NEO", "New Super Mario Bros. U", "Tekken Tag Tournament 2: Wii U Edition", "Affordable Space Adventures", "New Super Luigi U", "Fatal Frame: Maiden of Black Water", "DuckTales: Remastered", "LEGO Marvel Super Heroes", "NES Remix", "Shantae: Half-Genie Hero", "Assassin’s Creed IV Black Flag", "LEGO Batman 2: DC Super Heroes", "Resident Evil Revelations", "Runbow", "Minecraft: Wii U Edition", "Mass Effect 3: Special Edition"],
+
+ /* https://www.thetoptens.com/wii-u/best-wii-u-games/ */ 
+ ["Skylanders Imaginators", "Zumba Fitness World Party", "The Voice: I Want You", "SpongeBob Squigglepants", "Adventure Time: Explore the Dungeon Because I Don't Know!", "Brunswick Pro Bowling", "TimeSplitters 2", "Just Dance 2017", "Ittle Dew", "Squids Odyssey", "Pure Chess", "Cocoto Magic Circus 2", "CastleStorm", "Knytt Underground", "The Mysterious Cities of Gold: Secret Paths", "Wheel of Fortune", "Monopoly Collection", "LEGO Dimensions Starter Pack", "Barbie and Her Sisters: Puppy Rescue", "Monster High New Ghoul in School", "Tumblestone", "Giana Sisters: Twisted Dreams", "Runbow", "ESPN Sports Connection", "Kung Fu Panda: Showdown of Legendary Legends", "Animal Crossing Amiibo Festival", "Wipeout: Create & Crash", "Secret Files: Tunguska", "Yakuza 1 & 2: HD Edition", "Romance of the Three Kingdoms 12", "Cars 3: Driven to Win", "Volgarr the Viking", "Just Dance 2018", "Wicked Monsters Blast! HD Plus", "Woah Dave!", "A World of Keflings", "Xavier", "Year Walk", "Ziggurat", "Rhapsody: Music & Radio", "Toby: The Secret Mine", "TNT Racers: Nitro Machines Edition", "Tengami", "Swords & Soldiers II", "Swords & Soldiers", "Super Meat Boy", "Stealth Inc. 2: A Game of Clones", "Soul Axiom", "Sky Force Anniversary", "Shakedown: Hawaii", "Rodea the Sky Soldier", "Planes: Fire & Rescue", "Angry Birds Trilogy", "Cloudberry Kingdom", "The Smurfs 2", "Star Wars Pinball", "Kung Fu Rabbit", "Toki Tori 2+", "Zen Pinball 2", "Runner2", "Fist of the North Star: Ken's Rage 2", "Puddle", "Family Party: 30 Great Games Obstacle Arcade", "Your Shape: Fitness Evolved 2013", "Wipeout 3", "Little Inferno", "Funky Barn", "Chasing Aurora", "Mutant Mudds Super Challenge", "Mutant Mudds Deluxe", "Mini Mario & Friends: Amiibo Challenge", "Mighty Switch Force! 2", "Mighty Switch Force!: Hyper Drive Edition", "Marvel Avengers: Battle for Earth", "Girls Like Robots", "Lego Dimensions", "Minecraft: Story Mode - The Complete Adventure", "Mario Party 2", "SpongeBob SquarePants: Plankton's Robotic Revenge", "Disney Planes", "The Croods: Prehistoric Party!", "Transformers Prime: The Game", "Penguins of Madagascar", "Turbo: Super Stunt Squad", "The Peanuts Movie: Snoopy's Grand Adventure", "Fast & Furious: Showdown", "Yoshi's Island", "Mario Tennis: Ultra Smash", "Cabela's Dangerous Hunts 2013", "Disney Infinity 2.0", "Tom Clancy's Ghost Recon Phantoms", "The Cave", "Rabbids Land", "Mighty No. 9", "Sonic Boom: Rise of Lyric", "Lego Marvel Super Heroes", "Dr. Luigi", "Scram Kitty and His Buddy On Rails", "Just Dance 2015", "Guacamelee! Super Turbo Championship Edition", "One Piece: Unlimited World Red", "Transformers: Rise of the Dark Spark", "Devil's Third", "Earthbound", "Call of Duty: Ghosts", "Trine 2: Director's Cut", "Skylanders: Trap Team Starter Pack", "Just Dance 2019", "Tank! Tank! Tank!", "Monster Hunter Frontier G", "Brave Tank Hero", "The Book of Unwritten Tales 2", "The Binding of Isaac: Rebirth", "Ben 10: Omniverse 2", "Ben 10: Omniverse", "Axiom Verge", "1001 Spikes", "Yoshi's Story", "Rise of the Guardians: The Video Game", "Lego Marvel's Avengers", "Skylanders Superchargers", "Fatal Frame: Maiden of Blackwater", "Octodad: Dadliest Catch", "007 Legends", "Pushmo World", "The Amazing Spider-Man 2", "Disney Infinity", "Sniper Elite V2", "Monster Hunter Frontier Z", "Darksiders: Warmastered Edition", "Angry Birds Star Wars", "The Lego Movie Videogame", "Pokemon Rumble U", "Lego Jurassic World", "Dragon Quest X", "The Walking Dead: Survival Instinct", "Pac-Man and the Ghostly Adventures 2", "Tom Clancy's Splinter Cell: Blacklist", "Lego the Hobbit", "Wii Fit U", "Child of Light", "Skylanders: Trap Team", "Mass Effect 3: Special Edition", "Madden NFL 13", "Lego Batman 3: Beyond Gotham", "FIFA Soccer 13", "Mario & Sonic at the Rio 2016 Olympic Games", "Shantae and the Pirate's Curse", "Nano Assault Neo", "SING Party", "Injustice: Gods Among Us", "Pac-Man and the Ghostly Adventures", "Resident Evil: Revelations", "Mario & Sonic at the Sochi 2014 Olympic Winter Games", "Just Dance 2014", "Deus Ex: Human Revolution - Director's Cut", "Shantae: Half-Genie Hero", "Lego Batman 2: DC Super Heroes", "Watch Dogs", "Paper Mario: Color Splash", "Skylanders: Giants", "Scribblenauts Unmasked - A DC Comics Adventure", "Epic Mickey 2: The Power of Two", "Wii Sports Club", "The Amazing Spider-Man", "Ninja Gaiden 3: Razor's Edge", "Lego Star Wars: The Force Awakens", "Game Party Champions", "Terraria", "Skylanders: Swap Force", "Assassin's Creed IV: Black Flag", "NBA 2K13", "Warriors Orochi 3: Hyper", "Bayonetta", "Just Dance 4", "NES Remix Pack", "Need for Speed Most Wanted U", "DuckTales: Remastered", "Batman: Arkham City Armored Edition", "Star Fox Guard", "Star Fox Zero", "Disney Infinity 3.0", "Wii Party U", "Darksiders II", "The Wonderful 101", "Batman: Arkham Origins", "Monster Hunter 3 Ultimate", "New Super Mario Bros U + New Super Luigi U", "Minecraft: Wii U Edition", "Shovel Knight", "Guitar Hero Live", "Kirby and The Rainbow Curse", "The Legend of Zelda: Twilight Princess HD", "Captain Toad: Treasure Tracker", "Call of Duty: Black Ops II", "Assassin's Creed III", "Tokyo Mirage Sessions #FE", "Tekken Tag Tournament 2: Wii U Edition", "Pokken Tournament", "Mario Party 10", "ZombiU", "Xenoblade Chronicles X", "Game & Wario", "Bayonetta 2", "Lego City: Undercover", "Hyrule Warriors", "New Super Luigi U", "Sonic Lost World", "Sonic & All-Stars Racing Transformed", "Yoshi's Woolly World", "Rayman Legends", "Scribblenauts Unlimited", "Donkey Kong Country: Tropical Freeze", "Pikmin 3", "The Legend of Zelda: Breath of the Wild", "The Legend of Zelda: The Wind Waker HD", "Splatoon", "Super Mario Maker", "Nintendo Land", "New Super Mario Bros. U", "Mario Kart 8", "Super Smash Bros. for Wii U", "Super Mario 3D World"]
+
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://www.reddit.com/r/wiiu/comments/16x9ymt/what_are_your_top_10_best_wii_u_games_except/ [unranked lists] */
+  /* TastyBirds */   ["Yoshi's Woolly World"],
+  /* JBLBEBthree */   ["Yoshi's Woolly World", "Mario Party 10", "Lego Marvel's Avengers", "Lego City Undercover", "Super Smash Bros. for Wii U"],
+  /* bwoah07_gp2 */   ["Lego City Undercover", "Splatoon!"],
+  /* kartoshkiflitz */   ["Xenoblade Chronicles X"],
+  /* Other-Chemical-6393 */   ["Wii Party U"],
+  /* TaffyPool */   ["Mr. Pumpkin Adventure"],
+  /* Individual_Dress_476 */   ["Shovel Knight Treasure Trove", "Guacamelee! Super Turbo Championship Edition", "Runbow", "Tank tank tank", "Pac-man and the Ghostly Adventures", "Shantae Half-Genie Hero", "The Angry Video Game Nerd Adventure", "Lego City Undercover"],
+  /* globefish23 */   ["Affordable Space Adventures", "Stealth, Inc. 2: A Game of Clones", "Runbow"],
+  /* Slade4Lucas */   ["Mario Kart 8", "Nintendo Land", "Wii Fit U", "Bayonetta", "Lego City Undercover", "Scibblenauts Unlimited", "Tekken Tag Tournament 2: Wii U Edition", "Rayman Legends", "Bayonetta 2", "Super Smash Bros. for Wii U"],
+  /* AlwaysWinnin */   ["Rayman Legends"],
+  /* FluffiBuni */   ["Xenoblade Chronicles X", "Bayonetta 2", "Sonic & All-Stars Racing Transformed", "Deus Ex: Human Revolution Director's Cut", "Splatoon", "Pikmin 3", "Batman: Arkham City: Armored Edition", "Disney Infinity 3.0", "ZombiU", "Call of Duty: Black Ops 2"],
+  /* Dr_toichi_Kuroba */ ["Star Fox Guard", "Game & Wario"],
+  /* Headypidgeon4180 */ ["Yoshi's Woolly World", "Donkey Kong Country: Tropical Freeze", "Xenoblade Chronicles X"],
+  /* morkyt */ ["ZombiU"],
+  /* Thermite1985 */ ["ZombiU"],
+  /* IOwnMyWiiULEGIT */ ["Star Fox Guard", "Wii Sports Club", "Axiom Verge", "Wii Fit U", "Bayonetta", "Ninja Gaiden 3: Razor's Edge", "Call of Duty: Ghosts", "Yoshi's Woolly World", "Sonic & All-Stars Racing Transformed", "Zen Pinball 2"],
+  /* BuddyLove2000 */ ["ZombiU", "Sonic & All-Stars Racing Transformed", "Splatoon", "Wonderful 101", "Lego City Undercover", "Splinter Cell: Blacklist", "Bayonetta", "Bayonetta 2", "StarFox Zero", "Nintendo Land", "Pikmin 3", "Ninja Gaiden 3: Razor's Edge"],
+  /* SuntannedDuck2 */ ["Tank Tank Tank", "Devils Third", "Splatoon", "SteamWorld Heist", "Nintendo Land", "Pikmin 3", "Bayonetta 2", "Captain Toad: Treasure Tracker", "Yoshi's Woolly World", "Life of Pixel", "Regina and Mac", "Fast Racing Neo"],
+  /* Sea-Measurement-4344 */ ["Pikmin 3", "Nintendo Land", "Game & Wario", "Mario Kart 8", "Super Smash Bros. for Wii U", "Donkey Kong Country: Tropical Freeze", "Yoshi's Woolly World", "Fast Racing Neo", "Captain Toad: Treasure Tracker"],
+  /* Acrobatic--Cat */ ["The Legend of Zelda: The Wind Waker HD"],
+  /* welshland */ ["ZombiU", "The Legend of Zelda: The Wind Waker HD", "Nintendo Land"],
+  /* dtlux1 */ ["Splatoon", "Mario Kart 8", "Nintendo Land", "Axiom Verge", "Xenoblade Chronicles X", "Shantae: Half-Genie Hero", "Captain Toad: Treasure Tracker", "Hyrule Warriors", "Lego City Undercover", "NES Remix"],
+  /* SleuthMechanism */ ["Xenoblade Chronicles X", "Yoshi's Woolly World", "Splatoon", "Monster Hunter 3 Ultimate", "Starfox Guard", "Kirby and the Rainbow Curse"],
+  /* Extreme-Lie-3043 */ ["Pikmin 3", "Xenoblade Chronicles X", "Batman: Arkham City Armored Edition", "Mario Kart 8", "Monster Hunter 3 Ultimate", "Super Smash Bros. for Wii U", "Lego City Undercover", "Bayonetta 2", "Rayman Legends", "Splatoon", "Wonderful 101", "ZombiU", "Donkey Kong Country: Tropical Freeze"],
+
+ /* https://www.neogaf.com/threads/ign-top-10-wii-u-games-of-all-time.1635218/ [unranked lists] */
+  /* SegaShack */ ["Mario Kart 8", "Super Mario 3D World", "Donkey Kong Country: Tropical Freeze", "NES Remix"], 
+  /* belmarduk */ ["Hyrule Warriors"], 
+  /* AV */ ["Donkey Kong Country: Tropical Freeze"], 
+  /* Kokoloko85 */ ["The Legend of Zelda: Breath of the Wild"], 
+  /* GametimeUK */ ["Bayonetta 2"], 
+  /* Ezquimacore */ ["Bayonetta 2"], 
+  /* Cireza */ ["Donkey Kong Country: Tropical Freeze", "Hyrule Warriors", "The Legend of Zelda: The Wind Waker HD", "Sonic Lost World", "Tokyo Mirage Sessions #FE", "ZombiU", "Xenoblade Chronicles X", "Need for Speed Most Wanted U", "Ninja Gaiden 3: Razor's Edge"], 
+  /* Orbital2060 */ ["NES Remix"],
+  /* Katajx */ ["Nintendo Land", "The Wonderful 101"], 
+  /* Captain Toad */ ["The Legend of Zelda: Breath of the Wild", "Mario Kart 8", "Super Mario 3D World", "New Super Mario Bros. U", "Super Mario Maker", "Splatoon", "Bayonetta 2", "Donkey Kong Country: Tropical Freeze", "Captain Toad: Treasure Tracker", "Hyrule Warriors", "Wonderful 101", "Pikmin 3"],
+
+ /* https://www.youtube.com/watch?app=desktop&v=zk2NqCH7tjg */
+ ["Super Mario 3D World", "Wii Sports Club", "Disney Infinity 3.0", "Super Smash Bros. for Wii U", "Donkey Kong Country: Tropical Freeze", "The Legend of Zelda: Breath of the Wild", "Pikmin 3", "Rayman Legends", "Captain Toad: Treasure Tracker", "Nintendo Land", "The Legend of Zelda: The Wind Waker HD", "Hyrule Warriors", "Sonic Lost World", "ZombiU", "Need For Speed: Most Wanted U", "Super Mario Maker", "Splatoon!", "Bayonetta 2", "Xenoblade Chronicles X", "Shovel Knight", "Monster Hunter 3 Ultimate", "Badland: Game of the Year Edition", "Minecraft: Wii U Edition", "Affordable Space Adventures", "Assassins Creed IV: Black Flag", "The Legend of Zelda: Twilight Princess HD", "Batman: Arkham City Armored Edition", "Lego City Undercover", "DuckTales: Remastered", "New Super Luigi U", "Guacamelee! Super Turbo Championship Edition", "Child of Light", "SteamWorld Dig", "The Wonderful 101", "NES Remix", "Fast Racing Neo", "Shantae and the Pirate's Curse", "SteamWorld Heist", "Runbow", "Fatal Frame: Maiden of Black Water", "Axiom Verge", "Sonic & All-Stars Racing Transformed", "Tokyo Mirage Sessions #FE", "Shantae Half-Genie Hero", "Art of Balance", "Call of Duty: Black Ops 2"]
+
+];
+
+</script>
+</body>
+</html>
