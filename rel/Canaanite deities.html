@@ -184,7 +184,7 @@ function parseLists() {
 
  // Sort by score, highest to lowest
  books = books.sort(function(a,b){
-  //return b.score - a.score;
+  return b.score - a.score;
 
   if (a.title > b.title) return 1;
   if (a.title < b.title) return -1;
