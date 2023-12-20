@@ -184,7 +184,7 @@ function parseLists() {
 
  // Sort by score, highest to lowest
  books = books.sort(function(a,b){
-  return b.score - a.score;
+  //return b.score - a.score;
 
   if (a.title > b.title) return 1;
   if (a.title < b.title) return -1;
@@ -281,25 +281,31 @@ function generateTable(list) {
 var ranked = [
 
  /* [Google Search results] https://www.google.com/search?q=most+important+canaanite+deities&oq=most+important+canaanite+deities&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIKCAEQABiABBiiBDIKCAIQABiABBiiBDIKCAMQABiABBiiBNIBCDU0MjVqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 */
- ["Athirat/Asherah", "Astarte", "Dagon", "El", "Yam", "Mot", "Haddad", "Chemosh", "Melqart", "Resheph", "Shapash / Shemesh", "Eshmun", "Yarikh"],
+ ["Athirat/Asherah", "Astarte / Ashtoreth", "Dagon", "El / Elyon", "Yam", "Mot", "Baal Haddad", "Chemosh", "Melqart", "Resheph", "Shapash / Shemesh", "Eshmun", "Yarikh"],
 
  /* https://raymondusrex.wordpress.com/2016/08/20/the-gods-and-goddesses-of-canaan/ [order of prominence] */
- ["El", "Baal", "Anath", "Athirat/Asherah", "Astarte", "Attar", "Dagon", "Kothar-wa-Khasis", "Moloch/Milcom", "Mot", "Shapash/Shemesh", "Yam"],
+ ["El / Elyon", "Ba'al Haddad", "Anath", "Athirat/Asherah", "Astarte / Ashtoreth", "Attar", "Dagon", "Kothar-wa-Khasis", "Moloch/Milcom", "Mot", "Shapash/Shemesh", "Yam"],
 
  /* https://www.metmuseum.org/toah/hd/cana/hd_cana.htm [deities mentioned] */
- ["El", "Baal", "Athirat/Asherah", "Anath", "Astarte", "Yam", "Mot", "Resheph", "Deber", "Kothar-wa-Khasis"],
+ ["El / Elyon", "Baal Haddad", "Athirat/Asherah", "Anath", "Astarte / Ashtoreth", "Yam", "Mot", "Resheph", "Deber", "Kothar-wa-Khasis"],
 
  /* https://www.penn.museum/sites/canaan/CanaaniteReligion.html */
- ["El", "Athirat/Asherah", "Ba'al", "Anath", "Astarte", "Yam", "Mot", "Qadeshtu"],
+ ["El / Elyon", "Athirat/Asherah", "Ba'al Haddad", "Anath", "Astarte / Ashtoreth", "Yam", "Mot", "Qadeshtu"],
 
  /* https://raymondusrex.wordpress.com/2016/08/20/the-gods-and-goddesses-of-canaan/ [all deities mentioned] */
- ["El", "Baal", "Yam", "Mot", "Anath", "Athirat/Asherah", "Baal-Haddad", "Lotan", "Kothar-wa-Khasis", "Shachar", "Shalim", "Aretsaya", "Pidraya", "Talaya", "Baal Berith", "Baal Hammon", "Baal Marqod", "Baal Zebub", "Astarte", "Attar", "Dagon", "Kothar-wa-Khasis", "Moloch/Milcom", "Adrammelech", "Chemosh", "Anammelech", "Shapash / Shemesh", "Yarikh", "Baalit", "Eshmun", "Ilisha", "Kotharat", "Melqart", "Nikkal", "Qadeshtu", "Resheph", "Sydyk", "Tanit"],
+ ["El / Elyon", "Baal Haddad", "Yam", "Mot", "Anath", "Athirat/Asherah", "Baal-Haddad", "Lotan", "Kothar-wa-Khasis", "Shachar", "Shalim", "Aretsaya", "Pidraya", "Talaya", "Baal Berith", "Baal Hammon", "Baal Marqod", "Baal Zebub", "Astarte / Ashtoreth", "Attar", "Dagon", "Kothar-wa-Khasis", "Moloch/Milcom", "Adrammelech", "Chemosh", "Anammelech", "Shapash / Shemesh", "Yarikh", "Baalit", "Eshmun", "Ilisha", "Kotharat", "Melqart", "Nikkal", "Qadeshtu", "Resheph", "Sydyk", "Tanit"],
 
  /* https://oldworldgods.com/canaanite/ [condensed list] */
- ["Baal", "Athirat / Asherah", "Yam", "Anath", "Mot", "Yahweh"],
+ ["Baal Haddad", "Athirat / Asherah", "Yam", "Anath", "Mot", "Yahweh"],
 
  /* https://www.britannica.com/topic/Canaanite-religion */
- ["El", "Baal", "Anath"]
+ ["El / Elyon", "Baal Haddad", "Anath"],
+
+ /* https://www.dhushara.com/book/god/canaan.htm */
+ ["El/Elyon", "Athirat/Asherah", "Anath", "Shachar", "Shalim", "Astarte/Ashtoreth", "Ba'al Haddad", "Yam", "Mot", "Shapash / Shemesh", "Sin", "Yarikh", "Kotharat", "Nikkal"],
+
+ /* https://www.folklore.earth/culture/canaanite/ */
+ ["El/Elyon", "Athirat/Asherah", "Baal Haddad", "Anath", "Yam", "Mot", "Shapash/Shemesh", "Yarikh", "Kothar-wa-Khasis", "Resheph", "Qadeshtu", "Haurun", "Shachar", "Shalim"]
 
 ];
 
@@ -310,29 +316,46 @@ var ranked = [
 var unranked = [
 
  /* https://en.wikipedia.org/wiki/Canaanite_religion */
- ["Aglibol", "Anath", "Arsay", "Arsu", "Ashtar-Chemosh", "Athirat/Asherah", "Ashima", "Astarte", "Atargatis", "Attar", "Azizos", "Baalah", "Ba'alat Gebal", "Haddad", "Ba'al Hermon", "Baal Hammon", "Baalshamin", "Baal-zephon", "Bel", "Bethel", "Chemosh", "Dagon", "El", "Eretz", "Eshmun", "Gad", "Gupan", "Ugar", "Haurun", "Ishara", "Ishat", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Malakbel", "Manuzi", "Marqod", "Melqart", "Moloch/Milcom", "Misor", "Moloch/Milcom", "Mot", "Nikkal", "Pidray", "Qadeshtu", "Qos", "Resheph", "Shadrafa", "Shachar", "Shalim", "Shamayim", "Shapash/Shemesh", "Sydyk", "Yahweh", "Yam", "Yarhibol", "Yarikh"],
+ ["Aglibol", "Anath", "Arsay", "Arsu", "Ashtar-Chemosh", "Athirat/Asherah", "Ashima", "Astarte / Ashtoreth", "Atargatis", "Attar", "Azizos", "Baalah", "Ba'alat Gebal", "Baal Haddad", "Ba'al Hermon", "Baal Hammon", "Baal Shamem", "Baal Zaphon", "Bel", "Bethel", "Chemosh", "Dagon", "El / Elyon", "Eretz", "Eshmun", "Gad", "Gupan", "Ugar", "Haurun", "Ishara", "Ishat", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Malakbel", "Manuzi", "Marqod", "Melqart", "Moloch/Milcom", "Misor", "Moloch/Milcom", "Mot", "Nikkal", "Pidraya", "Qadeshtu", "Qos", "Resheph", "Shadrafa", "Shachar", "Shalim", "Shamayim", "Shapash/Shemesh", "Sydyk", "Yahweh", "Yam", "Yarhibol", "Yarikh"],
 
  /* https://oldworldgods.com/canaanite/ [full list] */
- ["Yarhibol", "Aglibol", "Qos", "Nikkal", "Shahar", "Haurun", "Shalim", "Kothar-wa-Khasis", "Melqart", "Tanit", "Eshmun", "Resheph", "Yarikh", "Athirat/Asherah", "Anath", "Arsu", "Azizos", "Arsay", "Haddad", "Ashima", "Attar", "Atargatis", "Astarte", "Baal", "Ishara", "Baalshamin", "El", "Mot", "Chemosh", "Yam", "Dagon", "Moloch/Milcom", "Gad", "Shapash/Shemesh"],
+ ["Yarhibol", "Aglibol", "Qos", "Nikkal", "Shachar", "Haurun", "Shalim", "Kothar-wa-Khasis", "Melqart", "Tanit", "Eshmun", "Resheph", "Yarikh", "Athirat/Asherah", "Anath", "Arsu", "Azizos", "Arsay", "Baal Haddad", "Ashima", "Attar", "Atargatis", "Astarte / Ashtoreth", "Baal Haddad", "Ishara", "Baal Shamem", "El / Elyon", "Mot", "Chemosh", "Yam", "Dagon", "Moloch/Milcom", "Gad", "Shapash/Shemesh"],
 
  /* https://www.newworldencyclopedia.org/entry/Canaanite_Religion [individually mentioned] */
- ["El", "Athirat/Asherah", "Ba'al", "Anath", "Astarte", "Mot"],
+ ["El / Elyon", "Athirat/Asherah", "Ba'al Haddad", "Anath", "Astarte / Ashtoreth", "Mot"],
 
  /* https://www.newworldencyclopedia.org/entry/Canaanite_Religion [full list] */
- ["Anath", "Athirat/Asherah", "Astarte", "Baalit", "Ba'al", "Haddad", "Baal-Hammon", "Chemosh", "Dagon", "El", "Eshmun", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Melqart", "Moloch/Milcom", "Mot", "Nikkal", "Qadeshtu", "Resheph", "Shalim", "Shamayim", "Shapash/Shemesh", "Tanit", "Yam", "Yarikh", "Yahweh"],
+ ["Anath", "Athirat/Asherah", "Astarte / Ashtoreth", "Baalit", "Ba'al Haddad", "Baal-Hammon", "Chemosh", "Dagon", "El / Elyon", "Eshmun", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Melqart", "Moloch/Milcom", "Mot", "Nikkal", "Qadeshtu", "Resheph", "Shalim", "Shamayim", "Shapash/Shemesh", "Tanit", "Yam", "Yarikh", "Yahweh"],
 
  /* https://study.com/academy/lesson/canaanite-religion-overview-gods.html */
- ["El", "Ba'al", "Anath", "Astarte"],
+ ["El / Elyon", "Ba'al Haddad", "Anath", "Astarte / Ashtoreth"],
 
  /* https://www.godchecker.com/canaanite-mythology/pantheon/ */
- ["Asherah", "Astronoe", "Baal", "Dagon", "El", "Haddad", "Moloch / Milcom", "Mot", "Yam", "Lotan", "Ashima", "Chemosh", "Belphegor", "Baal Zebub", "Aion", "Astarte", "Eshmun", "Hyposouranios", "Ousoos", "Resheph", "Melqart", "Anath", "Kothar-wa-Khasis"],
+ ["Athirat/Asherah", "Astronoe", "Baal Haddad", "Dagon", "El / Elyon", "Baal Haddad", "Moloch / Milcom", "Mot", "Yam", "Lotan", "Ashima", "Chemosh", "Belphegor", "Baal Zebub", "Aion", "Astarte / Ashtoreth", "Eshmun", "Hyposouranios", "Ousoos", "Resheph", "Melqart", "Anath", "Kothar-wa-Khasis"],
 
  /* https://bibleresources.americanbible.org/resource/canaanite-gods-and-goddesses [primary gods] */
- ["El", "Baal", "Mot", "Yam"], 
+ ["El / Elyon", "Baal Haddad", "Mot", "Yam"], 
 
  /* https://bibleresources.americanbible.org/resource/canaanite-gods-and-goddesses [other gods] */
- ["Melqart", "Chemosh", "Moloch/Milcom", "Tammuz", "Dagon", "Athirat/Asherah", "Anath"]
+ ["Melqart", "Chemosh", "Moloch/Milcom", "Tammuz", "Dagon", "Athirat/Asherah", "Anath"],
 
+ /* https://www.thattheworldmayknow.com/gods-of-canaan */
+ ["Baal Haddad", "Athirat/Asherah"],
+
+ /* https://www.encyclopedia.com/environment/encyclopedias-almanacs-transcripts-and-maps/canaanite-religion-overview */
+ ["El / Elyon", "El-Ab", "Dagon", "Baal Sapan", "Baal Haddad", "Baal Shamem", "Yam", "Mot", "Eretz", "Shamayim", "Athirat/Asherah", "Anath", "Qadeshtu", "Astarte/Ashtoreth", "Shapash/Shemesh", "Pidraya", "Arsay", "Ishara", "Dadmish", "Uthht", "Yarikh", "Nikkal", "Shalim", "Shachar", "Lotan", "Tunnan", "Attar", "Kothar-wa-Khasis", "Resheph", "Kinar", "Kotharat", "Moloch/Milcom"],
+
+ /* https://people.brandonu.ca/nollk/canaanite-religion/ [all gods mentioned] */
+ ["El / Elyon", "Eshmun", "Chemosh", "Dagon", "Mot", "Baal Haddad", "Yam", "Anath", "Lotan", "Athirat/Asherah", "Baal Zaphon", "Baal Shamem", "Melqart", "Yahweh", "Anath", "Astarte / Ashtoreth", "Bethel", "Baal Hammon"],
+
+ /* https://people.brandonu.ca/nollk/canaanite-religion/ [first-tier gods] */
+ ["El / Elyon", "Athirat/Asherah", "Baal Haddad", "Anath", "Astarte / Ashtoreth"],
+
+ /* https://people.brandonu.ca/nollk/canaanite-religion/ [second- and third-tier gods] */
+ ["Dagon", "Resheph", "Moloch / Milcom", "Yahweh", "Shapash / Shemesh", "Yarikh", "Kothar-wa-Khasis", "Kotharat", "Bes", "Rephaim", "Raphiu"],
+
+ /* https://wheatandtares.org/2016/03/21/canaanite-dieties/ */
+ ["Anath", "Athirat/Asherah", "Astarte/Ashtoreth", "Baalit", "Baal Haddad", "Baal Hammon", "Dagon", "El / Elyon", "Eshmun", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Melqart", "Moloch/Milcom", "Mot", "Nikkal", "Qadeshtu", "Resheph", "Shalim", "Shachar", "Shamayim", "Shapash / Shemesh", "Yam", "Yarikh"]
 
 
 ];
