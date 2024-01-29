@@ -223,8 +223,8 @@ function addLeadingZeroes(num) {
 
 /* Converts pseudo-IPA in custom IPA tags to Unicode IPA characters */
 function convertIPA() {
-	ipa = "ʕœøɜɥɹɤɾħɒØɢʷɛʁθʏʊɪɔɸɑʃðɟɣʰʲæʎʒχçʌβŋɯɡˈə̥͡";
-	kbd = "`1234567890QWERTYUIOPASDFGHJKLZXCVBNMg'@#_";
+	ipa = "ʕœøɜɥɹɤɾħɒØɢʷɛʁθʏʊɪɔɸɑʃðɟɣʰʲæʎʒχçʌβŋɯɡɲˈ̯ə̥͡";
+	kbd = "`1234567890QWERTYUIOPASDFGHJKLZXCVBNMgñ'%@#_";
 
 	Transcriptions = document.getElementsByTagName("ipa");
 
