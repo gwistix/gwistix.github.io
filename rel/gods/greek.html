@@ -1,0 +1,449 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Most important Greek gods & goddesses</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h3 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " Greek deities:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = (0.5 + 1/length)/2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+ });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return title
+ .toUpperCase()
+ .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+ .replace(/\s?\(.*\)/g,"")
+ .replace(/&/g,"and")
+ .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+ .replace(/[æÆœŒ]/gi,"E")
+ .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+ .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+ .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+ .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+ .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+ .replace(/ﬀ/gi,"FF")
+ .replace(/ﬁ/gi,"FI")
+ .replace(/ﬂ/gi,"FL")
+ .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+ .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+ .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+ .replace(/[ĳĲ]/gi,"IJ")
+ .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+ .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+ .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+ .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+ .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+ .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+ .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+ .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+ .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+ .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+ .replace(/[ßẞ]/gi,"SS")
+ .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+ .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+ .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+ .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+ .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+ .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+ .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+ .replace(/[^A-z0-9]/g, "")
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://www.google.com/search?q=most+important+greek+gods&oq=most+important+greek+gods */ 
+ ["Athena", "Aphrodite", "Hera", "Poseidon", "Ares", "Apollo", "Dionysus", "Hephaestus", "Hermes", "Hades", "Cronus", "Eros"],
+
+ /* https://www.thecollector.com/greek-gods/ */
+ ["Zeus", "Hera", "Apollo", "Artemis", "Demeter", "Dionysus"],
+
+ /* https://www.theoi.com/articles/12-main-greek-gods-of-greek-mythology/ */
+ ["Zeus", "Poseidon", "Hera", "Demeter", "Athena", "Apollo", "Artemis", "Ares", "Aphrodite", "Hephaestus", "Hermes", "Hestia", "Dionysus"],
+
+ /* https://en.wikipedia.org/wiki/Twelve_Olympians */
+ ["Zeus", "Poseidon", "Hera", "Demeter", "Aphrodite", "Athena", "Artemis", "Apollo", "Ares", "Hephaestus", "Hermes", "Hestia", "Dionysus"],
+
+ /* https://www.britannica.com/list/12-greek-gods-and-goddesses */
+ ["Zeus", "Poseidon", "Hermes", "Hera", "Hades", "Dionysus", "Demeter", "Apollo", "Ares", "Artemis", "Athena", "Aphrodite"],
+
+ /* https://www.mylearning.org/stories/ancient-greeks-everyday-life-beliefs-and-myths/415 */
+ ["Zeus", "Hera", "Poseidon", "Aphrodite", "Hades", "Ares"],
+
+ /* https://greekmythologytours.com/blog/greek-mythology/12-olympian-gods */
+ ["Zeus", "Poseidon", "Hera", "Athena", "Ares", "Artemis", "Apollo", "Aphrodite", "Demeter", "Hermes", "Hephaestus", "Dionysus", "Hades", "Hestia"],
+
+ /* https://thetourguy.com/travel-blog/greece/most-important-greek-gods-and-islands-they-are-from/ */
+ ["Zeus", "Hera", "Athena", "Poseidon", "Hades", "Persephone", "Cabeiri", "Artemis", "Aphaia", "Hermes", "Aphrodite", "Dionysus", "Asclepius", "Apollo", "Hephaestus"],
+
+ /* https://www.natgeokids.com/uk/discover/history/greece/greek-gods/ */
+ ["Zeus", "Hera", "Poseidon", "Aphrodite", "Hades", "Hermes", "Demeter", "Apollo", "Athena"],
+
+ /* https://www.twinkl.com/teaching-wiki/greek-gods-and-goddesses [full list] */
+ ["Zeus", "Poseidon", "Ares", "Aphrodite", "Hera", "Demeter", "Athena", "Apollo", "Artemis", "Hephaestus", "Hermes", "Dionysus", "Hestia", "Hades", "Cronus", "Uranus", "Psyche", "Eros", "Muses"],
+
+ /* https://www.metmuseum.org/toah/hd/grlg/hd_grlg.htm [all mentioned] */
+ ["Zeus", "Hades", "Poseidon", "Hera", "Athena", "Apollo", "Artemis", "Hermes", "Aphrodite", "Dionysus", "Hephaestus"],
+
+ /* https://www.ushistory.org/civ/5c.asp */
+ ["Zeus", "Hera", "Poseidon", "Hades", "Hestia", "Chronos", "Demeter", "Apollo", "Artemis", "Aphrodite", "Ares", "Athena", "Hephaestus", "Hermes", "Persephone", "Dionysus", "Eros"],
+
+,
+
+ /* https://www.britishmuseum.org/blog/gods-and-goddesses-greek-and-roman-pantheon [12 Olympians] */
+ ["Zeus", "Hera", "Poseidon", "Ares", "Athena", "Demeter", "Apollo", "Artemis", "Aphrodite", "Hephaestus", "Hermes", "Dionysus"],
+
+ /* https://stacyjuba.com/blog/2011/04/28/12-of-the-most-well-known-gods-and-goddesses-of-greek-mythology/ */
+ ["Zeus", "Hera", "Poseidon", "Demeter", "Ares", "Hermes", "Hephaestus", "Aphrodite", "Athena", "Apollo", "Artemis", "Hestia"],
+
+ /* https://www.reddit.com/r/ShuumatsuNoValkyrie/comments/12f89o8/rank_of_greek_gods_mythology/ */
+ ["Zeus", "Apollo", "Athena", "Dionysus", "Ares", "Hera", "Artemis", "Hermes", "Hephaestus", "Demeter", "Hestia", "Hades", "Poseidon", "Hercules"],
+
+ /* https://www.worldhistory.org/collection/58/the-12-olympian-gods/ */
+ ["Zeus", "Hera", "Athena", "Apollo", "Poseidon", "Ares", "Artemis", "Demeter", "Aphrodite", "Dionysus", "Hermes", "Hephaestus", "Hestia", "Hercules", "Leto"],
+
+ /* https://www.ancienthistorylists.com/greek-history/top-10-ancient-greek-gods/ */
+ ["Hermes", "Hephaestus", "Ares", "Cronus", "Apollo", "Dionysus", "Prometheus", "Poseidon", "Hades", "Zeus"].reverse(),
+
+ /* https://greektraveltellers.com/blog/meet-the-olympian-gods */
+ ["Zeus", "Poseidon", "Hades", "Hera", "Demeter", "Hestia", "Hephaestus", "Ares", "Athena", "Aphrodite", "Hermes", "Apollo", "Artemis", "Hecate", "Persephone", "Tyche", "Eris", "Aeolus", "Themis", "Pan", "Eileithyia", "Dionysus", "Eros", "Asclepius", "Nyx", "Nemesis", "Phobos", "Hebe", "Deimos", "Enyo"],
+
+ /* https://list25.com/25-most-powerful-greek-gods-ever/ */
+ ["Gaia", "Tartarus", "Uranus", "Nyx", "Erebus", "Hestia", "Atlas", "Eros", "Cronus", "Hercules", "Athena", "Artemis", "Hera", "Aphrodite", "Demeter", "Hermes", "Hephaestus", "Ares", "Nike", "Apollo", "Dionysus", "Prometheus", "Hades", "Poseidon", "Zeus"].reverse(),
+
+ /* https://blog.prepscholar.com/greek-gods-goddesses-names-family-tree [Olympians from recap list] */
+ ["Zeus", "Hera", "Poseidon", "Demeter", "Hades", "Athena", "Hephaestus", "Aphrodite", "Ares", "Artemis", "Apollo", "Hermes", "Dionysus"],
+
+ /* https://greekreporter.com/2023/05/22/12-greek-gods-mythology/ */
+ ["Zeus", "Poseidon", "Hades", "Hera", "Aphrodite", "Apollo", "Artemis", "Demeter", "Hephaestus", "Hermes", "Ares", "Athena", "Dionysus"],
+
+ /* https://www.infoplease.com/culture-entertainment/mythology-folklore/olympian-gods-and-goddesses [main gods] */
+ ["Zeus", "Hera", "Poseidon", "Hades", "Aphrodite", "Apollo", "Ares", "Artemis", "Athena", "Hephaestus", "Hestia", "Hermes"],
+
+ /* https://www.desy.de/gna/interpedia/greek_myth/olympian.html */
+ ["Zeus", "Poseidon", "Hades", "Hestia", "Hera", "Ares", "Athena", "Apollo", "Aphrodite", "Hermes", "Artemis", "Hephaestus"],
+
+ /* https://www.history.com/topics/ancient-greece/greek-mythology */
+ ["Zeus", "Hera", "Aphrodite", "Apollo", "Ares", "Artemis", "Athena", "Demeter", "Dionysus", "Hephaestus", "Hermes", "Poseidon", "Hades", "Hestia", "Eros"],
+
+ /* https://www.athenskey.com/12-gods.html */
+ ["Zeus", "Hera", "Poseidon", "Demeter", "Athena", "Apollo", "Artemis", "Ares", "Aphrodite", "Hephaestus", "Hermes", "Hestia", "Dionysus", "Hades"],
+
+ /* https://rickriordan.com/extra/meet-the-greek-gods/ */
+ ["Zeus", "Hera", "Poseidon", "Demeter", "Ares", "Athena", "Apollo", "Artemis", "Hephaestus", "Aphrodite", "Hermes", "Dionysus", "Hades", "Hypnos", "Nike", "Janus", "Nemesis", "Iris", "Hecate", "Tyche"],
+
+ /* https://greekcitytimes.com/2021/03/08/top-10-ancient-greek-goddesses/ */
+ ["Hestia", "Hebe", "Nemesis", "Leto", "Rhea", "Aphrodite", "Demeter", "Artemis", "Hera", "Athena"].reverse(),
+
+ /* https://www.theoi.com/Pantheon.html [list only] */
+ ["Zeus", "Poseidon", "Hera", "Demeter", "Apollo", "Artemis", "Athena", "Ares", "Aphrodite", "Hermes", "Hephaestus", "Dionysus", "Hestia", "Hades", "Persephone", "Hecate", "Furies", "Alecto", "Megaera", "Tisiphone", "Helios", "Gaia", "Rhea", "Themis", "Leto", "Pan", "Eileithyia", "Eros", "Amphitrite", "Asclepius", "Muses", "Clio", "Euterpe", "Thalia", "Melpomene", "Terpsichore", "Erato", "Polyhymnia", "Urania", "Calliope", "Charites", "Alaia", "Euphrosyne", "Thalia", "Horai", "Eirene", "Dike", "Eunomia", "Fates", "Clotho", "Lachesis", "Atropos", "Hercules"],
+
+ /* https://www.jagranjosh.com/us/explainers/greek-gods-and-goddesses-1690459560 */
+ ["Zeus", "Hera", "Hades", "Poseidon", "Hermes", "Artemis", "Aphrodite", "Ares", "Apollo", "Demeter", "Dionysus", "Athena"],
+
+ /* https://www.ancient-origins.net/myths-legends-europe/greek-gods-0012623 */
+ ["Zeus", "Poseidon", "Hades", "Ares", "Hephaestus", "Apollo", "Hermes", "Dionysus"],
+
+ /* https://www.ancienthistorylists.com/greek-history/top-10-ancient-greek-goddesses/ */
+ ["Hestia", "Hebe", "Nemesis", "Leto", "Rhea", "Aphrodite", "Demeter", "Artemis", "Hera", "Athena"].reverse(),
+
+ /* https://www.youtube.com/watch?v=ddoao16052g */
+ ["Artemis", "Demeter", "Apollo", "Hera", "Zeus"].reverse(),
+
+ /* https://factsanddetails.com/world/cat56/sub405/entry-6186.html */
+ ["Zeus", "Poseidon", "Hades", "Hestia", "Hera", "Hephaestus", "Ares", "Athena", "Apollo", "Aphrodite", "Hermes", "Artemis", "Eros", "Demeter", "Dionysus", "Hercules"],
+
+ /* https://www.ducksters.com/history/ancient_greek_mythology.php */
+ ["Zeus", "Hera", "Poseidon", "Dionysus", "Apollo", "Artemis", "Hermes", "Athena", "Ares", "Aphrodite", "Hephaestus", "Demeter", "Hades"]
+
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://greektraveltellers.com/blog/the-greek-gods [specifically mentioned] */
+ ["Chaos", "Eros", "Tartarus", "Gaia", "Erebus", "Nyx", "Ourea", "Pontus", "Uranus", "Cronus", "Themis", "Mnemosyne", "Rhea", "Zeus", "Poseidon", "Hera", "Hestia", "Demeter", "Hades", "Apollo", "Artemis", "Hermes", "Athena", "Hephaestus", "Aphrodite", "Ares", "Dionysus", "Hercules"],
+
+ /* https://greektraveltellers.com/blog/the-greek-gods [full lists] */
+ ["Achlys", "Aether", "Aion", "Ananke", "Chaos", "Chronos", "Erebus", "Eros", "Gaia", "Hemera", "Hypnos", "Nemesis", "Nesoi", "Nyx", "Ourea", "Pontus", "Tartarus", "Thalassa", "Thanatos", "Uranus", "Cronus", "Rhea", "Oceanus", "Tethys", "Hyperion", "Theia", "Helios", "Eos", "Selene", "Iapetus", "Atlas", "Prometheus", "Epimetheus", "Crius", "Coeus", "Phoebe", "Leto", "Asteria", "Themis", "Mnemosyne", "Zeus", "Poseidon", "Hera", "Hestia", "Demeter", "Hades", "Apollo", "Artemis", "Hermes", "Athena", "Hephaestus", "Aphrodite", "Ares", "Dionysus", "Hercules"],
+
+ /* https://www.britishmuseum.org/blog/gods-and-goddesses-greek-and-roman-pantheon [mentioned in intro] */
+ ["Gaia", "Chaos", "Uranus", "Pontos", "Ourea", "Cronus", "Rhea", "Zeus"],
+
+ /* https://historycooperative.org/greek-gods-and-goddesses/ */
+ ["Chaos", "Phanes", "Thalassa", "Gaia", "Uranus", "Ourea", "Pontus", "Tartarus", "Erebus", "Nyx", "Aether", "Hemera", "Eros", "Oceanus", "Coeus", "Crius", "Hyperion", "Iapetus", "Cronus", "Thea", "Rhea", "Themis", "Mnemosyne", "Phoebe", "Tethys", "Zeus", "Hera", "Poseidon", "Aphrodite", "Artemis", "Apollo", "Hermes", "Hephaestus", "Demeter", "Athena", "Dionysus", "Hestia", "Hades", "Ares", "Kratos", "Nike", "Bia", "Zelus", "Morpheus", "Hypnos", "Pasithea", "Charon", "Pan", "Zephyrus", "Chloris", "Carpus", "Asclepius", "Hygeia", "Deimos", "Helios", "Alastor", "Proteus", "Castor", "Pollux", "Leda", "Pallas", "Aeolus", "Geras", "Nemesis", "Iris", "Electra", "Hecate", "Tyche", "Mania", "Persephone"],
+
+ /* https://www.theoi.com/greek-mythology/greek-gods-cult.html [Twelve Olympians] */
+ ["Aphrodite", "Apollo", "Ares", "Artemis", "Athena", "Demeter", "Dionysus", "Hephaestus", "Hera", "Hermes", "Poseidon", "Zeus"],
+
+ /* https://www.theoi.com/greek-mythology/greek-gods-cult.html [other gods] */
+ ["Asclepius", "Charites", "Dioscuri", "Eros", "Hades", "Hecate", "Hercules", "Muses", "Pan", "Potami", "Rhea", "Tyche", "Aristaeus", "Themis", "Cabeiri", "Horae", "Anemi", "Nereids", "Iris", "Hecatoncheires", "Chiron", "Peitho"],
+
+ /* https://blog.prepscholar.com/greek-gods-goddesses-names-family-tree */
+ ["Chaos", "Eros", "Gaia", "Tartarus", "Nyx", "Uranus", "Cronus", "Rhea", "Zeus", "Poseidon", "Hades", "Demeter", "Hera", "Hestia", "Athena", "Persephone", "Ares", "Apollo", "Artemis", "Dionysus", "Eris", "Hebe", "Eileithyia", "Hephaestus", "Amphitrite", "Furies", "Metis", "Eurynome", "Aphrodite", "Adonis", "Phobos", "Deimos", "Leto", "Pleiades", "Peneus", "Hermes", "Maia", "Hermaphroditus", "Atlas", "Eos", "Hecate", "Helios", "Iris", "Thaumus", "Electra", "Nike", "Nyx", "Pan", "Selene", "Themis", "Alecto", "Tisiphone", "Megaera", "Muses", "Clio", "Euterpe", "Thalia", "Melpomene", "Terpsichore", "Erato", "Plyhymnia", "Urania", "Calliope", "Fates", "Clotho", "Lachesis", "Atropos"],
+
+ /* https://www.infoplease.com/culture-entertainment/mythology-folklore/olympian-gods-and-goddesses [full list] */
+ ["Zeus", "Hera", "Poseidon", "Hades", "Aphrodite", "Apollo", "Ares", "Artemis", "Athena", "Hephaestus", "Hestia", "Hermes", "Demeter", "Dionysus", "Aeolus", "Asclepius", "Deimos", "Hebe", "Hercules", "Pan", "Persephone", "Perseus", "Muses", "Calliope", "Clio", "Euterpe", "Thalia", "Melpomene", "Terpsichore", "Erato", "Plyhymnia", "Urania", "Gaia", "Uranus", "Cronus", "Rhea", "Hyperion", "Oceanus", "Coeus", "Crius", "Iapetus", "Theia", "Themis", "Tethys", "Mnemosyne", "Phoebe", "Atlas", "Prometheus", "Chaos", "Cronus", "Nyx", "Erebus", "Tartarus", "Hecate", "Thanatos", "Furies", "Daemones", "Selene", "Eos", "Nemesis", "Thanatos", "Iris", "Eros", "Nike", "Hypnos", "Moros", "Naiads"],
+
+ /* https://www.greeka.com/greece-mythology/ */
+ ["Eros", "Tartarus", "Erebus", "Gaia", "Uranus", "Coeus", "Crius", "Cronus", "Hyperion", "Iapetus", "Oceanus", "Mnemosyne", "Phoebe", "Rhea", "Theia", "Themis", "Tethys", "Arges", "Steropes", "Brontes", "Hecatoncheires", "Zeus", "Hera", "Poseidon", "Hades", "Hestia", "Aphrodite", "Demeter", "Apollo", "Artemis", "Ares", "Athena", "Hermes"],
+
+ /* https://www.historyforkids.net/ancient-greek-gods.html */
+ ["Athena", "Poseidon", "Hermes", "Ares", "Zeus", "Hera", "Artemis", "Hades", "Apollo", "Hephaestus"],
+
+ /* https://motherhoodcommunity.com/the-top-100-greek-gods-and-goddesses-names-powers/ [gods] */
+ ["Achilles", "Aeolus", "Aether", "Aion", "Alastor", "Apollo", "Ares", "Asclepius", "Atlas", "Attis", "Boreas", "Caerus", "Coeus", "Crius", "Chronos", "Cronus", "Deimos", "Dinlas", "Dionysus", "Epimetheus", "Erebus", "Eros", "Eurus", "Glaucus", "Hades", "Helios", "Hephaestus", "Hercules", "Hermes", "Hymenaeus", "Hyperion", "Hypnos", "Iapetus", "Kratos", "Morpheus", "Nereus", "Notus", "Oceanus", "Pallas", "Pan", "Perseus", "Pontus", "Poseidon", "Prometheus", "Tartarus", "Thanatos", "Typhon", "Uranus", "Zephyrus", "Zeus"],
+
+ /* https://motherhoodcommunity.com/the-top-100-greek-gods-and-goddesses-names-powers/ [goddesses] */
+ ["Achlys", "Aglaia", "Alecto", "Ananke", "Aphrodite", "Artemis", "Athena", "Atropos", "Calliope", "Clio", "Clotho", "Cybele", "Demeter", "Eos", "Erato", "Eris", "Euphrosyne", "Euterpe", "Gaia", "Harmonia", "Hebe", "Hecate", "Hemera", "Hera", "Hestia", "Iris", "Lachesis", "Leto", "Maia", "Megaera", "Melpomene", "Metis", "Mnemosyne", "Nemesis", "Nike", "Nyx", "Persephone", "Pheme", "Phoebe", "Polyhymnia", "Rhea", "Selene", "Terpsichore", "Tethys", "Thalassa", "Thalia", "Thea", "Themis", "Tisiphone", "Urania"],
+
+ /* https://greekgodsandgoddesses.net/ */
+ ["Apollo", "Ares", "Dionysus", "Hades", "Hephaestus", "Hermes", "Poseidon", "Zeus", "Aphrodite", "Artemis", "Athena", "Demeter", "Hera", "Hestia"],
+
+ /* https://www.mysteriousgreece.com/about-greece/mythology/ */
+ ["Charites", "Aglaia", "Euphrosyne", "Thalia", "Furies", "Megaera", "Alecto", "Tisiphone", "Gaia", "Fates", "Clotho", "Lachesis", "Atropos", "Muses", "Clio", "Erato", "Euterpe", "Melpomene", "Polyhymnia", "Terpsichore", "Thalia", "Urania", "Nymphs", "Titans", "Oceanus", "Hyperion", "Cronus", "Crius", "Iapetus", "Mnemosyne", "Tethys", "Theia", "Phoebe", "Rhea", "Themis", "Uranus", "Aphrodite", "Apollo", "Ares", "Artemis", "Athena", "Demeter", "Dionysus", "Hades", "Hephaestus", "Hera", "Hermes", "Hestia", "Poseidon", "Zeus"],
+
+ /* https://overly-sarcastic-productions.fandom.com/wiki/Greek_Gods */
+ ["Aphrodite", "Apollo", "Ares", "Artemis", "Athena", "Demeter", "Dionysus", "Hephaestus", "Hera", "Hermes", "Hestia", "Poseidon", "Zeus", "Ariadne", "Asclepius", "Castor", "Polydeuces", "Dike", "Eileithyia", "Enyo", "Eris", "Eros", "Hebe", "Hedone", "Hercules", "Iris", "Muses", "Psyche", "Themis", "Charon", "Erebus", "Furies", "Hades", "Hecate", "Hemera", "Nyx", "Persephone", "Tartarus", "Thanatos", "Styx", "Aether", "Anteros", "Aristaeus", "Asteria", "Astraea", "Atlas", "Boreas", "Circe", "Coeus", "Crius", "Cronus", "Despoina", "Dione", "Eidothea", "Eos", "Epimetheus", "Eurus", "Gaiai", "Helios", "Hyperion", "Iapetus", "Inachus", "Leucothea", "Ladon", "Leto", "Mnemosyne", "Nemesis", "Nereus", "Nerites", "Notus", "Oceanus", "Uranus", "Pan", "Pasiphae", "Phoebe", "Plutus", "Prometheus", "Proteus", "Rhea", "Scamander", "Selene", "Tethys", "Theia", "Triton", "Zagreus", "Zephyrus", "Calypso", "Daphne", "Dione", "Doris", "Echo", "Maia", "Merope", "Metis", "Nerea", "Pleiades", "Syrinx", "Thetis"],
+
+ /* https://www.realmofhistory.com/2018/05/15/powerful-ancient-greek-gods-goddesses/#h-the-primordial-greek-gods [all gods] */
+ ["Gaia", "Uranus", "Cronus", "Hyperion", "Oceanus", "Atlas", "Prometheus", "Zeus", "Poseidon", "Hades", "Hera", "Demeter", "Aphrodite", "Athena", "Ares", "Hephaestus", "Apollo", "Artemis", "Hermes", "Hestia", "Dionysus"]
+
+
+];
+
+</script>
+</body>
+</html>
