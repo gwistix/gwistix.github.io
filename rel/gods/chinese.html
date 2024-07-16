@@ -1,0 +1,381 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Most important Ancient Chinese deities</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+/*
+
+1. 玉皇上帝 Yù Huáng Shàngdì “Jade Emperor High God” - The Jade Emperor
+2. 西王母娘娘 Xī Wángmǔ Niángniáng “Western Queen Mother Lady” - Queen Mother of the West
+3. 觀音菩萨 Guānyīn Púsà “Perceive Sound Bodhisattva” - Guanyin Bodhisattva
+4. 閻羅王 Yánluó Wáng “Yama King” - King Yanluo
+5. 龍王 Lóng Wáng “Dragon King” - The Dragon King
+
+*/
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " Ancient Chinese deities:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = (0.5 + 1/length)/2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+ });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return title
+ .toUpperCase()
+ .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+ .replace(/\s?\(.*\)/g,"")
+ .replace(/&/g,"and")
+ .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+ .replace(/[æÆœŒ]/gi,"E")
+ .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+ .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+ .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+ .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+ .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+ .replace(/ﬀ/gi,"FF")
+ .replace(/ﬁ/gi,"FI")
+ .replace(/ﬂ/gi,"FL")
+ .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+ .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+ .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+ .replace(/[ĳĲ]/gi,"IJ")
+ .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+ .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+ .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+ .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+ .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+ .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+ .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+ .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+ .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+ .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+ .replace(/[ßẞ]/gi,"SS")
+ .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+ .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+ .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+ .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+ .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+ .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+ .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+ .replace(/[^A-z0-9]/g, "")
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://www.google.com/search?q=top+chinese+gods&sca_esv=cc6cef90bdd03fb0&sxsrf=ADLYWIJdvqUFOcxsF6ygWVuZsDvEfGyPpw:1720719523115&ei=oxiQZv7gBqjP0PEPjr-TkA4&start=0&sa=N&sstk=AagrsujPol_sz5HXE-JmT1D5kG64e9TpOe2tASQTwI-3mgZyoYNIa7uGDD3QNQilL8cge22Ga_4RTuIY_m0sRCby0KW394gu8bGPIkcIwtbRBVwSzaD9nzbilnZ8zekBSLo1&ved=2ahUKEwi-vrvfw5-HAxWoJzQIHY7fBOI4ChDy0wN6BAgCEAQ&biw=1710&bih=1282&dpr=1.5 [Google search spotlight] */
+ ["Jade Emperor / Yuhuang Shangdi", "Nüwa", "Guanyin Pusa", "Shangdi", "Chang'e", "Erlang Shen", "Hou Yi", "Mazu", "Caishen", "Dragon King / Long Wang", "Lu Ban", "Pangu", "Queen Mother of the West / Xiwangmu Niangniang", "Yan(luo) Wang", "Di Jun", "Lu Dongbin", "Kitchen God / Zao Wang-Ye", "Sun Wukong", "Cangjie", "Nezha", "City God"],
+
+ /* https://www.worldhistory.org/article/894/most-popular-gods--goddesses-of-ancient-china/ */
+ ["Dragon King / Long Wang", "Shangdi", "Queen Mother of the West / Xiwangmu Niangniang", "Guanyin Pusa", "Yan(luo) Wang", "Nuwa", "Fuxi", "Caishen", "Chang'e", "Zao-Shen", "Niu Lang", "Zhi Nü", "Menshen", "Pangu"],
+
+ /* https://www.quora.com/Which-gods-of-the-Chinese-pantheon-have-the-most-devotees-and-why-are-they-so-popular [Yu-Hsing Chen's answer] */
+ ["Guan Yu", "Tudigong", "Mazu"],
+
+ /* https://www.chinoy.tv/the-most-powerful-gods-in-chinese-mythology/ */
+ ["Jade Emperor / Yuhuang Shangdi", "Queen Mother of the West / Xiwangmu Niangniang", "Guan Yin", "Yan(luo) Wang", "Ne Zha", "Dragon King / Long Wang", "Nüwa"],
+
+ /* https://www.youtube.com/watch?v=2wwVlZIk38A */
+ ["Guanyin Pusa", "Jade Emperor / Yuhuang Shangdi", "Queen Mother of the West / Xiwangmu Niangniang", "Yan(luo) Wang", "Dragon King / Long Wang", "Nezha", "Pangu", "Nüwa", "Sun Wukong"],
+
+ /* https://www.localiiz.com/post/culture-local-stories-chinese-mythology-101-gods-deities */
+ ["Jade Emperor / Yuhuang Shangdi", "Pangu", "Queen Mother of the West / Xiwangmu Niangniang", "Yan(luo) Wang", "Guanyin Pusa", "Wendi", "Wudi", "Wong Tai Sin", "Caishen", "Yue Lao", "San Xing", "Fuxing", "Luxing", "Shouxing", "Mazu", "Lu Ban"],
+
+ /* https://www.godchecker.com/chinese-mythology/explore/ [most popular] */
+ ["Sun Wukong", "Meng Po", "Ao Guang", "Jade Emperor / Yuhuang Shangdi", "Nezha", "Hundun", "Yan(luo) Wang", "Guan Yu", "Guanyin Pusa", "Nu Gua", "Chang'e", "Diyu", "Shouxing", "Fuxing", "Dragon King / Long Wang", "Caishen", "Zhao Gongming", "Zhu-Bajie", "Chuangmu", "Fuxi", "Pan Gu", "Zhurong", "Zigu Shen", "Ao Run", "Qinguang Wang", "Zhinü", "Ao Bing", "Chiyou", "Xi Shi", "Yuanshi Tianzun", "Qi Furen", "Eight Immortals / Ba Xian", "Tang Sanzang", "Hebo", "Tai-Suixing", "Taotie", "Da Yu", "Gonggong", "Ao Shun", "Taiyi", "Sha-Wujing", "Gong De Tian", "Dao", "Di Jun", "Zhou Wang", "Ao Qin", "Tian Mu", "Liu Hai", "Kui Xing", "Gao Yao", "Queen Mother of the West / Xiwangmu Niangniang", "Lan Caihe", "Zhang Fei", "Fei Lian", "Xihe", "Han Xiangzi", "Feng Bo", "Biancheng Wang", "Wen Chang", "Zhang Xian", "Zhongli Quan", "Ba Zha", "Luxing", "Song Jiang", "Long", "Three Pure Ones / Sanqing", "Chuang Gong", "Erlang Shen", "Chujiang Wang", "Yuqiang", "Hou Yi", "Yidi", "Cao Guojiu", "Li Tieguai", "Yu Shi", "Can Nü", "Milo Fo", "Wuguan Wang", "Shennong", "Zhuanlun Wang", "Laozi", "San Xing", "Lu Dongbin", "Daode Tianzun", "Lu Ban", "Liu Bei", "Lei Gong", "Zao Jun", "Yellow Emperor / Huangdi", "Jade Disc", "Qilin", "Zhulong", "Cheng Huang", "Xuan Wen-hua", "Xuan Wu", "Tiangou", "He Xiangu", "Yutu", "Gou Mang", "Hengjiang", "Dizang Wang", "Ju Shou", "Pingdeng Wang", "Leizhenzi", "Chisongzi", "Leizu", "Gun", "Zhong Kui", "Li Jing", "Dushi Wang", "Fenghuang", "Sui Ren", "Si Xiang", "Lingbao Tianzun", "Keng San Guniang", "Niu Lang", "Songdi Wang", "Wu Di", "Taishan Wang", "Zhang Guolao", "Zhuyi", "Qi", "Tu Di Gong", "Huainan Baxian", "San Huang", "Men Shen", "Mu Gong", "Mao Zedong", "Gui Xian", "Tian-Ming", "Di Ku", "Hou Ji", "Fan Kuai", "Liu An", "Yin", "Yang", "Fengdu", "Yao-Di", "Cancong", "Hajiang", "Guo Ziyi", "Feng Shui", "Sanguan", "Li Babai", "Penglai Shan", "Si Da Tian Wang", "Jun Di", "Yan Di", "Shun", "Mulian", "Qin Shubao", "Heng Ha Er Jiang", "Huang Kun", "Li Si", "Yuchi Jingde", "To-fu", "Sun Pin", "Jiang Yuan", "Lingzhi", "Tian", "Lie Yukou", "Wei Cheng"],
+
+ /* https://oldworldgods.com/chinese/who-is-the-strongest-in-chinese-mythology/ [ranked gods listed in detail] */
+ ["Jade Emperor / Yuhuang Shangdi", "Queen Mother of the West / Xiwangmu Niangniang", "Guanyin Pusa", "Yan(luo) Wang", "Nezha", "Dragon King / Long Wang", "Nüwa"],
+
+ /* https://www.historyskills.com/classroom/year-7/chinese-gods/ [main gods] */
+ ["Jade Emperor / Yuhuang Shangdi", "Guanyin Pusa", "Nüwa", "Fuxi", "Shennong", "Zhong Kui"]
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://en.wikipedia.org/wiki/Chinese_gods_and_immortals */
+ ["Jade Emperor / Yuhuang Shangdi", "Doumu Niangniang", "Pangu", "Queen Mother of the West / Xiwangmu Niangniang", "Yanwang", "Yinyanggong", "Fuxi", "Nüwa", "Shennong", "Huangdi", "Cangdi", "Heidi", "Chidi", "Baidi", "Tianguan", "Diguan", "Shuiguan", "Longshen", "Baoshen", "Bala", "Dizhushen", "Doushen", "Fei Lian", "Haishen", "Hebo", "Gushen", "Huoshen", "Hushen", "Sheshen", "Jishen", "Jinshen", "Jingshen", "Leishen", "Mushen", "Shanshen", "Shuishen", "Tudishen", "Wen Shen", "Xiangshuishen", "Xueshen", "Yushen", "Xihe", "Yueshen", "Wendi", "Kuixing", "Wudi", "Baosheng Dadi", "Eight Immortals / Baxian", "Canshen", "Canmu", "Qingyishen", "Caishen", "Yanshen", "Cangjie", "Cangshen", "Chuanzhu", "Changhuangshen", "Chen Jinggu", "Hushen", "Cheshen", "Erlangshen", "Guanyin Pusa", "Huang Daxian", "Jigong", "Jiushen", "Jiutian Xuannü", "Longmu", "Lu Ban", "Lushen", "Xingshen", "Mazu", "Panguan", "Ping'anshen", "Qingshui Zushi", "Taoshen", "Tuershen", "Tuotali Tianwang", "Jinzha", "Muzha", "Nezha", "Wuxian", "Xishen", "Yaoshen", "Yuexia Laoren", "Yushen", "Zaoshen", "Zhong Kui", "Sanxing", "Fuxing", "Luxing", "Shouxing", "Huashen", "Huxian", "Husan Taiye", "Husan Tainai", "Mashen", "Niushen", "Langshen", "Shushen", "Wugushen", "Yuanshen", "Zhimashen", "Bixia", "Houtu Niangniang", "Banzhen Niangniang", "Cuishen Niangniang", "Naimu Niangniang", "Peigu Niangniang", "Peiyang Niangniang", "Songzi Niangniang", "Yanguang Niangniang", "Yinmeng Niangniang", "Canmu", "Cangu", "Leizu", "Magu", "Sanzhou Niangniang", "Wusheng Laomu", "Huangxian", "Shexian", "Liuxian", "Changxian", "Mangxian", "Baixian", "Heixian", "Wuyaxian", "Huixian", "Simianshen", "Xiangtoushen", "Genghis Khan", "Shengwu Huangdi", "Fatian Qiyun", "Taizu", "Heng", "Ha", "Menshen", "Shentu", "Yulü", "Luoshen"],
+
+ /* https://www.quora.com/Which-gods-of-the-Chinese-pantheon-have-the-most-devotees-and-why-are-they-so-popular [Guo Wei's answer] */
+ ["Kitchen God / Zao Wang-Ye"],
+
+ /* https://mythopedia.com/topics/chinese-gods */
+ ["Bixia", "Caishen", "Cangjie", "Chang'e", "Changxi", "Dianmu", "Di Jun", "Doumu Niangniang", "Dragon King / Long Wang", "Eight Immortals / Ba Xian", "Erlang Shen", "Fuxi", "Guanyin Pusa", "Hou Yi", "Huxian", "Jade Emperor / Yuhuang Shangdi", "Ji Gong", "Jiutian Xuannu", "Lei Gong", "Lu Ban", "Mazu", "Menshen", "Nezha", "Nuba", "Nuwa", "Pangu", "Sanguan Dadi", "Shennong", "Sun Wukong", "Wenchang Wang", "Wufang Shangdi", "Xihe", "Queen Mother of the West / Xiwangmu Niangniang", "Yan(luo) Wang", "Yue Lao", "Yu Shi", "Zao Jun", "Zhong Kui"],
+
+ /* https://owlcation.com/humanities/chinese-mythological-gods-characters [all lists] */
+ ["Ba Xian", "Li Tieguai", "Han Zhongli", "Lü Dongbin", "He Xiangu", "Lan Caihe", "Han Xiangzi", "Zhang Guolao", "Cao Guojiu", "Dongwanggong", "Doumu Niangniang", "Puhua Tianzun", "Sanguan", "Three Pure Ones / Sanqing", "Yuanshi Tianzun", "Lingbao Tianzun", "Taishang Laojun", "Siyu", "Jade Emperor / Yuhuang Shangdi", "Ziwei Dadi", "Gouchen Dadi", "Houtu Niangniang", "Taiyi Jiuku Tianzun", "Queen Mother of the West / Xiwangmu Niangniang", "Jade Emperor / Yuhuang Shangdi", "Zhang Daoling", "Zhenwu Dadi", "Amituofo", "Dashizhi Pusa", "Dizangwang Puza", "Guanyin Pusa", "Ji Gong", "Mi-le Fo", "Puxian Pusa", "Rulaifo", "Sida Tianwang", "Chiguo Tianwang", "Zengzhang Tianwang", "Guangmu Tianwang", "Duowen Tianwang", "Weituo", "Wenshu Pusa", "Yaoshifo", "Cangjie", "Chang'e", "Changxi", "Chiyou", "Da Yu", "Di Jun", "Fangfeng", "Fuxi", "Gonggong", "Hebo", "Hou Yi", "Yellow Emperor / Huang Di", "Jiutian Xuannü", "Huafu", "Nüwa", "Pangu", "Sanhuang Wudi", "Shennong", "Si Xiong", "Hundun", "Qiongqi", "Taowu", "Taotie", "Xiangshuishen", "Ehuang", "Nüying", "Xihe", "Xingtian", "Yutu", "Zhurong", "Caishen", "Ershiba Xingsu", "Fulushou", "Huaguang Dadi", "Kuixing", "Lu Ban", "Mazu", "Tai Suixing", "Tudi Gong", "Wenchang", "Yuelao", "Zaojun", "Zhusheng Niangniang", "Baigu Jing", "Bai Long Ma", "Hong Haier", "Niu Mo Wang", "Sha Wujing", "Sun Wukong", "Tang Sanzang", "Tieshan Gongzhu", "Zhu Bajie", "Da Ji", "Jiang Ziya", "Lei Zhenzi", "Li Jing", "Nanji Xianweng", "Nezha", "Shengong Bao", "Tongtian Jiaozhu", "Yang Jian", "Zhou Wu Wang", "Bai Suzhen", "Dong Yong", "Fahai", "Liang Shanbo", "Zhu Yingtai", "Liu Yi", "Longgong Sangongzhu", "Meng Jiao", "Meng Jiang Nü", "Niu Lang", "Qixian Nü", "Xiaoqing", "Xu Xian", "Bao Zheng", "Guan Yu", "Menshen", "Zhong Kui", "Cheng Huang", "Dongyue Dadi", "Fengdu Dadi", "Hei Bai Wu Chang", "Meng Po", "Niutou Mamian", "Pan Guan", "Yan(luo) Wang", "Ao Guang", "Huang Daxian", "Hushan Shengmu", "Luoshen"],
+
+ /* https://www.youtube.com/watch?v=TFBgovqvSvs */
+ ["Pangu", "Fuxi", "Nuwa", "Wufang Shangdi", "Huangdi", "Cangdi", "Heidi", "Chidi", "Baidi", "Jade Emperor / Yuhuang Shangdi", "Queen Mother of the West / Xiwangmu Niangniang", "Sun Wukong", "Hou Yi", "Chang'e", "Dragon King / Long Wang", "Eight Immortals / Ba Xian", "Cao Guojiu", "Xan Xiangzi", "He Xiangu", "Lan Caihe", "Li Tieguai", "Lu Dongbin", "Zhang Guolao", "Zhongli Quan"],
+
+ /* https://www.youtube.com/watch?v=neU3gBJ78xY */
+ ["Jade Emperor / Yuhuang Shangdi", "Fuxi", "Nüwa", "Shennong", "Guanyin Pusa", "Chang'e", "Leigong", "Queen Mother of the West / Xiwangmu Niangniang", "Nezha", "Sun Wukong"],
+
+ /* https://historycooperative.org/chinese-gods/ */
+ ["Eight Immortals / Ba Xian", "Zhongli Quan", "He Xiangu", "Lu Dongbin", "Zhang Guo Lao", "Cao Guojiu", "Han Xiang Zi", "Lan Caihe", "Li Tai Guai", "Jade Emperor / Yuhuang Shangdi", "Yellow Emperor Huang Di", "Cheng Huang", "Tudi Gong", "Dragon King / Long Wang", "Ao Guang", "Ao Qin", "Ao Shun", "Ao Run", "Queen Mother of the West / Xiwangmu Niangniang"],
+
+ /* https://www2.kenyon.edu/Depts/Religion/Fac/Adler/Reln270/popular%20gods.htm */
+ ["Guan Gong", "Baosheng Dadi", "Cai Shen", "Shou Xing", "Fu Shen", "Eight Immortals / Ba Xian", "Hu Ye", "Jiu Wang Ye", "Mazu", "Qiye", "Shangdi", "Cheng Huang", "Sun Wukong", "Tu Di Gong", "Wenchangdi", "Queen Mother of the West / XiWangmu Niangniang", "Yuexia Laoren", "Zao Shen", "Zhusheng Niangniang"],
+
+ /* https://mykyokuto.com/blogs/blog/the-10-most-important-figures-in-chinese-mythology */
+ ["Nüwa", "Fuxi", "Chang'e", "Hou Yi", "Jade Emperor / Yuhuang Shangdi", "Sun Wukong", "Ao Guang", "Nezha", "Da Yu", "Zhong Kui", "Erlang Shen"],
+
+ /* https://chinese-temple.com/blogs/chinese-temple-blogs/chinese-mythology-gods */
+ ["Guan Yu", "Cai Shen", "Sun Wukong", "Yan(luo) Wang", "Jade Emperor / Yuhuang Shangdi", "Queen Mother of the West / Xiwangmu Niangniang", "Chang'e", "Hou Yi", "Guanyin Pusa", "Sun Wukong", "Nezha", "Dragon King / Long Wang", "Zhong Kui", "Mazu", "Eight Immortals / Ba Xian", "Lei Gong", "Sun Wukong", "Di Jun", "Zhu Rong", "Rabbit God / Tu'er Ye", "Gonggong", "Dragon King / Long Wang", "Laughing Buddha / Budai", "Dragon Turtle / Longgui"],
+
+ /* https://oldworldgods.com/chinese/who-is-the-strongest-in-chinese-mythology/ [gods specifically mentioned as possibly strongest] */
+ ["Buddha", "Sun Wukong", "Three Pure Ones / Sanqing", "Jade Emperor / Yuhuang Shangdi"],
+
+ /* https://oldworldgods.com/chinese/who-is-the-strongest-in-chinese-mythology/ [other powerful deities] */
+ ["Lei Gong", "Zhu Rong", "Daji", "Fuxi", "Nüwa", "Zhong Kui"],
+
+ /* https://www.historyskills.com/classroom/year-7/chinese-gods/ [other gods mentioned] */
+ ["Jade Emperor", "Yan(luo) Wang", "Pangu", "Nüwa"],
+
+ /* https://afe.easia.columbia.edu/cosmos/prb/heavenly.htm */
+ ["Jade Emperor / Yuhuang Shangdi", "Mazu", "Guanyu"],
+
+ /* https://thetempletrail.com/chinese-gods-101/ [all gods mentioned] */
+ ["Fuxi", "Nüwa", "Pangu", "Tian", "Shangdi", "Jade Emperor / Yuhuang Shangdi", "Queen Mother of the West / Xiwangmu Niangniang", "Yan(luo) Wang", "Guanyin Pusa", "Mazu", "Heidi", "Wenchang Wang", "Kui Xing", "Lei Gong", "Guan Yu", "Cai Shen", "Nezha", "Baosheng Dadi", "Chang'e", "Dragon King / Long Wang", "Erlang Shen", "Bao Zheng", "San Xing", "Fuxing", "Luxing", "Shouxing", "Tai Sui", "Chenghuang", "Tu Di Gong", "Zao Jun", "Zhong Kui", "Men Shen", "Hong Sheng", "Long Mu", "Huang Daxian", "Che Gong", "Tan Gong"],
+
+ /* https://www.superprof.co.uk/blog/how-many-gods-are-there-in-chinese-mythology/ */
+ ["Shang Di", "Tian", "Nüwa", "Pangu", "Fuxi", "Shennong", "Huang Di", "Shaohao", "Zhuanxu", "Di Ku", "Yao", "Shun", "Laughing Buddha / Budai", "Confucius", "Laozi", "Buddha", "Guanyin Pusa", "Queen Mother of the West / Xiwangmu Niangniang", "Gao Yao", "Kui Xing", "Gong Gong", "Tu Di Gong", ""]
+
+
+];
+
+</script>
+</body>
+</html>
