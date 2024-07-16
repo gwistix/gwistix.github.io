@@ -1,0 +1,365 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Most important Canaanite deities</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " Canaanite deities:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = (0.5 + 1/length)/2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+ });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return title
+ .toUpperCase()
+ .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+ .replace(/\s?\(.*\)/g,"")
+ .replace(/&/g,"and")
+ .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+ .replace(/[æÆœŒ]/gi,"E")
+ .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+ .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+ .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+ .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+ .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+ .replace(/ﬀ/gi,"FF")
+ .replace(/ﬁ/gi,"FI")
+ .replace(/ﬂ/gi,"FL")
+ .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+ .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+ .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+ .replace(/[ĳĲ]/gi,"IJ")
+ .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+ .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+ .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+ .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+ .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+ .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+ .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+ .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+ .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+ .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+ .replace(/[ßẞ]/gi,"SS")
+ .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+ .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+ .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+ .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+ .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+ .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+ .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+ .replace(/[^A-z0-9]/g, "")
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* [Google Search results] https://www.google.com/search?q=most+important+canaanite+deities&oq=most+important+canaanite+deities&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIKCAEQABiABBiiBDIKCAIQABiABBiiBDIKCAMQABiABBiiBNIBCDU0MjVqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 */
+ ["Athirat/Asherah", "Astarte / Ashtoreth", "Dagon", "El / Elyon", "Yam-Nahar", "Mot", "Baal Haddad", "Chemosh", "Melqart", "Resheph", "Shapash / Shemesh", "Eshmun", "Yarikh"],
+
+ /* https://raymondusrex.wordpress.com/2016/08/20/the-gods-and-goddesses-of-canaan/ [order of prominence] */
+ ["El / Elyon", "Ba'al Haddad", "Anath", "Athirat/Asherah", "Astarte / Ashtoreth", "Attar", "Dagon", "Kothar-wa-Khasis", "Moloch/Milcom", "Mot", "Shapash/Shemesh", "Yam-Nahar"],
+
+ /* https://www.metmuseum.org/toah/hd/cana/hd_cana.htm [deities mentioned] */
+ ["El / Elyon", "Baal Haddad", "Athirat/Asherah", "Anath", "Astarte / Ashtoreth", "Yam-Nahar", "Mot", "Resheph", "Deber", "Kothar-wa-Khasis"],
+
+ /* https://www.penn.museum/sites/canaan/CanaaniteReligion.html */
+ ["El / Elyon", "Athirat/Asherah", "Ba'al Haddad", "Anath", "Astarte / Ashtoreth", "Yam-Nahar", "Mot", "Qadeshtu"],
+
+ /* https://raymondusrex.wordpress.com/2016/08/20/the-gods-and-goddesses-of-canaan/ [all deities mentioned] */
+ ["El / Elyon", "Baal Haddad", "Yam-Nahar", "Mot", "Anath", "Athirat/Asherah", "Baal-Haddad", "Lotan", "Kothar-wa-Khasis", "Shachar", "Shalim", "Aretsaya", "Pidraya", "Talaya", "Baal Berith", "Baal Hammon", "Baal Marqod", "Baal Zebub", "Astarte / Ashtoreth", "Attar", "Dagon", "Kothar-wa-Khasis", "Moloch/Milcom", "Adrammelech", "Chemosh", "Anammelech", "Shapash / Shemesh", "Yarikh", "Baalit", "Eshmun", "Ilisha", "Kotharat", "Melqart", "Nikkal", "Qadeshtu", "Resheph", "Sydyk", "Tanit"],
+
+ /* https://oldworldgods.com/canaanite/ [condensed list] */
+ ["Baal Haddad", "Athirat / Asherah", "Yam-Nahar", "Anath", "Mot", "Yahweh"],
+
+ /* https://www.britannica.com/topic/Canaanite-religion */
+ ["El / Elyon", "Baal Haddad", "Anath"],
+
+ /* https://www.dhushara.com/book/god/canaan.htm */
+ ["El/Elyon", "Athirat/Asherah", "Anath", "Shachar", "Shalim", "Astarte/Ashtoreth", "Ba'al Haddad", "Yam-Nahar", "Mot", "Shapash / Shemesh", "Sin", "Yarikh", "Kotharat", "Nikkal"],
+
+ /* https://www.folklore.earth/culture/canaanite/ */
+ ["El/Elyon", "Athirat/Asherah", "Baal Haddad", "Anath", "Yam-Nahar", "Mot", "Shapash/Shemesh", "Yarikh", "Kothar-wa-Khasis", "Resheph", "Qadeshtu", "Haurun", "Shachar", "Shalim"]
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://en.wikipedia.org/wiki/Canaanite_religion */
+ ["Aglibol", "Anath", "Arsay", "Arsu", "Ashtar-Chemosh", "Athirat/Asherah", "Ashima", "Astarte / Ashtoreth", "Atargatis", "Attar", "Azizos", "Baalah", "Ba'alat Gebal", "Baal Haddad", "Ba'al Hermon", "Baal Hammon", "Baal Shamem", "Baal Zaphon", "Bel", "Bethel", "Chemosh", "Dagon", "El / Elyon", "Eretz", "Eshmun", "Gad", "Gupan", "Ugar", "Haurun", "Ishara", "Ishat", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Malakbel", "Manuzi", "Marqod", "Melqart", "Moloch/Milcom", "Misor", "Moloch/Milcom", "Mot", "Nikkal", "Pidraya", "Qadeshtu", "Qos", "Resheph", "Shadrafa", "Shachar", "Shalim", "Shamayim", "Shapash/Shemesh", "Sydyk", "Yahweh", "Yam-Nahar", "Yarhibol", "Yarikh"],
+
+ /* https://oldworldgods.com/canaanite/ [full list] */
+ ["Yarhibol", "Aglibol", "Qos", "Nikkal", "Shachar", "Haurun", "Shalim", "Kothar-wa-Khasis", "Melqart", "Tanit", "Eshmun", "Resheph", "Yarikh", "Athirat/Asherah", "Anath", "Arsu", "Azizos", "Arsay", "Baal Haddad", "Ashima", "Attar", "Atargatis", "Astarte / Ashtoreth", "Baal Haddad", "Ishara", "Baal Shamem", "El / Elyon", "Mot", "Chemosh", "Yam-Nahar", "Dagon", "Moloch/Milcom", "Gad", "Shapash/Shemesh"],
+
+ /* https://www.newworldencyclopedia.org/entry/Canaanite_Religion [individually mentioned] */
+ ["El / Elyon", "Athirat/Asherah", "Ba'al Haddad", "Anath", "Astarte / Ashtoreth", "Mot"],
+
+ /* https://www.newworldencyclopedia.org/entry/Canaanite_Religion [full list] */
+ ["Anath", "Athirat/Asherah", "Astarte / Ashtoreth", "Baalit", "Ba'al Haddad", "Baal-Hammon", "Chemosh", "Dagon", "El / Elyon", "Eshmun", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Melqart", "Moloch/Milcom", "Mot", "Nikkal", "Qadeshtu", "Resheph", "Shalim", "Shamayim", "Shapash/Shemesh", "Tanit", "Yam-Nahar", "Yarikh", "Yahweh"],
+
+ /* https://study.com/academy/lesson/canaanite-religion-overview-gods.html */
+ ["El / Elyon", "Ba'al Haddad", "Anath", "Astarte / Ashtoreth"],
+
+ /* https://www.godchecker.com/canaanite-mythology/pantheon/ */
+ ["Athirat/Asherah", "Astronoe", "Baal Haddad", "Dagon", "El / Elyon", "Baal Haddad", "Moloch / Milcom", "Mot", "Yam-Nahar", "Lotan", "Ashima", "Chemosh", "Belphegor", "Baal Zebub", "Aion", "Astarte / Ashtoreth", "Eshmun", "Hyposouranios", "Ousoos", "Resheph", "Melqart", "Anath", "Kothar-wa-Khasis"],
+
+ /* https://bibleresources.americanbible.org/resource/canaanite-gods-and-goddesses [primary gods] */
+ ["El / Elyon", "Baal Haddad", "Mot", "Yam-Nahar"], 
+
+ /* https://bibleresources.americanbible.org/resource/canaanite-gods-and-goddesses [other gods] */
+ ["Melqart", "Chemosh", "Moloch/Milcom", "Tammuz", "Dagon", "Athirat/Asherah", "Anath"],
+
+ /* https://www.thattheworldmayknow.com/gods-of-canaan */
+ ["Baal Haddad", "Athirat/Asherah"],
+
+ /* https://www.encyclopedia.com/environment/encyclopedias-almanacs-transcripts-and-maps/canaanite-religion-overview */
+ ["El / Elyon", "El-Ab", "Dagon", "Baal Sapan", "Baal Haddad", "Baal Shamem", "Yam-Nahar", "Mot", "Eretz", "Shamayim", "Athirat/Asherah", "Anath", "Qadeshtu", "Astarte/Ashtoreth", "Shapash/Shemesh", "Pidraya", "Arsay", "Ishara", "Dadmish", "Uthht", "Yarikh", "Nikkal", "Shalim", "Shachar", "Lotan", "Tunnan", "Attar", "Kothar-wa-Khasis", "Resheph", "Kinar", "Kotharat", "Moloch/Milcom"],
+
+ /* https://people.brandonu.ca/nollk/canaanite-religion/ [all gods mentioned] */
+ ["El / Elyon", "Eshmun", "Chemosh", "Dagon", "Mot", "Baal Haddad", "Yam-Nahar", "Anath", "Lotan", "Athirat/Asherah", "Baal Zaphon", "Baal Shamem", "Melqart", "Yahweh", "Anath", "Astarte / Ashtoreth", "Bethel", "Baal Hammon"],
+
+ /* https://people.brandonu.ca/nollk/canaanite-religion/ [first-tier gods] */
+ ["El / Elyon", "Athirat/Asherah", "Baal Haddad", "Anath", "Astarte / Ashtoreth"],
+
+ /* https://people.brandonu.ca/nollk/canaanite-religion/ [second- and third-tier gods] */
+ ["Dagon", "Resheph", "Moloch / Milcom", "Yahweh", "Shapash / Shemesh", "Yarikh", "Kothar-wa-Khasis", "Kotharat", "Bes", "Rephaim", "Raphiu"],
+
+ /* https://wheatandtares.org/2016/03/21/canaanite-dieties/ */
+ ["Anath", "Athirat/Asherah", "Astarte/Ashtoreth", "Baalit", "Baal Haddad", "Baal Hammon", "Dagon", "El / Elyon", "Eshmun", "Kotharat", "Kothar-wa-Khasis", "Lotan", "Melqart", "Moloch/Milcom", "Mot", "Nikkal", "Qadeshtu", "Resheph", "Shalim", "Shachar", "Shamayim", "Shapash / Shemesh", "Yam-Nahar", "Yarikh"]
+
+
+];
+
+</script>
+</body>
+</html>
