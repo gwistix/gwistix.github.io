@@ -1,0 +1,472 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Most important Yoruba deities</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " Yoruba deities:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = (0.5 + 1/length)/2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+ });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return title
+ .toUpperCase()
+ .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+ .replace(/\s?\(.*\)/g,"")
+ .replace(/&/g,"and")
+ .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+ .replace(/[æÆœŒ]/gi,"E")
+ .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+ .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+ .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+ .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+ .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+ .replace(/ﬀ/gi,"FF")
+ .replace(/ﬁ/gi,"FI")
+ .replace(/ﬂ/gi,"FL")
+ .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+ .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+ .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+ .replace(/[ĳĲ]/gi,"IJ")
+ .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+ .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+ .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+ .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+ .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+ .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+ .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+ .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+ .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+ .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+ .replace(/[ßẞ]/gi,"SS")
+ .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+ .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+ .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+ .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+ .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+ .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+ .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+ .replace(/[^A-z0-9]/g, "")
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://www.google.com/search?q=most+important+yoruba+deities&oq=most+important+yoruba+deities&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDgwMzNqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 */
+ ["Olodumare / Olorun"],
+
+ /* https://www.youtube.com/watch?v=ZUFWre1ylb0 */
+ ["Olodumare / Olorun", "Orunmila / Ifa", "Shango", "Ogun", "Oshun", "Babalu Aye / Obaluaye", "Oya", "Eshu / Elegua", "Yemoja / Yemaya", "Oko", "Olokun", "Aganju"],
+
+ /* https://www.encyclopedia.com/history/news-wires-white-papers-and-books/deities-yoruba-and-fon-religions */
+ ["Da", "Olodumare / Olorun", "Oya", "Eshu / Elegua", "Shango", "Oduduwa", "Orishala", "Ogun"],
+
+ /* https://www.godchecker.com/yoruba-mythology/ [most popular] */
+ ["Orishas", "Shango", "Obatala / Orisanla", "Oya", "Olodumare / Olorun", "Yemoja / Yemaya", "Babalu Aye / Obaluaye", "Aje Shaluga", "Ogun", "Eshu / Elegua", "Oduduwa", "Olokun", "Oshun", "Oshoosi", "Jakuta", "Oshunmare", "Dada", "Orunmila / Ifa", "Hare", "Oko", "Morimi", "Abiku", "Oshe", "Aganju", "Bayani", "Osanyin", "Onile", "Yansan", "Elusu", "Shopona", "Egungun-oya"],
+
+ /* https://mythopedia.com/topics/orishas [list of notable] */
+ ["Olodumare / Olorun", "Obatala / Orisanla", "Oduduwa", "Orunmila / Ifa", "Eshu / Elegua", "Yemoja / Yemaya", "Shango", "Oshun", "Oya", "Babalu-Aye", "Ogun", "Olokun", "Oko", "Ibeji", "Osanyin"],
+
+ /* https://ileifa.org/the-gods-and-deities-of-the-yoruba-religion/ */
+ ["Olodumare / Olorun", "Shango", "Ogun", "Eshu / Elegua", "Oshun", "Oya", "Yemoja / Yemaya", "Obatala / Orisanla"],
+
+ /* https://www.tiktok.com%2F%40terrifyingmyths100%2Fvideo%2F7327058221460524334&usg=AOvVaw3dF6PDPHvTL6SbmJXUP2x8&opi=89978449 */
+ ["Olodumare / Olorun", "Yemoja / Yemaya", "Shango", "Ogun", "Oshun"]
+ 
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://www.google.com/search?q=most+important+yoruba+deities&oq=most+important+yoruba+deities&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDgwMzNqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 */
+ ["Obatala / Orisanla", "Olodumare / Olorun", "Oshun", "Shango", "Ogun", "Eshu / Elegua"],
+
+ /* https://en.wikipedia.org/wiki/List_of_Yoruba_deities */
+ ["Agemo", "Aganju", "Ajaka", "Aja", "Aje Shaluga", "Akogun", "Ayangalu", "Alaafia", "Ara Ara", "Ayelala", "Aroni", "Arun", "Aye", "Biri", "Babalu Aye / Obaluaye", "Bayanni (Dada)", "Dada", "Ela", "Edi", "Egungun-oya", "Erinle", "Eshu / Elegua", "Ibeji", "Iroko", "Iya Nla", "Iku", "Imole", "Logunede", "Moremi", "Nana Buluku", "Oba", "Obaluaye", "Obatala / Orisanla", "Obba", "Oduduwa", "Ogun", "Oke", "Oko", "Olokun", "Olumo", "Oranyan", "Oro", "Oronsen", "Orunmila / Ifa", "Ori", "Osanyin", "Oshoosi", "Oshun", "Oshunmare", "Otin", "Oya", "Shango", "Shigidi", "Yemoja / Yemaya", "Yemowo", "Yewa", "Olodumare / Olorun"],
+
+ /* https://www.penn.museum/sites/journal/562/ */
+ ["Olodumare / Olorun", "Obatala / Orisanla", "Shango", "Ogun", "Shankpanna", "Edshu"],
+
+ /* https://www.legit.ng/1175618-yoruba-gods-goddesses.html [four supreme deities] */
+ ["Olodumare / Olorun", "Olofin", "Nana Buluku"],
+
+ /* https://www.legit.ng/1175618-yoruba-gods-goddesses.html [others mentioned in text] */
+ ["Oduduwa", "Obatala / Orisanla", "Oshun", "Eshu / Elegua", "Ogun", "Yemoja / Yemaya", "Shango"],
+
+ /* https://www.legit.ng/1175618-yoruba-gods-goddesses.html [full list] */
+ ["Aja", "Aje", "Ayao", "Egungun-oya", "Mawu", "Oba", "Olokun", "Oshun", "Oya", "Yemoja / Yemaya", "Oba", "Aganju", "Babalu Aye / Obaluaye", "Erinle", "Eshu / Elegua", "Ibeji", "Kokou", "Obatala / Orisanla", "Oduduwa", "Ogun", "Oko", "Osanyin", "Oshumare", "Oshoosi", "Shango"],
+
+ /* https://www.legit.ng/1175618-yoruba-gods-goddesses.html [seven most popular] */
+ ["Eshu / Elegua", "Ogun", "Obatala / Orisanla", "Yemaya", "Oshun", "Shango", "Oya"],
+
+ /* https://originalbotanica.com/blog/list-all-orishas-yoruba-deities */
+ ["Aganju", "Aja", "Aje", "Ajala", "Ayao", "Babalu-Aye", "Dada", "Eshu / Elegua", "Ibeji", "Iku", "Erinle", "Iroko", "Logun Ede", "Obatala / Orisanla", "Oshoosi", "Ode", "Ogun", "Oko", "Olokun", "Olodumare / Olorun", "Onile", "Orula", "Ossain", "Oshun", "Oshunmare", "Otin", "Oya", "Shango", "Yemoja / Yemaya"],
+
+ /* https://www.youtube.com/watch?v=3QWizbz1ltE */
+ ["Oya", "Olofin", "Olodumare / Olorun", "Obatala / Orisanla", "Orunmila / Ifa", "Oduduwa", "Shango", "Olokun", "Eshu / Elegua", "Oshun", "Ibeji", "Yemoja / Yemaya"],
+
+ /* https://www.youtube.com/watch?v=h6TnNQUiCjY */
+ ["Shango", "Yemoja / Yemaya", "Ogun", "Oduduwa", "Oshun", "Oshoosi", "Otin", "Oba", "Eshu / Elegua", "Babalu Aye / Obaluaye", "Oya"],
+
+ /* https://www.nairaland.com/3399606/yoruba-gods-other-traditional-deities [orisa37] */
+ ["Oluwa", "Olodumare / Olorun", "Oduduwa", "Orunmila / Ifa", "Oya", "Ogun", "Shango", "Oshun", "Laroye", "Obatala / Orisanla", "Orunto"],
+
+ /* https://www.nairaland.com/3399606/yoruba-gods-other-traditional-deities [kjhova] */
+ ["Olodumare / Olorun", "Obatala / Orisanla", "Ori", "Shango", "Ogun", "Eshu / Elegua", "Shopona", "Egugun", "Adamuorisha", "Gelede", "Oro", "Orunmila / Ifa"],
+
+ /* https://www.nairaland.com/3399606/yoruba-gods-other-traditional-deities [lawani] */
+ ["Olodumare / Olorun"],
+
+ /* https://legacy.cs.indiana.edu/~port/teach/205/santeria2.html */
+ ["Eshu / Elegua", "Ogun", "Oshoosi", "Obatala / Orisanla", "Oya", "Oshun", "Yemoja / Yemaya", "Shango", "Orunmila / Ifa"],
+
+ /* https://www.researchgate.net/figure/Yoruba-deities-and-their-desription_tbl1_337942430 */
+ ["Ogun", "Orunmila / Ifa", "Shango", "Eshu / Elegua", "Osanyin", "Oya", "Yemoja / Yemaya", "Oshun", "Aje Shaluga"],
+
+ /* https://mythopedia.com/topics/orishas [most powerful] */
+ ["Olodumare / Olorun"],
+
+ /* https://www.worldhistory.org/Orisha/ [supreme] */
+ ["Olodumare / Olorun"],
+
+ /* https://www.worldhistory.org/Orisha/ [seven orishas] */
+ ["Eshu / Elegua", "Ogun", "Obatala / Orisanla", "Yemoja / Yemaya", "Oshun", "Shango", "Oya"],
+
+ /* https://www.youtube.com/watch?v=J2se_zimj40 */
+ ["Olodumare / Olorun", "Eshu / Elegua", "Ogun", "Oranyiman", "Olokun", "Olosa", "Onile", "Oko", "Oya", "Orungan", "Aganju", "Yemoja / Yemaya", "Babalu Aye / Obaluaye", "Ori", "Iwa", "Ogiyan", "Orunmila / Ifa"],
+
+ /* https://research.auctr.edu/c.php?g=404402&p=2752855 */
+ ["Olodumare / Olorun", "Obatala / Orisanla", "Oduduwa"],
+
+ /* https://religion.fandom.com/wiki/List_of_Yoruba_deities */
+ ["Olodumare / Olorun", "Aganju", "Aja", "Ayao", "Babalu Aye / Obaluaye", "Egungun-oya", "Erinle", "Eshu / Elegua", "Kokou", "Oba", "Obatala / Orisanla", "Ogun", "Olokun", "Oshun", "Oshunmare", "Oshoosi", "Oya", "Shopona", "Shango", "Yemoja / Yemaya", "Orunmila / Ifa"],
+
+ /* https://culturebay.co/blogs/african-mythology/list-of-orishas-a-guide-to-the-powers-of-yoruba-gods#understanding-yoruba-deity-names [supreme god] */
+ ["Olodumare / Olorun"],
+
+ /* https://culturebay.co/blogs/african-mythology/list-of-orishas-a-guide-to-the-powers-of-yoruba-gods#understanding-yoruba-deity-names */
+ ["Oya", "Yewa", "Oshun", "Nana Buluku", "Oba", "Yemoja / Yemaya", "Ibu Kole", "Ayao", "Oduduwa", "Yemowo", "Eshu / Elegua", "Ogun", "Oshoosi", "Shango", "Orunmila / Ifa", "Obatala / Orisanla", "Aganju", "Olokun", "Babalu-Aye", "Oko"],
+
+ /* https://historycooperative.org/african-gods-and-goddesses/ */
+ ["Eshu / Elegua", "Ogun", "Shango", "Oshun", "Obatala / Orisanla", "Oya", "Babalu Aye / Obaluaye", "Yemoja / Yemaya", "Orunmila / Ifa", "Oba"],
+
+ /* https://historycooperative.org/african-gods-and-goddesses/ [supreme god] */
+ ["Olodumare / Olorun"],
+
+ /* https://www.youtube.com/watch?v=zi491BUKmRc */
+ ["Shango", "Oshun", "Ogun", "Oya"],
+
+ /* https://oldworldgods.com/list/yoruba-gods-and-goddesses/ */
+ ["Babalu Aye / Obaluaye", "Oshunmare", "Oya", "Eshu / Elegua", "Oko", "Olodumare / Olorun", "Aje Shaluga", "Shango", "Orunmila / Ifa", "Obatala / Orisanla", "Oshoosi", "Ajala", "Osanyin", "Egungun-oya", "Nana Buluku", "Ibeji", "Oko", "Oshun", "Ogun", "Dada", "Olokun", "Erinle", "Ori", "Aganju", "Yemoja / Yemaya"],
+
+ /* https://www.cubanvibes.com/post/the-orishas-a-list-of-yoruba-deities-celebrated-in-cuba-in-alphabetical-order */
+ ["Babalu-Aye / Obaluaye", "Eshu / Elegua", "Obatala / Orisanla", "Oshoosi", "Ogun", "Oshun", "Oya", "Shango", "Yemoja / Yemaya"],
+
+ /* https://translingua.ng/yoruba-deities/ [supreme god] */
+ ["Olodumare / Olorun"],
+
+ /* https://translingua.ng/yoruba-deities/ [orishas] */
+ ["Obatala / Orisanla", "Yemoja / Yemaya", "Shango", "Oshun", "Ogun", "Eshu / Elegua", "Orunmila / Ifa", "Oya", "Oba", "Oshoosi", "Aje Shaluga", "Erinle", "Osanyin", "Olokun"],
+
+ /* https://alexanderskarsgard.s3.uk.io.cloud.ovh.net/news/yoruba-gods-and-goddesses-their-history-explained-in-detail.html [supreme deity] */
+ ["Olodumare / Olorun"],
+
+ /* https://alexanderskarsgard.s3.uk.io.cloud.ovh.net/news/yoruba-gods-and-goddesses-their-history-explained-in-detail.html [four main deities] */
+ ["Olodumare / Olorun", "Olofin", "Nana Buluku"],
+
+ /* https://vocal.media/education/influential-gods-in-yoruba-lands-nigeria [most important god] */
+ ["Olodumare / Olorun"],
+
+ /* https://vocal.media/education/influential-gods-in-yoruba-lands-nigeria [other major gods] */
+ ["Obatala / Orisanla", "Oshun", "Shango"],
+
+ /* https://vocal.media/education/influential-gods-in-yoruba-lands-nigeria [list of orishas] */
+ ["Obatala / Orisanla", "Shango", "Ogun", "Oshun", "Eshu / Elegua"],
+
+ /* https://www.postcolonialweb.org/nigeria/yorubarel.html [all mentioned] */
+ ["Shango", "Oya", "Olodumare / Olorun", "Obatala / Orisanla", "Oduduwa", "Ogun", "Eshu / Elegua", "Shopona", "Olokun"],
+
+ /* https://afrogodsnfts.com/meet-the-gods--the-orisha-pantheon [supreme deity] */
+ ["Olodumare / Olorun"],
+
+ /* https://afrogodsnfts.com/meet-the-gods--the-orisha-pantheon [all mentioned] */
+ ["Olodumare / Olorun", "Obatala / Orisanla", "Oduduwa", "Eshu / Elegua", "Ogun", "Shango", "Oshun", "Yemoja / Yemaya", "Orunmila / Ifa", "Oya", "Oba", "Olokun", "Aje Shaluga", "Osanyin", "Egungun-oya"],
+
+ /* https://hearstmuseum.berkeley.edu/wp-content/uploads/TeachingKit_YorubaArtAndCulture.pdf */
+ ["Olodumare / Olorun", "Obatala / Orisanla", "Oduduwa", "Shango", "Orunmila / Ifa", "Eleshije", "Oya", "Eshu / Elegua", "Ogun"],
+
+ /* https://www.pulse.ng/lifestyle/food-travel/5-intriguing-deities-in-yoruba-land/d623n4q */
+ ["Aganju", "Osanyin", "Olofin", "Ayao", "Erinle"],
+
+ /* https://www.bop.gov/foia/docs/orishamanual.pdf */
+ ["Eshu / Elegua", "Orunmila / Ifa", "Obatala / Orisanla", "Shango", "Ogun", "Oshoosi", "Aganju", "Babalu-Aye / Obaluaye", "Yemoja / Yemaya", "Oshun", "Oya"],
+
+ /* https://www.mrtredinnick.com/uploads/7/2/1/5/7215292/yoruba_history.pdf */
+ ["Olodumare / Olorun", "Obatala / Orisanla", "Oduduwa", "Shango", "Orunmila / Ifa", "Eshu / Elegua", "Ogun"],
+
+ /* https://thesevenworlds.wordpress.com/2013/02/07/yoruba-gods-and-deities/ */
+ ["Olodumare / Olorun", "Aganju", "Aja", "Aje Shaluga", "Aroni", "Ayao", "Babalu Aye / Obaluaye", "Dada", "Edi", "Egungun-Oya", "Eshu / Elegua", "Erinle", "Ibeji", "Ibeta", "Irunmole", "Orunmila / Ifa", "Kokou", "Oba", "Obatala / Orisanla", "Oduduwa", "Ogun", "Oke", "Oko", "Olokun", "Elusu", "Olosa", "Oranyan", "Ori", "Orungan", "Osanyin", "Oshoosi", "Oshumare", "Oshun", "Oya", "Shango", "Shopona", "Shigidi", "Yemoja / Yemaya", "Orun", "Oshu"],
+
+ /* https://ileifa.org/the-gods-and-deities-of-the-yoruba-religion/ [three main gods] */
+ ["Olodumare / Olorun", "Olofin"],
+
+ /* https://derekdodds.com/yoruba-mythology-gods-who-were-yamanja-and-oxumare/ [all mentioned] */
+ ["Yemoja / Yemaya", "Oshumare", "Olodumare / Olorun", "Obatala / Orisanla", "Ogun", "Shango"],
+
+ /* https://www.youtube.com/watch?v=DJ1kJQuiMWA */
+ ["Olodumare / Olorun", "Yemoja / Yemaya", "Ogun", "Shango", "Orunmila / Ifa", "Oshun", "Eshu / Elegua", "Oya", "Obatala / Orisanla", "Babalu Aye / Obaluaye"],
+
+ /* https://www.youtube.com/watch?v=RQGDvI3JMAc [supreme being] */
+ ["Olodumare / Olorun"],
+
+ /* https://www.youtube.com/watch?v=RQGDvI3JMAc [orishas] */
+ ["Obatala / Orisanla", "Ogun", "Shango", "Oshun", "Eshu / Elegua", "Oya", "Orunmila / Ifa"],
+
+ /* https://nicholasidoko.com/blog/2022/11/26/who-are-yoruba-gods-and-what-do-they-stand-for/ */
+ ["Shango", "Olodumare / Olorun", "Obatala / Orisanla", "Orunmila / Ifa", "Ogun", "Oduduwa", "Aganju", "Eshu / Elegua"],
+
+ /* https://mythlok.com/gods/african-gods/west-african-gods/yoruba-gods/ [short list] */
+ ["Olodumare / Olorun", "Eshu / Elegua", "Ogun", "Yemoja / Yemaya", "Orunmila / Ifa"],
+
+ /* https://mythlok.com/gods/african-gods/west-african-gods/yoruba-gods/ [longer list] */
+ ["Eshu / Elegua", "Oba", "Obatala / Orisanla", "Ogun", "Olokun", "Shango", "Yemoja / Yemaya"]
+
+
+
+];
+
+</script>
+</body>
+</html>
