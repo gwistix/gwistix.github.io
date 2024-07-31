@@ -1,0 +1,181 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best VR games</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ white-space: pre-wrap
+}
+
+small {
+ color: gray
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ var titleList = [];
+ var titles = [];
+
+ ranked.forEach(function(list) {
+  var len = list.length;
+  list.forEach(function(title, index) {
+   var stripped = stripTitle(title); // removes non-alpha-numerics
+   var ref = titleList.indexOf(stripped);
+   var score = (1 - (index / len));
+   if (!~ref) { // not yet in list
+    titleList.push(stripped);
+    titles.push({
+     title: title,
+     score: score,
+     toString: function() {
+      return " <small>[" + this.score.toFixed(2) + "]</small>\t" + this.title + "</a>";
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score+= score;
+   }
+  })
+ });
+
+ unranked.forEach(function(list) {
+  var len = list.length;
+  list.forEach(function(title, index) {
+   var stripped = stripTitle(title); // removes non-alpha-numerics
+   var ref = titleList.indexOf(stripped);
+   var score = ((1 / len) + 0.5) / 2;
+   if (!~ref) { // not yet in list
+    titleList.push(stripped);
+    titles.push({
+     title: title,
+     score: score,
+     toString: function() {
+      return " <small>[" + this.score.toFixed(2) + "]</small>\t" + this.title + "</a>";
+     }
+    });
+   }
+   else { // already in list
+    titles[ref].score+= score;
+   }
+  })
+ });
+
+ var sortByScore = true;
+
+ titles = titles
+ .sort(
+  function (a, b) {
+   if (sortByScore) {
+    if (a.score < b.score) return 1;
+    if (a.score > b.score) return -1;
+   }
+   else {
+    if (a.title < b.title) return -1;
+    if (a.title > b.title) return 1;
+   }
+   return 0;
+  }
+ )
+ ;
+
+ document.body.innerHTML = "<h1>" + titles.length + " unique VR games from " + (ranked.length + unranked.length) + " lists:</h1>";
+ titles.forEach(function(title, index) {
+  document.body.innerHTML += (index + 1) + "\t" + title + "<br>";
+ })
+
+}
+
+function stripTitle(title) {
+ return title.replace(/&/g, "and").replace(/[^A-z0-9]/g, "").toUpperCase();
+}
+
+function stadiaURL(title) {
+ return "https://stadia.google.com/store?query=" + title.toLowerCase().replace(/[^A-z0-9\ ]/g, "");
+}
+
+var ranked = [
+
+ /* VPNoverview https://vpnoverview.com/privacy/devices/best-vr-games/ */
+ ["Half-Life: Alyx", "Superhot VR", "Elite Dangerous", "Keep Talking and Nobody Explodes", "Beat Saber", "No Man's Sky VR", "Moss", "The Elder Scrolls V: Skyrim VR", "Iron Man VR", "Horizon: Call of the Mountain", "Tentacular", "The Walking Dead: Saints & Sinners", "Pistol Whip", "Resident Evil 4", "Among Us VR", "Subnautica", "Star Wars: Squadrons", "Gran Turismo 7", "I Expect You To Die", "The Room VR: A Dark Matter", "Lone Echo", "Astro Bot Rescue Mission", "Minecraft VR", "Project Cars 2", "The Talos Principle VR", "Lost Recipes"],
+
+ /* https://www.softwaretestinghelp.com/best-vr-virtual-reality-games/ */
+ ["Half-Life: Alyx", "Minecraft VR", "No Man's Sky VR", "Iron Man VR", "Rec Room", "The Forest", "The Elder Scrolls V: Skyrim VR", "Resident Evil 7: Biohazard", "Elite Dangerous", "Defector"],
+
+ /* Upload https://www.uploadvr.com/best-vr-games/ */
+ ["Half-Life: Alyx", "The Walking Dead: Saints & Sinners", "Astro Bot Rescue Mission", "Superhot VR", "Demeo", "Pistol Whip", "Vertigo 2", "Boneworks", "Resident Evil 4", "Horizon: Call of the Mountain", "Resident Evil Village", "Asgard's Wrath", "Beat Saber", "Walkabout Mini Golf VR", "No Man's Sky VR", "Lone Echo", "The Elder Scrolls V: Skyrim VR", "Blade and Sorcery VR", "Eleven Table Tennis", "Iron Man VR", "Blood & Truth", "Onward", "What the Bat?", "A Fisherman's Tale", "Unplugged - Air Guitar"],
+
+ /* udonis https://www.blog.udonis.co/mobile-marketing/mobile-games/best-vr-games */
+ ["Half-Life: Alyx", "Resident Evil Village", "The Elder Scrolls V: Skyrim VR", "Blade & Sorcery VR", "No Man's Sky VR", "Phasmophobia", "War Thunder", "Beat Saber", "Boneworks", "I Expect You to Die", "VRChat"],
+
+ /* VR.Space https://vr.space/news/games/best-reviewed-vr-games/ */
+ ["Half-Life: Alyx", "Beat Saber", "Astro Bot: Rescue Mission", "Tetris Effect: Connected", "Lone Echo", "Dreams", "Rez Infinite", "Asgard's Wrath", "Keep Talking and Nobody Explodes", "Ragnarock", "Until You Fall", "Raw Data", "Thumper", "Resident Evil 4", "Gorn", "Ghost Giant", "Statik", "Polybius", "Resident Evil 7: Biohazard", "Superhot VR", "Pistol Whip", "Demeo", "I Expect You To Die 2", "Synth Riders", "L.A. Noire: The VR Case Files", "Tekken 7", "Pixel Ripped 1995", "Arizona Sunshine", "The Elder Scrolls V: Skyrim VR", "The Walking Dead: Saints & Sinners"],
+
+ /* Upcomer https://upcomer.com/best-vr-games-of-all-time-ranked */
+ ["Half-Life: Alyx", "Superhot VR", "Pistol Whip", "Beat Saber", "Resident Evil 4", "Astro Bot Rescue Mission", "No Man's Sky VR", "The Elder Scrolls V: Skyrim VR", "The Walking Dead: Saints & Sinners", "Resident Evil 7: Biohazard", "Demeo", "Walkabout Mini Golf VR", "Asgard's Wrath", "Boneworks", "Blade and Sorcery VR"],
+
+ /* VRX https://vrx.vr-expert.com/best-10-vr-games-on-htc-vive-xr-elite/ */
+ ["The Last Clockwinder", "Kayak VR: Mirage", "Walkabout Mini Golf VR", "Hyper Dash", "Ragnarock", "Demeo", "Trover Saves the Universe", "Wanderer", "Until You Fall", "The Walking Dead: Saints & Sinners"],
+
+ /* Steam https://store.steampowered.com/search/?sort_by=Reviews_DESC&term=VR&vrsupport=401%2C402&supportedlang=english&ndl=1 [sorted by user reviews; first 100 only] */
+ ["Half-Life: Alyx", "VTOL VR", "Walkabout Mini Golf VR", "Hot Dogs, Horseshoes & Hand Grenades", "Keep Talking and Nobody Explodes", "Keep Talking and Nobody Explodes", "Half-Life 2: VR Mod", "The Room VR: A Dark Matter", "COMPOUND", "fpsVR", "Vertigo 2", "Vertigo 2", "Phasmophobia", "Blade and Sorcery", "Five Nights at Freddy's: Help Wanted", "OVR Advanced Settings", "Jet Island", "I Expect You To Die 2", "Ancient Dungeon", "Cozy Couch Co-Op Bundle", "Beat Saber - Game + Imagine Dragons Music Pack", "Beat Saber", "CarX Drift Racing Online", "CarX Drift Racing Online", "CarX Drift Racing Online", "Dagon: by H. P. Lovecraft", "SpaceEngine", "The Lab", "Amid Evil VR Bundle", "Tetris® Effect: Connected", "Google Earth VR", "The Thrill of the Fight - VR Boxing", "Team SNEED Megapack", "Eleven Table Tennis", "I'm on Observation Duty Collection", "Moss", "Moss: Book II", "Kill It With Fire Complete", "Ragnarock", "Ragnarock", "Spooky's Jump Scare Mansion: HD Renovation", "I Expect You To Die", "Rock Life: The Rock Simulator", "Rolling Line", "BallisticNG", "NoLimits 2 Roller Coaster Simulation", "PLAYNE : The Meditation Game", "IronWolf VR", "VR Flush", "Hop Step Sing! Astral Piece", "Moss: Book II", "Google Spotlight Stories: Age of Sail", "Half-Life 2: VR Mod - Episode One", "A Shopping Trip to Eklan Tor", "The Book of Distance", "Pixel Ripped 1995", "Super Raft Boat VR", "Show It 2 Me", "Gadgeteer", "Escape From Mandrillia: Local Asymmetric VR vs PC", "Wadality", "Spice&Wolf VR2", "The Last Clockwinder", "HyperRogue", "Dragon Fist: VR Kung Fu", "Half-Life 2: VR Mod - Episode Two", "IL DIVINO: Michelangelo's Sistine Ceiling in VR", "Cosmonious High", "Rags to Dishes", "Hop Step Sing! Kimamani☆Summer vacation (HQ Edition)", "EXA: The Infinite Instrument", "Virtual Home Theater Video Player", "Moose Life", "Mona Lisa: Beyond The Glass", "Tinertia", "Guildford Castle VR", "Space Docker VR", "IRON GUARD VR", "Lazerbait", "Fantasynth One", "Racket: Nx", "Paper Beast", "Google Spotlight Stories: Pearl", "Chroma Lab", "Welcome to Light Fields", "Panoptic", "Cosmic Flow: A Relaxing VR Experience", "Sheaf - Together EP", "Art Plunge", "Primitier", "Get Lost In Nature With Luke", "Yupitergrad 🚀(Virtual Reality Adventure)", "Aery VR - A Journey Beyond Time", "Calm Down, Stalin - VR", "I Fetch Rocks", "My Dad Left Me"]
+
+];
+
+var unranked = [
+
+ /* CNET https://www.cnet.com/pictures/best-vr-games/ */
+ ["Half-Life: Alyx", "Horizon: Call of the Mountain", "Gran Turismo 7", "Resident Evil Village", "No Man's Sky VR", "Tentacular", "Star Wars: Tales from the Galaxy's Edge", "Beat Saber", "Moss: Book II", "Walkabout Mini Golf VR", "In Death Unchained", "Demeo", "Iron Man VR", "The Walking Dead: Saints & Sinners", "What the Bat", "Tetris Effect: Connected", "Population One", "Myst", "The Room VR: A Dark Matter", "Resident Evil 4", "A Fisherman's Tale", "Puzzling Pieces", "Eleven Table Tennis", "I Expect You To Die 2", "The Under Presents", "The Elder Scrolls V: Skyrim VR", "Astro Bot Rescue Mission", "The Climb 2", "Gorn", "Thumper", "Keep Talking and Nobody Explodes", "Pixel Ripped: 1995", "Job Simulator", "Space Pirate Trainer", "Virtual Virtual Reality", "Pavlov VR", "Rez Infinite", "Superhot VR", "Rec Room", "Star Wars: Squadrons", "Wipeout Omega Collection"],
+
+ /* PCGames https://www.pcgamesn.com/best-vr-games */
+ ["Beat Saber", "Half-Life: Alyx", "The Walking Dead: Saints & Sinners", "L.A. Noire: The VR Case Files", "Among Us VR", "Star Wars: Squadrons", "Phasmophobia", "Tabletop Simulator", "Superhot VR", "Keep Talking and Nobody Explodes", "I Expect You To Die 2", "Star Trek: Bridge Crew", "Elite Dangerous", "Assetto Corsa", "No Limits 2", "Gorn", "Moss: Book II", "Microsoft Flight Simulator", "In Death", "Bonelab", "Budget Cuts", "Tetris Effect: Connected"],
+
+ /* PCmag https://www.pcmag.com/picks/the-best-vr-games */
+ ["Astro Bot Rescue Mission", "Beat Saber", "Blade and Sorcery VR", "Elite Dangerous", "Everybody's Golf VR", "Ghost Giant", "Half-Life: Alyx", "I Expect You To Die", "Keep Talking and Nobody Explodes", "Lone Echo", "Minecraft VR", "Moss", "No Man's Sky VR", "Pistol Whip", "Project Cars 2", "Resident Evil 4", "Resident Evil 7: Biohazard", "Rez: Infinite", "Robo Recall", "Subnautica", "Superhot VR", "Tetris Effect: Connected", "The Elder Scrolls V: Skyrim VR", "The Last Clockwinder", "The Talos Principle VR", "Trover Saves the Universe", "Vacation Simulator"],
+
+ /* vg247 https://www.vg247.com/the-15-best-vr-games-to-play-right-now */
+ ["Superhot VR", "Beat Saber", "Tetris Effect: Connected", "Batman: Arkham VR", "Elite Dangerous", "The Elder Scrolls V: Skyrim VR", "Moss", "No Man's Sky VR", "Pistol Whip", "Blade and Sorcery VR", "The Room VR: A Dark Matter", "Vader Immortal", "Demeo", "Resident Evil 4", "Half-Life: Alyx"],
+
+ /* TechRadar https://www.techradar.com/best/the-best-vr-games */
+ ["Beat Saber", "I Expect You To Die 2", "Keep Talking and Nobody Explodes", "No Man's Sky VR", "Resident Evil 4", "The Elder Scrolls V: Skyrim VR", "Superhot VR", "Tetris Effect: Connected", "Walkabout Mini Golf VR", "Wands Alliances"],
+
+ /* Tom's Guide https://www.tomsguide.com/best-picks/best-vr-games */
+ ["Cities VR", "Hitman 3", "Jurassic World: Aftermath", "Stride", "Thumper", "Subnautica", "Microsoft Flight Simulator", "Star Wars: Squadrons", "Falcon Age", "Vader Immortal", "Pistol Whip", "Iron Man VR", "Half-Life: Alyx", "No Man's Sky VR", "Beat Saber", "The Elder Scrolls V: Skyrim VR", "Doom VFR", "Rec Room", "Star Trek: Bridge Crew", "Superhot VR"],
+
+ /* Men's Health https://www.menshealth.com/technology-gear/a30679971/best-vr-games/?utm_source=google&utm_medium=cpc&utm_campaign=arb_ga_mnh_md_pmx_us_urlx_17889802313&gclid=Cj0KCQjwmZejBhC_ARIsAGhCqneh79-C2XMZvPztpWZ-ryiQf-i1lbyAvioosHUiM7M_Q_e8RAS247MaArDyEALw_wcB */
+ ["Beat Saber", "Box VR", "Pistol Whip", "Sports Scramble", "The Climb", "Space Pirate Trainer", "Tripp", "Moss", "I Expect You To Die", "Wander", "A Fisherman's Tale", "Within"],
+
+ /* Mixed https://mixed-news.com/en/best-vr-games/ */
+ ["Asgard's Wrath", "Astro Bot Rescue Mission", "Beat Saber", "Blaston", "Demeo", "DiRT Rally 2.0", "Elite Dangerous", "Half-Life: Alyx", "Hellblade: Senua's Sacrifice", "Lone Echo", "Lone Echo II", "Moss", "Moss: Book II", "Pavlov VR", "Project Cars 2", "Resident Evil 4", "Resident Evil 7: Biohazard", "Rez Infinite", "Superhot VR", "The Walking Dead: Saints & Sinners", "Townsmen VR", "Until You Fall", "Walkabout Mini Golf VR", "WipEout Omega Collection"],
+
+ /* GameRant https://gamerant.com/best-free-vr-games/ */
+ ["Moon Rider", "Pavlov Shack", "The Lab", "Cactus Cowboy - Plants at War", "Hyper Dash", "SCP: Labrat", "Horizon Beyond", "Republique VR", "Ultimechs", "Echo VR", "Fly Dangerous", "Dagon: By H.P. Lovecraft", "War Thunder", "Google Earth VR", "Cartoon Network Journeys VR", "VRChat", "The Red Stare", "A Shopping Trip to Eklan Tor", "Spellbound Spire", "Shattered Lights", "Gun Raiders", "Star Wars: Droid Repair Bay", "Vertical Shift", "Google Spotlight Stories: Pearl", "Rec Room", "Lost", "Dead and Buried", "Surgeon Simulator VR: Meet the Medic", "Wolfenstein 3D VR", "Propagation VR", "DCS World Steam Edition"],
+
+ /* NewEgg https://www.newegg.ca/vr/guides/10-vr-games-for-beginners.html */
+ ["Space Pirate Trainer", "Job Simulator", "Water Bears VR", "Tilt Brush", "Keep Talking and Nobody Explodes", "Minecraft VR", "Dear Esther", "The Lab", "Pinball FX2 VR", "Lucky's Tale"],
+
+ /* Pocket Lint https://www.pocket-lint.com/best-pcvr-games-the-top-vr-titles-to-play-on-your-pc-tethered-vr-headset/ */
+ ["Creed: Rise to Glory", "Knockout League", "The Invisible Hours", "Hellblade: Senua's Sacrifice", "Half-Life: Alyx", "The Elder Scrolls V: Skyrim VR", "Trover Saves the Universe", "Accounting+", "L.A. Noire: The VR Case Files", "Elite Dangerous", "No Man's Sky VR", "Star Trek: Bridge Crew", "Gorn", "Beat Saber", "DiRT Rally 2.0", "Superhot VR", "The Walking Dead: Saints & Sinners", "Killing Floor: Incursion", "Medal of Honor: Above and Beyond", "Space Pirate Trainer", "Boneworks"],
+
+ /* RadioTimes https://www.radiotimes.com/technology/gaming/best-vr-games/ */
+ ["I Expect You to Die 2", "Pistol Whip", "The Walking Dead: Saints & Sinners", "Half-Life: Alyx", "Beat Saber", "Astro Bot: Rescue Mission", "Resident Evil 4", "Superhot VR", "Doctor Who: Edge of Time", "Blade and Sorcery VR", "Budget Cuts", "Danger Goat", "Elite Dangerous", "Vader Immortal"]
+
+];
+
+</script>
+
+</head>
+
+<body onLoad='init();' contenteditable>Aggregating...
+</body>
+</html>
+
