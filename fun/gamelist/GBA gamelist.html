@@ -1,0 +1,499 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best GBA games ever</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique GBA games:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = 1 / length;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ var sortByScore = true;
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  if (sortByScore) return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+
+ });
+
+
+
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return normalizeRomanNumerals(
+  title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/&/g,"and")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9]/g, "")
+ )
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://www.ign.com/articles/best-game-boy-advance-games */
+ ["Super Monkey Ball Jr. (2002)", "Golden Sun (2001)", "Ninja Five-O (2003)", "Mario vs. Donkey Kong (2004)", "Harvest Moon: Friends of Mineral Town (2003)", "The Legend of Zelda: The Minish Cap (2005)", "Mario Kart Super Circuit (2001)", "Metroid Fusion (2002)", "Super Mario World: Super Mario Advance 2 (2002)", "Fire Emblem: The Blazing Blade (2003)", "Mario Tennis Power Tour (2005)", "Final Fantasy Tactics Advance (2003)", "Ultimate Card Games (2004)", "Mario & Luigi: Superstar Saga", "Super Mario Advance 4: Super Mario Bros. 3 (2003)", "Pokémon Ruby & Sapphire (2003)", "Metroid: Zero Mission (2004)", "Final Fantasy VI Advance (2007)", "Yoshi's Island: Super Mario Advance 3 (2002)", "Mario Golf: Advance Tour (2004)", "Tony Hawk's Pro Skater 2 (2001)", "Advance Wars (2001)", "The Legend of Zelda: A Link to the Past and Four Swords (2003)", "Castlevania: Aria of Sorrow (2004)", "Wario Ware Twisted (2005)"].reverse(),
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [OP] */
+ ["Spyro: Attack of the Rhynocs / Spyro Adventure (2003)", "Kirby Nightmare in Dream Land", "Yoshi's Island: Super Mario Advance 3"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Koryn99] */
+ ["Crash Bandicoot: The Huge Adventure / XS", "Dragonball Z: Legacy of Goku 2", "Fire Emblem: The Blazing Blade (2003)", "Fire Emblem: The Sacred Stones (2004)", "Golden Sun", "Golden Sun Lost Age", "Rave Master Special Attack Force", "Harry Potter and the Prisoner of Azkaban", "Harvest Moon: Friends of Mineral Town", "Kingdom Hearts: Chain of Memories", "Lord of the Rings: The Third Age", "Mario & Luigi: Superstar Saga", "Onimusha Tactics", "Pokémon FireRed & LeafGreen", "Pokémon Emerald (2004)", "Shrek 2", "Sonic Advance", "Spongebob Squarepants: Revenge of the Flying Dutchman", "Super Mario Advance", "Super Mario World: Super Mario Advance 2", "Super Mario Advance 4: Super Mario Bros. 3", "Warioland 4", "Yugioh Worldwide Edition: Stairway to the Destined Duel", "Yugioh: The Eternal Duelist Soul"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [[deleted]] */
+ ["Fire Emblem: The Blazing Blade", "Castlevania: Aria of Sorrow", "Castlevania: Circle of the Moon", "Metroid Zero Mission", "Mario & Luigi: Superstar Saga", "Metroid Fusion", "Fire Emblem: The Sacred Stones"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Reasonable-Pilot-843] */
+ ["Drill Dozer", "Blender Bros", "Lady Sia", "Gunstar Super Heroes", "Alien Hominid", "Kuru Kuru Kururin", "Konami Krazy Racers", "Klonoa: Empire of Dreams", "CT Special Forces", "CT Special Forces 2: Back in the Trenches", "Boktai: The Sun Is in Your Hand", "Boktai 2: Solar Boy Django", "Boktai 3: Sabata's Counterattack", "DK: King of Swing", "Mario vs. Donkey Kong", "One Piece", "Scurge: Hive (2006)", "Metal Slug Advance", "Sigma Star Saga", "Summon Night: Swordcraft Story", "Warioware, Inc.: Mega MicroGame$!"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [RDL908] */
+ ["Riviera The Promised Land"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [idkorcare97] */
+ ["Metroid Fusion", "The Legend of Zelda: A Link to the Past and Four Swords", "The Legend of Zelda: The Minish Cap", "Wario Land 4", "Pokémon Ruby & Sapphire", "Pokémon FireRed & LeafGreen", "Pokémon Emerald", "Sonic Advance", "Mega Man X", "F-Zero Maximum Velocity"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Sardini_Cannibalini] */
+ ["Dragon Ball Z: Buu's Fury", "Supersonic Warriors 2"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [suprememaster327] */
+ ["Tony Hawk’s Pro Skater 2 (2001)", "Tony Hawk’s Pro Skater 3 (2002)", "Tony Hawk’s Pro Skater 4 (2002)", "Tony Hawk’s Underground (2003)", "Tony Hawk’s Underground 2 (2004)", "Tony Hawk’s American Sk8land (2005)", "Tony Hawk’s Downhill Jam (2007)"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [PinkSakuraFox] */
+ ["Mother 3 (2006)"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [[deleted]] */
+ ["Pokémon Emerald"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [ChaosDarkKnight] */
+ ["Tournament Tactics"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Such-Row-5695] */
+ ["Dragon Ball Z: Buu's Fury", "Pokémon Mystery Dungeon: Red Rescue Team & Blue Rescue Team"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Typo_of_the_Dad] */
+ ["Mother 3", "Astro Boy: Omega Factor", "WarioWare, Inc.: Mega Microgame$!", "Metroid Fusion", "Castlevania: Circle of the Moon", "Kuru Kuru Kururin", "Tactics Ogre: The Knight of Lodis", "Kururin Paradise", "Mega Man Zero 2", "Mega Man Zero", "Metroid: Zero Mission", "Bomberman Tournament", "Mario & Luigi: Superstar Saga", "Fire Emblem: The Blazing Blade", "Advance Wars", "Ninja Five-O", "Castlevania: Aria of Sorrow", "Mega Man Zero 3"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Warm-Reading-4084 top five] */
+ ["Pokémon Emerald", "Mother 3", "Fire Emblem: The Blazing Blade", "The Legend of Zelda: The Minish Cap", "Pokémon Mystery Dungeon: Red Rescue Team & Blue Rescue Team"],
+
+ /* https://www.metacritic.com/browse/game/gba/all/all-time/metascore/?releaseYearMin=1958&releaseYearMax=2024&platform=gba&page=1 */
+ ["The Legend of Zelda: A Link to the Past and Four Swords (2002)", "Tony Hawk's Pro Skater 2 (2001)", "Super Mario Advance 4: Super Mario Bros. 3 (2003)", "Mario Kart: Super Circuit (2001)", "Advance Wars (2001)", "Super Mario World: Super Mario Advance 2 (2002)", "Final Fantasy VI Advance (2007)", "Yoshi's Island: Super Mario Advance 3 (2002)", "Castlevania: Aria of Sorrow (2003)", "Golden Sun (2001)", "Castlevania: Circle of the Moon (2001)", "Mario & Luigi: Superstar Saga (2003)", "Tony Hawk's Pro Skater 3 (2002)", "Metroid: Zero Mission (2004)", "The Legend of Zelda: The Minish Cap (2005)", "Advance Wars 2: Black Hole Rising (2003)", "WarioWare, Inc.: Mega Microgame$! (2003)", "Tactics Ogre: The Knight of Lodis (2002)", "Wario Land 4 (2001)", "WarioWare: Twisted! (2005)", "Bomberman Tournament (2001)", "Fire Emblem: The Blazing Blade (2003)", "Castlevania: Harmony of Dissonance (2002)", "Ultimate Card Games (2004)", "Final Fantasy Tactics Advance (2003)", "Sonic Advance (2002)", "Golden Sun: The Lost Age (2003)", "Tony Hawk's Underground (2003)", "Moto Racer Advance (2002)", "F-Zero: Maximum Velocity (2001)", "Astro Boy: Omega Factor (2004)", "Fire Emblem: The Sacred Stones (2005)", "Tony Hawk's Pro Skater 4 (2002)", "Final Fantasy IV Advance (2005)", "Dave Mirra Freestyle BMX 2 (2001)", "Mario Golf: Advance Tour (2004)", "Super Street Fighter II Turbo: Revival (2001)", "Super Mario Advance (2001)", "Spider-Man: Mysterio's Menace (2001)", "Classic NES Series: Super Mario Bros. (2004)", "Puyo Pop (2002)", "Rayman (2001)", "Classic NES Series: The Legend of Zelda (2004)", "ChuChu Rocket! (2001)", "Virtua Tennis (2002)", "Klonoa: Empire of Dreams (2001)", "Racing Gears Advance (2005)", "Street Fighter Alpha 3 (2002)", "Super Puzzle Fighter II Turbo (2003)", "Gunstar Super Heroes (2005)", "Rayman 3 (2003)", "Sonic Advance 2 (2003)", "Final Fantasy V Advance (2006)", "Boktai: The Sun Is in Your Hand (2003)", "Super Robot Taisen: Original Generation 2 (2006)", "GT Advance Championship Racing (2001)", "Pokemon Ruby & Sapphire (2003)", "Super Monkey Ball Jr. (2002)", "Mega Man Zero (2002)", "Tekken Advance (2002)", "V-Rally 3 (2002)", "Harvest Moon: More Friends of Mineral Town (2005)", "Final Fight One (2001)", "Ninja Five-O (2003)", "DOOM (1993) (2001)", "Drill Dozer (2006)", "Duke Nukem Advance (2002)", "Mega Man Zero 2 (2003)", "Mario Tennis: Power Tour (2005)", "Karnaaj Rally (2003)", "Kirby: Nightmare in Dream Land (2002)", "Mario vs. Donkey Kong (2004) (2004)", "Mortal Kombat: Deadly Alliance (2002)", "Pokemon Pinball: Ruby & Sapphire (2003)", "Pokémon FireRed & LeafGreen (2004)", "Pokémon FireRed & LeafGreen (2004)", "Harvest Moon: Friends of Mineral Town (2003)", "Breath of Fire II (2002)", "Mega Man Battle Network 2 (2002)", "Ecks vs. Sever (2001)", "Broken Sword: The Shadow of the Templars (2002)", "TMNT (2007)", "Colin McRae Rally 2.0 (2002)", "The King of Fighters EX2: Howling Blood (2003)", "Disney's Lilo & Stitch (2002) (2002)", "Ultimate Brain Games (2003)", "Fire Pro Wrestling (2001) (2001)", "The King of Fighters EX: Neo Blood (2002)", "Donkey Kong Country 2: Diddy's Kong Quest (2004)", "Medal of Honor: Infiltrator (2003)", "Baseball Advance (2002)", "Rock N' Roll Racing (2003)", "Kirby & the Amazing Mirror (2004)", "The Pinball of the Dead (2002)", "Pac-Man Collection (2001)", "Final Fantasy I & II: Dawn of Souls (2004)", "Tak and the Power of Juju (2003) (2003)", "Activision Anthology (2003)", "Mega Man & Bass (2003)", "Namco Museum (2002) (2001)", "Metal Slug Advance (2004)", "Summon Night: Swordcraft Story 2 (2006)", "Super Dodge Ball Advance (2001)", "Sonic Advance 3 (2004)", "Lunar Legend (2002)", "Breath of Fire (2001)", "Mega Man Battle Network (2001)", "Madden NFL 2005 (2004)", "Wade Hixton's Counter Punch (2004)", "Dave Mirra Freestyle BMX 3 (2002)", "Klonoa 2: Dream Champ Tournament (2005)", "Gradius Galaxies (2001)", "Konami Collector's Series: Arcade Advanced (2002)", "Donkey Kong Country (2003)", "Super Ghouls 'n Ghosts (2002)", "Max Payne (2003) (2003)", "Rebelstar: Tactical Command (2005)", "Konami Krazy Racers (2001)", "Top Gear Rally (2003)", "Iridion II (2003)", "Boktai 2: Solar Boy Django (2004)", "Road Rash: Jailbreak (2003)", "Crash Bandicoot: The Huge Adventure / XS (2002)", "Hamtaro: Ham-Ham Games (2004)", "Mega Man Zero 3 (2004)", "Car Battler Joe (2002)", "Stuntman (2003)", "Yggdra Union: We'll Never Fight Alone (2006)", "GT Advance 2: Rally Racing (2002)", "Mega Man Zero 4 (2005)", "F-Zero: GP Legend (2004)", "Donkey Kong Country 3: Dixie Kong's Double Trouble! (2005)", "Summon Night: Swordcraft Story (2006)", "Mech Platoon (2002)", "Mega Man Battle Network 3: White Version (2003)", "Shining Force: Resurrection of the Dark Dragon (2004)", "Disney's Kim Possible 2: Drakken's Demise (2004)", "DOOM II (2002)", "Tom Clancy's Splinter Cell (2003)", "Super Bust-A-Move (2001)", "Sonic Pinball Party (2003)", "Need for Speed: Underground (2003)", "The Lord of the Rings: The Return of the King (2003)", "Tom Clancy's Rainbow Six: Rogue Spear (2002) (2002)", "CT Special Forces 2: Back in the Trenches (2004)", "Tales of Phantasia (2006)", "Monster Rancher Advance (2001)", "Riviera: The Promised Land (2005)", "Boxing Fever (2001)", "Spyro 2: Season of Flame (2002)", "Phantasy Star Collection (2002)", "Kingdom Hearts: Chain of Memories (2004)", "Baldur's Gate: Dark Alliance (2004)", "Harry Potter and the Chamber of Secrets (2002)", "Pokemon Emerald (2005)", "Lufia: The Ruins of Lore (2003)", "Atari Anniversary Advance (2002)", "Dragon Ball Z: The Legacy of Goku II (2003)", "Sabre Wulf (2004)", "LEGO Star Wars (2005)", "Jackie Chan Adventures (2001)", "Bomberman Max 2: Red Advance (2002)", "River City Ransom (2004)", "The Lost Vikings (2003)", "Monster Truck Madness (2003)", "Aggressive Inline (2002)", "Bomberman Max 2: Blue Advance (2002)", "Crash Bandicoot 2: N-Tranced (2003)", "Dragon Ball: Advanced Adventure (2006)", "Mortal Kombat: Tournament Edition (2003)", "Double Dragon Advance (2003)", "Prince of Persia: The Sands of Time (2003)", "Dr. Mario & Puzzle League (2005)", "Castlevania (2004)", "Jet Grind Radio (2003)", "Shining Soul II (2004)", "GT Advance 3: Pro Concept Racing (2003)", "Spyro: Season of Ice (2001)", "Hot Potato! (2001) (2001)", "James Bond 007: Everything or Nothing (2003)", "Lady Sia (2001)", "Driver 2 Advance (2002)", "It's Mr Pants (2004)", "Star Wars Episode III: Revenge of the Sith (2005)", "Blender Bros. (2002)", "Dragon Ball Z: Supersonic Warriors (2004)", "Drome Racers (2003)", "All-Star Baseball 2004 (2003)", "Classic NES Series: Zelda II: The Adventure of Link (2004)", "WWE Road to WrestleMania X8 (2002)", "Need for Speed: Underground 2 (2004)", "Fire Pro Wrestling 2 (2002)", "Need for Speed: Underground 2 (2004)", "Lemony Snicket's A Series of Unfortunate Events (2004)", "Sword of Mana (2003)", "Shrek 2 (2004) (2004)", "Shaman King: Master of Spirits 2 (2005)", "Yu-Gi-Oh! Worldwide Edition: Stairway to the Destined Duel (2003)", "Justice League Heroes: The Flash (2006)", "Hamtaro: Ham-Ham Heartbreak (2003)", "Ballistic: Ecks vs. Sever II (2002)", "Banjo-Kazooie: Grunty's Revenge (2003)", "Super Robot Taisen: Original Generation (2006)", "Defender of the Crown (2002)", "Earthworm Jim (2001)", "Wings (1990) (2003)", "The Scorpion King: Sword of Osiris (2002)", "Spyro: Attack of the Rhynocs / Spyro Adventure (2003)", "Turok: Evolution (2002) (2002)", "Aero the Acro-Bat: Rascal Rival Revenge (2002)", "CT Special Forces (2004)", "Harry Potter and the Goblet of Fire (2005)", "ZooCube (2002)", "Shrek: Hassle at the Castle (2002)", "Phalanx (2001)", "Game & Watch Gallery 4 (2002)", "Madden NFL 06 (2005)", "Rampage: Puzzle Attack (2001)", "Zone of the Enders: The Fist of Mars (2002)", "Teenage Mutant Ninja Turtles (2003)", "Mat Hoffman's Pro BMX (2001)", "Eragon (2006)", "Ultimate Muscle: The Kinnikuman Legacy - The Path of the Superhero (2003)", "Madden NFL 2004 (2003)", "Contra III: The Alien Wars (2002)", "Wing Commander: Prophecy (2003)", "Turbo Turtle Adventure (2002)", "Pirates of the Caribbean: Dead Man's Chest (2006)", "DK: King of Swing (2005)", "Gekido Advance: Kintaro's Revenge (2003)", "Sega Arcade Gallery (2003)", "Columns Crown (2002)", "CIMA: The Enemy (2003)", "ESPN Final Round Golf 2002 (2001)", "Monster House (2006)", "Dragon Ball GT: Transformation (2005)", "Disney's Cinderella: Magical Dreams (2005)", "The Sum of All Fears (2002)", "Prehistorik Man (2001)", "Motocross Maniacs Advance (2002)", "Prehistorik Man (2001)", "Duel Masters: Sempai Legends (2004)", "Sonic Battle (2004)", "Batman: Vengeance (2001)", "Disney's Tarzan: Return to the Jungle (2002)", "Dr. Sudoku (2006)", "Mega Man Battle Network 4: Red Sun & Blue Moon (2004)", "Jazz Jackrabbit (2003)", "Grand Theft Auto (Game Boy Advance) (2004)", "Yu-Gi-Oh! World Championship Tournament 2004 (2004)", "The Invincible Iron Man (2002)", "Banjo-Pilot (2005)", "Driven (2001)", "Tom Clancy's Splinter Cell: Pandora Tomorrow (2004)", "Sea Trader: Rise of Taipan (2003)", "Sigma Star Saga (2005)", "Tron 2.0 (2004)", "Guilty Gear X Advance Edition (2002)", "MotoGP (2002)", "Mega Man Battle Network 4: Red Sun & Blue Moon (2004)", "Planet Monsters (2001)", "Yu-Gi-Oh! Dungeon Dice Monsters (2003)", "F-14 Tomcat (2001)", "Yu-Gi-Oh! Dungeon Dice Monsters (2003)", "The Lord of the Rings: The Third Age (2004) (2004)", "Pokémon Mystery Dungeon: Red Rescue Team & Blue Rescue Team (2006)", "Mega Man Battle Network 5: Team ProtoMan & Team Colonel (2005)", "Blackthorne (2003)", "Crash Bandicoot Purple: Ripto's Rampage (2004)", "Capcom Classics Mini Mix (2006)", "WTA Tour Tennis (2002)", "Yu-Gi-Oh! 7 Trials to Glory: World Championship Tournament 2005 (2005)", "Dr. Mario & Puzzle League (2004)", "SSX Tricky (2002)", "Excitebike (2004)", "The Chronicles of Narnia: The Lion, The Witch and The Wardrobe (2005)", "Duel Masters: Kaijudo Showdown (2004)", "Ice Climber (2004)", "Juka and the Monophonic Menace (2006)", "Mega Man Battle Network 5: Team ProtoMan & Team Colonel (2005)", "Pitfall: The Lost Expedition (2004) (2004)", "Tomb Raider: The Prophecy (2002)", "Freekstyle (2003)", "Teenage Mutant Ninja Turtles 2: Battle Nexus (2004)", "Advance Guardian Heroes (2004)", "Jim Henson's The Muppets: On With The Show! (2003)", "Spider-Man 2 (2004) (2004)", "Monster Force (2002)", "Dark Arena (2002)", "Dexter's Laboratory: Deesaster Strikes! (2001)", "Mazes of Fate (2006)", "Tetris Worlds (2001)", "Onimusha Tactics (2003)", "Tony Hawk's American Sk8land (2005)", "Harry Potter and the Philosopher's Stone / Harry Potter and the Sorcerer's Stone (2001)", "Spy Hunter (2002)", "Fortress (2001) (2001)", "Dinotopia: The Timestone Pirates (2002)", "The Great Circus Mystery Starring Mickey & Minnie (2003)", "Samurai Jack: The Amulet of Time (2003)", "SSX 3 (2003)", "Ty the Tasmanian Tiger 2: Bush Rescue (2004)", "Mega Man Battle Network 6: Cybeast Falzar & Cybeast Gregar (2006)", "Altered Beast: Guardian of the Realms (2002)", "DreamWorks Shark Tale (2004) (2004)", "Rocky (2002) (2002)", "Batman: Rise of Sin Tzu (2003)", "The Tower SP (2006)", "Mario Pinball Land (2004)", "Digimon Racing (2004)", "WWF Road to WrestleMania (2001)", "Atomic Betty (2005)", "Mega Man Battle Network 6: Cybeast Falzar & Cybeast Gregar (2006)", "Dragon Ball Z: Buu's Fury (2004)", "SimCity 2000 (2003)", "Mr. Driller 2 (2005)", "High Heat Major League Baseball 2002 (2001)", "DemiKids: Light Version (2003)", "Pinobee: Wings of Adventure (2001)", "Yu-Gi-Oh! Reshef of Destruction (2004)", "Rayman: Hoodlum's Revenge (2005)", "Reign of Fire (2002)", "Dual Blades (2002)", "Teen Titans (2005)", "X-Men: Reign of Apocalypse (2001)", "Robotech: The Macross Saga (2002)", "Catwoman (2004) (2004)", "Yoshi Topsy-Turvy (2005)", "The Powerpuff Girls: Mojo Jojo A-Go-Go (2001)", "Star Wars Trilogy: Apprentice of the Force (2004)", "Star X (2002)", "Sega Smash Pack (2002)", "Shaman King: Legacy of the Spirits, Soaring Hawk & Sprinting Wolf (2005)", "Digimon Battle Spirit (2003)", "Star Wars: The New Droid Army (2002)", "Namco Museum 50th Anniversary (2005)", "Spyro Orange: The Cortex Conspiracy (2004)", "Crouching Tiger, Hidden Dragon (2003) (2003)", "Yu-Gi-Oh! The Sacred Cards (2003)", "Naruto: Ninja Council (2006)", "Shaman King: Legacy of the Spirits, Soaring Hawk & Sprinting Wolf (2005)", "Kong: The 8th Wonder of the World (2005)", "Stuart Little 2 (2002)", "Davis Cup Tennis (2002)", "Disney's Aladdin (1993) (2004)", "Sega Rally Championship (2003)", "Disney Sports: Snowboarding (2003)", "Hugo: The Evil Mirror (2005)", "Disney's Magical Quest 3 Starring Mickey & Donald (2005)", "Shining Soul (2003)", "Monster Jam: Maximum Destruction (2002)", "Punch King (2002)", "Super Army War (2005)", "The Sims 2 (2005)", "Metroid: Zero Mission (2004)", "Shaun Palmer's Pro Snowboarder (2001)", "Pitfall: The Mayan Adventure (2001)", "Zapper (2002)", "Star Wars: Jedi Power Battles (2001)", "Fantastic 4 (2005)", "Wolfenstein 3D (2002)", "ESPN Great Outdoor Games Bass 2002 (2001)", "Mobile Suit Gundam Seed: Battle Assault (2004)", "Dungeons & Dragons: Eye of the Beholder (2002)", "DreamWorks Shrek the Third (2007) (2007)", "Ready 2 Rumble Boxing: Round 2 (2001)", "Shrek: Reekin' Havoc (2003)", "The Incredible Hulk (2003) (2003)", "Army Men Advance (2001)", "Rave Master: Special Attack Force! (2005)", "Tang Tang (2001)", "Disney Sports: Motocross (2003)", "Nickelodeon Barnyard (2006)", "Dynasty Warriors Advance (2005)", "Garfield and His Nine Lives (2006)", "Ace Combat Advance (2005)", "Justice League: Injustice for All (2002)", "Naruto: Ninja Council 2 (2006)", "Frogger Advance: The Great Quest (2002)", "Donkey Kong (2004)", "WWE Survivor Series (2004)", "Space Channel 5: Ulala's Cosmic Attack (2003)", "Disney/Pixar The Incredibles (2004)", "The Simpsons: Road Rage (2003)", "X-Men: The Official Game (2006)", "Salt Lake 2002 (2002)", "Mario Party Advance (2005)", "Minority Report: Everybody Runs (2002)", "Mega Man: Battle Chip Challenge (2004)", "Godzilla: Domination! (2002)", "The Three Stooges (2002)", "Britney's Dance Beat (2002)", "Iridion 3D (2001)", "Dragon Ball Z: The Legacy of Goku (2002)", "BattleBots: Beyond the BattleBox (2002)", "Pac-Man Collection (2001)", "Cruis'n Velocity (2001)", "KAO the Kangaroo (2001) (2001)", "Serious Sam Advance (2004)", "The Lord of the Rings: The Fellowship of the Ring (2002)", "The Revenge of Shinobi (2002)", "Terminator 3: Rise of the Machines (2003) (2003)", "He-Man: Power of Grayskull (2002)", "Daredevil (2003) (2003)", "xXx (2002)", "Disney/Pixar Cars (2006)", "NBA Jam 2002 (2002)", "NBA Jam 2002 (2002)", "Texas Hold 'Em Poker (2004)", "DreamWorks Over the Hedge (2006) (2006)", "Pirates of the Caribbean: The Curse of the Black Pearl (2003)", "Popeye: Rush for Spinach (2005)", "Dogz (2005)", "Crazy Taxi: Catch a Ride (2003)", "Midway's Greatest Arcade Hits (2001)", "Ice Age (2002)", "Disney's Herbie: Fully Loaded (2005)", "Thunderbirds (2004) (2004)", "Looney Tunes: Back in Action (2003) (2003)", "R-Type III: The Third Lightning (2004)", "Earthworm Jim 2 (2002)", "Oddworld: Munch's Oddysee (2003)", "Mike Tyson Boxing (2002)", "Jurassic Park III: The DNA Factor (2001)", "Buffy the Vampire Slayer: Wrath of the Darkhul King (2003)", "MLB Slugfest 2004 (2003)", "Justice League: Chronicles (2003)", "Mission: Impossible: Operation Surma (2003)", "Around the World in 80 Days (2004) (2004)", "Dr. Seuss' The Cat in the Hat (2003)", "Dragon Ball Z: Taiketsu (2003)", "Star Wars: Flight of the Falcon (2003)", "The Ripping Friends: The World's Most Manly Men! (2002)", "Star Wars Episode II: Attack of the Clones (2002)", "Gauntlet: Dark Legacy (2002)", "NFL Blitz 2002 (2001)", "Defender (Game Boy Advance) (2002)", "Street Jam Basketball (2004)", "David Beckham Soccer (2002)", "Yu Yu Hakusho - Ghost Files: Spirit Detective (2003)", "Van Helsing (2004)", "Mortal Kombat Advance (2001)", "Fear Factor: Unleashed (2004)", "Mucha Lucha! Mascaritas of the Lost Code (2003)", "Legends of Wrestling II (2002)"],
+
+ /* https://en.wikipedia.org/wiki/List_of_best-selling_Game_Boy_Advance_video_games */
+ ["Pokémon Ruby & Sapphire", "Pokémon FireRed & LeafGreen", "Pokémon Emerald", "Mario Kart: Super Circuit", "Super Mario World: Super Mario Advance 2", "Super Mario Advance", "Super Mario Advance 4: Super Mario Bros. 3", "Namco Museum (2001)", "Pac-Man Collection (2001)", "Yoshi's Island: Super Mario Advance 3", "The Legend of Zelda: A Link to the Past and Four Swords", "Pokémon Mystery Dungeon: Red Rescue Team & Blue Rescue Team", "Classic NES Series: Super Mario Bros.", "Wario Land 4", "Mario & Luigi: Superstar Saga", "Kirby: Nightmare in Dream Land", "Finding Nemo (2003)", "Donkey Kong Country (2003)", "The Legend of Zelda: The Minish Cap", "Yu-Gi-Oh! The Eternal Duelist Soul", "Golden Sun", "Final Fantasy Tactics Advance", "Metroid Fusion", "Kingdom Hearts: Chain of Memories", "Sonic Advance", "Kirby & the Amazing Mirror", "Yu-Gi-Oh! Worldwide Edition: Stairway to the Destined Duel (2003)", "Dragon Ball Z: The Legacy of Goku (2002)", "Mario vs. Donkey Kong", "Pokémon Pinball: Ruby & Sapphire", "The Incredibles (2004)", "Mega Man Battle Network 4: Red Sun & Blue Moon", "Frogger's Adventures: Temple of the Frog", "Harry Potter and the Chamber of Secrets (2002)", "Disney Princess (2003)", "Golden Sun: The Lost Age (2002)", "WarioWare, Inc.: Mega Microgame$!", "F-Zero: Maximum Velocity", "Sonic Advance 2", "Spyro: Season of Ice (2001)"],
+
+ /* https://www.gamesradar.com/best-gba-games/ */
+ ["Double Dragon Advance (2003)", "Gunstar Future Heroes (2005)", "Kirby & the Amazing Mirror (2004)", "Sonic Advance (2001)", "Rhythm Tengoku (2006)", "Harvest Moon: Friends of Mineral Town (2003)", "F-Zero: Maximum Velocity (2001)", "Kuru Kuru Kururin (2001)", "Golden Sun (2001)", "Drill Dozer (2005)", "Tony Hawk's Pro Skater 2 (2001)", "Mario vs. Donkey Kong (2004)", "Metroid: Zero Mission (2004)", "Super Mario World: Super Mario Advance 2 (2001)", "Final Fantasy Tactics Advance (2003)", "Pokémon  Ruby & Sapphire (2002)", "Mario Kart: Super Circuit (2001)", "Fire Emblem: the Blazing Blade (2003)", "Astro Boy: Omega Factor (2003)", "Mario & Luigi: Superstar Saga (2003)", "Castlevania: Aria of Sorrow (2003)", "WarioWare, Inc.: Mega Microgame$! (2003)", "Advance Wars (2001)", "The Legend of Zelda: The Minish Cap (2004)", "Metroid Fusion (2002)"].reverse(),
+
+ /* https://www.youtube.com/watch?v=Z8FcT6n_uvE */
+ ["Gunstar Future Heroes", "Sonic Advance 2", "Kururin Paradise", "F-Zero Maximum Velocity", "Super Monkey Ball Jr.", "Astro Boy Omega Factor", "Golden Sun", "Golden Sun: The Lost Age", "Spyro 2: Season of Flame", "Crash Bandicoot: The Huge Adventure / XS", "Metroid Fusion", "Metroid Zero Mission", "Wario Ware Twisted", "Megaman Battle Network 3", "Castlevania: Aria of Sorrow", "Advance Wars", "Advance Wars 2: Black Hole Rising"].reverse(),
+
+ /* https://www.youtube.com/watch?v=cKJlN_sxrMs */
+ ["Sword of Mana", "TMNT", "Final Fantasy Tactics Advance", "Advance Wars", "WarioWare, Inc.: Mega Microgame$!", "Mario Kart: Super Circuit", "Kirby & the Amazing Mirror", "Fire Emblem: The Blazing Blade", "Sonic Advance", "Castlevania: Aria of Sorrow", "Drill Dozer", "The Legend of Zelda: The Minish Cap", "Wario Land 4", "Golden Sun", "Pokémon Ruby & Sapphire", "Pokémon Emerald", "Metroid Zero Mission", "Mario & Luigi: Superstar Saga", "Pokémon FireRed & LeafGreen", "Metroid Fusion", "Mother 3"].reverse()
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [RockmanVolnutt] */
+ ["Mario & Luigi: Superstar Saga", "Golden Sun", "Golden Sun Lost Age"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Grnlnk842] */
+ ["The Legend of Zelda: A Link to the Past and Four Swords", "The Legend of Zelda: The Minish Cap", "Metroid Fusion", "Metroid Zero Mission", "Bomberman Tournament"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [HEROJevan] */
+ ["Final Fantasy IV Advance", "Final Fantasy V Advance", "Final Fantasy VI Advance", "Final Fantasy Tactics Advance", "Golden Sun", "Golden Sun: The Lost Age", "Megaman Battle Network 3", "Mega Man Battle Network 6: Cybeast Falzar & Cybeast Gregar", "Pokémon", "Shining Soul II", "Sword of Mana", "The Legend of Zelda: A Link to the Past and Four Swords", "The Legend of Zelda: The Minish Cap", "Dynasty Warriors Advance", "Harry Potter and the Philosopher’s Stone / Harry Potter and the Sorcerer's Stone", "Harry Potter and the Chamber of Secrets", "Harry Potter and the Prisoner of Azkaban", "Harry Potter and the Goblet of Fire", "Harry Potter and the Order of the Phoenix", "Harry Potter: Quidditch World Cup", "Fire Emblem: The Blazing Blade", "Summon Night: Swordcraft Story", "Summon Night: Swordcraft Story 2", "Tactics Ogre: The Knight of Lodis", "Zoids Legacy"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [snicker-snackk] */
+ ["Disney's Lilo & Stitch", "Lilo & Stitch 2: Hämsterviel Havoc"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [IamWutzgood] */
+ ["FirePro Wrestling", "The Legend of Zelda: A Link to the Past and Four Swords"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Neither_Set_214] */
+ ["Pokémon Mystery Dungeon: Red Rescue Team & Blue Rescue Team"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [K3CAN] */
+ ["Golden Sun", "Bomberman Tournament", "Sonic Advance", "Duke Nukem Advance", "Ecks vs. Sever"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [blitzyhyd] */
+ ["Mother 3"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [FaceForsaken] */
+ ["The Incredibles", "Crash Bandicoot 2: N Tranced", "Harry Potter and the Prisoner of Azkaban"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Hail_Skatan69420] */
+ ["Mega-man & Bass", "Pirates of the Caribbean: Curse of the Black Pearl", "Star Wars New Droid Army", "Sonic Advance 3"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [DancingSouls] */
+ ["The Legend of Zelda: A Link to the Past and Four Swords", "Final Fantasy VI Advance", "Megaman Battle Network 3", "Mega Man Battle Network 6: Cybeast Falzar & Cybeast Gregar"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [SSStylish1771] */
+ ["Mega Man Zero", "Mega Man Zero 2", "Mega Man Zero 3", "Mega Man Zero 4", "Golden Sun", "Golden Sun Lost Age", "Advance Wars", "Advance Wars 2: Black Hole Rising", "Shaman King: Master of Spirits 2", "Astro Boy: Omega Factor", "Megaman Battle Network 3", "Megaman Battle Network 6: Cybeast Falzar & Cybeast Gregar", "Final Fantasy Tactics Advance", "Final Fantasy VI Advance", "Metroid Fusion", "Castlevania: Aria of Sorrow", "The Legend of Zelda: The Minish Cap", "Kirby: Nightmare in Dreamland", "Mario & Luigi: Superstar Saga", "Riviera: The Promised Land", "Summon Night: Swordcraft Story", "Summon Night: Swordcraft Story 2", "Ninja Five-O", "Sword of Mana"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [friendlybutterfly000] */
+ ["Ultimate Spider-man"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [FUNGUFx69] */
+ ["Lego Island 2: The Bricksters Revenge"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [No_ragretts] */
+ ["Boktai: The Sun Is in Your Hand", "Boktai 2: Solar Boy Django", "Sonic Battle"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Intrepid_Client_7630] */
+ ["Goodboy Galaxy"],
+
+ /* https://www.reddit.com/r/Gameboy/comments/zijywi/mustplay_gba_games/ [Warm-Reading-4084 honorable mention] */
+ ["Fire Emblem: The Sacred Stones", "Pokémon FireRed & LeafGreen", "Pokémon Ruby & Sapphire", "The Land Before Time", "Golden Sun"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [OP] */
+ ["Metroid Fusion", "Final Fantasy Tactics Advance", "Final Fantasy VI Advance", "Mega Man Battle Network", "Mega Man Battle Network 2", "Mega Man Battle Network 3", "Mega Man Battle Network 4: Red Sun & Blue Moon", "Mega Man Battle Network 5: Team ProtoMan & Team Colonel", "Mega Man Battle Network 6: Cybeast Falzar & Cybeast Gregar", "Pokémon FireRed & LeafGreen", "Advance Wars"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [PDXSonic] */
+ ["Fire Pro Wrestling"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [Boss_Kowbel] */
+ ["Pokémon Ruby & Sapphire", "Pokémon FireRed & LeafGreen", "Pokémon Emerald", "Final Fantasy I & II: Dawn of Souls", "Final Fantasy Tactics Advance", "Final Fantasy IV Advance", "Final Fantasy V Advance", "Final Fantasy VI Advance", "Fire Emblem: The Blazing Blade", "Fire Emblem: The Sacred Stones", "Onimusha Tactics", "Zone of the Enders: The Fist of Mars"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [pkmnfrk] */ 
+ ["Final Fantasy V Advance", "Final Fantasy VI Advance", "Final Fantasy I & II: Dawn of Souls", "Super Mario World: Super Mario Advance 2", "Super Mario Advance 4: Super Mario Bros. 3", "Final Fantasy Tactics Advance", "Metroid Zero Mission", "Metroid Fusion", "Castlevania: Aria of Sorrow", "Pokémon Emerald", "The Legend of Zelda: The Minish Cap", "Mario & Luigi: Superstar Saga"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [Quantris] */
+ ["Castlevania: Aria of Sorrow"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [GalacticPunt] */
+ ["Warioware Twisted", "Boktai: The Sun Is in Your Hand"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [jking47] */
+ ["Tactics Ogre: The Knight of Lodis"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [Bowl-of-Lentils] */
+ ["Drill Dozer"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [jking47] */
+ ["Ninja Five-O"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [Redhotchilimist] */
+ ["Wario Land 4", "Astro Boy Omega Factor", "Dragonball Advanced Adventure", "Mario & Luigi: Superstar Saga", "Fire Emblem: The Sacred Stones", "Fire Emblem: The Blazing Blade"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [braves01] */
+ ["Castlevania: Harmony of Dissonance", "Advance Wars", "Advance Wars 2: Black Hole Rising"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [ultron100] */
+ ["Shining Soul 2"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [huser] */
+ ["Astroboy Omega Factor"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [Haruko] */
+ ["Mother 3", "Advance Wars", "Advance Wars 2: Black Hole Rising", "Wario Land 4", "Warioware, Inc.: Mega MicroGame$!", "Warioware Twisted", "F-Zero GP Legend", "Final Fantasy Tactics Advance", "Final Fantasy I & II: Dawn of Souls", "Final Fantasy IV Advance", "Final Fantasy V Advance", "Final Fantasy VI Advance", "Final Fantasy VI Advance", "River City Ransom", "Gradius Gaiden", "Castlevania: Circle of the Moon", "Castlevania: Harmony of Dissonance", "Castlevania: Aria of Sorrow", "Duke Nukem Advance", "Yu-Gi-Oh! The Sacred Cards", "Yu-Gi-Oh! Dungeon Dice Monsters", "Yu-Gi-Oh! World Championship Tournament 2004", "Yu-Gi-Oh! Worldwide Edition: Stairway to the Destined Duel", "Yu-Gi-Oh! The Eternal Duelist Soul", "Yu-Gi-Oh! Destiny Board Traveler", "Yu-Gi-Oh! Reshef of Destruction", "Yu-Gi-Oh! 7 Trials to Glory: World Championship Tournament 2005", "Yu-Gi-Oh! GX: Duel Academy", "Yu-Gi-Oh! Ultimate Masters: World Championship Tournament 2006"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [Junkerman] */
+ ["Pokémon Ruby & Sapphire", "Mario Kart: Super Circuit", "The Legend of Zelda: A Link to the Past and Four Swords"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [nnickers] */
+ ["Mega Man Battle Network", "Mega Man Battle Network 2"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [forcen] */
+ ["Tony Hawk's Pro Skater 2"],
+
+ /* https://www.giantbomb.com/game-boy-advance/3045-4/forums/best-gba-recommendations-1804438/ [monetarydread] */
+ ["Mario Tennis: Power Tour"],
+
+ /* asheff */
+ ["Advance Wars", "Advance Wars 2: Black Hole Rising", "Advance Wars: Dual Strike", "Mario & Luigi: Superstar Saga"],
+
+ /* mgreg */
+ ["Pokémon Ruby & Sapphire", "Pokémon FireRed & LeafGreen", "Pokémon Emerald", "Golden Sun"],
+
+ /* https://www.nintendolife.com/forums/retro/best_gameboy_advanced_game [OP] */
+ ["Pokémon Emerald"],
+
+ /* https://www.nintendolife.com/forums/retro/best_gameboy_advanced_game [Crystalking18] */
+ ["Gunstar Super Heroes", "The Legend of Zelda: The Minish Cap", "Kingdom Hearts: Chain of Memories", "Final Fantasy VI Advance", "Castlevania: Circle of the Moon", "Castlevania: Harmony of Dissonance", "Castlevania: Aria of Sorrow"],
+
+ /* https://www.nintendolife.com/forums/retro/best_gameboy_advanced_game [Happy_Mask] */
+ ["Fire Emblem: The Blazing Blade", "Fire Emblem: The Sacred Stones", "Yoshi's Island: Super Mario Advance 3", "Super Mario Advance 4: Super Mario Bros. 3", "Mario & Luigi: Superstar Saga", "The Legend of Zelda: A Link to the Past and Four Swords"],
+
+ /* https://www.nintendolife.com/forums/retro/best_gameboy_advanced_game [Mieu-Fire] */
+ ["The Legend of Zelda: The Minish Cap", "Pokémon Ruby & Sapphire", "Pokémon Emerald", "Pokémon FireRed & LeafGreen", "Robopon 2 Ring Version", "Tales of Phantasia", "Sonic Battle", "Sonic Advance", "Sonic Advance 2", "Sonic Advance 3", "Mario & Luigi Superstar Saga", "Metroid Zero Mission", "Super Mario Advance", "Super Mario World: Super Mario Advance 2", "Yoshi's Island: Super Mario Advance 3", "Super Mario Advance 4: Super Mario Bros. 3", "Final Fantasy Tactics Advance", "Final Fantasy I & II: Dawn of Souls", "Final Fantasy IV Advance", "Final Fantasy V Advance", "Final Fantasy VI Advance"]
+
+
+
+];
+
+</script>
+</body>
+</html>
