@@ -1,0 +1,358 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Best GameBoy & GameBoy Color games ever</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " unique GameBoy & GameBoy Color games:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = 1 / length;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t" + this.name;
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ var sortByScore = true;
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  if (sortByScore) return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+
+ });
+
+
+
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return normalizeRomanNumerals(
+  title
+  .toUpperCase()
+  .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+  .replace(/\s?\(.*\)/g,"")
+  .replace(/&/g,"and")
+  .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+  .replace(/[æÆœŒ]/gi,"E")
+  .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+  .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+  .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+  .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+  .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+  .replace(/ﬀ/gi,"FF")
+  .replace(/ﬁ/gi,"FI")
+  .replace(/ﬂ/gi,"FL")
+  .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+  .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+  .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+  .replace(/[ĳĲ]/gi,"IJ")
+  .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+  .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+  .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+  .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+  .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+  .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+  .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+  .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+  .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+  .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+  .replace(/[ßẞ]/gi,"SS")
+  .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+  .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+  .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+  .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+  .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+  .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+  .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+  .replace(/[^A-z0-9]/g, "")
+ )
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function normalizeRomanNumerals(title) {
+ var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"];
+ var len = numerals.length;
+ numerals.forEach(function(numeral, index){
+  var ref = len - index;
+  var rx = new RegExp(ref);
+  title = title.replace(rx, numerals[ref])
+ });
+ return title;
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* [Google Search results] https://www.google.com/search?q=best+gameboy+games&oq=best+gameboy+games&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQABiABDIHCAIQABiABDIHCAMQABiABDIHCAQQABiABDIHCAUQABiABDIHCAYQABiABDIHCAcQABiABDIHCAgQABiABNIBCDQ3OTBqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 */
+ ["Tetris (1984)", "Super Mario Land 2: 6 Golden Coins (1992)", "The Legend of Zelda: Link's Awakening (1993)", "Wario Land: Super Mario Land 3 (1994)", "Kirby's Dream Land (1992)", "Pokémon Red, Blue, and Yellow (1996)", "Kirby's Dream Land 2 (1995)", "Donkey Kong '94 (1994)", "Wario Land II (1998)", "Final Fantasy Legend III (1996)", "Final Fantasy Adventure (1991)", "Donkey Kong Land 2 (1996)", "Gargoyle's Quest (1990)", "Mole Mania (1996)", "Mario's Picross (1995)", "Harvest Moon GB (1997)", "Contra III: The Alien Wars (1992)", "Wario World (2003)", "Kirby's Pinball Land (1993)", "Mega Man 5 (1992)", "Wario Blast (1994)", "Balloon Kid (1990)", "DuckTales (1989)", "Tony Hawk's Pro Skater 2", "James Bond 007 (1998)", "Super R.C. Pro-Am (1991)", "Teenage Mutant Ninja Turtles: Fall of the Foot Clan (1990)", "R-Type (1987)", "Avenging Spirit (1991)", "Kid Dracula (1990)", "Bionic Commando: Elite Forces (2000)", "Castlevania Legends (1997)", "Bubble Ghost (1987)", "Monster Max (1994)"],
+
+ /* https://www.ign.com/articles/best-game-boy-games */
+ ["Final Fantasy Legend 2", "Donkey Kong '94", "Final Fantasy Legend 3", "Kirby's Dream Land", "Donkey Kong Land 2", "Kirby's Dream Land 2", "Wario Land 2", "Wario Land: Super Mario Land 3", "Super Mario Land", "Dr. Mario", "Super Mario Land 2: 6 Golden Coins", "Tetris", "Metroid 2: Return of Samus", "Pokémon Red & Blue", "The Legend of Zelda: Link's Awakening", "Pokémon Yellow"].reverse(),
+
+ /* https://www.giantbomb.com/profile/mento/lists/game-boy-originals-still-worth-playing/59404/ */
+ ["The Legend of Zelda: Link's Awakening", "Final Fantasy Adventure", "Super Mario Land", "Super Mario Land 2: 6 Golden Coins", "Wario Land: Super Mario Land 3", "Donkey Kong '94", "Motocross Maniacs", "Kirby's Pinball Land", "Kirby's Block Ball", "Bubble Ghost", "Monster Max", "Bill & Ted's Excellent Game Boy Adventure", "Mercenary Force", "Dr. Mario", "Gargoyle's Quest", "Mario's Picross", "Metroid II: Return of Samus", "Yoshi's Cookie", "Kirby's Dream Land", "Castlevania Legends"],
+
+ /* https://www.youtube.com/watch?v=508wu-JxT2A */
+ ["Operation C", "Snow Brothers", "Mega Man III", "Castlevania 2: Belmont's Revenge", "Kirby's Dream Land", "Nemesis 2", "Shadow Warriors", "Kirby's Dream Land 2", "Solomon's Club", "Final Fantasy Adventure", "Bubble Bobble Part 2", "Mario's Picross", "Tetris Plus", "Super Mario Land 2: 6 Golden Coins", "Donkey Kong Land 2", "Donkey Kong '94", "Wario Land 2", "Super Mario Land", "The Legend of Zelda: Link's Awakening", "Pokémon Yellow"].reverse(),
+
+ /* https://www.nintendolife.com/guides/50-best-game-boy-games-of-all-time?page=5 */
+ ["The Legend of Zelda: Link's Awakening", "Tetris", "Donkey Kong '94", "Wario Land: Super Mario Land 3", "Pokémon Yellow Version: Special Pikachu Edition", "Pokémon Red and Blue", "Super Mario Land 2: 6 Golden Coins", "Wario Land II", "Final Fantasy Adventure", "Mario's Picross", "Kirby's Dream Land 2", "Castlevania II: Belmont's Revenge", "DuckTales", "Mole Mania", "Mega Man V", "Harvest Moon GB", "Final Fantasy Legend II", "Donkey Kong Land 2", "Gargoyle's Quest", "Kid Dracula", "Donkey Kong Land III", "Bionic Commando", "Final Fantasy Legend III", "Kirby's Dream Land", "Game Boy Camera", "DuckTales 2", "Donkey Kong Land", "Tetris Attack", "Batman: The Video Game", "The Final Fantasy Legend", "QIX", "Kirby's Pinball Land", "Dr. Mario", "Operation C", "Game & Watch Gallery", "Catrap", "Kid Icarus: Of Myths and Monsters", "Super Mario Land", "Mega Man IV", "Tetris 2", "Super R.C. Pro-Am", "Wario Blast: Featuring Bomberman!", "Motocross Maniacs", "Pinball: Revenge of the 'Gator", "James Bond 007", "Teenage Mutant Ninja Turtles: Fall of the Foot Clan", "Balloon Kid", "Quarth", "Teenage Mutant Ninja Turtles II: Back from the Sewers", "Contra: The Alien Wars"],
+
+ /* https://en.wikipedia.org/wiki/List_of_best-selling_Game_Boy_video_games */
+ ["Pokémon Red, Blue, Yellow", "Tetris", "Pokémon Gold & Silver", "Pokémon Crystal", "Super Mario Land", "Super Mario Land 2: 6 Golden Coins", "Dr. Mario", "Pokémon Pinball", "Wario Land: Super Mario Land 3", "Kirby's Dream Land", "Super Mario Bros. Deluxe", "The Legend of Zelda: Oracle of Seasons & Oracle of Ages", "Donkey Kong Land", "The Legend of Zelda: Link's Awakening", "Pokémon Trading Card Game", "F1 Race", "Yoshi", "Donkey Kong '94", "Tamagotchi", "Yu-Gi-Oh! Duel Monsters 4: Battle of the Great Duelists", "Yu-Gi-Oh! Dark Duel Stories", "Kirby's Dream Land 2", "Donkey Kong Land 2", "Dragon Warrior Monsters", "The Legend of Zelda: Link's Awakening DX", "Wario Land 3", "Kirby's Pinball Land", "Donkey Kong Country", "Golf", "Tennis", "Alleyway", "Tetris DX", "Metroid II: Return of Samus", "Baseball", "Yu-Gi-Oh! Duel Monsters", "Dragon Warrior Monsters 2", "Yoshi's Cookie", "Wario Land II", "Game de Hakken!! Tamagotchi 2", "Yu-Gi-Oh! Duel II: Dark Duel Stories", "DuckTales", "The Final Fantasy Legend", "Yakuman", "Tetris 2", "Kirby Tilt 'n' Tumble", "Game & Watch Gallery 2", "Game & Watch Gallery 3", "Solar Striker", "Mario Tennis", "Qix", "Super R.C. Pro-Am", "Donkey Kong Land III", "The Bugs Bunny Crazy Castle", "The Bugs Bunny Crazy Castle 2", "Mickey's Dangerous Chase", "The Little Mermaid", "Mega Man: Dr. Wily's Revenge", "Mega Man II", "Wave Race", "Star Wars", "DuckTales 2", "Mortal Kombat", "Mickey Mouse: Magic Wands!", "Space Invaders", "The Smurfs", "Street Fighter II", "Game & Watch Gallery", "James Bond 007"]
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [MegaSilverX1 (GB only)] */
+ ["Mega Man", "Mega Man 2", "Mega Man 3", "Mega Man 4", "Mega Man 5", "Mole Mania", "Zoop", "Mario's Picross", "Picross 2", "Donkey Kong Land 2", "Donkey Kong Land 3", "Ghostbusters II", "Bomberman GB", "Wario Land: Super Mario Land 3", "Wario Land II", "Tiny Toon Adventures 2: Montana's Movie Madness", "Alien 3", "Castlevania II: Belmont's Revenge", "Heiankyo Alien", "Rolan's Curse", "Tetris Blast", "Avenging Spirit", "Donkey Kong '94", "Darkwing Duck", "Kid Icarus: Of Myths and Monsters", "Kirby's Block Ball", "Kwirk", "TMNT III: Radical Rescue", "Yoshi's Cookie"],
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [Lester Knight] */
+ ["Daedalian Opus", "Motocross Maniacs"],
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [Splain] */
+ ["Super RC Pro-Am", "Kirby's Dream Land", "Kirby's Pinball Land", "Kirby's Dream Land 2", "Kirby's Block Ball", "Kirby's Star Stacker", "Kirby's Super Star Stacker", "The Legend of Zelda: Link's Awakening", "Super Mario Land 2: 6 Golden Coins", "Tetris", "ButgerTime Deluxe", "Dr. Mario", "Elevator Action", "Game & Watch Gallery", "Boomer's Adventure in ASMIK World", "Kid Dracula", "Metroid 2: Return of Samus", "Revenge of the Gator", "Tetris Attack", "Pokémon Red, Blue, and Yellow", "Yoshi"],
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [retronintendonerd] */
+ ["Quarth", "Pokémon Red, Blue, and Yellow", "Pokémon Silver & Gold", "Pokémon Crystal", "Pokémon Pinball", "Pokémon Puzzle Challenge", "Pokémon Trading Card Game", "Yoshi", "The Adventures of Lolo", "Super Mario Land 2: 6 Golden Coins", "Wario Land: Super Mario Land 3", "Tetris", "Kirby's Dreamland 2", "Tamagotchi", "Ghosts n' Goblins", "Adventure Island", "Adventure Island 2"],
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [MegaSilverX1 (GBC)] */
+ ["Dragon Warrior III", "Dragon Warrior I & II", "Super Mario Bros. Deluxe", "Donkey Kong Land 2", "Dragon Warrior Monsters", "Mario Tennis", "Mega Man Xtreme 2", "Metal Gear", "Pokemon Puzzle Challenge", "Scooby Doo: Classic Creep Capers", "Wacky Races"],
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [Bonehead Braixen (GB/GBC)] */
+ ["Game & Watch Gallery", "Game & Watch Gallery 2", "Game & Watch Gallery 3", "Legend of the River King", "Mario Tennis"],
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [Squeegor] */
+ ["Bionic Commando", "Ninja Gaiden Shadow", "Rolan's Curse 2"],
+
+ /* https://www.virtual-boy.com/forums/t/best-game-boy-games/ [adler_0] */
+ ["Trip World", "Chalvo 55", "The Frog for Whom the Bell Tolls", "Wendy: Every Witch Way", "Metal Masters", "Pokémon Red, Blue, and Yellow", "Pokémon Silver & Gold", "Pokémon Crystal", "Pokémon Pinball", "Pokémon Puzzle Challenge", "Banishing Racer", "Bill & Ted's Excellent Game Boy Adventure", "Kid Dracula", "Spud's Adventure", "WWF Betrayal", "Adventure Island II: Aliens in Paradise", "Donkey Kong '94", "Gargoyle's Quest", "Tiny Toon Adventures"]
+
+
+
+];
+
+</script>
+</body>
+</html>
