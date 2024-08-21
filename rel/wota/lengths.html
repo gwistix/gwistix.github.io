@@ -1,0 +1,101 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Wisdom of the Ages relative lengths</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ zoom: 50%;
+// white-space: pre-wrap
+}
+
+div {
+ font-family: Tahoma;
+ text-align: middle;
+ color: white;
+ display: inline-block;
+ height: 500px;
+ overflow: hidden;
+ border: 1px solid black;
+ border-radius: 1px;
+ padding-top: 10px;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+
+}
+
+/* 
+ Width in pixels is # of verses / 100 (e.g., the Tanakh has 23,145 verses and is 231.45 pixels wide)
+
+ For the Tripitaka, the length is based on an approximate word count of 2.7 million words for the Pali Canon, compared to 899,931 for the King James Bible. Since the KJV is both the Tanakh/Old Testament (23,145 verses) and the New Testament (7,957 verses), we can divide the number of words by the total number of verses for an approximation of the number of words per verse: 899,931 / 31,102 = 28.9348273. Applying this to the Tripitaka gives us an approximate equivalent of around 93,313 verses.
+
+ Similarly, the Analects are estimated to be around 10,000 words, which would be about 346 verses
+*/
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>Relative lengths of the texts in the Wisdom of the Ages collection</h1>
+
+
+<div id='tanakh' style='background: #700'>
+ <hr>Tanakh<br>
+
+ <div id='torah' style='background: #700; width: 59.44px'><hr>Torah<hr></div>
+ <div id='neviim' style='background: #700; width: 132.50px'><hr>Nevi’im<hr></div>
+ <div id='ketuvim' style='background: #700; width: 119.58px'><hr>Ketuvim<hr></div>
+
+</div>
+
+<div id='new-testament' style='background: #750; width: 79.57px'><hr>New Testament<hr></div>
+
+<div id='quran' style='background: #770; width: 63.48px'><hr>Qur’an<hr></div>
+
+<div id='vedas' style='background: #570'>
+ <hr>Vedas<br>
+
+ <div id='rigveda' style='background: #570; width: 1000.00px'><hr>Rig<wbr>veda<hr></div>
+ <div id='samaveda' style='background: #570; width: 18.75px'><hr>S<br>a<br>m<br>a<br>v<br>e<br>d<br>a<hr></div>
+ <div id='yajurveda' style='background: #570; width: 20.00px'><hr>Y<br>a<br>j<br>u<br>r<br>v<br>e<br>d<br>a<hr></div>
+ <div id='atharvaveda' style='background: #570; width: 73.00px'><hr>Atharva<wbr>veda<hr></div>
+
+</div>
+
+<div id='tripitaka' style='background: #070'>
+ <hr>Tripitaka<br>
+
+ <div id='vinaya-pitaka' style='background: #070; width: 414.73px'><hr>Vinaya Pitaka<hr></div>
+ <div id='sutta-pitaka' style='background: #070; width: 518.41px'><hr>Sutta Pitaka<hr></div>
+ <div id='abhidamma-pitaka' style='background: #070; width: 172.80px'><hr>Tripitaka<hr></div>
+
+</div>
+
+<div id='guru-granth-sahib' style='background: #075; width: 58.77px'><hr>Guru Granth Sahib<hr></div>
+
+<div id='tao-te-ching' style='background: #077; width: 1em'><hr>T<br>a<br>o<br><br>T<br>e<br><br>C<br>h<br>i<br>n<br>g<hr></div>
+
+<div id='book-of-mormong' style='background: #057; width: 66.06px'><hr>Book of Mormon<hr></div>
+
+<div id='kitab-i-aqdas' style='background: #007; width: 19.1px'><hr>K<br>i<br>t<br>a<br>b<br>-<br>i<br>-<br>A<br>q<br>d<br>a<br>s<hr></div>
+
+<div id='analects' style='background: #507; width: 19.1px'><hr>A<br>n<br>a<br>l<br>e<br>c<br>t<br>s<br><br>o<br>f<br><br>C<br>o<br>n<br>f<br>u<br>c<br>i<br>u<br>s<hr></div>
+
+</body>
+</html>
