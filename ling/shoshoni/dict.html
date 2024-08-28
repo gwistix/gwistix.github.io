@@ -1,0 +1,258 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title></title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+ white-space: pre-wrap
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+<script>
+
+function init() {
+ console.clear();
+ pseudos();
+
+ var ipa = [];
+ 
+ 
+ document.body.innerHTML.split("\n").forEach(function(line) {
+  var arr = line.split("\t");
+  arr[1] = ("[#" + arr[0] + "#]")
+
+  .replace(/(hp|f)/g, "ɸ")
+  .replace(/p/g, "pp")
+  .replace(/[aeioui̲I]b[Aa̲aeiou]/g, function(str) {
+   return str.replace(/b/, "β")
+  })
+  .replace(/b/g, "p")
+
+  .replace(/t/g, "tt")
+  .replace(/htt/g, "ht")
+  .replace(/[aeioui̲I]d[Aa̲aeiou]/g, function(str) {
+   return str.replace(/d/, "ɾ")
+  })
+  .replace(/d/g, "t")
+
+  .replace(/k/g, "kk")
+  .replace(/hkk/g, "hk")
+  .replace(/[aeioui̲I]g[Aa̲aeiou]/g, function(str) {
+   return str.replace(/g/, "ɣ")
+  })
+  .replace(/g/g, "k")
+
+  .replace(/[aeioui̲I]w[Aa̲aeiou]/g, function(str) {
+   return str.replace(/w/, "w̃")
+  })
+
+  .replace(/[aeioui̲I]y[Aa̲aeiou]/g, function(str) {
+   return str.replace(/y/, "ỹ")
+  })
+
+  .replace(/([ptkcfsh]|kw)e[ptkcfsh#]/g, function(str) {
+   return str.replace(/e/, "ɨ̥")
+  })
+
+  .replace(/aa/g, "aː")
+  .replace(/ee/g, "eː")
+  .replace(/ii/g, "iː")
+  .replace(/oo/g, "oː")
+  .replace(/uu/g, "uː")
+  .replace(/a̲a̲i̲i̲/g, "εː")
+  .replace(/AAII/g, "εː")
+
+  .replace(/e/g, "ɨ")
+  .replace(/a̲i̲/g, "ε")
+  .replace(/AI/g, "ε")
+  .replace(/'/g, "ʔ")
+  .replace(/ch/g, "ttʃ")
+  .replace(/j/g, "tʃ")
+  .replace(/sh/g, "ʃ")
+  .replace(/zh/g, "ʒ")
+
+  .replace(/nb/g, "mb")
+  .replace(/np/g, "mp")
+  .replace(/ng/g, "ŋg")
+  .replace(/nk/g, "ŋk")
+
+  .toLowerCase()
+  .replace(/#/g, "")
+  ;
+
+  arr[0] = "<b><i>" + arr[0].replace(/AI/g, "a̲i̲") + "</i></b>"
+  
+  ipa.push(arr.join("\t"));
+ });
+
+ document.body.innerHTML = ipa
+ .sort() 
+ .join("<br>")
+ ;
+
+}
+
+</script>
+
+</head>
+
+<body onLoad='init();'>
+ada'	[aɾaʔ]	male relative; uncle (mother's brother); (male) cousin; nephew/niece (sister's son/daughter) (M)
+ha	[ha]	eh?	[Q]; [OBJ]
+baa'	[paːʔ]	water
+haa'	[haːʔ]	yes
+ege-	[ɨɣɨ-]	new
+enne	[ɨnːɨ]	you	you (singular)
+neesungaahka	[nɨːsuŋkaːhka]	it feels
+sadee'	[saɾeːʔ]	dog
+iki	[ikːi]	right here
+nammi'	[namːiʔ]	younger sister
+biidennu	[piːɾɨnːu]	has/have arrived
+dogo'	[toɣoʔ]	maternal grandfather; grandchild(ren) (daughter's child(ren))
+mo'	[moʔ]	hand
+gotoo'	[kotːoːʔ]	fire
+gotoonoo'	[kotːoːnoːʔ]	stove
+u	[u]	him/her/it/them
+yuhu	[juhu]	fat
+yuuta'	[juːtaʔ]	Ute Indian
+duu-daiboo'	[tuː-taiboːʔ]	black person (African American)
+ba̲i̲de'	[peɾɨʔ]	daughter
+ga̲i̲'	[keʔ]	no
+daiboo'		white man; Euro-American
+hainji		male friend
+dease		also; too
+mea'		moon
+beAIchehku		morning
+dei'		female friend (F)
+newezoika'i		Nez Perce Indian
+dua'		son
+bui		eye
+sogope		land
+mase		this; that
+natesu'		medicine
+AIkwehibite		purple
+iki		right here
+ape'		father
+gotoo-		to make fire
+duu-daiboo'; duutaiboo'		African American; black man
+soo-gahni; sookahni		Blackfoot; Idaho (literally, "many houses")
+sii-bungu; siipungu		sheep (lit., "urine horse")
+baa'		water
+bazi'		older sister
+babi'		older brother
+sohoo'bi		tree
+saa'bAI		in there
+huchuu'		bird
+guchu		cow
+deheya'		deer
+dosabite		white
+doyadaiboo'		Hispanic person; Mexican
+gedii'		cat
+dzoon		John
+naafaite		six
+dakaweife'nni		it's snowing
+gaa'		rat
+gapAI		bed
+daga'		male friend (M)
+basigoo'		Indian potato; Camas root
+haga'		where
+ohapite		yellow
+duka		under
+duku		meat; mountain sheep (bighorn sheep)
+mAIku		OK; all right
+beAIchehkuse		in the morning
+mu'bii		car
+muu'bi		nose
+mia'		let's go
+damme		we (INCL)
+dommo		winter
+memme		you (PL)
+naniha		name
+nawa'AIpe'		wife; brother's wife (M)
+banabui		window
+enne		you (SG)
+bannaite'		Bannock Indian
+hi'nna		what
+gahni		house
+guhnAIki		to run (toward the speaker)
+bungu		horse
+bAIngwi		fish
+wenangwa		in front of
+tso'ape		ghost
+sosoni'		Shoshoni Indian
+buhihseagu		sprouting
+ishe		this
+gAIshe		not yet
+nazatewa'		door
+himbAIgandengahtu		how much (money)
+tsaa'		good
+tsadamani		Chinese person
+tsiina'		potato
+wongoo'bi		pine tree
+waapi		Utah juniper
+dowoahka		it's cloudy
+nee'we		person; Indian; Shoshoni Indian
+dawi'		younger brother
+nehwe		we (DUAL;EXCL)
+dahwe		we (DUAL;INCL)
+yamba		wild carrots; yampa root
+yuhutegumahanipe		fry bread
+guyungwi'yaa'		turkey
+gAIyu'		late
+wihyu		then; however
+dapAIhyaa'		sock(s)
+gizhaa'		not good
+dAI'zhi		sister's husband (M)
+bia'ape'		father's older brother
+ba'i		to have
+a'aa'		Crow Indian
+da'oo'		dried; powdered meat
+gadenoo'		chair
+bia'		mother
+nemme ape'		our father
+nemmen daga'		our friend (M)
+nemmen nammi'		our younger sister
+nemmen tsiina'		our potato
+nemmen genu'		our (paternal) grandfather
+nemmem bia'		our mother
+nemmem mu'bii		our car
+duu"		black
+sii"		urine
+buhiH		green
+seagu		growing
+dekakuandu'i		will go to eat
+dekape		food
+no'yo		egg
+dehe'ya		horse
+da'ga		only; just
+noo'yo		testicle
+tsaangu beAIchehku		good morning
+hagapundu		(to) where
+e'nne		you (SG;PAUS)
+mi'a-		to go; to walk
+mi'a'yu		am/is/are walking
+mi'aa'yu		am/is/are walking (PAUS)
+-'yu		-ing
+gahtu		to
+gaahtu		to (PAUS)
+ne		I
+deka-		to eat
+-kuaN-		(movement away from speaker)
+-kuandu'i		will go (away from speaker) to (+verb)
+-du'i		(FUT)
+binnagwaseN		later
+eN; e; en; em		you (SG;OBJ;MOD)
+emmi		you (SG;OBJ;TRAD)
+e'mmi		you (SG;PAUS;TRAD)
+bui-		to see
+buinuhi		will see
+-nuhi		(EXPECTIVE)
+</body>
+</html>
