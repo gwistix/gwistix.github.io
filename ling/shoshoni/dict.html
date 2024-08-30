@@ -1,3 +1,4 @@
+
 <html>
 <head>
 <link rel='shortcut icon' href='/favicon.png'>
@@ -34,6 +35,7 @@ function init() {
    return str.replace(/b/, "β")
   })
   .replace(/b/g, "p")
+  .replace(/v/g, "β")
 
   .replace(/t/g, "tt")
   .replace(/htt/g, "ht")
@@ -82,6 +84,7 @@ function init() {
   .replace(/np/g, "mp")
   .replace(/ng/g, "ŋg")
   .replace(/nk/g, "ŋk")
+  .replace(/NG/g, "ŋ")
 
   .toLowerCase()
   .replace(/#/g, "")
@@ -92,7 +95,7 @@ function init() {
   ipa.push(arr.join("\t"));
  });
 
- document.body.innerHTML = ipa
+ document.body.innerHTML = ipa.length.toLocaleString() + " Shoshoni lexemes:<br>" + ipa
  .sort() 
  .join("<br>")
  ;
@@ -103,8 +106,7 @@ function init() {
 
 </head>
 
-<body onLoad='init();'>
-ada'	[aɾaʔ]	male relative; uncle (mother's brother); (male) cousin; nephew/niece (sister's son/daughter) (M)
+<body onLoad='init();'>ada'	[aɾaʔ]	male relative; uncle (mother's brother); (male) cousin; nephew/niece (sister's son/daughter) (M)
 ha	[ha]	eh?	[Q]; [OBJ]
 baa'	[paːʔ]	water
 haa'	[haːʔ]	yes
@@ -254,5 +256,87 @@ e'mmi		you (SG;PAUS;TRAD)
 bui-		to see
 buinuhi		will see
 -nuhi		(EXPECTIVE)
+en dembi		your rock
+em bungku		your horse
+em mo'o		your head
+eNG gahni		your house
+eNG gwinya		your raptor
+gwinya		raptor
+hunyaN		badger
+sanya"		sap
+yunya		carry; take
+gwiya		startled
+huna-		menses
+sa'ana		yonder
+yunaH		scoop; dip
+wenyeH		stand (SG)
+weneH		stands (DUR)
+havi		lie down (SG)
+hapi		lie down (DUR)
+maga"		feeds
+maka"		is/was feeding for a while
+aa AIri		bow
+aa'a		Crow Indian
+aagwis		sneeze
+aakur		far
+aakwAInt		far away from
+aaN		horn (of a cow)
+Aano		Horn Pokers; Cree Indian
+Aano Nekap(eH)		horn dance; round dance
+aashAI		river; Crow
+aasia		scarlet bee blossom
+aata		a great distance
+aatenk(i)		grasshopper
+aavi		far outside; far below; way down there
+aawua		sucker (fish)
+aawuk		sucker (fish)
+agai"		salmon
+Agaiteka		Lemhi Shoshoni (lit., salmon eaters)
+agAIr(eN)		Appaloosa horse
+agwai pohagand(eN)		medicine man with bear power
+agwAI"		bear; she-bear
+agwain du'a		bear cub
+agwaren		belch
+ahanazitoh		crutches
+ahna; ah; ahe		armpit
+ahó		thanks
+ahwAI		dig roots
+ahwAInid		was digging
+ahwAIgwandu'i		going to dig
+ahwAIgwaN		go to dig roots
+ai'		come in
+aiankwuh		somewhere
+aishAImit		roan
+aishAIrAIva		pinto
+aiya'AI		hello; ah
+akeN		sunflower
+ama'akand(eN)		drunk
+amatsaniga; amatsayiga		vest
+anda naigi		to one side; different place
+anda naku		on the other side
+anda nankwa		at/to/in another place
+anda wAIhand(eN)		inflammable
+anda"		another; in the opposite direction; away (from)
+andagopat		breakable
+andape(eH)		detour
+andapu wen'		convert
+andapu'i-		to change
+andapu(N)		away from; different
+andapun u naroinke		give false information (lit. explain it otherwise)
+andapun(d)(eN)		otherwise; other than; error
+andapuNG neweroap(eH)		deformed
+andapus nawandavuin		disguised
+andarer		wobbly; shaky
+andasawend(eN)		delicate
+andates; andatish; andares		certain; another
+andavich(i)		person of another tribe
+andawich		weed like peppermint
+ando'a		young
+ankap(eH)		lard
+ankashinkwinenka		south side of tipi
+aniH		downward; capsize; fall down; fall over
+anikwakwa		woodpecker
+aninkwakwa		yellow throat (bird)
+aninkwichip		ants pounded, roasted, and eaten
 </body>
 </html>
