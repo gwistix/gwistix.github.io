@@ -1,0 +1,448 @@
+<html>
+<head>
+<link rel='shortcut icon' href='/favicon.png'>
+<link rel='icon' sizes='192x192' href='/appicon.png'>
+<title>Most important Aztec deities</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='stylesheet' href='https://gwistix.github.io/code/lib.css'>
+<style>
+
+body {
+// white-space: pre-wrap;
+}
+
+table {
+ margin-left: 50px;
+ font-size: 2rem;
+}
+
+th {
+ background: #123456;
+ color: white;
+}
+
+small {
+ font-size: 1.5rem;
+}
+
+i {
+ color: blue; !important
+}
+
+a {
+ text-decoration: none;
+ color: black;
+}
+
+</style>
+<script src='https://gwistix.github.io/code/lib.js'></script>
+
+</head>
+
+<body onLoad='init();'>
+
+<center>
+
+<h1>One moment please&hellip;</h1>
+
+<p>This may take a moment to load.</p>
+
+<script>
+
+var books = [];
+var booklist = [];
+var listCount = 0;
+
+function init() {
+ console.clear();
+ pseudos();
+ parseLists();
+ document.body.innerHTML = "<h1 class='center'>Aggregated from " + listCount.toLocaleString() + " different lists,<br>"
+ + " with a total of " + booklist.length.toLocaleString() + " Aztec deities:</h1>"
+ + generateTable(books);
+}
+
+/* Goes through ranked and unranked lists of books and assigns
+ * each book a score based on how often it appears, and how highly
+ * ranked it appears in each list.
+ */
+function parseLists() {
+
+ /* Books that appear in ranked lists 
+  *
+  */
+ ranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book,index){
+   /* Individual books in ranked lists have their scores calculated as
+    *  1 − (rank in list ÷ number of books in list)
+    * A book ranked as #1 in a list containing 100 books would 
+    * receive a score of 1 − (1 ÷ 100) = 0.99.
+    * A book ranked as #1 in a list of 5 books would receive
+    * a score of 1 − (1 ÷ 5) = 0.8. Thus, the first books receives
+    * a higher score, because it has been ranked as #1 when compared 
+    * to more books. A book that appears in multiple lists will have
+    * its scores from those lists aggregated into a single score.
+    * For example, a book that appears as 1 of 100 in one list, 
+    * 3 of 25 in another list, and 2 of 10 in a third list will 
+    * receive an aggregated score of 
+    *  1 − (1 ÷ 100) + 1 − (3 ÷ 25) + 1 − (2 ÷ 10)
+    *  = 0.99 + 0.88 + 0.8 
+    *  = 2.67
+    * This score will be higher than the score for a book that
+    * appears even as #1 in fewer lists. For example, a book that
+    * appears as #1 of 100 in two different lists can have a maximum
+    * score of 0.99 × 2 = 1.98. Thus, books that appear in more lists
+    * are favored over books that appear in only a few lists, but
+    * their ranking in those lists is also taken into account.
+    * So even a book that appears as #5 in 10 different lists 
+    * (e.g., of 100 books each) will receive a higher overall score 
+    * than a book that appears as #1 on a single list (such as 
+    * somebody's personal blog list):
+    * (1 − (5 ÷ 100)) × 10 = 9.5 versus (1 − (1 ÷ 100)) = 0.99
+    *
+    * Because array indexes actually begin with 0 rather than 1,
+    * the actual score for a book ranked as #1 in any list will be
+    * 1, because it is calculated as 1 − (0 ÷ length) = 1 − 0
+    * This actually gives somewhat more preference to books that 
+    * appear as #1.
+    */
+   var rank = 1 - (index / length);
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+
+   if (~ref) {	// Already in list
+
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ /* Books that appear in unranked lists receive an automatically 
+  * assigned score of 0.5, which is aggregated along with their 
+  * ranked score.
+  */
+ unranked.forEach(function(list){
+  listCount++;
+  var length = list.length;
+  list.forEach(function(book, index) {
+   var rank = (0.5 + 1/length)/2;
+   var ref = booklist.indexOf(normalizeTitle(book));
+
+   if (~ref) {	// Already in list
+    // Keep the longer version of the title (e.g., “The Odyssey” over “Odyssey”)
+    if (book.length > books[ref].title.length) {
+     books[ref].title = book;
+    }
+
+    // Update the book's score
+    books[ref].score += rank;
+
+   }
+   else {	// Not yet in list
+
+    // Add book to list
+    books.push({
+     title: book,
+     score: rank,
+     toString: function() {
+      return this.score.toFixed(3) + "\t<font size='" + this.score + "px'>" + this.name + "</font>";
+     }
+    });
+
+    // Add normalized title to reference list
+    booklist.push(normalizeTitle(book));
+
+   }
+  });
+ });
+
+ // Sort by score, highest to lowest
+ books = books.sort(function(a,b){
+  return b.score - a.score;
+
+  if (a.title > b.title) return 1;
+  if (a.title < b.title) return -1;
+  return 0;
+ });
+}
+
+/* Removes articles “the”, “a”, “an” and non-alphanumeric characters for better title matching.
+ * Examples of resulting matches include the following:
+ *  • “The Catcher in the Rye” ~ “Catcher in the Rye”
+ *  • “Gulliver's Travels” ~ “Gulliver’s Travels” ~ “Gullivers Travels”
+ *  • “Mrs Dalloway” (British) ~ “Mrs. Dalloway” (American)
+ *
+ * Also removes parenthetical information (often the author's name)
+ * and substitutes plain characters for their diacritic counterparts
+ * 
+ * Unfortunately, this does not solve the issue of numeral usage, as in “1984” ~ “Nineteen Eighty-Four”,
+ * or “Twenty Thousand Leagues Under the Sea” ~ “20,000 Leagues Under the Sea”. These must be harmonized on an individual basis.
+ *
+ * It also does not solve the potential issue of a book title having different spellings in Britain and America,
+ * as in “If on a Winter's Night A Traveller” (British) versus “If on a Winter's Night A Traveler” (American).
+ *
+ * It also provides no solution for different titles for the same book in different countries, such as 
+ * “Harry Potter and the Philosopher's Stone” (British) ~ “Harry Potter and the Sorcerer's Stone” (American)
+ */
+function normalizeTitle(title) {
+ return title
+ .toUpperCase()
+ .replace(/ \b(an?|the)\b|\b(an?|the)\b /gi, "")
+ .replace(/\s?\(.*\)/g,"")
+ .replace(/&/g,"and")
+ .replace(/[àáâäãåāăą𝒶𝔞𝕒аæÀÁÂÄÃÅĀĂĄ𝒜𝔄𝔸]/gi,"A")
+ .replace(/[æÆœŒ]/gi,"E")
+ .replace(/[𝒷𝔟𝕓ℬ𝔅𝔹]/gi,"B")
+ .replace(/[ćĉçčċ𝒸𝔠𝕔ĆĈÇČĊ𝒞ℭℂ]/gi,"C")
+ .replace(/[ďđ𝒹𝔡𝕕ĎĐ𝒟𝔇𝔻]/gi,"D")
+ .replace(/[èéêëēěėęℯ𝔢𝕖ÈÉÊËĒĚĖĘℰ𝔈𝔼]/gi,"E")
+ .replace(/[𝒻𝔣𝕗ℱ𝔉𝔽]/gi,"F")
+ .replace(/ﬀ/gi,"FF")
+ .replace(/ﬁ/gi,"FI")
+ .replace(/ﬂ/gi,"FL")
+ .replace(/[ǵĝğġℊ𝔤𝕘ĜĞĢĠ𝒢𝔊𝔾]/gi,"G")
+ .replace(/[ĥℏħ𝒽𝔥𝕙ĤĦℋℌℍ]/gi,"H")
+ .replace(/[ìíîïĩīį𝒾𝔦𝕚ÌÍÎÏĨĪİĮℐℑ𝕀]/gi,"I")
+ .replace(/[ĳĲ]/gi,"IJ")
+ .replace(/[ĵ𝒿𝔧𝕛Ĵ𝒥𝔍𝕁]/gi,"J")
+ .replace(/[ķ𝓀𝔨𝕜Ķ𝒦𝔎𝕂]/gi,"K")
+ .replace(/[ĺļľł𝓁𝔩𝕝ĹĻĽŁℒ𝔏𝕃]/gi,"L")
+ .replace(/[𝓂𝔪𝕞ℳ𝔐𝕄]/gi,"M")
+ .replace(/[ńñņň𝓃𝔫𝕟ŃÑŅŇ𝒩𝔑ℕ]/gi,"N")
+ .replace(/[òóôöõōø⊙őℴ𝔬𝕠ÒÓÔÖÕŌØŐ𝒪𝔒𝕆]/gi,"O")
+ .replace(/[𝓅𝔭𝕡𝒫𝔓ℙ]/gi,"P")
+ .replace(/[𝓆𝔮𝕢𝒬𝔔ℚ]/gi,"Q")
+ .replace(/[ŕŗř𝓇𝔯𝕣ŔŖŘℛℜℝ]/gi,"R")
+ .replace(/[śŝşš⋅𝓈𝔰𝕤ŚŜŞŠ𝒮𝔖𝕊]/gi,"S")
+ .replace(/[ßẞ]/gi,"SS")
+ .replace(/[ţťn⃛ŧ𝓉𝔱𝕥ŢŤŦ𝒯𝔗𝕋]/gi,"T")
+ .replace(/[ùúûüũůūŭųű𝓊𝔲𝕦ÙÚÛÜŨŮŪŬŲŰ𝒰𝔘𝕌]/gi,"U")
+ .replace(/[𝓋𝔳𝕧𝒱𝔙𝕍]/gi,"V")
+ .replace(/[ŵ𝓌𝔴𝕨Ŵ𝒲𝔚𝕎]/gi,"W")
+ .replace(/[◯𝓍𝔵𝕩𝒳𝔛𝕏]/gi,"X")
+ .replace(/[ýŷÿ𝓎𝔶𝕪ÝŶŸ𝒴𝔜𝕐]/gi,"Y")
+ .replace(/[źžż𝓏𝔷𝕫]/gi,"Z")
+ .replace(/[^A-z0-9]/g, "")
+ ;
+
+ /* This should also eliminate accented characters and substitute
+  * the "&" character and "and"
+  */
+}
+
+function generateTable(list) {
+
+ // Header row
+ var tableHtml = "<table>";//"<table border='1' bgcolor='cdcdcd'><tr><th>Rank</th><th>Score</th><th>Title</th></tr>";
+
+ // Additional row for each book
+ list.forEach(function(book, index){
+  var strippedTitle = book.title.replace(/\s?\(.*\)/,"");
+  var ref = book.title.lastIndexOf(" (");
+  ref = ~ref ? ref : book.title.length;
+  var titleOnly = book.title.substring(0, ref).toTitleCase();
+  var authorOnly = book.title.substring(ref);
+  tableHtml += "<tr><td>" + (index + 1).toLocaleString() + "</td>"
+  + "<td class='gray'>" + book.score.toFixed(3) + "</td>" 
+  + "<td bgcolor='white'><a href='https://en.wikipedia.org/wiki/" + strippedTitle.replace(/'/g,"%27") + "' target='_blank'><i>" + titleOnly + "</i></a><small>" + authorOnly + "</small></td></tr>";
+ });
+
+ tableHtml += "</table>";
+ return tableHtml;
+}
+
+
+var ranked = [
+
+ /* https://www.thoughtco.com/deities-of-mexica-mythology-170042 */
+ ["Huitzilopochtli", "Tlaloc", "Tonatiuh", "Tezcatlipoca", "Chalchiuhtlicue", "Centeotl", "Quetzalcoatl", "Xipe Totec", "Mayahuel", "Tlaltecuhtli"],
+
+ /* https://www.google.com/search?q=aztec+gods+and+goddesses&rlz=1C1VDKB_enUS1053US1053&oq=aztec+gods+and+goddesses&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQABiABDIHCAIQABiABDIHCAMQABiABDIICAQQABgWGB4yCAgFEAAYFhgeMggIBhAAGBYYHjIICAcQABgWGB4yCAgIEAAYFhgeMggICRAAGBYYHtIBCDQ3MTBqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8 */
+ ["Tláloc", "Quetzalcoatl", "Tezcatlipoca", "MIctlantecuhtli", "Mixcoatl", "Xōchiquetzal", "Chicomecōātl", "Huītzilōpōchtli", "Tōnatiuh", "Chalchiuhtlicue", "Xipe Totec", "Ehecatl", "Chantico", "Cōātlīcue", "Tlaltecuhtli", "Ometecuhtli", "Ahuiateteo", "Centeōtl", "Xolotl", "Huēhuecoyōtl", "Tēcciztēcatl", "Tepēyōllōtl", "Yacatecuhtli", "Centzonhuītznāhua"],
+
+ /* https://historycooperative.org/aztec-gods/ */
+ ["Quetzalcoatl", "Huitzilopochtli", "Tezcatlipoca", "Xipa Totec", "Tlaltecuhtli", "Tlaloc", "Mictlāntēcutli", "Mictēcacihuātl", "Xolotl", "Mixcoatl", "Coatlicue", "Coyolxāuhqui", "Mayahuel", "Chantico", "Tonatiuh", "Xochipilli", "Chalchiuhtlicue", "Xiuhtecuhtli", "Ehecatl", "Chicomecoatl", "Centeotl", "Tepeyollotli", "Xochiquetzal"],
+
+ /* https://www.mexicolore.co.uk/aztecs/home/search-and-ye-shall-find */
+ ["Quetzalcóatl", "Tonatiuh", "Tlaloc", "Tezcatlipoca", "Huitzilopochtli", "Xochipilli", "Coatlicue", "Ehécatl", "Mictlantecuhtli", "Xochiquetzal", "Chalchiutlicue", "Ometeotl", "Mixcóatl", "Xipe Totec", "Tlaltecuhtli", "Xiuhtecuhtli", "Chicomecóatl", "Huehueteotl", "Cinteotl", "Tlahuizcalpantecuhtli"],
+
+ /* https://www.realmofhistory.com/2018/08/01/12-major-aztec-gods-goddesses-facts/ */
+ ["Ometecuhtli", "Quetzalcoatl", "Tezcatlipoca", "Huitzilopochtli", "Xipe Totec", "Tláloc", "Chalchiuhtlicue", "Mixcoatl", "Coatlicue", "Xochiquetzal", "Mictlantecuhtli", "Tonatiuh"],
+
+ /* https://www.thecollector.com/similarities-between-mayan-and-aztec-gods-and-goddesses/ */
+ ["Quetzalcoatl", "Tlaloc", "Ehecatl", "Coatlicue"],
+
+ /* https://blog.planitletsgo.com/13-aztec-gods-and-goddesses-so-fascinating-youll-question-everything-you-believe/ */
+ ["Huitzilopochtli", "Quetzalcoatl", "Tláloc", "Chalchiuhtlicue", "Coatlicue", "Tezcatlipoca", "Xipe Totec", "Mictlantecuhtli", "Centeotl", "Ehecatl", "Xolotl", "Mixcoatl", "Ometecuhtli", "Omecihuatl", "Ometeotl", "Xochiquetzal", "Huehuecoyotl"],
+
+ /* https://timelessmyths.com/gods/aztec */
+ ["Ōmeteōtl", "Quetzalcoatl", "Huītzilōpōchtli", "Tezcatlipoca", "Tlaloc", "Coatlicue", "Mictlantecuhtli", "Xipe Totec", "Xochiquetzal", "Chalchiuhtlicue", "Tonatiuh", "Mixcoatl", "Xolotl"],
+
+ /* https://glitternight.com/2011/05/10/the-top-eleven-deities-in-aztec-mythology/ */
+ ["Ometeotl", "Xiuhtecuhtli", "Xochiquetzal", "Mictlantecuhtli", "Tlazolteotl", "Tonatiuh", "Chalchihuitlicue", "Coatlicue", "Huitzilopochtli", "Tezcatlipoca", "Quetzalcoatl"].reverse(),
+
+ /* https://www.arijitbhattacharyya.com/blog-Important-Aztec-gods-goddesses-their-relation-to-science.html */
+ ["Huitzilopochtli", "Tlaloc", "Tonatiuh", "Tezcatlipoca", "Chalchiuhtlicue", "Centeotl", "Quetzalcoatl", "Xipe Totec", "Mayahuel", "Tlaltecuhtli"],
+
+ /* https://www.youtube.com/watch?v=FA63Xjkhf14&ab_channel=PantheonMythology */
+ ["Huitzilopochtli", "Quetzalcoatl", "Tezcatlipoca", "Tlaloc", "Tonatiuh", "Mictlantecuhtli", "Mictecacihuatl", "Chalchiuhtlicue", "Ometeotl", "Xiuhtecuhtli", "Centeotl", "Tlaltecuhtli", "Xochiquetzal", "Huehueteotl", "Xolotl", "Ehecatl", "Tlazolteotl", "Cihuacoatl", "Mixcoatl", "Patecatl", "Centzontotochtin", "Coatlicue", "Xipe Totec"],
+
+ /* https://oldworldgods.com/list/aztecs-gods-and-goddesses/ */
+ ["Centzon Huitznahua", "Chalchiuhtlicue", "Camaxtli", "Tonantzin", "Temazcalteci", "Tepoztecatl", "Citlalatonac", "Itzpapalotl", "Piltzintecuhtli", "Tlaltecuhtli", "Ayauhteotl", "Teoyaomqui", "Cihuacoatl", "Xochitlicue", "Citlalicue", "Ilamatecuhtli", "Tlahuizcalpantecuhtli", "Atlacamani", "Tzitzimime", "Macuilxochitl", "Mayahuel", "Metztli", "Ehecatl", "Tlahuizc", "Tonatiuh", "Chalchiuhtotolin", "Opochtli", "Tlazolteotl", "Huehuecoyotl", "Tonacatecuhtli", "Coatlicue", "Mictecacihuatl", "Coyolxauhqui", "Xochipilli", "Itztli", "Ixtlilton", "Tecciztecatl", "Xiuhtecuhtli", "Xipe Totec", "Ometochtli", "Cipactonal", "Cinteotl", "Patecatl", "Huitzilopochtli", "Chantico", "Mixcoatl", "Mictlantecuhtli", "Xochiquetzal", "Chicomecoatl", "Xolotl", "Tlaloc", "Quetzalcoatl", "Tezcatlipoca"].reverse()
+
+];
+
+
+/* ======================================================================= */
+
+
+var unranked = [
+
+ /* https://en.wikipedia.org/wiki/List_of_Aztec_gods_and_supernatural_beings */
+ ["Mācuīlcōzcacuāuhtli", "Mācuīlcuetzpalin", "Mācuīlmalīnalli", "Mācuīltōchtli", "Mācuīlxōchitl", "Cuahuitlīcac", "Coatlicue", "Huitzilopochtli", "Centzonhuitznāhuah", "Pahtēcatl", "Īxtlīltōn", "Ōmetōchtli", "Tēzcatzoncatl", "Tlīlhuah", "Tōltēcatl", "Tepoztēcatl", "Colhuatzincatl", "Mācuīltōchtli", "Iztacuhca-Cinteotl", "Tlatlauhca-Cinteotl", "Cozauhca-Cinteotl", "Yayauhca-Cinteotl", "Cinteotl", "Cipactōnal", "Huēhuehcoyōtl", "Huēhuehteōtl", "Mictlampachecatl", "Cihuatecayotl", "Tlalocayotl", "Huitztlampaehecatl", "Ehēcatl", "Quetzalcoatl-Ehecatl", "Xiuhiztacuhqui", "Xiuhtlatlauhqui", "Xiuhcozauhqui", "Xiuhxoxoauhqui", "Xiuhtecuhtli", "Xiuhtecuhtli-Huehueteotl", "Mictlantecuhtli", "Acolmiztli/Acolnahuacatl", "Techlotl", "Nextepehua", "Īxpoztequeh", "Tzontēmōc", "Xolotl", "Cuāxolōtl", "Tloque-Nahuaque", "Tōnacātēuctli", "Piltzintēuctli", "Citlalatonac", "Mixcōātl", "Amhimitl", "Tonatiuh", "Nanauatzin", "Tēcciztēcatl", "Tlahuizcalpantecuhtli", "Xocotl", "Tēzcatlīpōca", "Quetzalcōātl", "Xīpe Totēuc", "Huītzilōpōchtli", "Payīnal/Pāinaltōn", "Tlācahuēhpān", "Tepēyōllōtl", "Itzcaque", "Chālchiuhtōtolin", "Ixquitecatl", "Itztlacoliuhqui-Ixquimilli", "Macuiltotec", "Macuiltotec", "Itztli", "Amapan", "Uappatzin", "Itzpapalotltotec", "Miquiztlitecuhtli", "Tlāloc", "Tlāloqueh", "Chalchiuhtlatonal", "Atlaua", "Ōpōchtli", "Teoyaomiqui", "Tlaltecayoa", "Cipactli", "Itztapaltotec", "Cinteotl", "Ppillimtec", "Omacatl", "Chicomexochtli", "Chiconahuiehecatl", "Coyotlinahual", "Xoaltecuhtli", "Xippilli", "Xochipilli", "Yacatecuhtli", "Zacatzontli", "Tlacotzontli", "Nappatecuhtli", "Cochimetl", "Coyolxāuhqui", "Cuetlāchcihuātl", "Citlaxoncuilli", "Citlaltlachtli", "Citlalcolotl", "Citlalozomahtli", "Citlalmiquiztli", "Citlalhuitzitzilin", "Citlalmazatl", "Citlalolli", "Citlalcuetzpalin", "Citlaltecpatl", "Citlalxonecuilli", "Citlalicue", "Mētztli", "Mayahuel/Meyahualli", "Cihuācōātl", "Coatlicue", "Chimalma", "Xochitlicue", "Ītzpāpālōtl", "Toci/Teteoinnan", "Temazcalteci", "Quilaztli / Cōhuācihuātl / Cuāuhcihuātl / Ocēlōcihuātl / Pāpalōcihuātl / Cihuāyāōtl / Tzitzimīncihuātl", "Tonantzin", "Tēteohīnnān", "Chāntico", "Mictēcacihuātl", "Miccāpetlācalli", "Nesoxochi", "Chalmēccacihuātl", "Omecihuatl", "Tonacacihuatl", "Citlaxonecuilli", "Citlāltlachtli", "Citlālcōlōtl", "Citlālozomahtli", "Citlālmiquiztli", "Citlālhuitzītzilin", "Citlālmazātl", "Citlalolli", "Citlālcuetzpalin", "Citlāltecpatl", "Citlālxonecuilli", "Citlalicue", "Mētztli", "Itzpapalotlcihuatl", "Chālchiuhtlīcuē", "Acuecueyotl", "Ātlatonān", "Huīxtohcihuātl", "Atlacoya", "Tzapotlāntenān", "Tlāltēuctli", "Tlalcihuatl", "Coatlicue", "Tlahzōlteōtl", "Tiyacapan", "Tēicuih", "Tlahcoyēhua", "Xōcotl", "Chicōmecōātl", "Xīlōnen", "Ayauhteotl", "Xōchiquetzal", "Xōchitlīcuē", "Malīnalxōchitl", "Ilamatecuhtli"],
+
+ /* https://www.worldhistory.org/article/1034/aztec-pantheon/ */
+ ["Aguiateotl", "Ahuiateto", "Atlatonan", "Camaxtli", "Centeotl / Cinteotl", "Centzon Huitznahua", "Centzon Mimixcoa", "Centzon Totochtin", "Chalchiuhtecolotl", "Chalchiuhtlicue", "Chalchiuhtotolin", "Chantico", "Chicomecoatl", "Cihuacoatl", "Citlalicue", "Coatlicue", "Coatlicue", "Coyolxauhqui", "Ehecatl", "Huehuecoyotl", "Huehueteotl", "Huitzilopochtli", "Huitzilopochtli", "Huixtocihuatl", "Ilamatecuhtli", "Itzli", "Itzpapalotl", "Itztlacoliuhqui", "Ixtlilton", "Iztaccihuatl", "Macuilxochitl", "Matlalcueitl", "Matlalcueye", "Mayahuel", "Metzli", "MictlantecacihuatlMictlantecuhtli", "Mixcoatl", "Nanahuatzin", "Nappatecuhtli", "Maguey", "Omecihuatl", "Ometecuhtli", "Ometeotl", "Opochtli", "Patecatl", "Paynal", "Piltzintecuhtli", "Popocatepetl", "Quaxolotl", "Quetzalcoatl", "Quilaztli", "Tecuciztecatl", "Teoyaomiqui", "Tepeyollotl / Tepeyolohtli", "Tepictoton", "Teteoinnan", "Tetzcotzingo", "Tezcatlipoca", "Tianquiztli", "Tlacatzinacantli", "Tlahuizcalpantecuhtli", "Tlaloc", "Tlalocan", "Tlalocs / Tlaloque", "Tlaltecuhtli", "Tlazolteotl", "Toci", "Tonacacihuatl", "Tonacatecuhtli", "Xiuhtecuhtli / Huehueteotl", "Tlaltecuhtli", "Chalchiutlicue", "Tonatiuh", "Tlazolteotl", "Teoyaomiqui / Mictlantecuhtli", "Centeotl-Xochipilli", "Tlaloc", "Quetzalcoatl", "Tezcatlipoca", "Mictlantecuhtli / Chalmecatecuhtli", "Tlahuizcalpantecuhtli", "Ilamatecuhtli", "Tonantzin", "Tonatiuh", "Tzitzimime", "Tzitzimitl", "Xilonen", "Xipe Totec", "Xiuhcoatl", "Xiuhtecuhtli", "Xochipilli", "Xochiquetzal", "Xolotol", "Yacatecuhtli", "Yohualtecuhtli", "Xiuhtecuhtli / Huehueteotl", "Itztli", "Piltzintecuhtli-Tonatiuh", "Centeotl", "Mictlantecuhtli", "Chalchiutlicue", "Tlazolteotl", "Tepeyolohtli-Tezcatlipoca", "Tlaloc"],
+
+ /* https://www.azteccalendar.com/god/ */
+ ["Centeotl", "Chalchihuihtotolin", "Chalchihuitlicue", "Chalmecatecuhtli", "Chantico", "Cihuateteo", "Citlalicue", "Huehuecoyotl", "Huitzilopochtli", "Itztlacoliuhqui-Ixquimilli", "Itzpapalotl", "Itztli", "Mayahuel", "Mictlancihuatl", "Mictlantecuhtli", "Patecatl", "Piltzintecuhtli", "Quetzalcoatl", "Tecciztecatl", "Tepeyollotl", "Tezcatlipoca", "Tlahuizcalpantecuhtli", "Tlaloc", "Tlaltecuhtli", "Tlazolteotl", "Tonacatecuhtli", "Tonatiuh", "Xipe Totec", "Xiuhtecuhtli", "Xochipili", "Xochiquetzal", "Xolotl"],
+
+ /* https://www.twinkl.fr/teaching-wiki/aztec-gods/1000#:~:text=The%20four%20main%20Aztec%20gods,%2C%20Tezcatlipoca%2C%20and%20Xipe%20Totec. */
+ ["Tlaloc", "Huitzilopochtli", "Quetzalcoatl", "Tzcatlipoca"],
+
+ /* https://mythopedia.com/topics/aztec-gods/ */
+ ["Chalchiuhtlicue", "Coatlicue", "Huitzilopochtli", "Mictlantecuhtli", "Mixcoatl", "Ometeotl", "Quetzalcoatl", "Tezcatlipoca", "Tlaloc", "Tonatiuh", "Xipe Totec", "Xochiquetzal"],
+
+ /* https://www.historyhit.com/most-important-gods-and-goddesses-of-the-aztec-empire/ */
+ ["Huitzlopochtli", "Tezcatlipoca", "Quetzalcoatl", "Coatlicue", "Tonatiuh", "Tlaloc", "Chalchiuhtlicue", "Xipe Totec"],
+
+ /* https://people.howstuffworks.com/aztec-gods.htm */
+ ["Chicomecōātl", "Coatlicue", "Huitzilopochtli", "Mictlantecuhtli", "Tezcatlipoca", "Tlaloc", "Quetzalcóatl", "Xipe Totec", "Xochiquetzal", "Xolotl"],
+
+ /* https://www.britannica.com/topic/Aztec-religion */
+ ["Huitzilopochtli", "Tonatiuh", "Tlaloc", "Quetzalcóatl"],
+
+ /* https://www.godchecker.com/aztec-mythology/list-of-names/ */
+  ["Acolmiztli", "Acolnahuacatl", "Acuecueyotl", "Acuecueyotlcihuatl", "Ahuiateteo", "Ahuizotl", "Amaranth", "Atlatonan", "Atlatonin", "Ayautheotl", "Azcatl", "Cantico", "Centeocihuatl", "Centeotl", "Centzon Totochtin", "Centzonhuītznāhua", "Centzonhuitznahua", "Centzonuitznaua", "Chalchihuitlicue", "Chalchiuhcihuatl", "Chalchiuhtecolotl", "Chalchiuhtecólotl", "Chalchiuhtlicue", "Chalchiuhtotolin", "Chalmecatecuhtli", "Chalmecateuctli", "Chantico", "Chicomeccatl", "Chicomecoatl", "Chicomexochtli", "Chiconahuiehecatl", "Chihucoatl", "Chimalman", "Cihuacoatl", "Cihuateteo", "Cihuateto", "Cinteotl", "Cipactli", "Cipactonal", "Citlatonac", "Civatateo", "Coatlicue", "Coccochimetl", "Cochimetl", "Coyolxanuhqui", "Coyolxauhqui", "Cuāuhocēlōtl", "Cuāuhtli", "Cuaxolotl", "Cuaxólotl", "Ehecacone", "Ehecatl", "Huehuecoyotl", "Huehueteotl", "Huitzilopochtli", "Huixtocihuatl", "Ilamatecuhtli", "Itzli", "Itzpapalotl", "Itztlacoliuhqui", "Itztli", "Ixtlilton", "Macuil-Cozcacuahtli", "Macuil-Cuetzpalin", "Macuil-Malinalli", "Macuil-Tochtli", "Macuil-Tonaleque", "Macuil-Xochitl", "Macuilcozcacuahtli", "Macuilcuetzpalin", "Macuilcuetzpalli", "Macuilmalinalli", "Macuiltochtli", "Macuiltonaleque", "Macuilxòchitl", "Macuilxochitl", "Malinalxochi", "Malinalxochitl", "Maquiltonaleque", "Matlalcueitl", "Matlalcueyeh", "Mayahual", "Mayahuel", "Mayouel", "Metzli", "Metztli", "Mexi", "Mexitl", "Mictecacihuatl", "Mictlan", "Mictlancihuatl", "Mictlantecuhtli", "Mictlantecuhtzi", "Mixcoatl", "Moctezuma", "Montezuma", "Motecuhzoma", "Nana", "Nanahuatl", "Nanahuatzin", "Nanauatzin", "Nanautzin", "Nuhualpilli", "Omacatl", "Omacatl", "Omecihuatl", "Omeciuatl", "Ometecuhtli", "Ometecutli", "Ometeoltloque", "Ometochtli", "Opochtli", "Oxomoco", "Patecatl", "Popocatepetl", "Pulque", "Quaxolotl", "Quetzacoatl", "Quetzalcoatl", "Tamoanchan", "Tecciztecatl", "Tecuciztecal", "Tecuciztecatl", "Temazcaltechi", "Temazcalteci", "Teotihuacan", "Teoyaomiqui", "Teoyaomqui", "Tepeyollotl", "Tepeyollotl", "Tepoztēcatl", "Tepoztecatl", "Tepoztécatl", "Teteo-Innan-Toci", "Teteoinnan", "Tetoinnan", "Tezcalipoca", "Tezcatlipoca", "Tēzcatzontēcatl", "Tezcatzonttécatl", "Titlacauan", "Tlaelquani", "Tlahuixcalpantec", "Tlahuixcalpantecuhtli", "Tlahuizcalpantecuhtli", "Tlahuizcalpantecuhtli", "Tlahuizcalpantecutli", "Tlalli-Iyollo", "Tlàloc", "Tlaloc", "Tlaltecuhtli", "Tlazoltéotl", "Tlazolteotl", "Tlazolteotli", "Tloque Nahuaque", "Tloque Nahuaque", "Tloque Naoaque", "Tloquenahuaque", "Toci", "Tocitzin", "Tomoanchan", "Tonacatecuhtli", "Tonatiuh", "Tzitzimime", "Tzitzimitl", "Tzizimitl", "Ueuecoyotl", "Ueueteotl", "Uitzilopochtli", "Uixtochihuatl", "Xilonen", "Xipe", "Xipe Totec", "Xiuhcoatl", "Xiuhtecuhtli", "Xiuhtecuhtli", "Xiutecuhtli", "Xiutecuhtli", "Xmulzencab", "Xochipili", "Xochipilli", "Xochiquetzal", "Xólotl", "Xolotl", "Yacatecuhtli", "Yiacatecuhtli"],
+
+ /* https://www.worldhistory.org/collection/65/15-aztec-gods/ */
+ ["Huitzilopochtli", "Tezcatlipoca", "Tlaloc", "Quetzalcóatl", "Coatlicue", "Tlaltecuhtli", "Mictlantecuhtli", "Tonatiuh", "Coyolxauhqui", "Mixcoatl", "Ehecatl", "Tlahuizcalpantecuhtli", "Xiuhtecuhtli", "Xipe Totec", "Xochipilli"],
+
+ /* https://pudding.cool/2022/06/aztec-gods/ */
+ ["Tlaltecuhtli", "Tezcatlipoca", "Ometeotl", "Macuil Tochtli", "Ce Mazatl", "Ce Cuauhtli", "Chalchiutotolin", "Coyolxauhqui", "Chalchiuhtecolotl", "Centzon Huitznahua", "Chalchiuhtlatonac", "Itzpapalotl", "Citlalatonac", "Cipactonal", "Chalmecacihuatl", "Itzaccihuatl", "Omecihuatl", "Ce Quiahuitl", "Ehecatl", "Chiconahui Ehecatl", "Centeotl", "Amapan", "Macuil Malinalli", "Atlaua", "Huehuecoyotl", "Ometecuhtli", "Macuil Cozcacuahtli", "Ixnextli", "Tlaltecayoa", "Tecciztecatl", "Tonacacihuatl", "Ixcuina", "Cipactli", "Cuaxolotl", "Ce Ozomatli", "Malinalxochi", "Coyotlinaual", "Tezcatlipoca", "Quetzalcoatl", "Ilancueye", "Cihuapipiltzin", "Macuil Ocelotl", "Azcatl", "Huehueteotl", "Ahkinshok", "Acuecucyoticihuati", "Matlalcueitl", "Xoaltecuhtli", "Miquiztlitecuhtli", "Chicome Xochitl", "Chimalma", "Itztlacoliuhqui", "Chalmecatecuhtli", "Omacatl", "Quiahuitl", "Ixcozauhqui", "Ixquimilli", "Xiuhtecuhtli", "Chalchiuhtlicue", "Tlaloc", "Atlacoya", "Titlacahuan", "Mictlancihuatl", "Patecatl", "Xolotl", "Macuil Cuetzpalin", "Nahui Ehecatl", "Tlaltecuhtli", "Tepoztecatl", "Piltzintecuhtli", "Ome Tochtli", "Itzcuintli", "Acxomocuil", "Xiuhcoatl", "Nappatecuhtli", "Youaltepuztli", "Ilamacihuatl", "Ahuitzotl", "Tlalchi Tonatiuh", "Macuil Xochitl", "Toci", "Yohualticitl", "Tlacotzontli", "Metztli", "Citlatepetl", "Oxomoco", "Xochiquetzal", "Tonacatecuhtli", "Tlazolteotl", "Piquete Zina", "Popocatepetl", "Itztli", "Huehuecihuatl", "Ce Calli", "Quilaztli", "Nanahuatzin", "Mictlantecuhtli", "Coatlicue", "Otontecuhtli", "Xipe Totec", "Chiconahui Itzcuintli", "Yacapitzahuac", "Ilhuicamina", "Ocelotl", "Xochipilli", "Yacatecuhtli", "Itztapaltotec", "Tlahuizcalpantecuhtli", "Chantico", "Ometeotl", "Camaxtli", "Chicomecoatl", "Ixquitecatl", "Tepeyollotl", "Tonantzin", "Ixtlilton", "Tzitzimitl", "Yauhqueme", "Techalotl", "Huitzilopochtli", "Tlatlauhqui Tezcatlipoca", "Xilonen", "Tezcatzoncatl", "Teteo Innan", "Ilamatecuhtli", "Yohual Tonatiuh", "Painal", "Uappatzin", "Mayahuel", "Tlazopilli", "Huixtocihuatl", "Mixcoatl", "Opochtli", "Tomiyauhtecuhtli", "Tonatiuh", "Tzapatlan Tenen", "Zacatzontli", "Tzitzimime", "Citlalicue", "Amimitl"],
+
+ /* https://www.mexicolore.co.uk/aztecs/gods/aztec-gods-a-gallery */
+ ["Centéotl", "Coatlicue", "Huitzilopochtli", "Itztlacoliuhqui", "Mictlantecuhtli", "Quetzalcoatl", "Tezcatlipoca", "Tlaloc", "Tonatiuh", "Xipe Totec", "Xiuhtecuhtli", "Xochipilli", "Xochiquetzal", "Xolotl"],
+
+ /* https://www.crystalinks.com/aztecgods.html; https://www.aztec-history.net/aztec_gods_and_religion */
+ ["Tezcatlipoca", "Quetzalcoatl", "Tlaloc", "Mixcoatl", "Huitzilopochtli", "Tonatiuh", "Metztli", "Tlaltecuhtli", "Chalchiuhtlicue", "Centzon Huitznahua", "Ehecatl", "Ometeotl / Ometecutli / Omecihuatl / Tonacatecutli / Tonacacihuatl", "Huehueteotl / Xiuhtecutli", "Coatlicue / Toci / Teteo Innan / Tonantzin", "Tlazolteotl", "Tepoztecatl", "Xochiquetzal", "Mayahuel", "Auiateteo", "Macuiltochtli", "Macuilxochitl", "Macuilcuetzpalin", "Macuilcozcacuauhtli", "Macuilmalinalli", "Centzon Totochtin", "Ometochtli", "Xipe Totec", "Cinteotl", "Xilonen / Chicomecoatl", "Xochipilli", "Mictlantecutli", "Mictlancihuatl", "Xolotl", "Yacatecutli", "Patecatl", "Centeotl", "Chalchiuhtlicue", "Chantico", "Chicomecoatl", "Cihuacoatl", "Coatlicue", "Coyolxauhqui", "Ehecatl", "Huehueteotl", "Huitzilopochtli", "Itzpalotl", "Ixtlilton", "Macuilxochitl", "Metztli", "Mictlan", "Mictecacihuatl", "Mictlantecuhtle", "Mixcoatl", "Nanauatzin", "Ococaltzin", "Omacatl", "Ometecutli / Omecihuatl", "Ometochtli", "Opochtli", "Patecatl", "Paynal", "Quetzalcoatl", "Tecciztecatl", "Teoyaomqui", "Tepeyollotl", "Tepoztecatl", "Tezcatlipoca", "Tlahuizcalpantecuhtli", "Tlaloc", "Tlazolteotl", "Tloque Nuhaque", "Tonacatecuhtli", "Tonatiuh", "Tonantzin", "Tzitzimime", "Xilonen", "Xipe Totec", "Xiuhtecuhtli", "Xochiquetzal", "Xolotl", "Yacatecuhtli"],
+
+ /* https://www.ducksters.com/history/aztec_empire/religion_gods_and_mythology.php; https://aztecsancient.weebly.com/aztec-gods.html */
+ ["Huitzilopochtli", "Tlaloc", "Quetzalcoatl", "Tezcatlipoca", "Chicomecoatl"],
+
+ /* https://www.youtube.com/watch?v=vND4F9H8KBU&ab_channel=MythosTheHistorian */
+ ["Atlacoya", "Centeotl", "Chalchiuhtlicue", "Chantico", "Chicomecoatl", "Coatlicue", "Coyolxauhqui", "Cuauhtémoc", "Ehecatl", "Huehueteotl", "Huehuecoyotl", "Huixtocihuatl", "Huitzilopochtli", "Ilamatecuhtli", "Itzpapalotl", "Ixchel", "Ixtlilton", "Malinalxochitl", "Mayahuel", "Metztli", "Mictlantecuhtli", "Mictecacihuatl", "Mixcoatl", "Omacatl", "Ometeotl", "Opochtli", "Patecatl", "Piltzintecuhtli", "Quetzalcoatl", "Quiahuitl", "Tecciztecatl", "Tepeyollotl", "Tezcatlipoca", "Tlahuizcalpantecuhtli", "Tlaloc", "Tlaltecuhtli", "Tlazolteotl", "Toci", "Tonantzin", "Tonatiuh", "Tepoztecatl", "Tlacolteotl", "Xipe Totec", "Xiuhtecuhtli", "Xochipilli", "Xochiquetzal", "Xolotl", "Yacatecuhtli", "Zacatzontli"],
+
+ /* https://www.youtube.com/playlist?list=PLY7BFnOZ_ONSS49ORgyNT7fKkyX27j9C8 */
+ ["Quetzalcoatl", "Tezcatlipoca", "Mictecacihuatl", "Mictlantecuhtli", "Coatlicue", "Tlaloc", "Xochiquetzal", "Xolotl", "Huitzilopochtli"],
+
+ /* https://www.youtube.com/watch?v=mmWZDIK8JC0&ab_channel=Gods%2CMyths%26Legends */
+ ["Tlazolteotl", "Xolotl", "Metztli", "Huehuecoyotl", "Cipactli", "Xipe Totec", "Mictlantecuhtli", "Coatlicue", "Chalchiuhtlicue", "Itzpapalotl", "Tzitzimitl / Tzitzimime"],
+
+ /* https://www.tota.world/article/2819/ */
+ ["Xiutecuhtli", "Centeotl / Tonacayohua", "Mictlantecuhtli", "Xoalteuctli", "Metztli", "Xoaticitl", "Xacateuctli", "Yacatecutli", "Mixcoatl", "Opochtli", "Huixtocihuatl", "Tlapotlazenan", "Tezcatzoncatl", "Tequechmecaniani", "Teotlahuiani", "Ixtlilton", "Tlatetecuin", "Coatlicue", "Coatlantona", "Tlazolteotl", "Ixcuina", "Tlaelquani", "Xipetotec", "Napateuctli", "Omacatl", "Omeacatlomacatl", "Tonantzin", "Cihuacotl", "Teoteoinan", "Tecitzin", "Hamateuctli"],
+
+ /* https://historycooperative.org/category/gods-and-goddesses/aztec-gods-and-goddesses/ */
+ ["Huitzilopochtli", "Xolotl", "Tezcatlipoca", "Mictlantecuhtli", "Tlaloc", "Quetzalcoatl"],
+
+ /* https://digitalmapsoftheancientworld.com/mythology/aztec-mythology/aztec-gods/ */
+ ["Centeotl", "Chicomecoatl", "Coatlicue", "Huitzilopochtli", "Mayahuel", "Mictlantecuhtli", "Mixcoatl", "Omecihuatl", "Ometecuhtli", "Quetzalcoatl", "Tezcatlipoca", "Tlaloc", "Tonatiuh", "Xipa Totec", "Xolotl"],
+
+ /* https://www.legendsandchronicles.com/ancient-civilizations/the-ancient-aztecs/aztec-gods/ [main Aztec deity] */
+ ["Ometeotl", "Xipe Totec", "Huitzilopochtli", "Quetzalcoatl", "Tezcatlipoca"],
+
+ /* https://www.legendsandchronicles.com/ancient-civilizations/the-ancient-aztecs/aztec-gods/ [first created] */
+ ["Xipe Totec", "Huitzilopochtli", "Quetzalcoatl", "Tezcatlipoca"],
+
+ /* https://www.reddit.com/r/mesoamerica/comments/xqb731/who_is_your_favourite_aztec_god_or_goddess/ [all mentioned] */
+ ["Coatlicue", "Coyolxauhqui", "Xiuhtecuhtli", "Xolotl", "Huehuecoyotl", "Yacatecuhtli", "Quetzalcoatl", "Mictlantecuhtli", "Huitzilopochtli", "Xochipilli", "Tezcatlipoca", "Xipe Totec", "Coatlicue", "Nanahualtzin", "Tezcatlipoca", "Xochipilli", "Xochiquetzal", "Huitzilopochtli", "Mictlampa", "Mictlantequitl", "Tezcatlipoca", "Xipe Totec", "Tlaloc", "Huitzilopochitl", "Tecciztecatl", "Tlazoteotl", "Chalchiuhtlicue", "Itzpapalotl", "Tlahuizcalpantecuhtli", "Xipe Totec"],
+
+ /* https://www.youtube.com/watch?app=desktop&v=mmWZDIK8JC0&ab_channel=Gods%2CMyths%26Legends */
+ ["Tlazolteotl", "Xolotl", "Metztli", "Huehuecoyotl", "Cipactli", "Xipe Totec", "Mictlantecuhtli", "Coatlicue", "Chalchiuhtlicue", "Itzpapalotl", "Tzitzimitl / Tzitzimime"].reverse(),
+
+ /* https://study.com/academy/course/history-culture-people-of-the-americas.html > The Aztec Empire [gods listed]*/
+ ["Xolotl", "Tlaloc", "Tezcatlipoca", "Coatlicue", "Xipe Totec", "Xochiquetzal"],
+
+ /* https://www.artsq.org/store/p/aztecs-gods-goddesses-mythology-informational-text-reading [gods mentioned] */
+ ["Huitzilopochtli", "Tlaloc", "Coyolxauhqui", "Huitzilopochtli", "Tezcatlipoca", "Quetzalcoatl", "Tonatiuh", "Chalchiuhtlicue", "Chicomecoatl", "Centeotl", "Mictlancihuatl", "Mictlantecuhtli", "Tlazolteotl", "Coatlicue", "Toci"],
+
+ /* https://overly-sarcastic-productions.fandom.com/wiki/Category:Aztec_gods_and_goddesses [all items] */
+ ["Chalchiuhtlicue", "Chalchiuhtotolin", "Cipactli", "Coatlicue", "Coyolxauhqui", "Huehueteotl", "Huitzilopochtli", "Itztlacoliuhqui", "Mayahuel", "Mictlantecuhtli", "Ometeotl", "Patecatl", "Quetzalcoatl", "Tepoztēcatl", "Tepēyōllōtl", "Tezcatlipoca", "Tlaloc", "Tlazōlteōtl", "Xipe Totec", "Xochipilli", "Xochiquetzal", "Xolotl", "Ītzpāpālōtl"],
+
+ /* https://blog.culturalelements.com/aztec-gods/ */
+ ["Huitzilopochtli", "Tlaloc", "Quetzalcoatl", "Tezcatlipoca"],
+
+ /* https://cdn.preterhuman.net/texts/other/crystalinks/aztecgods.html; https://www.aaanativearts.com/the-aztec-gods-and-goddesses */
+ ["Centeotl", "Chalchiuhtlicue", "Chantico", "Chicomecoatl", "Cihuacaotyl", "Ehecatl", "Huehueteotl", "Huitzilopochtli", "Itzpapalotl", "Ixtlilton", "Macuilxochitl", "Metztli", "Mictlan", "Mictlantecihuatl", "Mictlantecuhtle", "Ometecuhtli", "Omecihuatl", "Patecatl", "Paynal", "Quetzalcoatl", "Teoyaomqui", "Tezcatlipoca", "Tlaloc", "Tlalocan", "Tlazolteotl", "Tonacatecuhtli", "Tonatiuh", "Tonantzin", "Xilonen", "Xipe Totec", "Xiuhtecuhtle", "Xochipilli", "Yacatecuhtli"],
+
+ /* https://otherworldlyoracle.com/aztec-gods-goddesses/ */
+ ["Huitzilopochtli", "Mictlantecuhtli", "Quetzalcoatl", "Tlaloc", "Tezcatlipoca", "Mixcoatl", "Xochipilli", "Yacatecuhtli", "Chantico", "Chicomecoatl", "Chimalma", "Coatlicue", "Xochitlicue", "Xochiquetzal"],
+
+ /* https://www.allabouthistory.org/aztec-gods.htm [three main gods] */
+ ["Huitzilopochtli", "Tlaloc", "Tezcatlipoca"],
+
+ /* https://www.allabouthistory.org/aztec-gods.htm [other gods and goddesses] */
+ ["Atlacoya", "Chiconahui", "Citalicue", "Cipactonal", "Oxomoco", "Xochiquetzal", "Patecatl"],
+
+ /* https://www.quora.com/Who-were-the-Aztec-Gods [all gods mentioned in top 5 answers] */
+ ["Tlaloc", "Xipe Totec", "Centeōtl", "Tezcatlipoca", "Huītzilōpōchtli", "Chalchiuhtlicue", "Quetzalcoatl", "Xōchipilli", "Xōchiquetzal", "Chicomecōātl", "Xiuhtecuhtli", "Toci", "Cōātlīcue", "Mixcoatl", "Huitzilopochtli", "Tezcatlipoca", "Quetzalcoatl", "Xipe Totec", "Tlaloc", "Chalchiuhtlicue", "Coatlicue", "Coyolxauhqui", "Mixcoatl", "Itzpapalotl", "Tlazolteotl", "Centeotl", "Chicomecoatl", "Xochiquetzal", "Xochipilli", "Xiuhtecuhtli", "Chantico", "Mictlantecuhtli", "MIctecacihuatl", "Xolotl", "Huehuecoyotl", "Patecatl", "Huixtocihuatl", "Tlaltecuhtli", "Ometeotl", "Quetzalcoatl", "Tlaloc", "Xoloitzcuintle", "Tezcatlipoca", "Huitzilopochtli", "Quetzalcoatl", "Coatlicue", "Tlaloc", "Mictlantecuhtli", "Ometéotl", "Ometecuhtli", "Omecíhuatl", "Ehécatl", "Xiuhtecuhtli", "Mayahuel"],
+
+ /* https://ambergriscaye.com/pages/mayan/aztecreligion-minordeities.html [major deities] */
+ ["Tezcatlipoca", "Quetzalcoatl", "Xipe Totec", "Tlaloc", "Xochiquetzal", "Huitzilopochtli"],
+
+ /* https://ambergriscaye.com/pages/mayan/aztecreligion-minordeities.html [minor deities] */
+ ["Colnahuacatl", "Amapan", "Amhimitl", "Atlacoaya", "Atlatonan", "Atlaua", "Camaxtli", "Centeotl", "Chalchihuitlicue", "Chalmeccacihuatl", "Chantico", "Chicomecoatl", "Chiconquiahuitl", "Chimalman", "Chimamatl", "Chiuacoatl", "Chiuhnauhyoteuctli", "Cipactonal", "Citlalicue", "Citlalatonac", "Cituateteo", "Coatlicue", "Colhuacatzincatl", "Coyolxauhqui", "Cozcamiahuatl", "Cuauhtlaxayauh", "Cuexcoch", "Huehueteotl", "Huitzilopochtli", "Huixtocihuatl", "Ilamatecuhtli", "Ilancueye", "Ilhuicamina", "Itzcaque", "Itzlacohuihqui", "Itzpapalotl", "Ixillan Tonan", "Ixpuzteque", "Ixquimilli", "Ixquitecatl", "Ixtlilton", "Iztaccihuatl", "Iztacmixcoatl", "Macuiltotec", "Macuilxochitl", "Matlalcueye", "Mayahuel", "Mictecacihuatl", "Mictlantecahtli", "Mixcoatl / Camaxtli", "Nanautzin", "Nappatecutli", "Nauhyoteuctli", "Nesoxochi", "Nextepeua", "Nochpalliicue", "Omacatl", "Ometochtli", "Ometeotl", "Ometecuhtli", "Oztoteotl", "Papaztec", "Patecatl", "Paynal", "Piltzintecuhtli", "Popocatepetl", "Ppilimtec", "Quilazli", "Tecciztecatl", "Techalotl", "Techlotl", "Tepeyollotl", "Teteo Innan / Toci", "Teucciztecatl", "Tezcatlipoca", "Tezcatzoncatl", "Tlacahuepan", "Tlachihualtepetl", "Tlahuizcalpantecuhtli", "Tlalchitonatiuh", "Tlaloc", "Tlaltecayoa", "Tlaltecuhtli", "Tlazolteotl", "Tlazopilli", "Tlilpotonqui", "Tloque Nahuaque", "Tonacateuctli", "Tonatiuh", "Torquemada II", "Totec Chicahua", "Tzapatlan Tenen", "Tzinteotl", "Tzitzimitl", "Tzontemoc", "Uappatzin", "Uixtocihuatl", "Xilonen", "Xipe Totec", "Xiuhteuctli", "Xippilli", "Xochipilli", "Xochiquetzal", "Xolotl", "Yacatecuhtli", "Yaomicqui", "Yauhtecatl", "Yohualtonatiuh", "Yohualticitl", "Yaotl", "Zacazontli"],
+
+ /* https://www.angelfire.com/sd/mjrc/rogan005.html */
+ ["Acolnahuacatl", "Amapan", "Amihmitl", "Atlacoaya", "Atlatonan", "Atlaua", "Camaxtli", "Centeotl / Cinteotl", "Chalchihuitlicue", "Chalmeccacihuatl", "Chantico", "Chicomecoatl", "Chiconquiahuitl", "Chimamatl", "Chiuacoatl", "Chiuateteo", "Chiuhnauhyoteuctli", "Chimalman", "Cipactonal", "Citlalicue", "Citlalatonac", "Coatlicue", "Colhuacatzincatl", "Coyolxauhqui", "Cozcamiahuatl", "Cuauhtlaxayauh", "Cuexcoch", "Huehueteotl", "Huitzilopochtli", "Huixtocihuatl", "Ilamatecuhtli", "Ilancueye", "ILHUICAMINA", "ITZCAQUE", "ITZLACOHUIHQUI", "ITZPAPALOTL", "IXILLAN TONAN", "IXPUZTEQUE", "IXQUIMILLI", "IXQUITECATL", "IXTLILTON", "IZTACCIHUATL", "IZTACMIXCOATL", "MACUILTOTEC", "MACUILXOCHITL", "MATLALCUEYE", "MAYAHUEL", "METZTLI", "MICAPETLACALLI", "MICTECACIHUALTL", "MICTLANTECAHTLI", "MIXCOATL / CAMAXTLI", "NANAUTZIN", "NAPPATECUTLI", "NAUHYOTEUCTLI", "NESOXOCHI", "NEXTEPEUA", "NOCHPALLI ICUE", "OMACATL", "OMETEOTL", "OMETECUHTLI", "OMETOCHTLI", "OZTOTEOTL", "PAPAZTEC", "PATECATL", "PAYNAL", "PILTZINTECUHTLI", "POPOCATEPETL", "PPILIMTEC", "QUETZALCOATL", "QUILAZTLI", "TECCIZTECATL", "TECHALOTL", "TECHLOTL", "TETEO INNAN / TOCI", "TEPEYOLLOTL", "TEUCCIZTECATL", "TEZCATLIPOCA", "TEZCATZONCATL", "TLACAHUEPAN", "TLAHUIZCALPANTECUHTLI", "TLACHIHUALTEPETL", "TLALCHITONATIUH", "TLALOQUE / TEPICTOTON", "TLALOC", "TLALTECAYOA", "TLALTECUHTLI", "TLAZOLTEOL", "TLAZOPILLI", "TLILPOTONQUI", "TLOQUE NAHUAQUE", "TONATIUH", "TONACATEUCTLI", "TORQUEMADA II", "TOTEC CHICAHUA", "TZAPATLAN TENEN", "TZINTEOTL", "TZITZIMITL", "TZONTEMOC", "UAPPATZIN", "UIXTOCIHUATL", "XIPE TOTEC", "XOCHIPILLI", "XOCHIQUETZAL", "XILONEN", "XIPPILLI", "XIUHTEUCTLI", "XOLOTL", "YACATECUHTLI", "YAOMICQUI", "YAUHTECATL", "YOHUALTONATIUH", "YOHUALTICITL", "ZACAZONTLI"],
+
+ /* https://thehistoryofjewellery.blogspot.com/2015/01/the-aztec-gods-and-goddesses.html */
+ ["Xiuhtecuhtli", "Mictlantecuhtli", "Xilonen", "Xochipilli", "Chalchiuhtlicue", "Xicahuaztli"],
+
+ /* Gods and Heroes, by Korwin Briggs, p. 200 [all gods mentioned] */
+ ["Quetzalcoatl", "Tezcatlipoca", "Mictlantecuhtli"],
+
+ /* https://www.aztec-history.com/aztec-gods.html */
+ ["Ometecuhtli", "Omecihuatl", "Quetzalcoatl", "Huitzilopochtli", "Xipe Totec", "Tláloc"]
+
+];
+
+</script>
+</body>
+</html>
